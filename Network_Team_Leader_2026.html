@@ -1,0 +1,1433 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Network Team Leader Study 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --paper: rgba(255, 255, 255, 0.9);
+            --line: rgba(148, 163, 184, 0.28);
+            --brand: #2563eb;
+            --brand-soft: rgba(37, 99, 235, 0.12);
+            --violet: #7c3aed;
+            --violet-soft: rgba(124, 58, 237, 0.12);
+            --success: #059669;
+            --success-soft: rgba(16, 185, 129, 0.12);
+            --warning: #ea580c;
+            --warning-soft: rgba(249, 115, 22, 0.12);
+            --rose: #e11d48;
+            --rose-soft: rgba(225, 29, 72, 0.12);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30%),
+                radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 24%),
+                linear-gradient(160deg, #f6f8ff 0%, #eef6ff 48%, #fbfffd 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.34) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.34) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: var(--paper);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.28);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+        }
+
+        .title-tech {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 0.04em;
+        }
+
+        .data-font {
+            font-family: 'Space Grotesk', sans-serif;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card-button {
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .summary-card-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.34);
+        }
+
+        .summary-card-button.active {
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16), 0 24px 60px -30px rgba(15, 23, 42, 0.34);
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.32), transparent 40%);
+            pointer-events: none;
+        }
+
+        .table-shell {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.76);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 22px 45px -34px rgba(15, 23, 42, 0.35);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 9999px;
+        }
+
+        .pill-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 3rem;
+            border-radius: 9999px;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.84);
+            background: rgba(255, 255, 255, 0.78);
+            font-weight: 800;
+            box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.28);
+            transition: transform 0.2s ease;
+        }
+
+        .pill-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .status-onboard {
+            background: rgba(16, 185, 129, 0.14);
+            color: #047857;
+        }
+
+        .status-offer {
+            background: rgba(59, 130, 246, 0.14);
+            color: #1d4ed8;
+        }
+
+        .status-reject {
+            background: rgba(225, 29, 72, 0.12);
+            color: #be123c;
+        }
+
+        .status-pending {
+            background: rgba(249, 115, 22, 0.14);
+            color: #c2410c;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .clickable-row:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .clickable-row.active {
+            background: rgba(37, 99, 235, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
+        <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="https://ndpmo.github.io/ophtrta/report.html" class="pill-button text-slate-700">
+                        <span>&larr;</span>
+                        <span>Back To Dashboard</span>
+                    </a>
+                    <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-sky-700">Network Team Leader</span>
+                    <span class="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-violet-700">Cohort By Lead Date</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+                        Network Team Leader <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">Study 2026</span>
+                    </h1>
+                    <p class="mt-3 max-w-4xl text-sm md:text-base font-bold text-slate-600">
+                        Review hiring performance by Network Team Leader. Team mapping follows the live
+                        <span class="text-slate-900">Network Team Leader</span> sheet:
+                        <span class="text-slate-900">column J = team owner</span>,
+                        <span class="text-slate-900">column K/L = leader flag</span>.
+                        Recruitment counts are matched back to Sheet1 by each therapist staff number.
+                    </p>
+                </div>
+            </div>
+            <div class="glass-card px-5 py-4 min-w-[260px]">
+                <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
+                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading live data...</p>
+                <p class="mt-2 text-xs font-bold text-slate-500">Sheet1 + Network Team Leader</p>
+            </div>
+        </header>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                <div class="space-y-2">
+                    <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
+                    <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
+                    <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label for="brandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                    <select id="brandFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
+                </div>
+                <div class="space-y-2">
+                    <label for="centerFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Centre</label>
+                    <select id="centerFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
+                </div>
+                <div class="space-y-2">
+                    <label for="leaderFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Leader</label>
+                    <select id="leaderFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
+                </div>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-3">
+                <button type="button" onclick="resetFilters()" class="pill-button text-slate-700">Reset</button>
+                <button type="button" onclick="renderDashboard(true)" class="pill-button bg-sky-600 text-white border-transparent">Refresh Study</button>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">By Brand</p>
+                    <h2 class="text-2xl font-black text-slate-900">Brand Breakdown</h2>
+                </div>
+                <p id="brandMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[820px] border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-4 py-4 text-center">Network Teams</th>
+                                <th class="px-4 py-4 text-center">Team Members</th>
+                                <th class="px-4 py-4 text-center">Lead</th>
+                                <th class="px-4 py-4 text-center">Offer</th>
+                                <th class="px-4 py-4 text-center">On Board</th>
+                                <th class="px-4 py-4 text-center">Offer Rate</th>
+                                <th class="px-4 py-4 text-center">On Board Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brandTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">By Floor</p>
+                    <h2 class="text-2xl font-black text-slate-900">Floor Breakdown</h2>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label for="floorSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                        <select id="floorSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
+                            <option value="">All Brand</option>
+                        </select>
+                    </div>
+                    <p id="floorMeta" class="text-sm font-bold text-slate-500">-</p>
+                </div>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[980px] border-collapse">
+                        <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">
+                                    <button type="button" onclick="toggleFloorSort('label')" class="inline-flex items-center gap-2">
+                                        <span>Floor / Centre</span>
+                                        <span id="floorSortIndicator" class="text-[11px]">↑</span>
+                                    </button>
+                                </th>
+                                <th class="px-5 py-4 text-left">Brand Mix</th>
+                                <th class="px-4 py-4 text-center">Network Teams</th>
+                                <th class="px-4 py-4 text-center">Team Members</th>
+                                <th class="px-4 py-4 text-center">Lead</th>
+                                <th class="px-4 py-4 text-center">Offer</th>
+                                <th class="px-4 py-4 text-center">On Board</th>
+                                <th class="px-4 py-4 text-center">Offer Rate</th>
+                                <th class="px-4 py-4 text-center">On Board Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="floorTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">By Network Team</p>
+                    <h2 class="text-2xl font-black text-slate-900">Network Team Breakdown</h2>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label for="networkSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                        <select id="networkSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
+                            <option value="">All Brand</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="networkSectionFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
+                        <select id="networkSectionFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
+                            <option value="">All Floor</option>
+                        </select>
+                    </div>
+                    <p id="networkMeta" class="text-sm font-bold text-slate-500">-</p>
+                </div>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[980px] border-collapse">
+                        <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Network Team</th>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-5 py-4 text-left">Floor Mix</th>
+                                <th class="px-4 py-4 text-right">Team Size</th>
+                                <th class="px-4 py-4 text-right">Lead</th>
+                                <th class="px-4 py-4 text-right">Offer</th>
+                                <th class="px-4 py-4 text-right">On Board</th>
+                                <th class="px-4 py-4 text-right">Offer Rate</th>
+                                <th class="px-4 py-4 text-right">On Board Rate</th>
+                                <th class="px-5 py-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="networkTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8" id="detailSection">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">Candidate Detail</p>
+                    <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Leader Candidate Detail</h2>
+                </div>
+                <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[1320px] border-collapse">
+                        <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Leader</th>
+                                <th class="px-5 py-4 text-left">Team Member</th>
+                                <th class="px-5 py-4 text-left">Candidate Name</th>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-5 py-4 text-left">RJ/NJ</th>
+                                <th class="px-5 py-4 text-left">Status</th>
+                                <th class="px-5 py-4 text-left">Lead Date</th>
+                                <th class="px-5 py-4 text-left">Offer Date</th>
+                                <th class="px-5 py-4 text-left">On Board Date</th>
+                                <th class="px-5 py-4 text-left">On Board Status</th>
+                                <th class="px-5 py-4 text-left">Interviewer</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="loadingState" class="glass-card p-5 text-sm font-black text-slate-600">Loading Network Team Leader study data...</section>
+    </div>
+
+    <script>
+        const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
+        const SHEET1_GID = '1328974285';
+        const NETWORK_TEAM_SHEET_NAME = 'Network Team Leader';
+
+        const S1_IDX = {
+            BRAND: 0,
+            STAFF_ID: 9,
+            STAFF_NAME: 10,
+            RJNJ: 12,
+            NAME: 13,
+            STATUS: 23,
+            INTERVIEWER: 25,
+            ONBOARD_STATUS: 27,
+            LEAD_DATE: 35,
+            OFFER_DATE: 36,
+            ONBOARD_DATE: 37
+        };
+
+        const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
+        const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
+        const NTL_IDX = {
+            BRAND: 0,
+            CENTER: 1,
+            THERAPIST: 2,
+            STAFF_NO: 3,
+            POSITION: 4,
+            NETWORK_TEAM: 9,
+            LEADER_JUL: 10,
+            LEADER_AUG: 11
+        };
+
+        let headersS1 = [];
+        let dataS1 = [];
+        let headersNTL = [];
+        let dataNTL = [];
+        let leaderDirectory = [];
+        let selectedLeaderKey = '';
+        let currentDetailScope = 'SUMMARY';
+        let currentSummaryDetailMode = 'LEAD';
+        let floorSortKey = 'label';
+        let floorSortDirection = 'asc';
+
+        function formatDateToISO(date) {
+            const y = date.getFullYear();
+            const m = `${date.getMonth() + 1}`.padStart(2, '0');
+            const d = `${date.getDate()}`.padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value || 0);
+        }
+
+        function formatRate(part, total) {
+            if (!total) return '0%';
+            return `${Math.round((part / total) * 100)}%`;
+        }
+
+        function formatDateAsDMonY(date) {
+            if (!(date instanceof Date) || isNaN(date)) return '-';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function safeTrim(value) {
+            return ((value ?? '') + '').trim();
+        }
+
+        function normalizeKey(value) {
+            return safeTrim(value).toLowerCase();
+        }
+
+        function normalizeBrand(value) {
+            const raw = normalizeKey(value);
+            if (raw === 'dermes') return 'DERMES';
+            if (raw === 'reenex') return 'REENEX';
+            if (raw === 'elyze') return 'ELYZE';
+            return raw ? raw.toUpperCase() : 'OTHER';
+        }
+
+        function displayBrand(value) {
+            const brand = normalizeBrand(value);
+            if (brand === 'OTHER') return 'Other';
+            return brand.charAt(0) + brand.slice(1).toLowerCase();
+        }
+
+        function parseDate(rawValue) {
+            if (!rawValue) return null;
+            if (rawValue instanceof Date && !isNaN(rawValue)) return new Date(rawValue.getFullYear(), rawValue.getMonth(), rawValue.getDate(), 0, 0, 0, 0);
+
+            const value = rawValue.toString().trim();
+            if (!value || value === '-' || value.toUpperCase() === 'N/A' || value === '#N/A') return null;
+
+            const isoMatch = value.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+            if (isoMatch) {
+                const year = parseInt(isoMatch[1], 10);
+                const month = parseInt(isoMatch[2], 10);
+                const day = parseInt(isoMatch[3], 10);
+                const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+                return isNaN(date) ? null : date;
+            }
+
+            const parts = value.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+            if (parts.length >= 3) {
+                const parsed = parseDateByParts(parts[0], parts[1], parts[2]) || parseDateByParts(parts[2], parts[1], parts[0]);
+                if (parsed) return parsed;
+            }
+
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return null;
+        }
+
+        function parseDateByParts(dayPart, monthPart, yearPart) {
+            const d = parseInt(safeTrim(dayPart), 10);
+            let y = parseInt(safeTrim(yearPart), 10);
+            if (!d || !y) return null;
+            if (y < 100) y += 2000;
+
+            const monthRaw = safeTrim(monthPart);
+            let month = parseInt(monthRaw, 10);
+            if (isNaN(month)) {
+                const monthList = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                const index = monthList.indexOf(monthRaw.toLowerCase().slice(0, 3));
+                month = index >= 0 ? index + 1 : NaN;
+            }
+            if (!month || month < 1 || month > 12) return null;
+
+            const date = new Date(y, month - 1, d, 0, 0, 0, 0);
+            if (date.getFullYear() !== y || date.getMonth() !== month - 1 || date.getDate() !== d) return null;
+            return date;
+        }
+
+        function buildDateFromTripletColumns(row, tripletIdx, fallbackValue, allowFallback = true) {
+            const raw = tripletIdx.map(i => safeTrim(row[headersS1[i]]));
+            const nonEmpty = raw.filter(value => value && value !== '-');
+            if (!nonEmpty.length) return allowFallback ? safeTrim(fallbackValue) : '-';
+            if (nonEmpty.length === 3) {
+                const parsed = parseDateByParts(nonEmpty[0], nonEmpty[1], nonEmpty[2]) || parseDateByParts(nonEmpty[2], nonEmpty[1], nonEmpty[0]);
+                if (parsed) return formatDateAsDMonY(parsed);
+            }
+            const single = parseDate(nonEmpty.join(' '));
+            return single ? formatDateAsDMonY(single) : (allowFallback ? safeTrim(fallbackValue) : '-');
+        }
+
+        function hydrateS1DateFields(row) {
+            const leadHeader = headersS1[S1_IDX.LEAD_DATE];
+            const offerHeader = headersS1[S1_IDX.OFFER_DATE];
+            const onboardHeader = headersS1[S1_IDX.ONBOARD_DATE];
+            const rawOnboardDateHeader = headersS1[S1_RAW_IDX.ONBOARD_DATE];
+            const rawOnboardStatusHeader = headersS1[S1_RAW_IDX.ONBOARD_STATUS];
+
+            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = safeTrim(row[rawOnboardDateHeader]);
+            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = safeTrim(row[rawOnboardStatusHeader]);
+
+            if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
+            if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
+            if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
+        }
+
+        function parseCsv(text) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: results => resolve(results),
+                    error: reject
+                });
+            });
+        }
+
+        function loadGvizCsvByJsonp(gid, docId = SHEET1_DOC_ID) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `gvizJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                const script = document.createElement('script');
+                let done = false;
+
+                window[callbackName] = response => {
+                    if (done) return;
+                    done = true;
+                    cleanup();
+                    try {
+                        resolve(gvizResponseToCsv(response));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                function cleanup() {
+                    delete window[callbackName];
+                    script.remove();
+                }
+
+                script.onerror = () => {
+                    if (done) return;
+                    done = true;
+                    cleanup();
+                    reject(new Error('JSONP load failed'));
+                };
+
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?gid=${encodeURIComponent(gid)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                document.body.appendChild(script);
+            });
+        }
+
+        function loadGvizCsvByJsonpBySheetName(sheetName, docId = SHEET1_DOC_ID) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `gvizSheetJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                const script = document.createElement('script');
+                let done = false;
+
+                window[callbackName] = response => {
+                    if (done) return;
+                    done = true;
+                    cleanup();
+                    try {
+                        resolve(gvizResponseToCsv(response));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                function cleanup() {
+                    delete window[callbackName];
+                    script.remove();
+                }
+
+                script.onerror = () => {
+                    if (done) return;
+                    done = true;
+                    cleanup();
+                    reject(new Error('JSONP load failed'));
+                };
+
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                document.body.appendChild(script);
+            });
+        }
+
+        function gvizResponseToCsv(response) {
+            const rows = response?.table?.rows || [];
+            const cols = response?.table?.cols || [];
+            const escapeCsv = value => {
+                const str = (value ?? '').toString();
+                if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+                return str;
+            };
+            const header = cols.map(col => escapeCsv(col?.label || '')).join(',');
+            const body = rows.map(row => {
+                const cells = row?.c || [];
+                return cols.map((_, index) => {
+                    const cell = cells[index];
+                    const value = cell?.f ?? cell?.v ?? '';
+                    return escapeCsv(value);
+                }).join(',');
+            }).join('\n');
+            return body ? `${header}\n${body}` : header;
+        }
+
+        function getSelectedDateRange() {
+            const start = parseDate(document.getElementById('studyStart')?.value);
+            const end = parseDate(document.getElementById('studyEnd')?.value);
+            if (!start || !end) return null;
+            const endLimit = new Date(end.getTime());
+            endLimit.setHours(23, 59, 59, 999);
+            return { start, end: endLimit };
+        }
+
+        function getRecordedOnboardDate(row) {
+            return safeTrim(row?.__rawOnboardDate) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_DATE]]);
+        }
+
+        function getOnboardStatus(row) {
+            return safeTrim(row?.__rawOnboardStatus) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_STATUS]]);
+        }
+
+        function isRejectedOrWithdrawnStatus(status) {
+            const upper = safeTrim(status).toUpperCase();
+            return upper.includes('REJECT') || upper.includes('WITHDRAW');
+        }
+
+        function isOffered(row) {
+            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
+            if (isRejectedOrWithdrawnStatus(status)) return false;
+            const statusUpper = status.toUpperCase();
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !!offerDate || statusUpper.includes('OFFER') || statusUpper.includes('ACCEPT');
+        }
+
+        function isOnboard(row) {
+            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
+            if (isRejectedOrWithdrawnStatus(status)) return false;
+
+            const onboardStatus = getOnboardStatus(row).toUpperCase();
+            if (onboardStatus.includes('ONBOARD')) return true;
+
+            const recordedDate = parseDate(getRecordedOnboardDate(row));
+            if (!recordedDate) return false;
+
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+            return recordedDate.getTime() <= today.getTime();
+        }
+
+        function getStatusChip(status, offered, onboarded) {
+            if (isRejectedOrWithdrawnStatus(status)) return '<span class="status-chip status-reject">Reject / Withdraw</span>';
+            if (onboarded) return '<span class="status-chip status-onboard">On Board</span>';
+            if (offered) return '<span class="status-chip status-offer">Offer</span>';
+            return '<span class="status-chip status-pending">Pending</span>';
+        }
+
+        function getUniqueSorted(values) {
+            return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'en'));
+        }
+
+        function getNtlValue(row, idx) {
+            return safeTrim(row?.[headersNTL[idx]]);
+        }
+
+        function getS1Value(row, idx) {
+            return safeTrim(row?.[headersS1[idx]]);
+        }
+
+        function buildLeaderDirectory() {
+            const directory = new Map();
+            const teamMembersByLeader = new Map();
+
+            dataNTL.forEach(row => {
+                const leaderName = getNtlValue(row, NTL_IDX.NETWORK_TEAM) || getNtlValue(row, NTL_IDX.THERAPIST);
+                if (!leaderName) return;
+                const key = normalizeKey(leaderName);
+                if (!key) return;
+
+                const leaderFlag = normalizeKey(getNtlValue(row, NTL_IDX.LEADER_JUL)) === 'y' || normalizeKey(getNtlValue(row, NTL_IDX.LEADER_AUG)) === 'y';
+                if (!leaderFlag) return;
+
+                if (!directory.has(key)) {
+                    directory.set(key, {
+                        key,
+                        name: leaderName,
+                        brands: new Set(),
+                        centers: new Set(),
+                        leaderRows: [],
+                        members: []
+                    });
+                }
+
+                const entry = directory.get(key);
+                entry.leaderRows.push(row);
+                entry.brands.add(displayBrand(getNtlValue(row, NTL_IDX.BRAND)));
+                entry.centers.add(getNtlValue(row, NTL_IDX.CENTER));
+            });
+
+            dataNTL.forEach(row => {
+                const teamOwner = getNtlValue(row, NTL_IDX.NETWORK_TEAM);
+                const key = normalizeKey(teamOwner);
+                if (!key || !directory.has(key)) return;
+
+                const member = {
+                    brand: displayBrand(getNtlValue(row, NTL_IDX.BRAND)),
+                    brandKey: normalizeBrand(getNtlValue(row, NTL_IDX.BRAND)),
+                    center: getNtlValue(row, NTL_IDX.CENTER),
+                    therapist: getNtlValue(row, NTL_IDX.THERAPIST),
+                    staffNo: getNtlValue(row, NTL_IDX.STAFF_NO),
+                    position: getNtlValue(row, NTL_IDX.POSITION),
+                    teamOwner
+                };
+
+                const dedupeKey = `${normalizeKey(member.staffNo) || normalizeKey(member.therapist)}|${normalizeKey(member.center)}`;
+                if (!teamMembersByLeader.has(key)) teamMembersByLeader.set(key, new Map());
+                if (!teamMembersByLeader.get(key).has(dedupeKey)) {
+                    teamMembersByLeader.get(key).set(dedupeKey, member);
+                }
+            });
+
+            directory.forEach(entry => {
+                entry.members = Array.from((teamMembersByLeader.get(entry.key) || new Map()).values())
+                    .filter(member => member.staffNo || member.therapist)
+                    .sort((a, b) => a.therapist.localeCompare(b.therapist, 'en'));
+            });
+
+            return Array.from(directory.values()).sort((a, b) => a.name.localeCompare(b.name, 'en'));
+        }
+
+        function getMemberReferralRows(member, range) {
+            const staffNo = safeTrim(member.staffNo);
+            if (!staffNo) return [];
+
+            return dataS1.filter(row => {
+                if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
+                const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
+                if (!leadDate || !range) return false;
+                return leadDate >= range.start && leadDate <= range.end;
+            });
+        }
+
+        function getFilterValues() {
+            return {
+                brand: safeTrim(document.getElementById('brandFilter')?.value),
+                center: safeTrim(document.getElementById('centerFilter')?.value),
+                leader: safeTrim(document.getElementById('leaderFilter')?.value)
+            };
+        }
+
+        function getFilteredLeaders() {
+            const range = getSelectedDateRange();
+            if (!range) return [];
+
+            const filters = getFilterValues();
+
+            return leaderDirectory.map(leader => {
+                const filteredMembers = leader.members.filter(member => {
+                    if (filters.brand && member.brandKey !== filters.brand) return false;
+                    if (filters.center && member.center !== filters.center) return false;
+                    return true;
+                });
+
+                if (!filteredMembers.length) return null;
+                if (filters.leader && leader.key !== filters.leader) return null;
+
+                const memberStats = filteredMembers.map(member => {
+                    const rows = getMemberReferralRows(member, range);
+                    const offer = rows.filter(isOffered).length;
+                    const onboard = rows.filter(isOnboard).length;
+                    return { ...member, rows, lead: rows.length, offer, onboard };
+                });
+
+                const detailRows = [];
+                memberStats.forEach(member => {
+                    member.rows.forEach(row => {
+                        detailRows.push({
+                            leaderKey: leader.key,
+                            leaderName: leader.name,
+                            memberName: member.therapist || '-',
+                            brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
+                            rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
+                            candidateName: getS1Value(row, S1_IDX.NAME) || '-',
+                            status: getS1Value(row, S1_IDX.STATUS) || '-',
+                            leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
+                            offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                            onboardDate: getRecordedOnboardDate(row) || '-',
+                            onboardStatus: getOnboardStatus(row) || '-',
+                            interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
+                            offered: isOffered(row),
+                            onboarded: isOnboard(row),
+                            leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0)
+                        });
+                    });
+                });
+
+                detailRows.sort((a, b) => b.leadDateObj - a.leadDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+
+                return {
+                    key: leader.key,
+                    name: leader.name,
+                    brands: getUniqueSorted(filteredMembers.map(member => member.brand)),
+                    centers: getUniqueSorted(filteredMembers.map(member => member.center)),
+                    teamSize: filteredMembers.length,
+                    lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
+                    offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
+                    onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
+                    memberStats,
+                    detailRows
+                };
+            }).filter(Boolean).sort((a, b) =>
+                b.onboard - a.onboard ||
+                b.offer - a.offer ||
+                b.lead - a.lead ||
+                a.name.localeCompare(b.name, 'en')
+            );
+        }
+
+        function updateFilterOptions() {
+            const brandSelect = document.getElementById('brandFilter');
+            const centerSelect = document.getElementById('centerFilter');
+            const leaderSelect = document.getElementById('leaderFilter');
+            if (!brandSelect || !centerSelect || !leaderSelect) return;
+
+            const previous = getFilterValues();
+            const allMembers = leaderDirectory.flatMap(leader => leader.members);
+            const brandOptions = getUniqueSorted(allMembers.map(member => member.brandKey));
+            brandSelect.innerHTML = ['<option value="">All Brand</option>']
+                .concat(brandOptions.map(brand => `<option value="${brand}">${displayBrand(brand)}</option>`))
+                .join('');
+            if (brandOptions.includes(previous.brand)) brandSelect.value = previous.brand;
+
+            const scopedMembers = allMembers.filter(member => !brandSelect.value || member.brandKey === brandSelect.value);
+            const centerOptions = getUniqueSorted(scopedMembers.map(member => member.center));
+            centerSelect.innerHTML = ['<option value="">All Centre</option>']
+                .concat(centerOptions.map(center => `<option value="${center}">${center}</option>`))
+                .join('');
+            if (centerOptions.includes(previous.center)) centerSelect.value = previous.center;
+
+            const leaderOptions = leaderDirectory.filter(leader => {
+                const members = leader.members.filter(member => {
+                    if (brandSelect.value && member.brandKey !== brandSelect.value) return false;
+                    if (centerSelect.value && member.center !== centerSelect.value) return false;
+                    return true;
+                });
+                return members.length > 0;
+            });
+
+            leaderSelect.innerHTML = ['<option value="">All Leader</option>']
+                .concat(leaderOptions.map(leader => `<option value="${leader.key}">${leader.name}</option>`))
+                .join('');
+            if (leaderOptions.some(leader => leader.key === previous.leader)) leaderSelect.value = previous.leader;
+        }
+
+        function renderSummaryCards(leaders) {
+            const memberCount = leaders.reduce((sum, leader) => sum + leader.teamSize, 0);
+            const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
+            const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
+
+            const cards = [
+                { title: 'Lead', value: totalLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
+                { title: 'Offer', value: totalOffer, note: formatRate(totalOffer, totalLead), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
+                { title: 'On Board', value: totalOnboard, note: formatRate(totalOnboard, totalLead), accent: 'var(--success)', bg: 'var(--success-soft)', mode: 'ONBOARD' },
+                { title: 'Active Leaders', value: leaders.length, note: 'Filtered network teams', accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL' },
+                { title: 'Team Members', value: memberCount, note: 'Mapped from J/K/L', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
+            ];
+
+            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+                <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-right">${card.note}</div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function focusLeader(leaderKey, shouldScroll = true) {
+            currentDetailScope = 'LEADER';
+            selectedLeaderKey = leaderKey || '';
+            renderDashboard(false);
+            if (shouldScroll) {
+                document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function focusSummaryDetail(mode = 'LEAD') {
+            currentDetailScope = 'SUMMARY';
+            currentSummaryDetailMode = mode;
+            renderDashboard(false);
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function toggleFloorSort(key = 'label') {
+            if (floorSortKey === key) {
+                floorSortDirection = floorSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                floorSortKey = key;
+                floorSortDirection = 'asc';
+            }
+            renderDashboard(false);
+        }
+
+        function summarizeBreakdowns(leaders) {
+            const brandMap = new Map();
+            const floorMap = new Map();
+
+            leaders.forEach(leader => {
+                leader.memberStats.forEach(member => {
+                    const brandKey = member.brandKey || 'OTHER';
+                    if (!brandMap.has(brandKey)) {
+                        brandMap.set(brandKey, {
+                            label: member.brand || 'Other',
+                            leaders: new Set(),
+                            members: 0,
+                            lead: 0,
+                            offer: 0,
+                            onboard: 0
+                        });
+                    }
+
+                    const brandEntry = brandMap.get(brandKey);
+                    brandEntry.leaders.add(leader.name);
+                    brandEntry.members += 1;
+                    brandEntry.lead += member.lead;
+                    brandEntry.offer += member.offer;
+                    brandEntry.onboard += member.onboard;
+
+                    const floorKey = member.center || '-';
+                    if (!floorMap.has(floorKey)) {
+                        floorMap.set(floorKey, {
+                            label: floorKey,
+                            brands: new Set(),
+                            leaders: new Set(),
+                            members: 0,
+                            lead: 0,
+                            offer: 0,
+                            onboard: 0
+                        });
+                    }
+
+                    const floorEntry = floorMap.get(floorKey);
+                    floorEntry.brands.add(member.brand || 'Other');
+                    floorEntry.leaders.add(leader.name);
+                    floorEntry.members += 1;
+                    floorEntry.lead += member.lead;
+                    floorEntry.offer += member.offer;
+                    floorEntry.onboard += member.onboard;
+                });
+            });
+
+            const brandRows = Array.from(brandMap.values()).sort((a, b) =>
+                b.onboard - a.onboard ||
+                b.offer - a.offer ||
+                b.lead - a.lead ||
+                a.label.localeCompare(b.label, 'en')
+            );
+
+            const floorRows = Array.from(floorMap.values()).sort((a, b) =>
+                b.onboard - a.onboard ||
+                b.offer - a.offer ||
+                b.lead - a.lead ||
+                a.label.localeCompare(b.label, 'en')
+            );
+
+            return { brandRows, floorRows };
+        }
+
+        function renderBrandTable(rows) {
+            const body = document.getElementById('brandTableBody');
+            const meta = document.getElementById('brandMeta');
+            meta.textContent = `${rows.length} brands under current filters`;
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = rows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateFloorSectionBrandOptions(rows) {
+            const select = document.getElementById('floorSectionBrandFilter');
+            if (!select) return;
+            const previous = safeTrim(select.value);
+            const options = Array.from(new Set(
+                rows.flatMap(row => Array.from(row.brands || []))
+            )).sort((a, b) => a.localeCompare(b, 'en'));
+
+            select.innerHTML = ['<option value="">All Brand</option>']
+                .concat(options.map(option => `<option value="${option}">${option}</option>`))
+                .join('');
+
+            if (previous && options.includes(previous)) {
+                select.value = previous;
+            }
+        }
+
+        function updateNetworkSectionFilterOptions(leaders) {
+            const brandSelect = document.getElementById('networkSectionBrandFilter');
+            const floorSelect = document.getElementById('networkSectionFloorFilter');
+            if (!brandSelect || !floorSelect) return;
+
+            const previousBrand = safeTrim(brandSelect.value);
+            const previousFloor = safeTrim(floorSelect.value);
+
+            const brandOptions = Array.from(new Set(
+                leaders.flatMap(leader => leader.brands || [])
+            )).sort((a, b) => a.localeCompare(b, 'en'));
+
+            brandSelect.innerHTML = ['<option value="">All Brand</option>']
+                .concat(brandOptions.map(option => `<option value="${option}">${option}</option>`))
+                .join('');
+            if (previousBrand && brandOptions.includes(previousBrand)) {
+                brandSelect.value = previousBrand;
+            }
+
+            const scopedLeaders = leaders.filter(leader =>
+                !brandSelect.value || (leader.brands || []).includes(brandSelect.value)
+            );
+            const floorOptions = Array.from(new Set(
+                scopedLeaders.flatMap(leader => leader.centers || [])
+            )).sort((a, b) => a.localeCompare(b, 'en'));
+
+            floorSelect.innerHTML = ['<option value="">All Floor</option>']
+                .concat(floorOptions.map(option => `<option value="${option}">${option}</option>`))
+                .join('');
+            if (previousFloor && floorOptions.includes(previousFloor)) {
+                floorSelect.value = previousFloor;
+            }
+        }
+
+        function renderFloorTable(rows) {
+            const body = document.getElementById('floorTableBody');
+            const meta = document.getElementById('floorMeta');
+            const indicator = document.getElementById('floorSortIndicator');
+            meta.textContent = `${rows.length} floors under current filters`;
+            if (indicator) {
+                indicator.textContent = floorSortDirection === 'asc' ? '↑' : '↓';
+            }
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
+                return;
+            }
+
+            const sortedRows = rows.slice().sort((a, b) => {
+                const valueA = (a?.[floorSortKey] ?? '').toString();
+                const valueB = (b?.[floorSortKey] ?? '').toString();
+                const compared = valueA.localeCompare(valueB, 'en');
+                return floorSortDirection === 'asc' ? compared : -compared;
+            });
+
+            body.innerHTML = sortedRows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
+                    <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderNetworkTable(leaders) {
+            const body = document.getElementById('networkTableBody');
+            const meta = document.getElementById('networkMeta');
+            updateNetworkSectionFilterOptions(leaders);
+
+            const networkBrandFilterValue = safeTrim(document.getElementById('networkSectionBrandFilter')?.value);
+            const networkFloorFilterValue = safeTrim(document.getElementById('networkSectionFloorFilter')?.value);
+            const filteredLeaders = leaders.filter(leader => {
+                if (networkBrandFilterValue && !(leader.brands || []).includes(networkBrandFilterValue)) return false;
+                if (networkFloorFilterValue && !(leader.centers || []).includes(networkFloorFilterValue)) return false;
+                return true;
+            });
+
+            meta.textContent = `${filteredLeaders.length} network teams under current filters`;
+
+            if (!filteredLeaders.length) {
+                body.innerHTML = '<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No network team records in this selection.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = filteredLeaders.map(leader => `
+                <tr class="clickable-row ${leader.key === selectedLeaderKey ? 'active' : ''}" onclick="focusLeader('${leader.key}')">
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${leader.name}</td>
+                    <td class="px-5 py-4 text-left text-slate-700">${leader.brands.join(', ') || '-'}</td>
+                    <td class="px-5 py-4 text-left text-slate-700">${leader.centers.join(', ') || '-'}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(leader.teamSize)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(leader.lead)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(leader.offer)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(leader.onboard)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-700">${formatRate(leader.offer, leader.lead)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-700">${formatRate(leader.onboard, leader.lead)}</td>
+                    <td class="px-5 py-4 text-center">
+                        <button type="button" onclick="event.stopPropagation(); focusLeader('${leader.key}')" class="rounded-full bg-sky-600 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">View Detail</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDetailTable(leaders) {
+            const body = document.getElementById('detailTableBody');
+            const title = document.getElementById('detailTitle');
+            const meta = document.getElementById('detailMeta');
+
+            if (!leaders.length) {
+                title.textContent = 'Leader Candidate Detail';
+                meta.textContent = 'No selection';
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                return;
+            }
+
+            const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
+            selectedLeaderKey = active.key;
+
+            title.textContent = `${active.name} Candidate Detail`;
+            meta.textContent = `${formatNumber(active.detailRows.length)} candidates / ${formatNumber(active.teamSize)} team members`;
+
+            if (!active.detailRows.length) {
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">This leader has no candidate records in the selected date range.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = active.detailRows.map(item => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
+                    <td class="px-5 py-4 text-left">${item.memberName}</td>
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
+                    <td class="px-5 py-4 text-left">${item.brand}</td>
+                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
+                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded)}</td>
+                    <td class="px-5 py-4 text-left">${item.leadDate}</td>
+                    <td class="px-5 py-4 text-left">${item.offerDate}</td>
+                    <td class="px-5 py-4 text-left">${item.onboardDate}</td>
+                    <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
+                    <td class="px-5 py-4 text-left">${item.interviewer}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderFloorTable(rows) {
+            const body = document.getElementById('floorTableBody');
+            const meta = document.getElementById('floorMeta');
+            const indicator = document.getElementById('floorSortIndicator');
+            updateFloorSectionBrandOptions(rows);
+            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
+            const filteredRows = floorBrandFilterValue
+                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
+                : rows.slice();
+
+            meta.textContent = `${filteredRows.length} floors under current filters`;
+            if (indicator) indicator.textContent = floorSortDirection === 'asc' ? '↑' : '↓';
+
+            if (!filteredRows.length) {
+                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
+                return;
+            }
+
+            const sortedRows = filteredRows.slice().sort((a, b) => {
+                const valueA = (a?.[floorSortKey] ?? '').toString();
+                const valueB = (b?.[floorSortKey] ?? '').toString();
+                const compared = valueA.localeCompare(valueB, 'en');
+                return floorSortDirection === 'asc' ? compared : -compared;
+            });
+
+            body.innerHTML = sortedRows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
+                    <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(row.members)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(row.lead)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
+                    <td class="px-4 py-4 text-right data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDetailTable(leaders) {
+            const body = document.getElementById('detailTableBody');
+            const title = document.getElementById('detailTitle');
+            const meta = document.getElementById('detailMeta');
+
+            if (!leaders.length) {
+                title.textContent = 'Leader Candidate Detail';
+                meta.textContent = 'No selection';
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                return;
+            }
+
+            let rows = [];
+            let titleText = 'Leader Candidate Detail';
+            let metaText = '';
+
+            if (currentDetailScope === 'SUMMARY') {
+                rows = leaders.flatMap(leader => leader.detailRows);
+                if (currentSummaryDetailMode === 'OFFER') {
+                    rows = rows.filter(item => item.offered);
+                    titleText = 'Network Team Leader Offer Detail';
+                } else if (currentSummaryDetailMode === 'ONBOARD') {
+                    rows = rows.filter(item => item.onboarded);
+                    titleText = 'Network Team Leader On Board Detail';
+                } else if (currentSummaryDetailMode === 'ALL') {
+                    titleText = 'Network Team Leader Candidate Detail';
+                } else {
+                    titleText = 'Network Team Leader Lead Detail';
+                }
+                metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(leaders.length)} network teams`;
+            } else {
+                const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
+                selectedLeaderKey = active.key;
+                rows = active.detailRows;
+                titleText = `${active.name} Candidate Detail`;
+                metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(active.teamSize)} team members`;
+            }
+
+            title.textContent = titleText;
+            meta.textContent = metaText;
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = rows.map(item => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
+                    <td class="px-5 py-4 text-left">${item.memberName}</td>
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
+                    <td class="px-5 py-4 text-left">${item.brand}</td>
+                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
+                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded)}</td>
+                    <td class="px-5 py-4 text-left">${item.leadDate}</td>
+                    <td class="px-5 py-4 text-left">${item.offerDate}</td>
+                    <td class="px-5 py-4 text-left">${item.onboardDate}</td>
+                    <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
+                    <td class="px-5 py-4 text-left">${item.interviewer}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDashboard(keepScroll = false) {
+            const leaders = getFilteredLeaders();
+            const { brandRows, floorRows } = summarizeBreakdowns(leaders);
+            if (!leaders.length) {
+                selectedLeaderKey = '';
+            } else if (!leaders.some(leader => leader.key === selectedLeaderKey)) {
+                selectedLeaderKey = leaders[0].key;
+            }
+            renderSummaryCards(leaders);
+            renderBrandTable(brandRows);
+            renderFloorTable(floorRows);
+            renderNetworkTable(leaders);
+            renderDetailTable(leaders);
+
+            const loading = document.getElementById('loadingState');
+            if (loading) {
+                const range = getSelectedDateRange();
+                const fromLabel = range ? formatDateAsDMonY(range.start) : '-';
+                const toLabel = range ? formatDateAsDMonY(new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate())) : '-';
+                loading.textContent = `Showing Network Team Leader performance from ${fromLabel} to ${toLabel}.`;
+            }
+
+            if (!keepScroll) return;
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function resetFilters() {
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(monthStart);
+            document.getElementById('studyEnd').value = formatDateToISO(today);
+            document.getElementById('brandFilter').value = '';
+            updateFilterOptions();
+            document.getElementById('centerFilter').value = '';
+            updateFilterOptions();
+            document.getElementById('leaderFilter').value = '';
+            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
+            if (floorSectionBrandFilter) floorSectionBrandFilter.value = '';
+            const networkSectionBrandFilter = document.getElementById('networkSectionBrandFilter');
+            if (networkSectionBrandFilter) networkSectionBrandFilter.value = '';
+            const networkSectionFloorFilter = document.getElementById('networkSectionFloorFilter');
+            if (networkSectionFloorFilter) networkSectionFloorFilter.value = '';
+            selectedLeaderKey = '';
+            renderDashboard(false);
+        }
+
+        async function fetchAllSheets() {
+            const sheet1CsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
+            const ntlCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}`;
+
+            try {
+                const [sheet1Response, ntlResponse] = await Promise.all([
+                    fetch(`${sheet1CsvUrl}&t=${Date.now()}`),
+                    fetch(`${ntlCsvUrl}&t=${Date.now()}`)
+                ]);
+                if (!sheet1Response.ok || !ntlResponse.ok) throw new Error('Fetch failed');
+                return Promise.all([sheet1Response.text(), ntlResponse.text()]);
+            } catch (error) {
+                console.warn('Fetch failed, fallback to JSONP:', error);
+                return Promise.all([
+                    loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
+                    loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID)
+                ]);
+            }
+        }
+
+        async function init() {
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(monthStart);
+            document.getElementById('studyEnd').value = formatDateToISO(today);
+
+            ['studyStart', 'studyEnd', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', () => {
+                    if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
+                    if (id === 'networkSectionBrandFilter') {
+                        const floorFilter = document.getElementById('networkSectionFloorFilter');
+                        if (floorFilter) floorFilter.value = '';
+                    }
+                    if (id === 'networkSectionBrandFilter' || id === 'networkSectionFloorFilter') {
+                        currentDetailScope = 'SUMMARY';
+                        currentSummaryDetailMode = 'LEAD';
+                    }
+                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter') {
+                        selectedLeaderKey = '';
+                    }
+                    renderDashboard(false);
+                });
+            });
+
+            try {
+                const [sheet1Text, ntlText] = await fetchAllSheets();
+                const [sheet1Results, ntlResults] = await Promise.all([parseCsv(sheet1Text), parseCsv(ntlText)]);
+
+                headersS1 = sheet1Results.meta.fields || [];
+                headersNTL = ntlResults.meta.fields || [];
+                dataS1 = sheet1Results.data || [];
+                dataNTL = (ntlResults.data || []).filter(row => getNtlValue(row, NTL_IDX.THERAPIST) || getNtlValue(row, NTL_IDX.NETWORK_TEAM));
+                dataS1.forEach(hydrateS1DateFields);
+
+                leaderDirectory = buildLeaderDirectory();
+                updateFilterOptions();
+                renderDashboard(false);
+
+                const lastUpdateValue = headersS1[33] || 'Sheet live';
+                document.getElementById('lastUpdate').textContent = `${lastUpdateValue} / ${leaderDirectory.length} leaders mapped`;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loadingState').textContent = `Unable to load Network Team Leader study data: ${error.message}`;
+                document.getElementById('lastUpdate').textContent = 'Load failed';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
