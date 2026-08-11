@@ -268,9 +268,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
                     <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇品牌</option></select>
                     <select id="filterCenter" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Centre</option></select>
-                    <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Refer By Name</option></select>
+                    <select id="filterName" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Refer By Name</option></select>
                 </div>
-                <div class="mt-4 flex justify-end"><button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">重設篩選</button></div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button onclick="confirmQuickFilter()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl text-xs shadow-lg active:scale-95 uppercase">Confirm</button>
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">重設篩選</button>
+                </div>
             </div>
 
             <div class="lg:col-span-1 cyber-card p-6 hidden" id="inactiveCheckPanel">
@@ -538,7 +541,21 @@
                     <p id="referralSummaryReject" class="text-3xl font-black text-rose-600 readable-nums">0</p>
                 </button>
             </div>
-            <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left">Referral Detail <span class="font-cyber text-sky-500 ml-2">REFERRAL DETAIL</span></h2>
+            <div class="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-4 mb-4">
+                <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left mb-0">Referral Detail <span class="font-cyber text-sky-500 ml-2">REFERRAL DETAIL</span></h2>
+                <div id="referralSelectFilterBar" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 w-full 2xl:w-auto 2xl:min-w-[780px]">
+                    <select id="referralFilterReferBy" onchange="handleReferralDetailSelectFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Refer By</option>
+                    </select>
+                    <select id="referralFilterStatus" onchange="handleReferralDetailSelectFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Status</option>
+                    </select>
+                    <select id="referralFilterInterviewBy" onchange="handleReferralDetailSelectFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Interview By</option>
+                    </select>
+                    <button type="button" onclick="resetReferralDetailSelectFilters()" class="px-3.5 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Reset Filters</button>
+                </div>
+            </div>
             <div id="referralFilterBar" class="cyber-card p-4 md:p-5 mb-6">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                     <div>
@@ -2967,6 +2984,66 @@
             updateReferralSummaryCardUi();
         }
 
+        function getReferralDetailSelectValues() {
+            return {
+                referBy: ((document.getElementById('referralFilterReferBy')?.value || '') + '').trim(),
+                status: ((document.getElementById('referralFilterStatus')?.value || '') + '').trim(),
+                interviewBy: ((document.getElementById('referralFilterInterviewBy')?.value || '') + '').trim()
+            };
+        }
+
+        function setReferralDetailSelectOptions(selectEl, placeholder, values) {
+            if (!selectEl) return;
+            const previousValue = ((selectEl.value || '') + '').trim();
+            selectEl.innerHTML = '';
+            selectEl.appendChild(new Option(placeholder, ''));
+            values.forEach(value => selectEl.appendChild(new Option(value, value)));
+            selectEl.value = values.includes(previousValue) ? previousValue : '';
+        }
+
+        function populateReferralDetailSelectFilters(rows) {
+            const referBySelect = document.getElementById('referralFilterReferBy');
+            const statusSelect = document.getElementById('referralFilterStatus');
+            const interviewBySelect = document.getElementById('referralFilterInterviewBy');
+            if (!referBySelect || !statusSelect || !interviewBySelect) return;
+
+            const sortValues = values => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true, sensitivity: 'base' }));
+            const referByValues = sortValues(rows.map(row => (((row[headersS1[S1_IDX.STAFF_NAME]] || '') + '').trim()) || '-'));
+            const statusValues = sortValues(rows.map(row => (((row[headersS1[S1_IDX.STATUS]] || '') + '').trim()) || '-'));
+            const interviewByValues = sortValues(rows.map(row => getS1InterviewByValue(row) || '-'));
+
+            setReferralDetailSelectOptions(referBySelect, 'All Refer By', referByValues);
+            setReferralDetailSelectOptions(statusSelect, 'All Status', statusValues);
+            setReferralDetailSelectOptions(interviewBySelect, 'All Interview By', interviewByValues);
+        }
+
+        function applyReferralDetailSelectFilters(rows) {
+            const { referBy, status, interviewBy } = getReferralDetailSelectValues();
+            return rows.filter(row => {
+                const rowReferBy = ((((row[headersS1[S1_IDX.STAFF_NAME]] || '') + '').trim()) || '-');
+                const rowStatus = ((((row[headersS1[S1_IDX.STATUS]] || '') + '').trim()) || '-');
+                const rowInterviewBy = (getS1InterviewByValue(row) || '-');
+                if (referBy && rowReferBy !== referBy) return false;
+                if (status && rowStatus !== status) return false;
+                if (interviewBy && rowInterviewBy !== interviewBy) return false;
+                return true;
+            });
+        }
+
+        function handleReferralDetailSelectFilterChange() {
+            renderReferralDetailTable(currentReferralDetailBaseRows);
+        }
+
+        function resetReferralDetailSelectFilters() {
+            const referBySelect = document.getElementById('referralFilterReferBy');
+            const statusSelect = document.getElementById('referralFilterStatus');
+            const interviewBySelect = document.getElementById('referralFilterInterviewBy');
+            if (referBySelect) referBySelect.value = '';
+            if (statusSelect) statusSelect.value = '';
+            if (interviewBySelect) interviewBySelect.value = '';
+            renderReferralDetailTable(currentReferralDetailBaseRows);
+        }
+
         function isReferralRejectWithdrawRow(row) {
             const status = (row?.[headersS1[S1_IDX.STATUS]] || '').trim();
             const finalMarker = getReferralFinalMarker(row);
@@ -2974,16 +3051,17 @@
         }
 
         function getFilteredReferralDetailRows(rows) {
+            const selectFilteredRows = applyReferralDetailSelectFilters(rows);
             switch (currentReferralDetailSummaryFilter) {
                 case 'offer':
-                    return rows.filter(row => isSearchOfferRow(row));
+                    return selectFilteredRows.filter(row => isSearchOfferRow(row));
                 case 'onboard':
-                    return rows.filter(row => isConfirmedOnboard(row));
+                    return selectFilteredRows.filter(row => isConfirmedOnboard(row));
                 case 'rejectWithdraw':
-                    return rows.filter(row => isReferralRejectWithdrawRow(row));
+                    return selectFilteredRows.filter(row => isReferralRejectWithdrawRow(row));
                 case 'all':
                 default:
-                    return rows.slice();
+                    return selectFilteredRows.slice();
             }
         }
 
@@ -3085,6 +3163,8 @@
             if (!rb) return;
 
             currentReferralDetailBaseRows = rows.slice();
+            const selectFilteredRows = applyReferralDetailSelectFilters(currentReferralDetailBaseRows);
+            renderReferralSummary(selectFilteredRows);
             currentReferralDetailRows = getFilteredReferralDetailRows(currentReferralDetailBaseRows);
             const sortedRows = sortReferralDetailRows(currentReferralDetailRows);
             updateReferralDetailSortUi();
@@ -3148,20 +3228,23 @@ function renderS2(list, isLv) {
             }
 
             title.innerHTML = titleLabel;
-            renderReferralSummary(rows);
+            populateReferralDetailSelectFilters(rows);
 
             if (!rows.length) {
                 const emptyLabel = isLv ? 'No referral detail under current brand / date filter.' : 'No referral detail under current search / date filter.';
                 rb.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-sm font-bold text-slate-400 text-center">${emptyLabel}</td></tr>`;
+                renderReferralSummary([]);
                 currentReferralDetailRows = [];
                 updateReferralDetailSortUi();
                 s2Area.classList.remove('hidden');
+                s2Area.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
 
             renderReferralDetailTable(rows);
 
             s2Area.classList.remove('hidden');
+            s2Area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderTrackingInfo(sId, p2) {
@@ -3184,9 +3267,50 @@ function renderS2(list, isLv) {
             document.getElementById('staffId').value = staffId;
             executeSearch(staffId);
         }
+        function confirmQuickFilter() {
+            const brand = ((document.getElementById('filterBrand')?.value || '') + '').trim();
+            const center = ((document.getElementById('filterCenter')?.value || '') + '').trim();
+            const staffId = ((document.getElementById('filterName')?.value || '') + '').trim();
+
+            if (staffId) {
+                document.getElementById('staffId').value = staffId;
+                executeSearch(staffId);
+                return;
+            }
+
+            if (!brand) return;
+
+            currentReferralStaffId = "";
+            currentReferralBrand = brand;
+            currentReferralSearchMode = "BRAND";
+
+            const list = getReferralLinkedSalesRows().filter(row => {
+                if (getSalesQuickFilterBrand(row).toUpperCase() !== brand.toUpperCase()) return false;
+                if (center && getSalesQuickFilterFloor(row).toString() !== center.toString()) return false;
+                return true;
+            });
+
+            renderS2(list, true);
+        }
         function executeSearch(sId) {
+            currentReferralStaffId = sId;
+            currentReferralSearchMode = "STAFF";
             document.getElementById('initialPrompt')?.classList.add('hidden'); const p2 = dataS2.filter(i => (i[headersS2[S2_IDX.STAFF_ID]]||"").trim() === sId), f1 = dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId);
             renderS2(p2, false); renderS1(f1); renderTrackingInfo(sId, p2[0]);
+        }
+        function rerunCurrentReferralSearch() {
+            if (currentReferralSearchMode === "STAFF" && currentReferralStaffId) {
+                executeSearch(currentReferralStaffId);
+                return;
+            }
+            if (currentReferralSearchMode === "BRAND" && currentReferralBrand) {
+                const selectedStaffId = ((document.getElementById('filterName')?.value || '') + '').trim();
+                if (selectedStaffId) {
+                    executeSearch(selectedStaffId);
+                    return;
+                }
+                updateNameFilter();
+            }
         }
         function updateFloorFilter() {
             const brand = document.getElementById('filterBrand').value;
@@ -3204,7 +3328,6 @@ function renderS2(list, isLv) {
             currentReferralBrand = brand;
             currentReferralSearchMode = "BRAND";
             const brandRows = getReferralLinkedSalesRows().filter(i => getSalesQuickFilterBrand(i).toUpperCase() === brand.toUpperCase());
-            renderS2(brandRows, true);
             [...new Set(brandRows.map(i => getSalesQuickFilterFloor(i)).filter(v => v))]
                 .sort()
                 .forEach(center => {
@@ -3223,10 +3346,6 @@ function renderS2(list, isLv) {
             if (!brand) return;
 
             if (!center) {
-                const brandRows = getReferralLinkedSalesRows().filter(i =>
-                    getSalesQuickFilterBrand(i).toUpperCase() === brand.toUpperCase()
-                );
-                renderS2(brandRows, true);
                 return;
             }
 
@@ -3234,7 +3353,6 @@ function renderS2(list, isLv) {
                 getSalesQuickFilterBrand(i).toUpperCase() === brand.toUpperCase() &&
                 getSalesQuickFilterFloor(i).toString() === center.toString()
             );
-            renderS2(centerRows, true);
             const seen = new Set();
             centerRows.forEach(row => {
                 const staffId = getSalesQuickFilterStaffId(row);
@@ -3253,6 +3371,7 @@ function renderS2(list, isLv) {
             document.getElementById('filterName').value = '';
             document.getElementById('filterName').disabled = true;
             document.getElementById('staffId').value = '';
+            resetReferralDetailSelectFilters();
             setDefaultReferralDateRange();
             currentReferralStaffId = "";
             currentReferralBrand = "";
