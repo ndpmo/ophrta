@@ -945,12 +945,11 @@
             rows.forEach(record => {
                 const key = record.brand || 'Other';
                 if (!map.has(key)) {
-                    map.set(key, { brand: key, total: 0, referral: 0, lead: 0, offer: 0, onboard: 0, upcomingOnboard: 0, referralStaffCount: 0 });
+                    map.set(key, { brand: key, total: 0, referral: 0, lead: 0, offer: 0, onboard: 0, upcomingOnboard: 0 });
                 }
                 const entry = map.get(key);
                 entry.total += 1;
-                if (record.referralCount > 0) entry.referralStaffCount += 1;
-                entry.referral += record.referralCount;
+                if (record.referralCount > 0) entry.referral += 1;
                 entry.lead += record.leadCount;
                 entry.offer += record.offerCount;
                 entry.onboard += record.onboardCount;
@@ -959,7 +958,7 @@
 
             return [...map.values()].map(entry => ({
                 ...entry,
-                referralRate: entry.total ? entry.referralStaffCount / entry.total : 0,
+                referralRate: entry.total ? entry.referral / entry.total : 0,
                 onboardRate: entry.lead ? entry.onboard / entry.lead : 0
             }));
         }
@@ -1008,6 +1007,12 @@
             return ranked[0] || null;
         }
 
+        function getTopCardMode(key) {
+            if (key === 'offerCount') return 'offer';
+            if (key === 'onboardCount') return 'onboard';
+            return 'all';
+        }
+
         function renderBrandTopCards(rows) {
             const sectionRows = getBrandSectionRows(rows);
             const cards = [
@@ -1039,12 +1044,17 @@
 
             document.getElementById('brandTopCards').innerHTML = cards.map(card => {
                 const top = getTopPerformer(sectionRows, card.key);
+                const mode = getTopCardMode(card.key);
                 return `
-                    <div class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6">
+                    <button
+                        type="button"
+                        ${top ? `onclick="openReferralCandidateDetail('${top.staffId}', '${mode}')"` : 'disabled'}
+                        class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6 text-left ${top ? 'hover:-translate-y-1 transition-transform cursor-pointer' : 'cursor-default'}"
+                    >
                         <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.label}</p>
                         <p class="mt-3 text-xl md:text-2xl font-black ${card.text}">${top ? top.employeeName : '-'}</p>
                         <p class="mt-2 text-sm font-black uppercase tracking-[0.12em] text-slate-500">${top ? `${formatNumber(top[card.key])} candidates` : card.empty}</p>
-                    </div>
+                    </button>
                 `;
             }).join('');
         }
