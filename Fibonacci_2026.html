@@ -306,6 +306,12 @@
                             <option value="ALL">All Brand</option>
                         </select>
                     </div>
+                    <div class="min-w-[220px]">
+                        <label for="detailCenterFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Centre / Floor</label>
+                        <select id="detailCenterFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                            <option value="ALL">All Centre / Floor</option>
+                        </select>
+                    </div>
                     <div class="min-w-[180px]">
                         <label for="detailReferralFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Referral</label>
                         <select id="detailReferralFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
@@ -729,11 +735,16 @@
         }
 
         function isOnboardQualified(row) {
+            const status = getS1Value(row, S1_IDX.STATUS).toUpperCase();
+            if (isRejectedOrWithdrawnStatus(status)) return false;
             const onboardStatus = getOnboardStatus(row).toUpperCase();
-            if (onboardStatus.includes('NO SHOW')) return false;
+            if (
+                onboardStatus.includes('NO SHOW') ||
+                onboardStatus.includes('REJECT') ||
+                onboardStatus.includes('WITHDRAW')
+            ) return false;
             if (onboardStatus.includes('ONBOARD')) return true;
-            const status = getS1Value(row, S1_IDX.STATUS);
-            return !!parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE)) && !isRejectedOrWithdrawnStatus(status);
+            return false;
         }
 
         function isUpcomingOnboardQualified(row) {
@@ -975,8 +986,11 @@
         function populateSectionFilters(rows) {
             const brandOptions = [...new Set(rows.map(record => record.brand).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+            const centerOptions = [...new Set(rows.map(record => record.center).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
             setSelectOptions('brandBreakdownFilter', brandOptions, getSelectValue('brandBreakdownFilter'), 'All Brand');
             setSelectOptions('detailBrandFilter', brandOptions, getSelectValue('detailBrandFilter'), 'All Brand');
+            setSelectOptions('detailCenterFilter', centerOptions, getSelectValue('detailCenterFilter'), 'All Centre / Floor');
         }
 
         function getBrandTableRows(rows) {
@@ -1061,9 +1075,11 @@
 
         function getDetailRows(rows) {
             const brandFilter = getSelectValue('detailBrandFilter');
+            const centerFilter = getSelectValue('detailCenterFilter');
             const referralFilter = getSelectValue('detailReferralFilter');
             return rows.filter(record => {
                 if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
+                if (centerFilter !== 'ALL' && record.center !== centerFilter) return false;
                 if (referralFilter === 'HAS' && record.referralCount <= 0) return false;
                 if (referralFilter === 'NO' && record.referralCount > 0) return false;
                 if (activeSummaryDetail === 'referral' && record.referralCount <= 0) return false;
@@ -1271,6 +1287,7 @@
             applyDefaultBrandFilter();
             document.getElementById('brandBreakdownFilter').value = 'ALL';
             document.getElementById('detailBrandFilter').value = 'ALL';
+            document.getElementById('detailCenterFilter').value = 'ALL';
             document.getElementById('detailReferralFilter').value = 'ALL';
             activeSummaryDetail = 'all';
             activeDrilldownStaffId = '';
