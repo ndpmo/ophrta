@@ -358,43 +358,42 @@
                     </table>
                 </div>
             </div>
-        </section>
-
-        <section class="glass-card p-5 md:p-6 mb-8 hidden" id="leaderPerformanceSection">
-            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Selected Network Team</p>
-                    <h2 id="leaderPerformanceTitle" class="text-2xl font-black text-slate-900">Network Team Performance</h2>
-                </div>
-                <p id="leaderPerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
-            </div>
-            <div id="leaderPerformanceCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6"></div>
-            <div>
-                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
+            <div class="mt-5 border-t border-slate-200/80 pt-5 hidden" id="leaderPerformanceSection">
+                <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-3 mb-4">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">Team Mate Performance</p>
-                        <h3 class="text-xl font-black text-slate-900">Team Mate Breakdown</h3>
+                        <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Selected Network Team</p>
+                        <h2 id="leaderPerformanceTitle" class="text-xl md:text-2xl font-black text-slate-900">Network Team Performance</h2>
                     </div>
-                    <p id="teamMatePerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
+                    <p id="leaderPerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
                 </div>
-                <div class="table-shell">
-                    <div class="table-wrap">
-                        <table class="w-full min-w-[980px] border-collapse">
-                            <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
-                                <tr>
-                                    <th class="px-5 py-4 text-left">Role</th>
-                                    <th class="px-5 py-4 text-left">Team Mate</th>
-                                    <th class="px-5 py-4 text-left">Position</th>
-                                    <th class="px-5 py-4 text-left">Brand</th>
-                                    <th class="px-5 py-4 text-left">Floor</th>
-                                    <th class="px-4 py-4 text-center">Lead</th>
-                                    <th class="px-4 py-4 text-center">Offer</th>
-                                    <th class="px-4 py-4 text-center">On Board</th>
-                                    <th class="px-4 py-4 text-center">Upcoming On Board</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teamMatePerformanceBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
-                        </table>
+                <div id="leaderPerformanceCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-5"></div>
+                <div>
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">Team Mate Performance</p>
+                            <h3 class="text-lg md:text-xl font-black text-slate-900">Team Mate Breakdown</h3>
+                        </div>
+                        <p id="teamMatePerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-wrap">
+                            <table class="w-full min-w-[980px] border-collapse">
+                                <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                                    <tr>
+                                        <th class="px-5 py-4 text-left">Role</th>
+                                        <th class="px-5 py-4 text-left">Team Mate</th>
+                                        <th class="px-5 py-4 text-left">Position</th>
+                                        <th class="px-5 py-4 text-left">Brand</th>
+                                        <th class="px-5 py-4 text-left">Floor</th>
+                                        <th class="px-4 py-4 text-center">Lead</th>
+                                        <th class="px-4 py-4 text-center">Offer</th>
+                                        <th class="px-4 py-4 text-center">On Board</th>
+                                        <th class="px-4 py-4 text-center">Upcoming On Board</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teamMatePerformanceBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1242,6 +1241,61 @@
             renderDashboard(false);
         }
 
+        function getFloorSortIndicator(key) {
+            if (floorSortKey !== key) return '<span class="text-[11px] opacity-40">↕</span>';
+            return `<span class="text-[11px]">${floorSortDirection === 'asc' ? '↑' : '↓'}</span>`;
+        }
+
+        function renderFloorTableHeader() {
+            const headerRow = document.querySelector('#floorTableBody')?.closest('table')?.querySelector('thead tr');
+            if (!headerRow) return;
+
+            const headers = [
+                { key: 'label', label: 'Floor / Centre', align: 'left' },
+                { key: 'brandLabel', label: 'Brand Mix', align: 'left' },
+                { key: 'networkTeams', label: 'Network Teams', align: 'center' },
+                { key: 'members', label: 'Team Members', align: 'center' },
+                { key: 'lead', label: 'Lead', align: 'center' },
+                { key: 'offer', label: 'Offer', align: 'center' },
+                { key: 'onboard', label: 'On Board', align: 'center' },
+                { key: 'offerAchieveRate', label: 'Offer Achieve Rate', align: 'center' },
+                { key: 'onboardAchieveRate', label: 'On Board Achieve Rate', align: 'center' }
+            ];
+
+            headerRow.innerHTML = headers.map(({ key, label, align }) => `
+                <th class="${align === 'left' ? 'px-5 py-4 text-left' : 'px-4 py-4 text-center'}">
+                    <button type="button" onclick="toggleFloorSort('${key}')" class="inline-flex items-center ${align === 'left' ? 'gap-2' : 'justify-center gap-2'} transition hover:text-violet-700">
+                        <span>${label}</span>
+                        ${getFloorSortIndicator(key)}
+                    </button>
+                </th>
+            `).join('');
+        }
+
+        function getFloorSortValue(row, key) {
+            switch (key) {
+                case 'brandLabel':
+                    return Array.from(row.brands || []).join(', ') || '-';
+                case 'networkTeams':
+                    return row.leaders?.size || 0;
+                case 'members':
+                    return row.members || 0;
+                case 'lead':
+                    return row.lead || 0;
+                case 'offer':
+                    return row.offer || 0;
+                case 'onboard':
+                    return row.onboard || 0;
+                case 'offerAchieveRate':
+                    return row.leaders?.size ? row.offer / row.leaders.size : 0;
+                case 'onboardAchieveRate':
+                    return row.leaders?.size ? row.onboard / row.leaders.size : 0;
+                case 'label':
+                default:
+                    return row.label || '';
+            }
+        }
+
         function summarizeBreakdowns(leaders) {
             const brandMap = new Map();
             const floorMap = new Map();
@@ -1450,7 +1504,7 @@
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.offer, 1)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.onboard, 1)}</td>
                     <td class="px-5 py-4 text-center">
-                        <button type="button" onclick="event.stopPropagation(); focusLeader('${leader.key}')" class="rounded-full bg-sky-600 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">View Detail</button>
+                        <button type="button" onclick="event.stopPropagation(); focusLeader('${leader.key}')" class="rounded-full bg-sky-600 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">Review Details</button>
                     </td>
                 </tr>
             `).join('');
@@ -1508,10 +1562,10 @@
             ];
 
             cards.innerHTML = performanceCards.map(card => `
-                <div class="glass-card p-5" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                <div class="glass-card p-4" style="border-left:6px solid ${card.accent}; background:${card.bg};">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
-                    <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
-                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                    <div class="mt-3 flex flex-col items-center justify-center gap-2 text-center">
+                        <div class="text-3xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
                         <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
                     </div>
                 </div>
@@ -1584,15 +1638,14 @@
         function renderFloorTable(rows) {
             const body = document.getElementById('floorTableBody');
             const meta = document.getElementById('floorMeta');
-            const indicator = document.getElementById('floorSortIndicator');
             updateFloorSectionBrandOptions(rows);
+            renderFloorTableHeader();
             const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
             const filteredRows = floorBrandFilterValue
                 ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
                 : rows.slice();
 
             meta.textContent = `${filteredRows.length} floors under current filters`;
-            if (indicator) indicator.textContent = floorSortDirection === 'asc' ? '↑' : '↓';
 
             if (!filteredRows.length) {
                 body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
@@ -1600,9 +1653,16 @@
             }
 
             const sortedRows = filteredRows.slice().sort((a, b) => {
-                const valueA = (a?.[floorSortKey] ?? '').toString();
-                const valueB = (b?.[floorSortKey] ?? '').toString();
-                const compared = valueA.localeCompare(valueB, 'en');
+                const valueA = getFloorSortValue(a, floorSortKey);
+                const valueB = getFloorSortValue(b, floorSortKey);
+                let compared = 0;
+
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    compared = valueA - valueB;
+                } else {
+                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
+                }
+
                 return floorSortDirection === 'asc' ? compared : -compared;
             });
 
