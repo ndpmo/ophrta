@@ -203,13 +203,6 @@
                     <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
                         Network Team Leader <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">Study 2026</span>
                     </h1>
-                    <p class="mt-3 max-w-4xl text-sm md:text-base font-bold text-slate-600">
-                        Review hiring performance by Network Team Leader. Team mapping follows the live
-                        <span class="text-slate-900">Network Team Leader</span> sheet:
-                        <span class="text-slate-900">column J = team owner</span>,
-                        <span class="text-slate-900">column K/L = leader flag</span>.
-                        Recruitment counts are matched back to Sheet1 by each therapist staff number.
-                    </p>
                 </div>
             </div>
             <div class="glass-card px-5 py-4 min-w-[260px]">
@@ -248,7 +241,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
@@ -363,6 +356,46 @@
                         </thead>
                         <tbody id="networkTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8 hidden" id="leaderPerformanceSection">
+            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Selected Network Team</p>
+                    <h2 id="leaderPerformanceTitle" class="text-2xl font-black text-slate-900">Network Team Performance</h2>
+                </div>
+                <p id="leaderPerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div id="leaderPerformanceCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6"></div>
+            <div>
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">Team Mate Performance</p>
+                        <h3 class="text-xl font-black text-slate-900">Team Mate Breakdown</h3>
+                    </div>
+                    <p id="teamMatePerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
+                </div>
+                <div class="table-shell">
+                    <div class="table-wrap">
+                        <table class="w-full min-w-[980px] border-collapse">
+                            <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                                <tr>
+                                    <th class="px-5 py-4 text-left">Role</th>
+                                    <th class="px-5 py-4 text-left">Team Mate</th>
+                                    <th class="px-5 py-4 text-left">Position</th>
+                                    <th class="px-5 py-4 text-left">Brand</th>
+                                    <th class="px-5 py-4 text-left">Floor</th>
+                                    <th class="px-4 py-4 text-center">Lead</th>
+                                    <th class="px-4 py-4 text-center">Offer</th>
+                                    <th class="px-4 py-4 text-center">On Board</th>
+                                    <th class="px-4 py-4 text-center">Upcoming On Board</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamMatePerformanceBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -937,8 +970,11 @@
                     const offer = rows.filter(isOffered).length;
                     const onboard = rows.filter(isOnboard).length;
                     const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
-                    return { ...member, rows, lead: rows.length, offer, onboard, upcomingOnboard };
+                    const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
+                    return { ...member, rows, lead: rows.length, offer, onboard, upcomingOnboard, isLeaderSelf };
                 });
+                const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
+                const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
 
                 const detailRows = [];
                 memberStats.forEach(member => {
@@ -974,11 +1010,14 @@
                     name: leader.name,
                     brands: getUniqueSorted(filteredMembers.map(member => member.brand)),
                     centers: getUniqueSorted(filteredMembers.map(member => member.center)),
-                    teamSize: filteredMembers.length,
+                    teamSize: memberStats.length,
+                    teamMateCount: teamMateStats.length,
                     lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
                     offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
                     onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
                     upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
+                    leaderSelfStat,
+                    teamMateStats,
                     memberStats,
                     detailRows
                 };
@@ -1033,25 +1072,54 @@
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
             const totalTarget = leaders.length * 2;
+            const leaderBrandCount = { Dermes: 0, Reenex: 0, Elyze: 0 };
+
+            leaders.forEach(leader => {
+                const brands = new Set((leader.brands || []).map(brand => safeTrim(brand).toLowerCase()));
+                if (brands.has('dermes')) leaderBrandCount.Dermes += 1;
+                if (brands.has('reenex')) leaderBrandCount.Reenex += 1;
+                if (brands.has('elyze')) leaderBrandCount.Elyze += 1;
+            });
+
+            const leaderBrandLines = `
+                <div class="mt-2 grid grid-cols-3 gap-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+                    <span>Dermes ${formatNumber(leaderBrandCount.Dermes)}</span>
+                    <span>Reenex ${formatNumber(leaderBrandCount.Reenex)}</span>
+                    <span>Elyze ${formatNumber(leaderBrandCount.Elyze)}</span>
+                </div>
+            `;
 
             const cards = [
                 { title: 'Lead', value: totalLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
                 { title: 'Offer', value: totalOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
                 { title: 'On Board', value: totalOnboard, note: `${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--success)', bg: 'var(--success-soft)', mode: 'ONBOARD' },
                 { title: 'Upcoming On Board', value: totalUpcomingOnboard, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
-                { title: 'Active Leaders', value: leaders.length, note: 'Filtered network teams', accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL' },
-                { title: 'Team Members', value: memberCount, note: 'Mapped from J/K/L', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
+                { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
+                { title: 'Team Members', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
             ];
 
-            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+            const topCards = cards.filter(card => card.title === 'Network Team Leader' || card.title === 'Team Members');
+            const bottomCards = cards.filter(card => card.title !== 'Network Team Leader' && card.title !== 'Team Members');
+            const renderCard = card => `
                 <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
                     <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
                         <div class="text-4xl font-black data-font text-slate-900 text-center">${formatNumber(card.value)}</div>
-                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${card.note}</div>
+                        ${card.noteIsHtml
+                            ? `<div class="w-full text-center">${card.note}</div>`
+                            : (card.note ? `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${card.note}</div>` : '')}
                     </div>
                 </button>
-            `).join('');
+            `;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    ${topCards.map(renderCard).join('')}
+                </div>
+                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                    ${bottomCards.map(renderCard).join('')}
+                </div>
+            `;
         }
 
         function focusLeader(leaderKey, shouldScroll = true) {
@@ -1059,7 +1127,7 @@
             selectedLeaderKey = leaderKey || '';
             renderDashboard(false);
             if (shouldScroll) {
-                document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('leaderPerformanceSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -1294,6 +1362,91 @@
             `).join('');
         }
 
+        function renderLeaderPerformance(leaders) {
+            const section = document.getElementById('leaderPerformanceSection');
+            const title = document.getElementById('leaderPerformanceTitle');
+            const meta = document.getElementById('leaderPerformanceMeta');
+            const cards = document.getElementById('leaderPerformanceCards');
+            const teamMateMeta = document.getElementById('teamMatePerformanceMeta');
+            const teamMateBody = document.getElementById('teamMatePerformanceBody');
+            if (!section || !title || !meta || !cards || !teamMateMeta || !teamMateBody) return;
+
+            if (!leaders.length || currentDetailScope !== 'LEADER') {
+                section.classList.add('hidden');
+                title.textContent = 'Network Team Performance';
+                meta.textContent = '-';
+                cards.innerHTML = '';
+                teamMateMeta.textContent = '-';
+                teamMateBody.innerHTML = '';
+                return;
+            }
+
+            const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
+            selectedLeaderKey = active.key;
+            section.classList.remove('hidden');
+
+            const leaderSelfStat = active.memberStats.find(member => normalizeKey(member.therapist) === active.key) || null;
+            const teamMateStats = active.memberStats
+                .filter(member => !leaderSelfStat || member !== leaderSelfStat)
+                .sort((a, b) =>
+                    b.onboard - a.onboard ||
+                    b.offer - a.offer ||
+                    b.lead - a.lead ||
+                    a.therapist.localeCompare(b.therapist, 'en')
+                );
+            const performanceRows = [];
+            if (leaderSelfStat) {
+                performanceRows.push({ ...leaderSelfStat, roleLabel: 'Leader' });
+            }
+            teamMateStats.forEach(member => {
+                performanceRows.push({ ...member, roleLabel: 'Team Mate' });
+            });
+
+            title.textContent = `${active.name} Network Team Performance`;
+            meta.textContent = `${active.brands.join(', ') || '-'} / ${active.centers.join(', ') || '-'} / ${formatNumber(active.teamSize)} team members`;
+
+            const performanceCards = [
+                { title: 'Lead', value: active.lead || 0, accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', note: 'Whole network team performance' },
+                { title: 'Offer', value: active.offer || 0, accent: 'var(--warning)', bg: 'var(--warning-soft)', note: 'Whole network team performance' },
+                { title: 'On Board', value: active.onboard || 0, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'Whole network team performance' },
+                { title: 'Upcoming On Board', value: active.upcomingOnboard || 0, accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', note: 'Whole network team performance' },
+                { title: 'Team Size', value: active.teamSize, accent: 'var(--brand)', bg: 'var(--brand-soft)', note: `${formatNumber(active.teamSize)} total (leader + members)` }
+            ];
+
+            cards.innerHTML = performanceCards.map(card => `
+                <div class="glass-card p-5" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
+                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            teamMateMeta.textContent = leaderSelfStat
+                ? `${formatNumber(performanceRows.length)} rows (${formatNumber(teamMateStats.length)} team mates + 1 leader)`
+                : `${formatNumber(performanceRows.length)} rows (${formatNumber(teamMateStats.length)} team mates)`;
+
+            if (!performanceRows.length) {
+                teamMateBody.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No mapped network team performance under this network team.</td></tr>';
+                return;
+            }
+
+            teamMateBody.innerHTML = performanceRows.map(member => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left font-black ${member.roleLabel === 'Leader' ? 'text-sky-700' : 'text-slate-500'}">${member.roleLabel}</td>
+                    <td class="px-5 py-4 text-left font-black text-slate-900">${member.therapist || '-'}</td>
+                    <td class="px-5 py-4 text-left">${member.position || '-'}</td>
+                    <td class="px-5 py-4 text-left">${member.brand || '-'}</td>
+                    <td class="px-5 py-4 text-left">${member.center || '-'}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.offer)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.upcomingOnboard)}</td>
+                </tr>
+            `).join('');
+        }
+
         function renderDetailTable(leaders) {
             const body = document.getElementById('detailTableBody');
             const title = document.getElementById('detailTitle');
@@ -1481,6 +1634,7 @@
             renderBrandTable(brandRows);
             renderFloorTable(floorRows);
             renderNetworkTable(leaders);
+            renderLeaderPerformance(leaders);
             renderDetailTable(leaders);
 
             const loading = document.getElementById('loadingState');
