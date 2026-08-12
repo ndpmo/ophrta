@@ -407,20 +407,36 @@
                     <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Leader Candidate Detail</h2>
                 </div>
                 <div class="flex flex-col lg:flex-row lg:items-center gap-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <div class="flex items-center gap-2">
-                            <label for="detailBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                            <select id="detailBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
-                                <option value="">All Brand</option>
-                            </select>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <label for="detailBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                                <select id="detailBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
+                                    <option value="">All Brand</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="detailFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
+                                <select id="detailFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
+                                    <option value="">All Floor</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <label for="detailFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
-                            <select id="detailFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
-                                <option value="">All Floor</option>
-                            </select>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <label for="detailStatusFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Status</label>
+                                <select id="detailStatusFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
+                                    <option value="">All Status</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="detailOnboardStatusFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Status</label>
+                                <select id="detailOnboardStatusFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[190px]">
+                                    <option value="">All On Board Status</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="resetDetailFilters()" class="pill-button px-4 py-2 text-xs uppercase tracking-[0.14em]">Reset Filters</button>
                         </div>
-                        <button type="button" onclick="resetDetailFilters()" class="pill-button px-4 py-2 text-xs uppercase tracking-[0.14em]">Reset Filters</button>
                     </div>
                     <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
                 </div>
@@ -545,6 +561,12 @@
             const brand = normalizeBrand(value);
             if (brand === 'OTHER') return 'Other';
             return brand.charAt(0) + brand.slice(1).toLowerCase();
+        }
+
+        function isSameBrandReferral(member, row) {
+            const memberBrand = normalizeBrand(member?.brandKey || member?.brand || '');
+            const candidateBrand = normalizeBrand(getS1Value(row, S1_IDX.BRAND) || '');
+            return !!memberBrand && !!candidateBrand && memberBrand === candidateBrand;
         }
 
         function parseDate(rawValue) {
@@ -800,10 +822,14 @@
         function updateDetailFilterOptions(rows) {
             const brandSelect = document.getElementById('detailBrandFilter');
             const floorSelect = document.getElementById('detailFloorFilter');
-            if (!brandSelect || !floorSelect) return;
+            const statusSelect = document.getElementById('detailStatusFilter');
+            const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
+            if (!brandSelect || !floorSelect || !statusSelect || !onboardStatusSelect) return;
 
             const previousBrand = safeTrim(brandSelect.value);
             const previousFloor = safeTrim(floorSelect.value);
+            const previousStatus = safeTrim(statusSelect.value);
+            const previousOnboardStatus = safeTrim(onboardStatusSelect.value);
 
             const brandOptions = getUniqueSorted(rows.map(row => safeTrim(row.brand)).filter(Boolean));
             brandSelect.innerHTML = ['<option value="">All Brand</option>']
@@ -817,6 +843,20 @@
                 .concat(floorOptions.map(option => `<option value="${option}">${option}</option>`))
                 .join('');
             if (previousFloor && floorOptions.includes(previousFloor)) floorSelect.value = previousFloor;
+
+            const scopedRowsForStatus = scopedRows.filter(row => !floorSelect.value || safeTrim(row.center) === floorSelect.value);
+            const statusOptions = getUniqueSorted(scopedRowsForStatus.map(row => safeTrim(row.status)).filter(Boolean));
+            statusSelect.innerHTML = ['<option value="">All Status</option>']
+                .concat(statusOptions.map(option => `<option value="${option}">${option}</option>`))
+                .join('');
+            if (previousStatus && statusOptions.includes(previousStatus)) statusSelect.value = previousStatus;
+
+            const scopedRowsForOnboardStatus = scopedRowsForStatus.filter(row => !statusSelect.value || safeTrim(row.status) === statusSelect.value);
+            const onboardStatusOptions = getUniqueSorted(scopedRowsForOnboardStatus.map(row => safeTrim(row.onboardStatus)).filter(Boolean));
+            onboardStatusSelect.innerHTML = ['<option value="">All On Board Status</option>']
+                .concat(onboardStatusOptions.map(option => `<option value="${option}">${option}</option>`))
+                .join('');
+            if (previousOnboardStatus && onboardStatusOptions.includes(previousOnboardStatus)) onboardStatusSelect.value = previousOnboardStatus;
         }
 
         function getDetailComparableValue(item, key) {
@@ -848,8 +888,12 @@
         function resetDetailFilters() {
             const brandSelect = document.getElementById('detailBrandFilter');
             const floorSelect = document.getElementById('detailFloorFilter');
+            const statusSelect = document.getElementById('detailStatusFilter');
+            const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
             if (brandSelect) brandSelect.value = '';
             if (floorSelect) floorSelect.value = '';
+            if (statusSelect) statusSelect.value = '';
+            if (onboardStatusSelect) onboardStatusSelect.value = '';
             detailSortKey = 'leadDateObj';
             detailSortDirection = 'desc';
             renderDashboard(false);
@@ -963,10 +1007,12 @@
                 const memberStats = filteredMembers.map(member => {
                     const rows = getMemberReferralRows(member, range);
                     const offer = rows.filter(isOffered).length;
-                    const onboard = rows.filter(isOnboard).length;
+                    const onboardRows = rows.filter(isOnboard);
+                    const onboard = onboardRows.filter(row => isSameBrandReferral(member, row)).length;
+                    const nonSameBrandOnboard = onboardRows.filter(row => !isSameBrandReferral(member, row)).length;
                     const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, onboard, upcomingOnboard, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, offer, onboard, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -974,6 +1020,8 @@
                 const detailRows = [];
                 memberStats.forEach(member => {
                     member.rows.forEach(row => {
+                        const actualOnboarded = isOnboard(row);
+                        const sameBrand = isSameBrandReferral(member, row);
                         detailRows.push({
                             leaderKey: leader.key,
                             leaderName: leader.name,
@@ -989,7 +1037,10 @@
                             onboardStatus: getOnboardStatus(row) || '-',
                             interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
                             offered: isOffered(row),
-                            onboarded: isOnboard(row),
+                            onboarded: actualOnboarded,
+                            sameBrand,
+                            sameBrandOnboarded: actualOnboarded && sameBrand,
+                            nonSameBrandOnboarded: actualOnboarded && !sameBrand,
                             upcomingOnboard: isUpcomingOnboard(row),
                             leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0),
                             offerDateObj: parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]) || new Date(0),
@@ -1010,6 +1061,7 @@
                     lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
                     offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
                     onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
+                    nonSameBrandOnboard: memberStats.reduce((sum, member) => sum + member.nonSameBrandOnboard, 0),
                     upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
                     leaderSelfStat,
                     teamMateStats,
@@ -1065,6 +1117,7 @@
             const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
             const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
+            const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
             const totalTarget = leaders.length * 2;
             const leaderBrandCount = { Dermes: 0, Reenex: 0, Elyze: 0 };
@@ -1087,7 +1140,18 @@
             const cards = [
                 { title: 'Lead', value: totalLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
                 { title: 'Offer', value: totalOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
-                { title: 'On Board', value: totalOnboard, note: `${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--success)', bg: 'var(--success-soft)', mode: 'ONBOARD' },
+                {
+                    title: 'On Board',
+                    value: totalOnboard,
+                    note: `
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>
+                        <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Non Same Brand = ${formatNumber(totalNonSameBrandOnboard)}</div>
+                    `,
+                    accent: 'var(--success)',
+                    bg: 'var(--success-soft)',
+                    mode: 'ONBOARD',
+                    noteIsHtml: true
+                },
                 { title: 'Upcoming On Board', value: totalUpcomingOnboard, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
                 { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
                 { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
@@ -1129,6 +1193,41 @@
         function focusSummaryDetail(mode = 'LEAD') {
             currentDetailScope = 'SUMMARY';
             currentSummaryDetailMode = mode;
+            renderDashboard(false);
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function focusFloorDetail(floorLabel = '', mode = 'LEAD') {
+            currentDetailScope = 'SUMMARY';
+            currentSummaryDetailMode = mode;
+            renderDashboard(false);
+
+            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
+            const detailBrandFilter = document.getElementById('detailBrandFilter');
+            const detailFloorFilter = document.getElementById('detailFloorFilter');
+            const detailStatusFilter = document.getElementById('detailStatusFilter');
+            const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+            const activeBrand = safeTrim(floorSectionBrandFilter?.value);
+
+            if (detailBrandFilter) {
+                detailBrandFilter.value = '';
+                if (activeBrand && Array.from(detailBrandFilter.options).some(option => option.value === activeBrand)) {
+                    detailBrandFilter.value = activeBrand;
+                }
+            }
+
+            renderDashboard(false);
+
+            if (detailFloorFilter) {
+                detailFloorFilter.value = '';
+                if (floorLabel && Array.from(detailFloorFilter.options).some(option => option.value === floorLabel)) {
+                    detailFloorFilter.value = floorLabel;
+                }
+            }
+
+            if (detailStatusFilter) detailStatusFilter.value = '';
+            if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
+
             renderDashboard(false);
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -1223,9 +1322,9 @@
                     <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
                 </tr>
@@ -1544,7 +1643,7 @@
                     rows = rows.filter(item => item.offered);
                     titleText = 'Network Team Leader Offer Detail';
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
-                    rows = rows.filter(item => item.onboarded);
+                    rows = rows.filter(item => item.sameBrandOnboarded);
                     titleText = 'Network Team Leader On Board Detail';
                 } else if (currentSummaryDetailMode === 'UPCOMING') {
                     rows = rows.filter(item => item.upcomingOnboard);
@@ -1568,9 +1667,13 @@
 
             const detailBrandFilterValue = safeTrim(document.getElementById('detailBrandFilter')?.value);
             const detailFloorFilterValue = safeTrim(document.getElementById('detailFloorFilter')?.value);
+            const detailStatusFilterValue = safeTrim(document.getElementById('detailStatusFilter')?.value);
+            const detailOnboardStatusFilterValue = safeTrim(document.getElementById('detailOnboardStatusFilter')?.value);
             rows = rows.filter(item => {
                 if (detailBrandFilterValue && safeTrim(item.brand) !== detailBrandFilterValue) return false;
                 if (detailFloorFilterValue && safeTrim(item.center) !== detailFloorFilterValue) return false;
+                if (detailStatusFilterValue && safeTrim(item.status) !== detailStatusFilterValue) return false;
+                if (detailOnboardStatusFilterValue && safeTrim(item.onboardStatus) !== detailOnboardStatusFilterValue) return false;
                 return true;
             });
 
@@ -1696,12 +1799,26 @@
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'detailBrandFilter') {
                         const floorFilter = document.getElementById('detailFloorFilter');
                         if (floorFilter) floorFilter.value = '';
+                        const statusFilter = document.getElementById('detailStatusFilter');
+                        if (statusFilter) statusFilter.value = '';
+                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+                        if (onboardStatusFilter) onboardStatusFilter.value = '';
+                    }
+                    if (id === 'detailFloorFilter') {
+                        const statusFilter = document.getElementById('detailStatusFilter');
+                        if (statusFilter) statusFilter.value = '';
+                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+                        if (onboardStatusFilter) onboardStatusFilter.value = '';
+                    }
+                    if (id === 'detailStatusFilter') {
+                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+                        if (onboardStatusFilter) onboardStatusFilter.value = '';
                     }
                     if (id === 'networkSectionBrandFilter') {
                         const floorFilter = document.getElementById('networkSectionFloorFilter');
