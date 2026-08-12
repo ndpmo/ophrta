@@ -4,8 +4,8 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>員工推薦進度查詢系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR &amp; Operations Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -115,16 +115,126 @@
             background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
             border-left: 4px solid #6366f1;
         }
+
+        .mobile-filter-row {
+            width: auto;
+        }
+
+        .mobile-inline-date-range {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 1rem 0.75rem 2.5rem;
+            }
+
+            .cyber-card {
+                border-radius: 1rem;
+                box-shadow: 0 8px 28px -12px rgba(99, 102, 241, 0.18);
+            }
+
+            th, td {
+                padding: 0.8rem 0.65rem !important;
+            }
+
+            .date-selector-input {
+                width: 100%;
+                min-height: 2.75rem;
+                font-size: 16px;
+                padding: 0.55rem 0.75rem;
+            }
+
+            .filter-label {
+                font-size: 11px;
+            }
+
+            .month-btn {
+                width: 100%;
+                min-height: 2.75rem;
+                padding: 0.6rem 0.5rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #monthSelector {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            #statsArea {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .mobile-filter-row {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 0.75rem;
+            }
+
+            .mobile-inline-date-range {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .mobile-inline-date-range .date-selector-input {
+                flex: 1 1 100%;
+            }
+
+            .checkbox-container {
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .checkbox-container .filter-label,
+            .checkbox-container span {
+                margin-left: 0 !important;
+            }
+
+            .position-filter-group {
+                width: 100%;
+            }
+
+            .position-filter-group > button {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .pos-dropdown-menu {
+                left: 0;
+                right: 0;
+                width: 100%;
+            }
+
+            .mobile-table-wrap {
+                -webkit-overflow-scrolling: touch;
+                overflow-x: auto;
+            }
+
+            #sharedDetailArea {
+                margin-bottom: 4rem;
+            }
+
+            #initialPrompt {
+                padding-top: 4rem;
+                padding-bottom: 4rem;
+                font-size: 1.25rem;
+            }
+        }
     </style>
 </head>
 <body class="py-6 md:py-12 px-3 md:px-6 text-left">
 
     <div class="max-w-7xl mx-auto">
-        <!-- 頂部標題與同步時間 -->
+        <!-- ?璅???甇交???-->
         <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6">
             <div class="w-full text-left">
                 <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight header-glow">
-                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase">Dashboard</span>
+                    HR &amp; Operations <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase">Dashboard</span>
                 </h1>
                 <div class="flex flex-wrap gap-3 mb-4">
                     <a href="./TA_Study_2026.html" class="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5">
@@ -137,68 +247,71 @@
                         Network Team Leader
                     </a>
                 </div>
-                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit border border-white/80 shadow-sm">
+                <p class="hidden text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit border border-white/80 shadow-sm">
                     <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     範圍：2025/12/15 之後記錄 (排除 LSL/Hipo E1)
                 </p>
             </div>
-            <div onclick="init()" class="cyber-card px-6 py-4 border-l-4 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md cursor-pointer hover:bg-indigo-50 active:scale-95 flex items-center justify-between group">
-                <span id="lastUpdateDisplay">試算表狀態：讀取中...</span>
+            <div onclick="init()" class="cyber-card w-full md:w-auto px-6 py-4 border-l-4 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md cursor-pointer hover:bg-indigo-50 active:scale-95 flex items-center justify-between group">
+                <span id="lastUpdateDisplay">同步：Staff number</span>
                 <svg class="w-5 h-5 text-indigo-400 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
             </div>
         </div>
 
-        <!-- 查詢篩選區 -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 md:mb-12">
-            <div class="lg:col-span-1 cyber-card p-6">
+        <!-- ?亥岷蝭拚? -->
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(260px,0.95fr)_minmax(320px,1.05fr)] gap-5 xl:gap-6 mb-8 md:mb-12 items-start">
+            <div class="lg:col-span-1 cyber-card p-5 xl:p-6 h-full">
                 <h3 class="text-indigo-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span></h3>
                 <input type="text" id="staffId" placeholder="Staff ID 例如: 11852" class="w-full px-4 py-3 mb-3 rounded-xl border-2 border-indigo-50 font-bold outline-none">
                 <button onclick="manualSearch()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl shadow-lg active:scale-95 uppercase">執行查詢</button>
             </div>
 
-            <div class="lg:col-span-2 cyber-card p-6">
+            <div class="lg:col-span-1 cyber-card p-5 xl:p-6 h-full">
                 <h3 class="text-violet-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
                     <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇品牌</option></select>
-                    <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Floor</option></select>
-                    <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇姓名</option></select>
+                    <select id="filterCenter" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Centre</option></select>
+                    <select id="filterName" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Refer By Name</option></select>
                 </div>
-                <div class="mt-4 flex justify-end"><button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">重設篩選</button></div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button onclick="confirmQuickFilter()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl text-xs shadow-lg active:scale-95 uppercase">Confirm</button>
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">重設篩選</button>
+                </div>
             </div>
 
             <div class="lg:col-span-1 cyber-card p-6 hidden" id="inactiveCheckPanel">
-                <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">未推薦檢查 <span class="ml-auto opacity-20 font-cyber text-lg text-right">03</span></h3>
+                <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">不活躍檢查 <span class="ml-auto opacity-20 font-cyber text-lg text-right">03</span></h3>
                 <div class="grid grid-cols-1 gap-2">
-                    <button onclick="checkInactiveByDays(14)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">最近 2 星期無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
-                    <button onclick="checkInactiveByDays(30)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">最近 1 個月無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                    <button onclick="checkInactiveByDays(14)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">超過 2 星期不活躍<svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                    <button onclick="checkInactiveByDays(30)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">超過 1 個月不活躍<svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
                 </div>
             </div>
         </div>
 
-        <!-- 入職批次追蹤 (當月與後4個月) -->
+        <!-- ?亥?寞活餈質馱 (?嗆???4??) -->
         <div id="onBoardBatchArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-6 mb-8 text-left">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-indigo-500 pl-4 tracking-wider uppercase text-left">入職批次追蹤 <span class="font-cyber text-indigo-500 ml-2">ON BOARD BATCHES</span></h2>
                 <div class="flex flex-wrap items-center gap-2 bg-white/50 p-2 rounded-2xl border border-white shadow-sm text-left" id="monthSelector">
-                    <!-- JS 自動產生 5 個月的按鈕 -->
+                    <!-- JS ?芸??Ｙ? 5 ??????-->
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-left" id="batchContainer">
-                <!-- 由 JS 動態插入卡片 -->
+                <!-- ??JS ????∠? -->
             </div>
         </div>
 
-        <!-- Lead 統計區 -->
+        <!-- Lead 蝯梯?? -->
         <div id="weeklyLeadArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase text-left">Lead 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
-                <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
-                    <input type="date" id="leadStart" onchange="calculateWeeklyLeads()" class="date-selector-input">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase text-left">LEAD 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
+                <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
+                    <input type="date" id="leadStart" onchange="handleLeadDateChange()" class="date-selector-input">
                     <span class="font-bold text-slate-400 text-xs">至</span>
-                    <input type="date" id="leadEnd" onchange="calculateWeeklyLeads()" class="date-selector-input">
+                    <input type="date" id="leadEnd" onchange="handleLeadDateChange()" class="date-selector-input">
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <div onclick="toggleLeadList('DERMES')" class="lead-card cyber-card p-6 border-b-8 border-rose-400 text-left">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
@@ -214,19 +327,34 @@
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
                     <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-lead-total-ELYZE">0</span></div>
                 </div>
+                <div id="lead-HR" onclick="toggleLeadHrList()" class="lead-card cyber-card p-6 border-b-8 border-fuchsia-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC Date)</p>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xl font-black text-slate-900">HR SOURCES</p>
+                        </div>
+                        <span class="px-4 py-2 bg-fuchsia-50 text-fuchsia-700 rounded-xl text-4xl font-black shadow-inner readable-nums" id="weekly-lead-hr-total">0</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-black uppercase tracking-wide readable-nums">
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Dermes</span><span class="text-fuchsia-700" id="weekly-lead-hr-DERMES">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Reenex</span><span class="text-fuchsia-700" id="weekly-lead-hr-REENEX">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-fuchsia-700" id="weekly-lead-hr-ELYZE">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-fuchsia-700" id="weekly-lead-hr-OTHER">0</span></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Weekly Offer 統計區 -->
+        <!-- Weekly Offer 蝯梯?? -->
         <div id="weeklyOfferArea" class="mb-10 text-left">
             <div class="flex flex-col gap-4 mb-6 text-left">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left">Offer 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left">OFFER 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
                 <div class="flex flex-col md:flex-row gap-4 text-left">
-                    <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm text-left"><span class="filter-label ml-1">Offer Date:</span><input type="date" id="offerStart" onchange="calculateWeeklyOffers()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="offerEnd" onchange="calculateWeeklyOffers()" class="date-selector-input"></div>
-                    <div class="flex items-center gap-3 bg-blue-50/50 p-2 rounded-xl border border-blue-100 shadow-sm text-left"><label class="checkbox-container ml-1"><input type="checkbox" id="useObFilter" onchange="calculateWeeklyOffers()"><span class="filter-label ml-2 text-blue-700">套用 On Board Date:</span></label><div class="flex items-center gap-2 text-left"><input type="date" id="obOfferStart" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"><span class="font-bold text-blue-300 text-xs">至</span><input type="date" id="obOfferEnd" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"></div></div>
+                    <div class="mobile-filter-row flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm text-left"><span class="filter-label ml-1">Offer Date:</span><div class="mobile-inline-date-range"><input type="date" id="offerStart" onchange="calculateWeeklyOffers()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="offerEnd" onchange="calculateWeeklyOffers()" class="date-selector-input"></div></div>
+                    <div class="mobile-filter-row flex items-center gap-3 bg-blue-50/50 p-2 rounded-xl border border-blue-100 shadow-sm text-left"><label class="checkbox-container ml-1"><input type="checkbox" id="useObFilter" onchange="calculateWeeklyOffers()"><span class="filter-label ml-2 text-blue-700">套用 On Board Date:</span></label><div class="mobile-inline-date-range text-left"><input type="date" id="obOfferStart" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"><span class="font-bold text-blue-300 text-xs">至</span><input type="date" id="obOfferEnd" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"></div></div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 text-left">
                 <div onclick="toggleWeeklyList('DERMES')" class="weekly-card cyber-card p-6 border-b-8 border-rose-500 text-left">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">DERMES</p>
@@ -242,31 +370,124 @@
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
                     <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-ELYZE">0</span></div>
                 </div>
+                <div id="weekly-HR" onclick="toggleWeeklyHrList()" class="weekly-card cyber-card p-6 border-b-8 border-sky-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (Accepted/Offered)</p>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xl font-black text-slate-900">HR SOURCES</p>
+                        </div>
+                        <span class="px-4 py-2 bg-sky-50 text-sky-700 rounded-xl text-4xl font-black shadow-inner readable-nums" id="weekly-offer-hr-total">0</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-black uppercase tracking-wide readable-nums">
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Dermes</span><span class="text-sky-700" id="weekly-offer-hr-DERMES">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Reenex</span><span class="text-sky-700" id="weekly-offer-hr-REENEX">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-sky-700" id="weekly-offer-hr-ELYZE">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-sky-700" id="weekly-offer-hr-OTHER">0</span></div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="pendingOfferArea" class="mb-12 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-orange-500 pl-4 tracking-wider uppercase">待定 Offer <span class="font-cyber text-orange-500 ml-2">PENDING OFFERS</span></h2>
-                <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-orange-500 pl-4 tracking-wider uppercase">待定 OFFER <span class="font-cyber text-orange-500 ml-2">PENDING OFFERS</span></h2>
+                <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
                     <input type="date" id="pendingStart" onchange="calculatePendingOffers()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="pendingEnd" onchange="calculatePendingOffers()" class="date-selector-input">
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 text-left">
                 <div onclick="togglePendingList('DERMES')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3">DERMES</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-DERMES">0</span></div></div>
                 <div onclick="togglePendingList('REENEX')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-REENEX">0</span></div></div>
                 <div onclick="togglePendingList('ELYZE')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1 text-left">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-ELYZE">0</span></div></div>
+                <div id="pending-HR" onclick="togglePendingHrList()" class="pending-card cyber-card p-6 border-b-8 border-amber-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offered but NOT Accept</p>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xl font-black text-slate-900">HR SOURCES</p>
+                        </div>
+                        <span class="px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-4xl font-black shadow-inner readable-nums" id="pending-hr-total">0</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-black uppercase tracking-wide readable-nums">
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Dermes</span><span class="text-amber-700" id="pending-hr-DERMES">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Reenex</span><span class="text-amber-700" id="pending-hr-REENEX">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-amber-700" id="pending-hr-ELYZE">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-amber-700" id="pending-hr-OTHER">0</span></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 名單明細容器 -->
+        <!-- ??敦摰孵 -->
+        <div id="onboardSummaryArea" class="mb-12 text-left">
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-emerald-500 pl-4 tracking-wider uppercase">入職統計 <span class="font-cyber text-emerald-500 ml-2">ON BOARD</span></h2>
+                <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
+                    <input type="date" id="onboardStart" onchange="calculateOnboardSummary()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="onboardEnd" onchange="calculateOnboardSummary()" class="date-selector-input">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 text-left">
+                <div id="onboard-DERMES" onclick="toggleOnboardList('DERMES')" class="onboard-card cyber-card p-6 border-b-8 border-emerald-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-DERMES">0</span></div>
+                </div>
+                <div id="onboard-REENEX" onclick="toggleOnboardList('REENEX')" class="onboard-card cyber-card p-6 border-b-8 border-teal-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-teal-50 text-teal-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-REENEX">0</span></div>
+                </div>
+                <div id="onboard-ELYZE" onclick="toggleOnboardList('ELYZE')" class="onboard-card cyber-card p-6 border-b-8 border-lime-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-lime-50 text-lime-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-ELYZE">0</span></div>
+                </div>
+                <div id="onboard-HR" onclick="toggleOnboardHrList()" class="onboard-card cyber-card p-6 border-b-8 border-green-400 text-left cursor-pointer">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xl font-black text-slate-900">HR SOURCES</p>
+                        </div>
+                        <span class="px-4 py-2 bg-green-50 text-green-700 rounded-xl text-4xl font-black shadow-inner readable-nums" id="onboard-hr-total">0</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-black uppercase tracking-wide readable-nums">
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Dermes</span><span class="text-green-700" id="onboard-hr-DERMES">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Reenex</span><span class="text-green-700" id="onboard-hr-REENEX">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-green-700" id="onboard-hr-ELYZE">0</span></div>
+                        <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-green-700" id="onboard-hr-OTHER">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (() => {
+                const pendingArea = document.getElementById('pendingOfferArea');
+                const onboardArea = document.getElementById('onboardSummaryArea');
+                if (!pendingArea || !onboardArea || !pendingArea.parentNode) return;
+                if (pendingArea.compareDocumentPosition(onboardArea) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    pendingArea.parentNode.insertBefore(onboardArea, pendingArea);
+                }
+            })();
+        </script>
+
         <div id="sharedDetailArea" class="hidden mt-8 mb-24 space-y-6">
-            <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 名單明細</h3>
+            <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 詳細名單</h3>
             <div class="cyber-card overflow-hidden shadow-2xl">
-                <div class="overflow-x-auto custom-scrollbar text-left">
+                <div class="mobile-table-wrap overflow-x-auto custom-scrollbar text-left">
                     <table class="w-full border-collapse">
                         <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-sm text-center">
-                            <tr><th class="text-left px-6">BRAND</th><th class="text-center px-4">Lead Date</th><th class="text-center px-4">Offer Date</th><th class="text-center px-4">On Board Date</th><th class="text-center px-4">Status</th><th class="text-center px-4">RJ/NJ</th><th class="text-left px-6">Name (N)</th><th class="text-left px-6">REFER BY</th></tr>
+                            <tr>
+                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('brand')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">BRAND<span id="sort-indicator-brand" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('position')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Position<span id="sort-indicator-position" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('leadDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Lead Date<span id="sort-indicator-leadDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('offerDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Offer Date<span id="sort-indicator-offerDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('onboardDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Date<span id="sort-indicator-onboardDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('status')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Status<span id="sort-indicator-status" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('onboardStatus')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Status<span id="sort-indicator-onboardStatus" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('rjnj')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">RJ/NJ<span id="sort-indicator-rjnj" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('name')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Name (N)<span id="sort-indicator-name" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('tail')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition"><span id="sharedDetailTailHeaderLabel">REFER BY</span><span id="sort-indicator-tail" class="text-xs text-indigo-500"></span></button></th>
+                            </tr>
                         </thead>
                         <tbody id="sharedDetailTableBody" class="divide-y divide-slate-100 font-bold text-base md:text-lg"></tbody>
                     </table>
@@ -274,23 +495,87 @@
             </div>
         </div>
 
-        <!-- 彙總統計區 -->
-        <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-12 hidden text-center">
+        <!-- 敶蜇蝯梯?? -->
+        <div id="statsArea" class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-12 hidden text-center">
             <div class="cyber-card p-4 md:p-8 border-l-4 border-blue-500"><p class="text-xs text-slate-500 font-black mb-1">總推薦</p><p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-emerald-500"><p class="text-xs text-slate-500 font-black mb-1 text-center">已入職</p><p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums">0</p></div>
+            <div class="cyber-card p-4 md:p-8 border-l-4 border-indigo-500"><p class="text-xs text-slate-500 font-black mb-1 text-center">Offer</p><p id="offerCount" class="text-2xl md:text-5xl font-black text-indigo-600 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-rose-500"><p class="text-xs text-slate-500 font-black mb-1 text-center">Drop</p><p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-amber-500"><p class="text-xs text-slate-500 font-black mb-1 text-center">處理中</p><p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums">0</p></div>
         </div>
 
-        <div id="referralTrackingInfo" class="hidden mb-10 px-6 py-4 rounded-2xl summary-accent bg-white/40 text-left"><p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900"></p></div>
+        <div id="referralTrackingInfo" class="hidden mb-10 px-6 py-4 rounded-2xl summary-accent bg-white/40 text-left">
+            <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                <p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900"></p>
+                <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 bg-white/70 border border-indigo-100 rounded-2xl px-3 py-2">
+                        <span class="text-[11px] font-black tracking-[0.18em] text-indigo-500 uppercase whitespace-nowrap">Lead Date Filter</span>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <input type="date" id="referralInlineStart" onchange="applyInlineReferralDateFilter()" class="date-selector-input border-indigo-100 w-full sm:w-auto">
+                            <span class="font-bold text-indigo-300 text-xs text-center">TO</span>
+                            <input type="date" id="referralInlineEnd" onchange="applyInlineReferralDateFilter()" class="date-selector-input border-indigo-100 w-full sm:w-auto">
+                        </div>
+                    </div>
+                    <button onclick="resetInlineReferralDateFilter()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs self-start lg:self-auto">Reset</button>
+                </div>
+            </div>
+        </div>
         <div id="resultArea" class="hidden space-y-12 mb-16 text-left">
-            <div id="sectionRJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black text-sm text-center"><tr><th class="text-left px-6">被介紹人 (N)</th><th class="text-center px-4">日期資訊 (B+C+D)</th><th class="text-center px-4">Status</th><th class="text-center px-4">On Board Date</th><th class="text-center px-4">最終標記</th></tr></thead><tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
-            <div id="sectionNJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase text-left">NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black text-sm text-center"><tr><th class="text-left px-6">被介紹人 (N)</th><th class="text-center px-4">日期資訊 (B+C+D)</th><th class="text-center px-4">Status</th><th class="text-center px-4">On Board Date</th><th class="text-center px-4">最終標記</th></tr></thead><tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
+            <div id="sectionRJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span></h2><div class="cyber-card overflow-hidden"><div class="mobile-table-wrap overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black text-sm text-center"><tr><th class="text-left px-6">被介紹人 (N)</th><th class="text-center px-4">日期資訊 (B+C+D)</th><th class="text-center px-4">Status</th><th class="text-center px-4">On Board Date</th><th class="text-center px-4">最終標記</th></tr></thead><tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
+            <div id="sectionNJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase text-left">NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span></h2><div class="cyber-card overflow-hidden"><div class="mobile-table-wrap overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black text-sm text-center"><tr><th class="text-left px-6">被介紹人 (N)</th><th class="text-center px-4">日期資訊 (B+C+D)</th><th class="text-center px-4">Status</th><th class="text-center px-4">On Board Date</th><th class="text-center px-4">最終標記</th></tr></thead><tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
         </div>
 
         <div id="resultAreaSheet2" class="hidden mb-16 text-left">
-            <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left">相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span></h2>
-            <div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-sky-100 px-6">Name</th><th class="border-r px-4">1月+2月 Resign No</th><th class="border-r px-4 text-slate-600 text-[10px]">Total Offer (已減無返工Offer)</th><th class="border-r px-4">Should on Board</th><th class="border-r px-4">On board</th><th class="border-r px-4">Gap</th><th class="px-4">NJ Offer</th></tr></thead><tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold text-center"></tbody></table></div></div>
+            <div id="referralSummaryCards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6 hidden">
+                <button type="button" id="referralSummaryCardLead" onclick="setReferralDetailSummaryFilter('all')" class="cyber-card p-4 border-l-4 border-violet-500 text-left transition hover:-translate-y-0.5">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-1">Lead</p>
+                    <p id="referralSummaryLead" class="text-3xl font-black text-violet-600 readable-nums">0</p>
+                </button>
+                <button type="button" id="referralSummaryCardOffer" onclick="setReferralDetailSummaryFilter('offer')" class="cyber-card p-4 border-l-4 border-indigo-500 text-left transition hover:-translate-y-0.5">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-1">Offer</p>
+                    <p id="referralSummaryOffer" class="text-3xl font-black text-indigo-600 readable-nums">0</p>
+                </button>
+                <button type="button" id="referralSummaryCardOnboard" onclick="setReferralDetailSummaryFilter('onboard')" class="cyber-card p-4 border-l-4 border-emerald-500 text-left transition hover:-translate-y-0.5">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-1">On Board</p>
+                    <p id="referralSummaryOnboard" class="text-3xl font-black text-emerald-600 readable-nums">0</p>
+                </button>
+                <button type="button" id="referralSummaryCardReject" onclick="setReferralDetailSummaryFilter('rejectWithdraw')" class="cyber-card p-4 border-l-4 border-rose-500 text-left transition hover:-translate-y-0.5">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-1">Reject / Withdraw</p>
+                    <p id="referralSummaryReject" class="text-3xl font-black text-rose-600 readable-nums">0</p>
+                </button>
+            </div>
+            <div class="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-4 mb-4">
+                <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left mb-0">Referral Detail <span class="font-cyber text-sky-500 ml-2">REFERRAL DETAIL</span></h2>
+                <div id="referralSelectFilterBar" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 w-full 2xl:w-auto 2xl:min-w-[780px]">
+                    <select id="referralFilterBrand" onchange="handleReferralDetailSelectFilterChange('brand')" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Brand</option>
+                    </select>
+                    <select id="referralFilterFloor" onchange="handleReferralDetailSelectFilterChange('floor')" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Floor</option>
+                    </select>
+                    <select id="referralFilterTherapist" onchange="handleReferralDetailSelectFilterChange('therapist')" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Therapist</option>
+                    </select>
+                    <button type="button" onclick="resetReferralDetailSelectFilters()" class="px-3.5 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Reset Filters</button>
+                </div>
+            </div>
+            <div id="referralFilterBar" class="cyber-card p-4 md:p-5 mb-6">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                    <div>
+                        <p class="text-sky-950 font-black uppercase tracking-[0.18em] text-sm">Referral Period</p>
+                        <p class="text-[11px] font-bold text-slate-500 mt-1">Filter by Lead Date. Leave blank to include all referrals.</p>
+                    </div>
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-center text-left min-w-0">
+                            <input type="date" id="referralStart" onchange="rerunCurrentReferralSearch()" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 font-bold outline-none text-sm">
+                            <span class="text-center text-[11px] font-black text-slate-400">TO</span>
+                            <input type="date" id="referralEnd" onchange="rerunCurrentReferralSearch()" class="w-full px-3 py-2.5 rounded-xl border-2 border-sky-50 font-bold outline-none text-sm">
+                        </div>
+                        <button onclick="resetFilters()" class="px-3.5 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs self-start lg:self-auto">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="cyber-card overflow-hidden"><div class="mobile-table-wrap overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-sky-100 px-6"><button type="button" onclick="toggleReferralDetailSort('brand')" class="w-full flex items-center justify-start gap-1 hover:text-sky-600 transition">By Brand<span id="referral-sort-indicator-brand" class="text-xs text-sky-500"></span></button></th><th class="text-left border-r border-sky-100 px-6"><button type="button" onclick="toggleReferralDetailSort('referBy')" class="w-full flex items-center justify-start gap-1 hover:text-sky-600 transition">By Refer By<span id="referral-sort-indicator-referBy" class="text-xs text-sky-500"></span></button></th><th class="text-left border-r border-sky-100 px-6"><button type="button" onclick="toggleReferralDetailSort('refereeName')" class="w-full flex items-center justify-start gap-1 hover:text-sky-600 transition">Referee Name<span id="referral-sort-indicator-refereeName" class="text-xs text-sky-500"></span></button></th><th class="border-r px-4"><button type="button" onclick="toggleReferralDetailSort('status')" class="w-full flex items-center justify-center gap-1 hover:text-sky-600 transition">Status<span id="referral-sort-indicator-status" class="text-xs text-sky-500"></span></button></th><th class="border-r px-4"><button type="button" onclick="toggleReferralDetailSort('leadDate')" class="w-full flex items-center justify-center gap-1 hover:text-sky-600 transition">Lead Date<span id="referral-sort-indicator-leadDate" class="text-xs text-sky-500"></span></button></th><th class="border-r px-4"><button type="button" onclick="toggleReferralDetailSort('offerDate')" class="w-full flex items-center justify-center gap-1 hover:text-sky-600 transition">Offer Date<span id="referral-sort-indicator-offerDate" class="text-xs text-sky-500"></span></button></th><th class="border-r px-4"><button type="button" onclick="toggleReferralDetailSort('onboardDate')" class="w-full flex items-center justify-center gap-1 hover:text-sky-600 transition">Onboard Date<span id="referral-sort-indicator-onboardDate" class="text-xs text-sky-500"></span></button></th><th class="border-r px-4"><button type="button" onclick="toggleReferralDetailSort('onboardStatus')" class="w-full flex items-center justify-center gap-1 hover:text-sky-600 transition">On Board Status<span id="referral-sort-indicator-onboardStatus" class="text-xs text-sky-500"></span></button></th><th class="text-left px-6"><button type="button" onclick="toggleReferralDetailSort('interviewBy')" class="w-full flex items-center justify-start gap-1 hover:text-sky-600 transition">Interview By<span id="referral-sort-indicator-interviewBy" class="text-xs text-sky-500"></span></button></th></tr></thead><tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-sm readable-nums font-bold text-center"></tbody></table></div></div>
         </div>
 
         <div id="brandSummaryArea" class="mb-16 text-left hidden">
@@ -300,7 +585,7 @@
 
         <div id="picSummaryArea" class="mb-16 text-left hidden">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">PIC Summary <span class="font-cyber text-blue-500 ml-2">BY PIC</span></h2>
-            <div class="cyber-card overflow-hidden"><table class="w-full border-collapse"><thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm text-center"><tr><th class="text-left border-r border-blue-100 px-6">Brand</th><th class="text-left border-r border-blue-100 px-6">PIC</th><th class="border-r px-4">1月+2月<br>Resign No</th><th class="border-r px-4 text-slate-600 text-[10px]">Total Offer<br>(已減無返工Offer)</th><th class="border-r px-4">Should on Board</th><th class="border-r border-blue-100 text-emerald-800 px-4">On board</th><th class="border-r border-blue-100 px-4">Gap</th><th class="px-4">NJ Offer</th></tr></thead><tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div>
+            <div class="cyber-card overflow-hidden"><table class="w-full border-collapse"><thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm text-center"><tr><th class="text-left border-r border-blue-100 px-6">Brand</th><th class="text-left border-r border-blue-100 px-6">PIC</th><th class="border-r px-4">1月+2月<br>Resign No</th><th class="border-r px-4 text-slate-600 text-[10px]">Total Offer<br>(已確認返工 Offer)</th><th class="border-r px-4">Should on Board</th><th class="border-r border-blue-100 text-emerald-800 px-4">On board</th><th class="border-r border-blue-100 px-4">Gap</th><th class="px-4">NJ Offer</th></tr></thead><tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div>
         </div>
 
         <!-- Weekly PIC Performance BY PIC -->
@@ -398,39 +683,56 @@
     </div>
 
     <script>
-        // --- 核心變數 ---
-        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [];
+        // --- ?詨?霈 ---
+        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [];
         let currentDetailMode = ""; let currentDetailKey = "";
+        let currentSharedDetailRows = [];
+        let sharedDetailSort = { key: 'brand', direction: 'asc' };
         let availableMonths = [];
         let selectedBatchMonths = [];
-        let selectedPositions = ['E1']; // 預設顯示 E1
+        let selectedBatchSource = "ALL";
+        let selectedPositions = [];
+        let availablePositions = [];
+        let currentReferralStaffId = "";
+        let currentReferralBrand = "";
+        let currentReferralFloor = "";
+        let currentReferralSearchMode = "";
+        let currentReferralDetailBaseRows = [];
+        let currentReferralDetailRows = [];
+        let currentReferralDetailSummaryFilter = 'all';
+        let referralDetailSort = { key: 'leadDate', direction: 'desc' };
+        let positionFilterInitialized = false;
 
-        // 【重點設定】更新試算表來源
+        // ??暺身摰?啗岫蝞”靘?
         const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
         const SHEET_DOC_ID = '1kh_1yam1k5BZ1lkrUMZWQQr213b2ObmIMX_x6LtVbjU';
-        const SHEET1_GID = '1328974285'; // Sheet 1 來源改為 HR Use Master (2025)
+        const SHEET1_GID = '1328974285'; // Sheet 1 靘??寧 HR Use Master (2025)
         const SHEET2_GID = '946029870'; 
-        const SHEET3_GID = '1612736070'; // 新增 Sheet 3 的 GID
-        const SHEET4_GID = '1807698538'; // 新增 Sheet 4 (Commitment) 的 GID
-        const CORE_TEAM_GID = '1610056086'; // Core Team 分頁
+        const SHEET3_GID = '1612736070'; // ?啣? Sheet 3 ??GID
+        const SHEET4_GID = '1807698538'; // ?啣? Sheet 4 (Commitment) ??GID
+        const CORE_TEAM_GID = '1610056086'; // Core Team ??
         const CORE_TEAM_SHEET_NAME = 'Core Team';
+        const SALES_QUICK_SHEET_NAME = 'Sales';
 
         const SHEET1_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
         const SHEET2_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET2_GID}`;
         const SHEET3_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET3_GID}`;
         const SHEET4_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET4_GID}`;
         const CORE_TEAM_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${CORE_TEAM_GID}`;
+        const SALES_QUICK_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SALES_QUICK_SHEET_NAME)}`;
         
         const excludedNames = ['jennifer.tokf', 'milk.yungcy', 'abel.wongyw', 'lavina.chan'];
+        const excludedCoreTeamNames = new Set(['chris mak', 'chirs mak']);
         
-        // 欄位順序對照表 (A欄=0, B欄=1, C欄=2...)
-        const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 29, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 27, LEAD_DATE: 28, STATUS: 23 };
-        // TA Flow 日期來源欄位
-        // Lead Date = B,C,D / Offer Date = P,Q,R / On board Date = T,U,V
+        // 甈???撠銵?(A甈?0, B甈?1, C甈?2...)
+        const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 36, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 37, LEAD_DATE: 35, STATUS: 23 };
+        const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
+        // TA Flow ?交?靘?甈?
+        // Lead Date = B,C,D -> CV Date(35) / Offer Date = P,Q,R -> Offer Date(36) / On board Date = T,U,V -> Onboard Date(37)
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
         const S2_IDX = { BRAND: 0, FLOOR: 1, PIC: 2, POS: 3, STAFF_ID: 4, NAME: 5, RESIGN: 9, OFFER: 13, SHOULD: 15, ONBOARD: 14, GAP: 17, NJ_OFFER: 21 };
 
-        // 顏色庫
+        // Month card color mapping
         const monthColors = [
             { border: 'border-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-100', accent: 'text-emerald-700' },
             { border: 'border-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-100', accent: 'text-indigo-700' },
@@ -440,17 +742,16 @@
             { border: 'border-sky-500', text: 'text-sky-600', bg: 'bg-sky-100', accent: 'text-sky-700' }
         ];
 
-        // 點擊外部關閉 Position 選單
+        // 暺?憭?? Position ?詨
         document.addEventListener('click', function(event) {
-            const menu = document.getElementById('posDropdownMenu');
-            if (!menu) return;
-            const button = menu.previousElementSibling;
-            if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
-                menu.classList.add('hidden');
-            }
+            document.querySelectorAll('.position-filter-group').forEach(group => {
+                if (!group.contains(event.target)) {
+                    group.querySelector('.pos-dropdown-menu')?.classList.add('hidden');
+                }
+            });
         });
 
-        // --- 工具函式 ---
+        // --- 撌亙?賢? ---
         function getThisMonday() { 
             const today = new Date(); 
             const diff = today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1); 
@@ -467,12 +768,41 @@
             const d = String(date.getDate()).padStart(2, '0'); 
             return `${y}-${m}-${d}`; 
         }
+        function syncPrimaryDateFiltersFromLead() {
+            const leadStart = document.getElementById('leadStart')?.value || '';
+            const leadEnd = document.getElementById('leadEnd')?.value || '';
+            [
+                ['offerStart', leadStart],
+                ['offerEnd', leadEnd],
+                ['pendingStart', leadStart],
+                ['pendingEnd', leadEnd],
+                ['onboardStart', leadStart],
+                ['onboardEnd', leadEnd]
+            ].forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+            });
+        }
+        function handleLeadDateChange() {
+            syncPrimaryDateFiltersFromLead();
+            calculateWeeklyLeads();
+            calculateWeeklyOffers();
+            calculatePendingOffers();
+            calculateOnboardSummary();
+        }
         function parseDate(d) { 
             if (!d || d === '-' || d.trim() === "") return null; 
             const ms = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]; 
             const p = d.split(/[\s/-]+/); 
-            if (p.length === 3) { 
-                let day = parseInt(p[0]), mIdx = ms.indexOf(p[1].toLowerCase().substring(0, 3)), yr = parseInt(p[2]); 
+            if (p.length === 3) {
+                const first = parseInt(p[0], 10);
+                const second = parseInt(p[1], 10);
+                const third = parseInt(p[2], 10);
+                if (first >= 1000 && !isNaN(second) && !isNaN(third)) {
+                    const ymd = new Date(first, second - 1, third, 0, 0, 0, 0);
+                    if (ymd.getFullYear() === first && ymd.getMonth() === second - 1 && ymd.getDate() === third) return ymd;
+                }
+                let day = first, mIdx = ms.indexOf(p[1].toLowerCase().substring(0, 3)), yr = third; 
                 if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day, 0, 0, 0, 0); 
                 const mNum = parseInt(p[1]);
                 if (day && !isNaN(mNum) && mNum >= 1 && mNum <= 12 && yr) return new Date(yr, mNum - 1, day, 0, 0, 0, 0);
@@ -528,6 +858,11 @@
             const leadHeader = headersS1[S1_IDX.LEAD_DATE];
             const offerHeader = headersS1[S1_IDX.OFFER_DATE];
             const onboardHeader = headersS1[S1_IDX.ONBOARD_DATE];
+            const rawOnboardDateHeader = headersS1[S1_RAW_IDX.ONBOARD_DATE];
+            const rawOnboardStatusHeader = headersS1[S1_RAW_IDX.ONBOARD_STATUS];
+
+            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = (row[rawOnboardDateHeader] ?? "").toString().trim();
+            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = (row[rawOnboardStatusHeader] ?? "").toString().trim();
 
             if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
             if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
@@ -585,7 +920,7 @@
                 document.body.appendChild(script);
             });
         }
-        function loadGvizCsvByJsonpBySheetName(sheetName) {
+        function loadGvizCsvByJsonpBySheetName(sheetName, docId = SHEET_DOC_ID) {
             return new Promise((resolve, reject) => {
                 const cb = `__gviz_cb_sheet_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
                 const script = document.createElement('script');
@@ -612,17 +947,18 @@
                     cleanup();
                     reject(new Error(`Sheet ${sheetName} JSONP failed`));
                 };
-                script.src = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${cb}`)}`;
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${cb}`)}`;
                 document.body.appendChild(script);
             });
         }
         function getZColumnClass(v) { 
+            if (v.toUpperCase().includes('REJECT')) return "bg-slate-200 text-slate-700 text-center"; 
             if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800 text-center"; 
             if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 text-center"; 
             return "bg-amber-100 text-amber-800 text-center"; 
         }
 
-        // 智慧判斷日期區間並計算總天數 (支援多欄位及比例計算)
+        // ?箸?斗?交???蒂閮?蝮賢予??(?舀憭?雿?瘥?閮?)
         function getCommitmentColsInfo(headers, baseYear) {
             const monthMap = { jan:0, feb:1, mar:2, apr:3, arp:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
             let cols = [];
@@ -659,7 +995,8 @@
             return cols;
         }
 
-        // --- 入職批次統計 ---
+        // --- ?亥?寞活蝯梯? ---
+        /*
         function calculateBatchCounts() {
             const container = document.getElementById("batchContainer"); if (!container) return;
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -670,15 +1007,14 @@
             const todayTs = todayMidnight.getTime();
 
             dataS1.forEach(row => {
-                const source = (row[headersS1[5]] || "").trim().toUpperCase();
-                if (!source.includes("OPERATION")) return;
+                if (!isBatchLeadSource(row)) return;
 
                 const dateStr = (row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim();
                 if (!dateStr || dateStr === "-" || dateStr === "") return;
                 const d = parseDate(dateStr);
                 const dTs = d ? d.getTime() : null;
                 
-                // 檢查資料月份是否在勾選中，且日期 >= 今天 (出當日之後的班次)
+                // 瑼Ｘ鞈??遢?臬?典?訾葉嚗??交? >= 隞予 (?箇?乩?敺??剜活)
                 if (dTs && dTs >= todayTs && selectedBatchMonths.includes(d.getMonth() + 1)) {
                     const normalizedKey = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
                     if (!batchMap.has(normalizedKey)) batchMap.set(normalizedKey, { total: 0, nj: 0, rj: 0, rawDate: dTs });
@@ -695,7 +1031,63 @@
             container.innerHTML = '';
             
             if (sortedKeys.length === 0) {
-                container.innerHTML = '<div class="col-span-full p-10 cyber-card text-slate-400 font-bold italic text-center">選擇月份內暫無未來入職批次記錄</div>';
+                container.innerHTML = '<div class="col-span-full p-10 cyber-card text-slate-400 font-bold italic text-center">No upcoming onboarding batch found.</div>';
+            } else if (mode === "PENDING_HR") {
+                const card = document.getElementById('pending-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-amber-500 rounded-full mr-3 inline-block"></span> HR SOURCES Pending Offer Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row)) return false;
+                    const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
+                    const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
+                    return dMatch && stMatch;
+                });
+            } else if (mode === "ONBOARD") {
+                const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-emerald-500 rounded-full mr-3 inline-block"></span> ${key} On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    const dMatch = onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                    return bMatch && dMatch;
+                });
+            } else if (mode === "ONBOARD_HR") {
+                const card = document.getElementById('onboard-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-green-500 rounded-full mr-3 inline-block"></span> HR SOURCES On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    return onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                });
+            } else {
+                const card = document.getElementById('pending-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-amber-500 rounded-full mr-3 inline-block"></span> HR SOURCES Pending Offer Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row)) return false;
+                    const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
+                    const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
+                    return dMatch && stMatch;
+                });
+            } else if (mode === "ONBOARD") {
+                const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-emerald-500 rounded-full mr-3 inline-block"></span> ${key} On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    const dMatch = onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                    return bMatch && dMatch;
+                });
+            } else if (mode === "ONBOARD_HR") {
+                const card = document.getElementById('onboard-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-green-500 rounded-full mr-3 inline-block"></span> HR SOURCES On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    return onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                });
             } else {
                 sortedKeys.forEach((dateStr, index) => {
                     const s = batchMap.get(dateStr);
@@ -712,11 +1104,76 @@
                                         <span>(NJ: ${s.nj})</span>
                                     </div>
                                 </div>
-                                <span class="px-3 py-1 ${colorSet.bg} ${colorSet.accent} rounded-lg text-xs font-black mt-auto mb-2">總人數</span>
+                                <span class="px-3 py-1 ${colorSet.bg} ${colorSet.accent} rounded-lg text-xs font-black mt-auto mb-2">Batch</span>
                             </div>
                         </div>`;
                 });
             }
+        }
+
+        */
+        // Override the earlier batch renderer because a later detail-mode patch
+        // accidentally injected unrelated logic into the original function body.
+        function calculateBatchCounts() {
+            const container = document.getElementById("batchContainer");
+            if (!container) return;
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const batchMap = new Map();
+
+            const todayMidnight = new Date();
+            todayMidnight.setHours(0, 0, 0, 0);
+            const todayTs = todayMidnight.getTime();
+
+            dataS1.forEach(row => {
+                if (!isBatchSourceIncluded(row)) return;
+
+                const dateStr = (row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim();
+                if (!dateStr || dateStr === "-") return;
+
+                const d = parseDate(dateStr);
+                const dTs = d ? d.getTime() : null;
+                if (!(dTs && dTs >= todayTs && selectedBatchMonths.includes(d.getMonth() + 1))) return;
+
+                const normalizedKey = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+                if (!batchMap.has(normalizedKey)) {
+                    batchMap.set(normalizedKey, { total: 0, nj: 0, rj: 0, rawDate: dTs });
+                }
+
+                const s = batchMap.get(normalizedKey);
+                s.total++;
+                const rjnjType = (row[headersS1[S1_IDX.RJNJ]] || "").trim().toUpperCase();
+                if (rjnjType === "NJ") s.nj++;
+                else if (rjnjType === "RJ") s.rj++;
+            });
+
+            const sortedKeys = Array.from(batchMap.keys()).sort((a, b) => batchMap.get(a).rawDate - batchMap.get(b).rawDate);
+            container.innerHTML = "";
+
+            if (sortedKeys.length === 0) {
+                container.innerHTML = '<div class="col-span-full p-10 cyber-card text-slate-400 font-bold italic text-center">No future onboard batches in the selected month.</div>';
+                return;
+            }
+
+            sortedKeys.forEach((dateStr, index) => {
+                const s = batchMap.get(dateStr);
+                const colorSet = monthColors[index % monthColors.length];
+                container.innerHTML += `
+                    <div onclick="toggleBatchList('${dateStr}')" class="batch-card cyber-card p-6 border-b-8 ${colorSet.border}">
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">On board Date</p>
+                        <p class="text-lg font-black text-slate-900 mb-3 text-left">${dateStr}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col items-start">
+                                <span class="text-4xl font-black ${colorSet.text} readable-nums text-center leading-none">${s.total}</span>
+                                <div class="flex flex-col text-[10px] font-black text-slate-400 mt-2 uppercase tracking-tighter text-left">
+                                    <span>(RJ: ${s.rj})</span>
+                                    <span>(NJ: ${s.nj})</span>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 ${colorSet.bg} ${colorSet.accent} rounded-lg text-xs font-black mt-auto mb-2">Batch</span>
+                        </div>
+                    </div>`;
+            });
         }
 
         function toggleMonth(m) {
@@ -730,6 +1187,33 @@
             calculateBatchCounts();
         }
 
+        function updateBatchSourceFilter() {
+            selectedBatchSource = document.getElementById('batchSourceFilter')?.value || "ALL";
+            calculateBatchCounts();
+            if (currentDetailMode === "BATCH" && currentDetailKey) {
+                showSharedDetail("BATCH", currentDetailKey);
+            }
+        }
+
+        function ensureBatchSourceFilterControl() {
+            const selector = document.getElementById('monthSelector');
+            if (!selector || document.getElementById('batchSourceFilterWrap')) return;
+            const wrap = document.createElement('div');
+            wrap.id = 'batchSourceFilterWrap';
+            wrap.className = 'bg-white/60 p-2 rounded-2xl border border-white shadow-sm text-left min-w-[180px]';
+            wrap.innerHTML = `
+                <label for="batchSourceFilter" class="filter-label ml-1">Source Filter:</label>
+                <select id="batchSourceFilter" onchange="updateBatchSourceFilter()" class="date-selector-input w-full mt-1 font-black text-slate-700">
+                    <option value="ALL">All Sources</option>
+                    <option value="OPERATION">OP Sources</option>
+                    <option value="HR">HR Sources</option>
+                </select>
+            `;
+            selector.insertAdjacentElement('afterend', wrap);
+            const filter = document.getElementById('batchSourceFilter');
+            if (filter) filter.value = selectedBatchSource;
+        }
+
         function updateMonthButtons() {
             availableMonths.forEach(m => {
                 const btn = document.getElementById(`btn-month-${m}`);
@@ -739,7 +1223,563 @@
             });
         }
 
-        // --- 統計模塊 ---
+        // --- 蝯梯?璅∪? ---
+        function isOperationLeadSource(row) {
+            const source = (row[headersS1[5]] || "").trim().toUpperCase();
+            return source.includes("OPERATION");
+        }
+
+        function isHrLeadSource(row) {
+            const source = (row[headersS1[5]] || "").trim().toUpperCase();
+            return source === "HR";
+        }
+
+        function isBatchLeadSource(row) {
+            return isOperationLeadSource(row) || isHrLeadSource(row);
+        }
+
+        function isBatchSourceIncluded(row) {
+            if (selectedBatchSource === "HR") return isHrLeadSource(row);
+            if (selectedBatchSource === "OPERATION") return isOperationLeadSource(row);
+            return isBatchLeadSource(row);
+        }
+
+        function normalizeHrLeadBrand(value) {
+            const brand = (value || "").trim().toUpperCase();
+            return ['DERMES', 'REENEX', 'ELYZE'].includes(brand) ? brand : 'OTHER';
+        }
+
+        function getS1RecordedOnboardDate(row) {
+            const rawDate = (row.__rawOnboardDate || "").trim();
+            return rawDate || (row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim();
+        }
+
+        function getS1OnboardStatus(row) {
+            return (row.__rawOnboardStatus || "").trim();
+        }
+
+        function getReferralFinalMarker(row) {
+            const onboardStatus = getS1OnboardStatus(row);
+            const onboardUpper = onboardStatus.toUpperCase();
+            if (onboardUpper.includes("ONBOARD")) return "ONBOARD";
+            if (onboardUpper.includes("WITHDRAW")) return "WITHDRAW";
+            if (onboardUpper.includes("REJECT")) return "REJECT";
+
+            const statusRaw = ((row?.[headersS1[S1_IDX.STATUS]] || "") + "").trim();
+            const statusUpper = statusRaw.toUpperCase();
+            if (statusUpper.includes("WITHDRAW")) return "WITHDRAW";
+            if (statusUpper.includes("REJECT")) return "REJECT";
+
+            return "PENDING";
+        }
+
+        function isConfirmedOnboard(row) {
+            return getS1OnboardStatus(row).toUpperCase().includes("ONBOARD");
+        }
+
+        function isRejectedOrWithdrawnStatus(value) {
+            const upper = ((value || "") + "").trim().toUpperCase();
+            return upper.includes("REJECT") || upper.includes("WITHDRAW");
+        }
+
+        function isSearchOfferRow(row) {
+            const statusUpper = ((row?.[headersS1[S1_IDX.STATUS]] || "") + "").trim().toUpperCase();
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            if (isRejectedOrWithdrawnStatus(statusUpper)) return false;
+            if (statusUpper.includes("OFFER") || statusUpper.includes("ACCEPT")) return true;
+            return !!offerDate;
+        }
+
+        function isSearchOnboardRow(row) {
+            if (isConfirmedOnboard(row)) return true;
+            const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+            return !!onboardDate && !isRejectedOrWithdrawnStatus(row?.[headersS1[S1_IDX.STATUS]]);
+        }
+
+        function getReferralSearchDates() {
+            return {
+                start: getLocalDateFromInput(document.getElementById('referralStart')?.value),
+                end: getLocalDateFromInput(document.getElementById('referralEnd')?.value)
+            };
+        }
+
+        function syncReferralDateInputs(source = 'top') {
+            const topStart = document.getElementById('referralStart');
+            const topEnd = document.getElementById('referralEnd');
+            const inlineStart = document.getElementById('referralInlineStart');
+            const inlineEnd = document.getElementById('referralInlineEnd');
+            if (!topStart || !topEnd || !inlineStart || !inlineEnd) return;
+
+            if (source === 'inline') {
+                topStart.value = inlineStart.value || '';
+                topEnd.value = inlineEnd.value || '';
+                return;
+            }
+
+            inlineStart.value = topStart.value || '';
+            inlineEnd.value = topEnd.value || '';
+        }
+
+        function setDefaultReferralDateRange() {
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+            const topStart = document.getElementById('referralStart');
+            const topEnd = document.getElementById('referralEnd');
+            if (topStart) topStart.value = formatDateToISO(monthStart);
+            if (topEnd) topEnd.value = formatDateToISO(today);
+            syncReferralDateInputs('top');
+        }
+
+        function applyInlineReferralDateFilter() {
+            syncReferralDateInputs('inline');
+            rerunCurrentReferralSearch();
+        }
+
+        function resetInlineReferralDateFilter() {
+            setDefaultReferralDateRange();
+            rerunCurrentReferralSearch();
+        }
+
+        function isLeadDateWithinReferralRange(row, start, end) {
+            const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
+            if (!start && !end) return true;
+            if (!leadDate) return false;
+            const leadTs = leadDate.getTime();
+            const startTs = start ? start.getTime() : -Infinity;
+            const endTs = end ? new Date(end.getTime()).setHours(23, 59, 59, 999) : Infinity;
+            return leadTs >= startTs && leadTs <= endTs;
+        }
+
+        function getReferralRowsByStaffId(staffId) {
+            const trimmedId = ((staffId || "") + "").trim();
+            const { start, end } = getReferralSearchDates();
+            return dataS1.filter(row => {
+                if (((row?.[headersS1[S1_IDX.STAFF_ID]] || "") + "").trim() !== trimmedId) return false;
+                return isLeadDateWithinReferralRange(row, start, end);
+            });
+        }
+
+        function getReferralRowsByStaffIds(staffIds, brandFilter = "") {
+            const idSet = new Set((staffIds || []).map(id => ((id || "") + "").trim()).filter(Boolean));
+            const brandUpper = ((brandFilter || "") + "").trim().toUpperCase();
+            const { start, end } = getReferralSearchDates();
+            return dataS1
+                .filter(row => {
+                    const rowStaffId = ((row?.[headersS1[S1_IDX.STAFF_ID]] || "") + "").trim();
+                    if (!idSet.has(rowStaffId)) return false;
+                    if (brandUpper && ((row?.[headersS1[S1_IDX.BRAND]] || "") + "").trim().toUpperCase() !== brandUpper) return false;
+                    return isLeadDateWithinReferralRange(row, start, end);
+                })
+                .sort((a, b) => {
+                    const brandA = ((a?.[headersS1[S1_IDX.BRAND]] || "") + "").trim().toUpperCase();
+                    const brandB = ((b?.[headersS1[S1_IDX.BRAND]] || "") + "").trim().toUpperCase();
+                    if (brandA !== brandB) return brandA.localeCompare(brandB);
+                    const leadA = parseDate(a?.[headersS1[S1_IDX.LEAD_DATE]]);
+                    const leadB = parseDate(b?.[headersS1[S1_IDX.LEAD_DATE]]);
+                    const leadATime = leadA ? leadA.getTime() : 0;
+                    const leadBTime = leadB ? leadB.getTime() : 0;
+                    if (leadATime !== leadBTime) return leadBTime - leadATime;
+                    return (((a?.[headersS1[S1_IDX.NAME]] || "") + "").trim()).localeCompare((((b?.[headersS1[S1_IDX.NAME]] || "") + "").trim()), 'zh-HK');
+                });
+        }
+
+        function getReferralLinkedSalesRows() {
+            const rowMap = new Map();
+
+            const fields = headersSalesQuick || [];
+            const normalized = (v) => ((v || "") + "").toLowerCase().replace(/\s+/g, '');
+            // Sales sheet structure:
+            // C = Brand, D = Center, H = Therapist Name, I = Therapist Staff ID
+            const SALES_IDX = { BRAND: 2, CENTER: 3, THERAPIST_NAME: 7, THERAPIST_STAFF_ID: 8 };
+            const brandField =
+                fields.find(h => normalized(h) === 'brand') ||
+                fields[SALES_IDX.BRAND] ||
+                null;
+            const centerField =
+                fields[SALES_IDX.CENTER] ||
+                fields.find(h => normalized(h).includes('centre') || normalized(h).includes('center')) ||
+                null;
+            const therapistNameField =
+                fields.find(h => normalized(h) === 'therapist') ||
+                fields.find(h => normalized(h).includes('therapistname')) ||
+                fields[SALES_IDX.THERAPIST_NAME] ||
+                null;
+            const referralIdField =
+                fields.find(h => normalized(h).includes('therapiststaff')) ||
+                fields.find(h => normalized(h).includes('staffid')) ||
+                fields[SALES_IDX.THERAPIST_STAFF_ID] ||
+                null;
+
+            dataSalesQuick.forEach(row => {
+                const staffId = ((referralIdField ? row?.[referralIdField] : "") + "").trim();
+                const brand = ((brandField ? row?.[brandField] : "") + "").trim();
+                const name = ((therapistNameField ? row?.[therapistNameField] : "") + "").trim();
+                if (centerField && row.__salesQuickFilterCenter == null) row.__salesQuickFilterCenter = ((row?.[centerField] || "") + "").trim();
+                row.__salesQuickFilterBrand = brand;
+                row.__salesQuickFilterStaffId = staffId;
+                row.__salesQuickFilterName = name;
+                if (!staffId || !brand || !name) return;
+                if (brand.toUpperCase().includes("TOTAL") || name.toUpperCase().includes("TOTAL")) return;
+                const key = `${brand.toUpperCase()}__${staffId}`;
+                if (!rowMap.has(key)) rowMap.set(key, row);
+            });
+
+            return Array.from(rowMap.values()).sort((a, b) => {
+                const brandA = ((a?.__salesQuickFilterBrand || "") + "").trim().toUpperCase();
+                const brandB = ((b?.__salesQuickFilterBrand || "") + "").trim().toUpperCase();
+                if (brandA !== brandB) return brandA.localeCompare(brandB);
+                const nameA = ((a?.__salesQuickFilterName || "") + "").trim();
+                const nameB = ((b?.__salesQuickFilterName || "") + "").trim();
+                return nameA.localeCompare(nameB, 'zh-HK');
+            });
+        }
+
+        function getSalesQuickFilterBrand(row) {
+            return (((row?.__salesQuickFilterBrand || row?.[headersSalesQuick?.[2]]) || "") + "").trim();
+        }
+
+        function getSalesQuickFilterStaffId(row) {
+            return (((row?.__salesQuickFilterStaffId || "") + "")).trim();
+        }
+
+        function getSalesQuickFilterName(row) {
+            return (((row?.__salesQuickFilterName || "") + "")).trim();
+        }
+
+        function getSalesQuickFilterFloor(row) {
+            return ((((row?.__salesQuickFilterCenter || row?.__salesQuickFilterFloor || '') + ''))).trim();
+        }
+
+        function getSalesQuickFilterLabel(row) {
+            const name = getSalesQuickFilterName(row);
+            const staffId = getSalesQuickFilterStaffId(row);
+            return [name, staffId].filter(Boolean).join(' ');
+        }
+
+        function findReferralLinkedSalesRowByStaffId(staffId, brand = "") {
+            const targetId = ((staffId || "") + "").trim();
+            const brandUpper = ((brand || "") + "").trim().toUpperCase();
+            if (!targetId) return null;
+            return getReferralLinkedSalesRows().find(row => {
+                if (getSalesQuickFilterStaffId(row) !== targetId) return false;
+                if (brandUpper && getSalesQuickFilterBrand(row).toUpperCase() !== brandUpper) return false;
+                return true;
+            }) || null;
+        }
+
+        function getReferralLinkedSalesRowsByFilters(brand = "", floor = "") {
+            const brandUpper = ((brand || "") + "").trim().toUpperCase();
+            const floorText = ((floor || "") + "").trim();
+            return getReferralLinkedSalesRows().filter(row => {
+                if (brandUpper && getSalesQuickFilterBrand(row).toUpperCase() !== brandUpper) return false;
+                if (floorText && getSalesQuickFilterFloor(row).toString() !== floorText.toString()) return false;
+                return true;
+            });
+        }
+
+        function getS1InterviewByValue(row) {
+            const interviewHeader = (headersS1 || []).find(h => ((h || "").toString().toLowerCase().replace(/\s+/g, '')).includes('interviewby')) || headersS1[25];
+            return (((row?.[interviewHeader] || "") + "").trim()) || "-";
+        }
+
+        function isHrSourceDetailMode(mode) {
+            return ["LEAD_HR", "WEEKLY_HR", "PENDING_HR", "ONBOARD_HR"].includes(mode);
+        }
+
+        function getS1PositionValue(row) {
+            return (((row?.[headersS1[4]] ?? '') + '').trim()) || '-';
+        }
+
+        function isPositionIncluded(row) {
+            if (!positionFilterInitialized) return true;
+            const position = getS1PositionValue(row).toUpperCase();
+            return selectedPositions.includes(position);
+        }
+
+        function getPositionFilterLabelText() {
+            if (!positionFilterInitialized || selectedPositions.length === availablePositions.length) return 'All Position';
+            if (selectedPositions.length === 0) return 'No Position';
+            if (selectedPositions.length <= 2) return selectedPositions.join(', ');
+            return `${selectedPositions.length} selected`;
+        }
+
+        function syncPositionFilterUi() {
+            const labelText = getPositionFilterLabelText();
+            document.querySelectorAll('.posDropdownLabel').forEach(label => {
+                label.innerText = labelText;
+            });
+            document.querySelectorAll('.pos-checkbox').forEach(checkbox => {
+                checkbox.checked = selectedPositions.includes(((checkbox.value || '') + '').trim().toUpperCase());
+            });
+        }
+
+        function togglePositionDropdown(menuId) {
+            document.querySelectorAll('.pos-dropdown-menu').forEach(menu => {
+                if (menu.id !== menuId) menu.classList.add('hidden');
+            });
+            const menu = document.getElementById(menuId);
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function refreshPositionFilteredSections() {
+            calculateWeeklyLeads();
+            calculateWeeklyOffers();
+            calculatePendingOffers();
+            calculateOnboardSummary();
+            calculateHrPerformance();
+        }
+
+        function buildPositionFilterControl(menuId, borderClass) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative position-filter-group text-left shrink-0';
+            wrapper.innerHTML = `
+                <button type="button" onclick="togglePositionDropdown('${menuId}')" class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm text-left min-w-[180px]">
+                    <span class="filter-label ml-1">Position:</span>
+                    <span class="posDropdownLabel text-sm font-black text-slate-700 flex-1">All Position</span>
+                </button>
+                <div id="${menuId}" class="pos-dropdown-menu hidden absolute right-0 mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl ${borderClass} border bg-white shadow-2xl z-30"></div>
+            `;
+            return wrapper;
+        }
+
+        function ensurePositionFilterControls() {
+            const configs = [
+                { row: document.getElementById('leadEnd')?.parentElement?.parentElement, menuId: 'leadPosDropdownMenu', borderClass: 'border-violet-100' },
+                { row: document.getElementById('offerEnd')?.parentElement?.parentElement, menuId: 'offerPosDropdownMenu', borderClass: 'border-blue-100' },
+                { row: document.getElementById('pendingEnd')?.parentElement?.parentElement, menuId: 'pendingPosDropdownMenu', borderClass: 'border-orange-100' },
+                { row: document.getElementById('onboardEnd')?.parentElement?.parentElement, menuId: 'onboardPosDropdownMenu', borderClass: 'border-emerald-100' }
+            ];
+
+            configs.forEach(({ row, menuId, borderClass }) => {
+                if (!row || document.getElementById(menuId)) return;
+                row.appendChild(buildPositionFilterControl(menuId, borderClass));
+            });
+        }
+
+        function getSharedDetailSortIndicator(sortKey) {
+            return sharedDetailSort.key === sortKey ? (sharedDetailSort.direction === 'asc' ? '▲' : '▼') : '';
+        }
+
+        function updateSharedDetailSortUi() {
+            ['brand', 'position', 'leadDate', 'offerDate', 'onboardDate', 'status', 'onboardStatus', 'rjnj', 'name', 'tail'].forEach(sortKey => {
+                const el = document.getElementById(`sort-indicator-${sortKey}`);
+                if (el) el.innerText = getSharedDetailSortIndicator(sortKey);
+            });
+        }
+
+        function getSharedDetailCellValue(row, sortKey) {
+            switch (sortKey) {
+                case 'brand':
+                    return (row[headersS1[S1_IDX.BRAND]] || '').trim();
+                case 'position':
+                    return getS1PositionValue(row);
+                case 'leadDate':
+                    return parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) || row[headersS1[S1_IDX.LEAD_DATE]] || '';
+                case 'offerDate':
+                    return parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) || row[headersS1[S1_IDX.OFFER_DATE]] || '';
+                case 'onboardDate': {
+                    const rawValue = (currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? getS1RecordedOnboardDate(row) : (row[headersS1[S1_IDX.ONBOARD_DATE]] || '');
+                    return parseDate(rawValue) || rawValue || '';
+                }
+                case 'status':
+                    return (row[headersS1[S1_IDX.STATUS]] || '').trim();
+                case 'onboardStatus':
+                    return getS1OnboardStatus(row) || '';
+                case 'rjnj':
+                    return (row[headersS1[S1_IDX.RJNJ]] || '').trim();
+                case 'name':
+                    return (row[headersS1[S1_IDX.NAME]] || '').trim();
+                case 'tail':
+                    return isHrSourceDetailMode(currentDetailMode)
+                        ? (((row[headersS1[6]] || '') + '').trim() || '-')
+                        : ((((row[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row[headersS1[S1_IDX.STAFF_NAME]] || '')).trim()) || '-');
+                default:
+                    return '';
+            }
+        }
+
+        function sortSharedDetailRows(rows) {
+            const sortedRows = rows.slice();
+            sortedRows.sort((rowA, rowB) => {
+                const valueA = getSharedDetailCellValue(rowA, sharedDetailSort.key);
+                const valueB = getSharedDetailCellValue(rowB, sharedDetailSort.key);
+                let result = 0;
+
+                if (valueA instanceof Date && valueB instanceof Date) {
+                    result = valueA.getTime() - valueB.getTime();
+                } else {
+                    result = ((valueA ?? '') + '').localeCompare(((valueB ?? '') + ''), undefined, { numeric: true, sensitivity: 'base' });
+                }
+
+                if (result === 0) {
+                    const brandA = (rowA[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
+                    const brandB = (rowB[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
+                    result = brandA.localeCompare(brandB, undefined, { numeric: true, sensitivity: 'base' });
+                }
+
+                if (result === 0) {
+                    const nameA = (rowA[headersS1[S1_IDX.NAME]] || '').trim().toUpperCase();
+                    const nameB = (rowB[headersS1[S1_IDX.NAME]] || '').trim().toUpperCase();
+                    result = nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+                }
+
+                return sharedDetailSort.direction === 'asc' ? result : -result;
+            });
+            return sortedRows;
+        }
+
+        function renderSharedDetailTable(rows) {
+            const tbody = document.getElementById('sharedDetailTableBody');
+            if (!tbody) return;
+
+            currentSharedDetailRows = rows.slice();
+            const sortedRows = sortSharedDetailRows(currentSharedDetailRows);
+            updateSharedDetailSortUi();
+
+            tbody.innerHTML = sortedRows.map(row => `
+                <tr class="hover:bg-blue-50 transition font-bold text-center">
+                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm font-black px-4">${getS1OnboardStatus(row) || "-"}</td>
+                    <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
+                    <td class="text-left text-slate-600 font-medium text-xs px-6">${isHrSourceDetailMode(currentDetailMode) ? ((((row[headersS1[6]] || "") + "").trim()) || "-") : ((((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || "-")}</td>
+                </tr>`).join('');
+        }
+
+        function toggleSharedDetailSort(sortKey) {
+            if (sharedDetailSort.key === sortKey) {
+                sharedDetailSort.direction = sharedDetailSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sharedDetailSort.key = sortKey;
+                sharedDetailSort.direction = 'asc';
+            }
+            renderSharedDetailTable(currentSharedDetailRows);
+        }
+
+        function calculateWeeklyHrSources(startTs, endLimitTs) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+
+            dataS1.forEach(row => {
+                if (!isHrLeadSource(row)) return;
+                if (!isPositionIncluded(row)) return;
+                const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                const ldTs = ld ? ld.getTime() : null;
+                if (!(ldTs && ldTs >= startTs && ldTs <= endLimitTs)) return;
+                const bucket = normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]]);
+                counts[bucket]++;
+            });
+
+            const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+            const totalEl = document.getElementById('weekly-lead-hr-total');
+            if (totalEl) totalEl.innerText = total;
+
+            ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].forEach(brand => {
+                const el = document.getElementById(`weekly-lead-hr-${brand}`);
+                if (el) el.innerText = counts[brand];
+            });
+        }
+
+        function renderHrSourceCounts(prefix, counts) {
+            const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+            const totalEl = document.getElementById(`${prefix}-total`);
+            if (totalEl) totalEl.innerText = total;
+
+            ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].forEach(brand => {
+                const el = document.getElementById(`${prefix}-${brand}`);
+                if (el) el.innerText = counts[brand];
+            });
+        }
+
+        function calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+
+            dataS1.forEach(row => {
+                if (!isHrLeadSource(row)) return;
+                if (!isPositionIncluded(row)) return;
+                const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                const odTs = od ? od.getTime() : null;
+                const st = (row[headersS1[S1_IDX.STATUS]] || "").toUpperCase();
+                if (!(odTs && odTs >= oStartTs && odTs <= oLimitTs && (st.includes("OFFER") || st.includes("ACCEPT")))) return;
+                if (useOb && hasObRange) {
+                    const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                    const obdTs = obd ? obd.getTime() : null;
+                    if (!obdTs || obdTs < obSTs || obdTs > obETs) return;
+                }
+                counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+            });
+
+            renderHrSourceCounts('weekly-offer-hr', counts);
+        }
+
+        function calculatePendingHrSources(startTs, endLimitTs) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+
+            dataS1.forEach(row => {
+                if (!isHrLeadSource(row)) return;
+                if (!isPositionIncluded(row)) return;
+                const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                const odTs = od ? od.getTime() : null;
+                const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
+                if (!(odTs && odTs >= startTs && odTs <= endLimitTs && stMatch)) return;
+                counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+            });
+
+            renderHrSourceCounts('pending-hr', counts);
+        }
+
+        function calculateOnboardHrSources(startTs, endLimitTs) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+
+            dataS1.forEach(row => {
+                if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return;
+                if (!isPositionIncluded(row)) return;
+                const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                const onboardTs = onboardDate ? onboardDate.getTime() : null;
+                if (!(onboardTs && onboardTs >= startTs && onboardTs <= endLimitTs)) return;
+                counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+            });
+
+            renderHrSourceCounts('onboard-hr', counts);
+        }
+
+        function calculateOnboardSummary() {
+            const startEl = document.getElementById('onboardStart');
+            const endEl = document.getElementById('onboardEnd');
+            if (!startEl?.value || !endEl?.value) return;
+
+            const start = getLocalDateFromInput(startEl.value);
+            const end = getLocalDateFromInput(endEl.value);
+            if (!start || !end) return;
+            const startTs = start.getTime();
+            const endLimitTs = new Date(end.getTime()).setHours(23,59,59,999);
+
+            ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
+                const list = dataS1.filter(row => {
+                    if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    if (!isPositionIncluded(row)) return false;
+                    if ((row[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase() !== brand) return false;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    const onboardTs = onboardDate ? onboardDate.getTime() : null;
+                    return onboardTs && onboardTs >= startTs && onboardTs <= endLimitTs;
+                });
+
+                const elRj = document.getElementById(`onboard-rj-${brand}`);
+                const elNj = document.getElementById(`onboard-nj-${brand}`);
+                const elTotal = document.getElementById(`onboard-total-${brand}`);
+                if (elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
+                if (elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if (elTotal) elTotal.innerText = list.length;
+            });
+
+            calculateOnboardHrSources(startTs, endLimitTs);
+            if (currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") showSharedDetail(currentDetailMode, currentDetailKey);
+        }
+
         function calculateWeeklyLeads() {
             const startEl = document.getElementById('leadStart');
             const endEl = document.getElementById('leadEnd');
@@ -753,8 +1793,8 @@
             
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
-                    const source = (row[headersS1[5]] || "").trim().toUpperCase();
-                    if (!source.includes("OPERATION")) return false;
+                    if (!isOperationLeadSource(row)) return false;
+                    if (!isPositionIncluded(row)) return false;
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                     const ldTs = ld ? ld.getTime() : null;
@@ -768,7 +1808,8 @@
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 if(elTotal) elTotal.innerText = list.length;
             });
-            if (currentDetailMode === "LEAD") showSharedDetail("LEAD", currentDetailKey);
+            calculateWeeklyHrSources(startTs, endLimitTs);
+            if (currentDetailMode === "LEAD" || currentDetailMode === "LEAD_HR") showSharedDetail(currentDetailMode, currentDetailKey);
         }
 
         function calculateWeeklyOffers() {
@@ -788,17 +1829,18 @@
             const obSTs = obS ? obS.getTime() : 0;
             const obETs = obE ? new Date(obE.getTime()).setHours(23,59,59,999) : Infinity;
             const useOb = document.getElementById('useObFilter')?.checked;
+            const hasObRange = !!(obS && obE);
             
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
-                    const source = (row[headersS1[5]] || "").trim().toUpperCase();
-                    if (!source.includes("OPERATION")) return false;
+                    if (!isOperationLeadSource(row)) return false;
+                    if (!isPositionIncluded(row)) return false;
                     if((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const odTs = od ? od.getTime() : null;
                     const st = (row[headersS1[S1_IDX.STATUS]]||"").toUpperCase();
                     if(!(odTs && odTs >= oStartTs && odTs <= oLimitTs && (st.includes("OFFER") || st.includes("ACCEPT")))) return false;
-                    if(useOb && obS && obE) { 
+                    if(useOb && hasObRange) { 
                         const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]); 
                         const obdTs = obd ? obd.getTime() : null;
                         if(!obdTs || obdTs < obSTs || obdTs > obETs) return false; 
@@ -813,7 +1855,8 @@
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 if(elTotal) elTotal.innerText = list.length;
             });
-            if (currentDetailMode === "WEEKLY") showSharedDetail("WEEKLY", currentDetailKey);
+            calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange);
+            if (currentDetailMode === "WEEKLY" || currentDetailMode === "WEEKLY_HR") showSharedDetail(currentDetailMode, currentDetailKey);
         }
 
         function calculatePendingOffers() {
@@ -829,8 +1872,8 @@
             
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
-                    const source = (row[headersS1[5]] || "").trim().toUpperCase();
-                    if (!source.includes("OPERATION")) return false;
+                    if (!isOperationLeadSource(row)) return false;
+                    if (!isPositionIncluded(row)) return false;
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const odTs = od ? od.getTime() : null;
@@ -846,10 +1889,11 @@
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 if(elTotal) elTotal.innerText = list.length;
             });
-            if (currentDetailMode === "PENDING") showSharedDetail("PENDING", currentDetailKey);
+            calculatePendingHrSources(startTs, endLimitTs);
+            if (currentDetailMode === "PENDING" || currentDetailMode === "PENDING_HR") showSharedDetail(currentDetailMode, currentDetailKey);
         }
 
-        // --- PIC 與 HR 效能表統計 (嚴格 Timestamp 版) ---
+        // --- PIC ??HR ?銵函絞閮?(?湔 Timestamp ?? ---
         function calculateSummaries() {
             const sumBody = document.getElementById('brandSummaryBody'), picBody = document.getElementById('picSummaryBody'), perfBody = document.getElementById('picPerformanceBody');
             if(!sumBody || !picBody || !perfBody) return;
@@ -870,7 +1914,7 @@
             const poStartTs = poStart ? poStart.getTime() : 0;
             const poEndLimitTs = poEnd ? new Date(poEnd.getTime()).setHours(23,59,59,999) : Infinity;
 
-            // 取得 Sheet 4 中所有符合格式的日期欄位與其天數資訊
+            // ?? Sheet 4 銝剜??泵?撘??交?甈??憭拇鞈?
             const baseYear = pStart ? pStart.getFullYear() : new Date().getFullYear();
             const validS4Cols = getCommitmentColsInfo(headersS4, baseYear);
             const s4PicCol = headersS4.find(h => h.trim().toUpperCase() === 'PIC');
@@ -898,7 +1942,7 @@
                     </tr>`;
                 
                 const uniquePICs = [...new Set(brDataS2.map(i => i[headersS2[S2_IDX.PIC]]).filter(v => v))];
-                let perfRows = []; // 準備陣列來處理合併儲存格
+                let perfRows = []; // 皞????靘???雿萄摮
                 
                 uniquePICs.forEach(picName => {
                     const picRowsS2 = brDataS2.filter(i => i[headersS2[S2_IDX.PIC]] === picName);
@@ -960,31 +2004,31 @@
                         const njOffers = offerRows.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length;
                         const rjOffers = offerRows.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length;
 
-                        // 判斷基礎名字
+                        // ?斗?箇???
                         const getBaseName = (name) => name.includes('-') ? name.split('-')[1].trim() : name.trim();
                         const baseName = getBaseName(picName);
 
-                        // 從 Sheet 4 獲取對應的 Commitment 並按選擇日期計算比例
+                        // 敺?Sheet 4 ?脣?撠???Commitment 銝行??豢??交?閮?瘥?
                         let commitmentTotal = 0;
                         if (s4PicCol && s4BrandCol) {
-                            // 先找完全符合的 PIC 名字
+                            // ?摰蝚血???PIC ??
                             let s4Row = dataS4.find(r => (r[s4BrandCol]||"").trim().toUpperCase() === brand.toUpperCase() && (r[s4PicCol]||"").trim() === picName.trim());
                             
-                            // 找不到的話，找 BaseName 符合的 (例如 Sheet4 只寫 "Mia")
+                            // ?曆??啁?閰梧???BaseName 蝚血???(靘? Sheet4 ?芸神 "Mia")
                             if (!s4Row) {
                                 s4Row = dataS4.find(r => (r[s4BrandCol]||"").trim().toUpperCase() === brand.toUpperCase() && getBaseName(r[s4PicCol]||"") === baseName);
                             }
 
                             if (s4Row && pStartTs && pEndLimitTs) {
                                 validS4Cols.forEach(col => {
-                                    // 計算使用者選擇的日期區間與 Sheet 4 此欄位區間的重疊狀況
+                                    // Overlap between the selected date range and the commitment column range
                                     const overlapStart = Math.max(pStartTs, col.start);
                                     const overlapEnd = Math.min(pEndLimitTs, col.end);
                                     if (overlapStart <= overlapEnd) {
                                         const overlapDays = Math.round((overlapEnd - overlapStart) / 86400000);
                                         const rawVal = parseFloat(s4Row[col.colName]) || 0;
                                         if (rawVal > 0) {
-                                            // 依據重疊天數佔該欄位總天數的比例加總
+                                            // 靘???憭拇雿府甈?蝮賢予?貊?瘥??蜇
                                             commitmentTotal += rawVal * (overlapDays / col.totalDays);
                                         }
                                     }
@@ -992,25 +2036,25 @@
                             }
                         }
                         
-                        // 轉換為顯示字串，自動四捨五入到整數
+                        // Summarize commitment display for the merged PIC rows
                         let commitmentDisplay = commitmentTotal > 0 ? Math.round(commitmentTotal).toString() : "0";
 
-                        // 將資料暫存至陣列中，以便後續判斷合併
+                        // 撠??摮???銝哨?隞乩噶敺??斗?蔥
                         perfRows.push({ brand, picName, baseName, commitmentDisplay, leads, njOffers, rjOffers });
                     }
                 });
 
-                // 處理 Commitment 合併儲存格並輸出至 HTML
+                // ?? Commitment ?蔥?脣??潔蒂頛詨??HTML
                 if (pStart && pEndEl.value && perfRows.length > 0) {
                     let i = 0;
                     while (i < perfRows.length) {
                         let rowspan = 1;
                         let currentBase = perfRows[i].baseName;
                         let j = i + 1;
-                        // 尋找連續且 BaseName 相同的行
+                        // 撠???銝?BaseName ?詨???
                         while (j < perfRows.length && perfRows[j].baseName === currentBase) {
                             rowspan++;
-                            perfRows[j].skipCommitment = true; // 標記為不渲染 TD
+                            perfRows[j].skipCommitment = true; // 璅??箔?皜脫? TD
                             j++;
                         }
                         perfRows[i].rowspan = rowspan;
@@ -1021,13 +2065,13 @@
                         let commitmentTd = '';
                         if (!r.skipCommitment) {
                             let rsAttr = r.rowspan > 1 ? `rowspan="${r.rowspan}"` : '';
-                            // 加上 align-middle 與 bg-white/40 讓合併儲存格凸顯且置中
+                            // Keep the commitment cell vertically centered across merged rows
                             commitmentTd = `<td ${rsAttr} class="border-r border-indigo-100 text-amber-600 text-xl font-black px-4 align-middle bg-white/40">${r.commitmentDisplay}</td>`;
                         }
 
-                        // 新增 cursor-pointer 與 onclick 事件，並為數字加上底線提示
+                        // Click a PIC row to open the detailed list
                         perfBody.innerHTML += `
-                            <tr class="hover:bg-indigo-100 transition font-bold text-center cursor-pointer" onclick="togglePicList('${r.brand}', '${r.picName}')" title="點擊查看明細">
+                            <tr class="hover:bg-indigo-100 transition font-bold text-center cursor-pointer" onclick="togglePicList('${r.brand}', '${r.picName}')" title="Click to view details">
                                 <td class="text-left border-r border-indigo-100 px-6">${r.brand}</td>
                                 <td class="text-left border-r border-indigo-100 px-6">${r.picName}</td>
                                 ${commitmentTd}
@@ -1049,7 +2093,7 @@
                 </tr>`;
         }
 
-        // 多選 Position 的更新標籤函式
+        // Legacy position selection updater
         function updatePosSelection() {
             const checkboxes = document.querySelectorAll('.pos-checkbox');
             selectedPositions = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
@@ -1057,11 +2101,11 @@
             const label = document.getElementById('posDropdownLabel');
             if (label) {
                 if (selectedPositions.length === 0) {
-                    label.innerText = "未選擇";
+                    label.innerText = "No Position";
                 } else if (selectedPositions.length <= 2) {
                     label.innerText = selectedPositions.join(', ');
                 } else {
-                    label.innerText = `已選 ${selectedPositions.length} 項`;
+                    label.innerText = `${selectedPositions.length} selected`;
                 }
             }
             calculateHrPerformance();
@@ -1084,6 +2128,9 @@
             if (up.includes("CORE TEAM") || up.includes("NAME LIST")) return false;
             if (/^\d+$/.test(s)) return false;
             return true;
+        }
+        function isExcludedCoreTeamName(value) {
+            return excludedCoreTeamNames.has((((value ?? "") + "").trim().toLowerCase()));
         }
         function findCoreTeamFieldName() {
             const fields = headersCoreTeam || [];
@@ -1120,9 +2167,16 @@
                 const idsFromH = extractStaffIds(staffIdField ? row?.[staffIdField] : "");
 
                 if (brand) currentBrand = brand;
-                if (isValidCoreTeamName(name)) currentName = name;
+                if (isValidCoreTeamName(name)) {
+                    if (isExcludedCoreTeamName(name)) {
+                        currentName = "";
+                        return;
+                    }
+                    currentName = name;
+                }
                 const key = isValidCoreTeamName(name) ? name : currentName;
                 if (!key) return;
+                if (isExcludedCoreTeamName(key)) return;
 
                 if (!map.has(key)) map.set(key, { brand: currentBrand || '-', ids: new Set() });
                 const item = map.get(key);
@@ -1216,12 +2270,12 @@
                     const hasOfferDate = !!odTs;
                     const statusRaw = (row[headersS1[S1_IDX.STATUS]] || "").toString().trim();
                     const statusUpper = statusRaw.toUpperCase();
-                    const isBlankStatus = !statusRaw || statusRaw === "-";
                     const isPendingCcdReply = statusUpper.includes("PENDING CCD REPLY");
                     const isPendingStatus = statusUpper.includes("PENDING");
-                    const isConsiderOffer = !isPendingCcdReply && !isPendingStatus && (
+                    const isRejectedOrWithdrawn = statusUpper.includes("REJECT") || statusUpper.includes("WITHDRAW");
+                    const isConsiderOffer = !isPendingCcdReply && !isPendingStatus && !isRejectedOrWithdrawn && (
                         statusUpper.includes("OFFER") ||
-                        (hasOfferDate && noOnboard && !isBlankStatus)
+                        (hasOfferDate && noOnboard)
                     );
 
                     if (filterTs && filterTs >= pStartTs && filterTs <= pEndLimitTs) leads++;
@@ -1306,12 +2360,12 @@
                 const hasOfferDate = !!odTs;
                 const statusRaw = (row[headersS1[S1_IDX.STATUS]] || "").toString().trim();
                 const statusUpper = statusRaw.toUpperCase();
-                const isBlankStatus = !statusRaw || statusRaw === "-";
                 const isPendingCcdReply = statusUpper.includes("PENDING CCD REPLY");
                 const isPendingStatus = statusUpper.includes("PENDING");
-                const isConsiderOffer = !isPendingCcdReply && !isPendingStatus && (
+                const isRejectedOrWithdrawn = statusUpper.includes("REJECT") || statusUpper.includes("WITHDRAW");
+                const isConsiderOffer = !isPendingCcdReply && !isPendingStatus && !isRejectedOrWithdrawn && (
                     statusUpper.includes("OFFER") ||
-                    (hasOfferDate && noOnboard && !isBlankStatus)
+                    (hasOfferDate && noOnboard)
                 );
 
                 if (metric === 'LEAD') return filterTs && filterTs >= pStartTs && filterTs <= pEndLimitTs;
@@ -1333,13 +2387,14 @@
             tbody.innerHTML = rows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.ONBOARD_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1OnboardStatus(row) || "-") : (row[headersS1[S1_IDX.STATUS]] || "-")}</td>
                     <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]] || '-'}</td>
                     <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
-                    <td class="text-left text-slate-600 font-medium text-xs px-6">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()}</td>
+                    <td class="text-left text-slate-600 font-medium text-xs px-6">${isHrSourceDetailMode(currentDetailMode) ? ((row[headersS1[6]] || "-") + "").trim() || "-" : (((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim())}</td>
                 </tr>
             `).join('');
 
@@ -1347,13 +2402,59 @@
             area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // --- 明細表展開邏輯 ---
+        function toggleBatchList(dateStr) {
+            showSharedDetail("BATCH", dateStr);
+        }
+
+        function toggleLeadList(brand) {
+            showSharedDetail("LEAD", brand);
+        }
+
+        function toggleLeadHrList() {
+            showSharedDetail("LEAD_HR", "HR");
+        }
+
+        function toggleWeeklyList(brand) {
+            showSharedDetail("WEEKLY", brand);
+        }
+
+        function toggleWeeklyHrList() {
+            showSharedDetail("WEEKLY_HR", "HR");
+        }
+
+        function togglePendingList(brand) {
+            showSharedDetail("PENDING", brand);
+        }
+
+        function togglePendingHrList() {
+            showSharedDetail("PENDING_HR", "HR");
+        }
+
+        function toggleOnboardList(brand) {
+            showSharedDetail("ONBOARD", brand);
+        }
+
+        function toggleOnboardHrList() {
+            showSharedDetail("ONBOARD_HR", "HR");
+        }
+
+        function togglePicList(brand, picName) {
+            showSharedDetail("PIC", `${brand}___${picName}`);
+        }
+
+        function toggleHrList(hrName, brand) {
+            showSharedDetail("HR", `${hrName}___${brand}`);
+        }
+
+        // --- ?敦銵典???頛?---
         function showSharedDetail(mode, key) {
             currentDetailMode = mode; currentDetailKey = key;
             const area = document.getElementById('sharedDetailArea'), tbody = document.getElementById('sharedDetailTableBody');
             if(!area || !tbody) return;
+            const tailHeader = document.getElementById('sharedDetailTailHeaderLabel');
+            if (tailHeader) tailHeader.innerText = isHrSourceDetailMode(mode) ? 'CV RECEIVED CHANNEL' : 'REFER BY';
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card, .onboard-card').forEach(c => c.classList.remove('active'));
             let list = [];
             
             const startL = getLocalDateFromInput(document.getElementById('leadStart')?.value);
@@ -1365,12 +2466,13 @@
             const useOb = document.getElementById('useObFilter')?.checked;
             const startP = getLocalDateFromInput(document.getElementById('pendingStart')?.value);
             const endP = getLocalDateFromInput(document.getElementById('pendingEnd')?.value);
+            const startOn = getLocalDateFromInput(document.getElementById('onboardStart')?.value);
+            const endOn = getLocalDateFromInput(document.getElementById('onboardEnd')?.value);
 
             if (mode === "BATCH") {
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 inline-block"></span> ${key} 批次名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 inline-block"></span> ${key} Batch Details`;
                 list = dataS1.filter(row => {
-                    const source = (row[headersS1[5]] || "").trim().toUpperCase();
-                    if (!source.includes("OPERATION")) return false;
+                    if (!isBatchSourceIncluded(row)) return false;
                     const d = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
                     if(!d) return false;
                     const normalized = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
@@ -1378,7 +2480,7 @@
                 });
             } else if (mode === "LEAD") {
                 const card = document.getElementById(`lead-${key}`); if(card) card.classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 inline-block"></span> ${key} Lead 名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 inline-block"></span> ${key} Lead Details`;
                 list = dataS1.filter(row => {
                     const source = (row[headersS1[5]] || "").trim().toUpperCase();
                     if (!source.includes("OPERATION")) return false;
@@ -1387,9 +2489,17 @@
                     const dMatch = ld && startL && endL && ld >= startL && ld <= (new Date(endL).setHours(23,59,59));
                     return bMatch && dMatch;
                 });
+            } else if (mode === "LEAD_HR") {
+                const card = document.getElementById('lead-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-fuchsia-500 rounded-full mr-3 inline-block"></span> HR SOURCES Lead Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row)) return false;
+                    const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                    return ld && startL && endL && ld >= startL && ld <= (new Date(endL).setHours(23,59,59));
+                });
             } else if (mode === "WEEKLY") {
                 const card = document.getElementById(`weekly-${key}`); if(card) card.classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 inline-block"></span> ${key} Offer 名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 inline-block"></span> ${key} Offer Details`;
                 list = dataS1.filter(row => {
                     const source = (row[headersS1[5]] || "").trim().toUpperCase();
                     if (!source.includes("OPERATION")) return false;
@@ -1405,10 +2515,26 @@
                     }
                     return true;
                 });
+            } else if (mode === "WEEKLY_HR") {
+                const card = document.getElementById('weekly-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-sky-500 rounded-full mr-3 inline-block"></span> HR SOURCES Offer Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row)) return false;
+                    const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const onbD = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                    const st = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
+                    const dMatch = od && startO && endO && od >= startO && od <= (new Date(endO).setHours(23,59,59));
+                    const stMatch = st.includes("OFFER") || st.includes("ACCEPT");
+                    if (!dMatch || !stMatch) return false;
+                    if (useOb && obS && obE) {
+                        if (!onbD || onbD < obS || onbD > (new Date(obE).setHours(23,59,59))) return false;
+                    }
+                    return true;
+                });
             } else if (mode === "PIC") {
-                // PIC 表格專用的明細邏輯
+                // PIC detail mode
                 const [brand, picName] = key.split('___');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 inline-block"></span> [${brand}] ${picName} 推薦名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 inline-block"></span> [${brand}] ${picName} Performance Details`;
                 
                 const pStart = getLocalDateFromInput(document.getElementById('perfStart')?.value);
                 const pEnd = getLocalDateFromInput(document.getElementById('perfEnd')?.value);
@@ -1416,7 +2542,7 @@
                 const poStart = getLocalDateFromInput(document.getElementById('perfObStart')?.value);
                 const poEnd = getLocalDateFromInput(document.getElementById('perfObEnd')?.value);
 
-                // 取得該 PIC 負責的所有 Floor
+                // ??閰?PIC 鞎痊????Floor
                 const brDataS2 = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").trim().toUpperCase() === brand.toUpperCase() && !(i[headersS2[S2_IDX.NAME]]||"").toUpperCase().includes("TOTAL"));
                 const picRowsS2 = brDataS2.filter(i => i[headersS2[S2_IDX.PIC]] === picName);
                 const picFloors = picRowsS2.map(i => (i[headersS2[S2_IDX.FLOOR]]||"").trim().toUpperCase());
@@ -1451,9 +2577,9 @@
                     return isLead || isOffer;
                 });
             } else if (mode === "HR") {
-                // HR 表格專用的明細邏輯
+                // HR performance detail mode
                 const [hrName, brand] = key.split('___');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-teal-500 rounded-full mr-3 inline-block"></span> [${hrName}] ${brand} HR 推薦名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-teal-500 rounded-full mr-3 inline-block"></span> [${hrName}] ${brand} HR Performance Details`;
                 
                 const hrS = getLocalDateFromInput(document.getElementById('hrPerfStart')?.value);
                 const hrE = getLocalDateFromInput(document.getElementById('hrPerfEnd')?.value);
@@ -1489,9 +2615,37 @@
 
                     return isLead || isOffer;
                 });
+            } else if (mode === "PENDING_HR") {
+                const card = document.getElementById('pending-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-amber-500 rounded-full mr-3 inline-block"></span> HR SOURCES Pending Offer Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row)) return false;
+                    const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
+                    const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
+                    return dMatch && stMatch;
+                });
+            } else if (mode === "ONBOARD") {
+                const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-emerald-500 rounded-full mr-3 inline-block"></span> ${key} On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    const dMatch = onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                    return bMatch && dMatch;
+                });
+            } else if (mode === "ONBOARD_HR") {
+                const card = document.getElementById('onboard-HR'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-green-500 rounded-full mr-3 inline-block"></span> HR SOURCES On Board Details`;
+                list = dataS1.filter(row => {
+                    if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                    const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                    return onboardDate && startOn && endOn && onboardDate >= startOn && onboardDate <= (new Date(endOn).setHours(23,59,59));
+                });
             } else {
                 const card = document.getElementById(`pending-${key}`); if(card) card.classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-orange-500 rounded-full mr-3 inline-block"></span> ${key} 待定/拒絕 Offer 名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-orange-500 rounded-full mr-3 inline-block"></span> ${key} Pending Offer Details`;
                 list = dataS1.filter(row => {
                     const source = (row[headersS1[5]] || "").trim().toUpperCase();
                     if (!source.includes("OPERATION")) return false;
@@ -1503,30 +2657,14 @@
                 });
             }
             
-            list.sort((a, b) => { 
-                const brandA = (a[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase();
-                const brandB = (b[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase();
-                if (brandA !== brandB) return brandA.localeCompare(brandB);
-                const refA = ((a[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (a[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
-                const refB = ((b[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (b[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
-                return refA.localeCompare(refB);
-            });
-            
-            tbody.innerHTML = list.map(row => `
-                <tr class="hover:bg-blue-50 transition font-bold text-center">
-                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]]}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.ONBOARD_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]]}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]]}</td>
-                    <td class="text-left text-slate-600 font-medium text-xs px-6">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()}</td>
-                </tr>`).join('');
+            if (mode !== "BATCH") {
+                list = list.filter(row => isPositionIncluded(row));
+            }
+            renderSharedDetailTable(list);
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // --- 啟動與資料處理 ---
+        // --- ????????---
         function populateFilters() {
             const bSel = document.getElementById('filterBrand'); if(!bSel) return;
             bSel.innerHTML = '<option value="">請選擇品牌</option>';
@@ -1534,7 +2672,7 @@
 
             const pMenu = document.getElementById('posDropdownMenu');
             if (pMenu && headersS1.length > 4) {
-                // 從 Sheet 1 (Column E) 抓取所有不重複的 Position
+                // 敺?Sheet 1 (Column E) ?????????Position
                 const uniquePos = [...new Set(dataS1.map(i => (i[headersS1[4]]||"").trim().toUpperCase()).filter(v => v))].sort();
                 
                 pMenu.innerHTML = '';
@@ -1550,16 +2688,72 @@
             }
         }
 
+        function getPositionFilterLabelText() {
+            if (!positionFilterInitialized || selectedPositions.length === availablePositions.length) return 'All Position';
+            if (selectedPositions.length === 0) return 'No Position';
+            if (selectedPositions.length <= 2) return selectedPositions.join(', ');
+            return `${selectedPositions.length} selected`;
+        }
+
+        function updatePosSelection(position, isChecked) {
+            const normalized = ((position ?? '') + '').trim().toUpperCase();
+            const next = new Set(selectedPositions.map(v => ((v ?? '') + '').trim().toUpperCase()));
+            if (isChecked) next.add(normalized);
+            else next.delete(normalized);
+            selectedPositions = availablePositions.filter(pos => next.has(pos));
+            syncPositionFilterUi();
+            refreshPositionFilteredSections();
+        }
+
+        function populateFilters() {
+            const bSel = document.getElementById('filterBrand');
+            if (bSel) {
+                bSel.innerHTML = '<option value="">請選擇品牌</option>';
+                [...new Set(getReferralLinkedSalesRows().map(i => getSalesQuickFilterBrand(i)).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort((a, b) => a.localeCompare(b, 'en')).forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
+            }
+
+            const menus = document.querySelectorAll('.pos-dropdown-menu');
+            if (menus.length && headersS1.length > 4) {
+                availablePositions = [...new Set(dataS1.map(i => (i[headersS1[4]] || "").trim().toUpperCase()).filter(v => v))].sort();
+
+                if (!positionFilterInitialized) {
+                    selectedPositions = availablePositions.slice();
+                    positionFilterInitialized = true;
+                } else {
+                    selectedPositions = selectedPositions.filter(pos => availablePositions.includes(pos));
+                    if (selectedPositions.length === 0 && availablePositions.length) {
+                        selectedPositions = availablePositions.slice();
+                    }
+                }
+
+                menus.forEach(menu => {
+                    menu.innerHTML = '';
+                    availablePositions.forEach(p => {
+                        const isChecked = selectedPositions.includes(p) ? 'checked' : '';
+                        menu.innerHTML += `
+                            <label class="flex items-center px-4 py-2 hover:bg-teal-50 cursor-pointer">
+                                <input type="checkbox" value="${p}" class="pos-checkbox cursor-pointer w-4 h-4 accent-teal-600 mr-3" onchange="updatePosSelection('${p}', this.checked)" ${isChecked}>
+                                <span class="text-sm font-bold text-slate-700">${p}</span>
+                            </label>
+                        `;
+                    });
+                });
+
+                syncPositionFilterUi();
+            }
+        }
+
         async function init() {
-            // 動態產生當月及後續 4 個月的按鈕 (共 5 個)
+            ensurePositionFilterControls();
+            // ???Ｙ??嗆???蝥?4 ??????(??5 ??
             const today = new Date();
             const curM = today.getMonth() + 1; // 1-12
             
             availableMonths = [];
-            // 預設若是3月，則從4月開始；否則從當月開始
+            // Build a rolling 5-month selector starting from the current month
             let startMonth = (curM === 3) ? 4 : curM;
 
-            // 補回：產生 5 個月份的按鈕邏輯
+            // 鋆?嚗??5 ??隞賜????摩
             for(let i = 0; i < 5; i++) {
                 let m = startMonth + i;
                 if(m > 12) m -= 12;
@@ -1575,17 +2769,19 @@
                     selector.innerHTML += `<button onclick="toggleMonth(${m})" class="month-btn inactive" id="btn-month-${m}">${m}月</button>`;
                 });
             }
+            ensureBatchSourceFilterControl();
             
-            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false;
+            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false, salesQuickL = false;
             
-            // 安全檢查：等待所有 Sheet 都讀取完畢後，再進行所有統計，避免時間差報錯
+            // Once all sheets finish loading, render the dashboard
             const checkDone = () => { 
-                if(s1L && s2L && s3L && s4L && s5L) {
+                if(s1L && s2L && s3L && s4L && s5L && salesQuickL) {
                     populateFilters(); 
                     calculateBatchCounts(); 
                     calculateWeeklyOffers(); 
                     calculateWeeklyLeads(); 
                     calculatePendingOffers(); 
+                    calculateOnboardSummary();
                     calculateSummaries();
                     populateCoreTeamFilter();
                     setHrDateFilterType('LEAD');
@@ -1594,8 +2790,7 @@
                     document.getElementById('loadingStatus')?.classList.add('hidden');
                     document.getElementById('hrPerformanceArea')?.classList.remove('hidden');
                 }
-            }; // <--- 修復了這裡缺失的括號
-
+            }; // <--- 靽桀儔鈭ㄐ蝻箏仃???
             updateMonthButtons();
 
             const monday = getThisMonday();
@@ -1603,35 +2798,38 @@
             const isoMon = formatDateToISO(monday);
             const isoSun = formatDateToISO(sunday);
             
-            ['leadStart', 'leadEnd', 'offerStart', 'offerEnd', 'pendingStart', 'pendingEnd', 'perfStart', 'perfEnd', 'perfObStart', 'perfObEnd', 'hrPerfStart', 'hrPerfEnd', 'hrPerfObStart', 'hrPerfObEnd'].forEach(id => { 
+            ['leadStart', 'leadEnd', 'offerStart', 'offerEnd', 'pendingStart', 'pendingEnd', 'onboardStart', 'onboardEnd', 'perfStart', 'perfEnd', 'perfObStart', 'perfObEnd', 'hrPerfStart', 'hrPerfEnd', 'hrPerfObStart', 'hrPerfObEnd'].forEach(id => { 
                 const el = document.getElementById(id); 
                 if(el) el.value = id.includes('End') ? isoSun : isoMon; 
             });
             ['useObFilter', 'usePerfObFilter', 'useHrPerfObFilter'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
+            setDefaultReferralDateRange();
 
             try {
-                let t1, t2, t3, t4, t5;
+                let t1, t2, t3, t4, t5, tSalesQuick;
                 try {
-                    // 優先使用 fetch（在 http/https 站點通常可用）
-                    const [r1, r2, r3, r4, r5] = await Promise.all([
+                    // Prefer normal fetch first for http/https contexts
+                    const [r1, r2, r3, r4, r5, rSalesQuick] = await Promise.all([
                         fetch(SHEET1_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET2_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET3_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET4_BASE_URL + `&t=${Date.now()}`),
-                        fetch(CORE_TEAM_BASE_URL + `&t=${Date.now()}`)
+                        fetch(CORE_TEAM_BASE_URL + `&t=${Date.now()}`),
+                        fetch(SALES_QUICK_BASE_URL + `&t=${Date.now()}`)
                     ]);
-                    const bad = [r1, r2, r3, r4, r5].find(r => !r.ok);
+                    const bad = [r1, r2, r3, r4, r5, rSalesQuick].find(r => !r.ok);
                     if (bad) throw new Error(`HTTP ${bad.status}`);
-                    [t1, t2, t3, t4, t5] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text()]);
+                    [t1, t2, t3, t4, t5, tSalesQuick] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), rSalesQuick.text()]);
                 } catch (fetchErr) {
-                    // file:// 本地檔常遇到 CORS，改用 JSONP 後備讀取
+                    // Fall back to JSONP for local file previews where CORS blocks fetch
                     console.warn('Fetch failed, fallback to JSONP:', fetchErr);
-                    [t1, t2, t3, t4, t5] = await Promise.all([
+                    [t1, t2, t3, t4, t5, tSalesQuick] = await Promise.all([
                         loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
                         loadGvizCsvByJsonp(SHEET2_GID),
                         loadGvizCsvByJsonp(SHEET3_GID),
                         loadGvizCsvByJsonp(SHEET4_GID),
-                        loadGvizCsvByJsonp(CORE_TEAM_GID)
+                        loadGvizCsvByJsonp(CORE_TEAM_GID),
+                        loadGvizCsvByJsonpBySheetName(SALES_QUICK_SHEET_NAME, SHEET1_DOC_ID)
                     ]);
                 }
 
@@ -1639,7 +2837,14 @@
                     headersS1 = res.meta.fields;
                     dataS1 = res.data.filter(row => !excludedNames.includes((row[headersS1[S1_IDX.STAFF_NAME]]||"").trim().toLowerCase()));
                     dataS1.forEach(hydrateS1DateFields);
-                    const ah1Time = headersS1[33] || "未知"; const updateEl = document.getElementById('lastUpdateDisplay'); if(updateEl) updateEl.innerText = `同步：${ah1Time}`;
+                    const ah1Time = headersS1[33] || "Staff number";
+                    const updateEl = document.getElementById('lastUpdateDisplay');
+                    if (updateEl) updateEl.innerText = `同步：${ah1Time}`;
+                    calculateBatchCounts();
+                    calculateWeeklyOffers();
+                    calculateWeeklyLeads();
+                    calculatePendingOffers();
+                    calculateOnboardSummary();
                     s1L = true; checkDone();
                 } });
 
@@ -1656,13 +2861,13 @@
                 } });
 
                 Papa.parse(t4, { 
-                    header: false, // 改用 false，讓系統自行判斷真正的標題列 (無視上方空白列)
+                    header: false, // ?寧 false嚗?蝟餌絞?芾??斗?迤??憿? (?∟?銝蝛箇??
                     skipEmptyLines: true, 
                     complete: res => { 
                         const rawData = res.data;
                         let headerRowIdx = -1;
 
-                        // 往下掃描尋找包含 BRAND 和 PIC 的那一列，作為真正的 Header
+                        // 敺銝????曉???BRAND ??PIC ?銝??雿?迤??Header
                         for (let i = 0; i < rawData.length; i++) {
                             const rowStr = rawData[i].join('').toUpperCase();
                             if (rowStr.includes('BRAND') && rowStr.includes('PIC')) {
@@ -1674,7 +2879,7 @@
                         if (headerRowIdx !== -1) {
                             headersS4 = rawData[headerRowIdx].map(h => h ? h.trim() : "");
                             dataS4 = [];
-                            // 將標題以下的資料轉為物件陣列
+                            // 撠?憿誑銝?鞈?頧?拐辣???
                             for (let i = headerRowIdx + 1; i < rawData.length; i++) {
                                 let obj = {};
                                 headersS4.forEach((h, colIdx) => {
@@ -1686,7 +2891,7 @@
                             headersS4 = []; dataS4 = [];
                         }
                         
-                        // 智慧處理 CSV 中合併儲存格產生的空白資料 (以名字作關聯判斷向下填補)
+                        // ?箸?? CSV 銝剖?雿萄摮?Ｙ??征?質???(隞亙?摮???斗??憛怨?)
                         const getBaseName = (pic) => pic.includes('-') ? pic.split('-')[1].trim() : pic.trim();
                         const picCol = headersS4.find(h => h.trim().toUpperCase() === 'PIC');
                         
@@ -1699,7 +2904,7 @@
                                     const currentPic = dataS4[i][picCol] || "";
                                     const currentBaseName = getBaseName(currentPic);
                                     
-                                    // 若基礎名字相同且當前儲存格為空，則向下填補 (例如：33/F - Mia 填補到 35/F - Mia)
+                                    // ?亙蝷?摮???嗅??脣??潛蝛綽???銝‵鋆?(靘?嚗?3/F - Mia 憛怨???35/F - Mia)
                                     if (i > 0 && currentBaseName === lastBaseName && (!dataS4[i][col] || dataS4[i][col].trim() === "")) {
                                         dataS4[i][col] = lastVal;
                                     } else {
@@ -1723,18 +2928,41 @@
                     }
                 });
 
+                Papa.parse(tSalesQuick, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: res => {
+                        headersSalesQuick = res.meta.fields || [];
+                        dataSalesQuick = res.data || [];
+                        salesQuickL = true; checkDone();
+                    }
+                });
+
             } catch (e) { console.error(e); document.getElementById('loadingStatus')?.classList.add('hidden'); }
         }
 
-        // --- 搜尋與介面互動 ---
+        // --- ?????Ｖ???---
         function renderS1(list) {
-            const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ'); 
+            const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ');
             if(!rbRJ || !rbNJ) return;
-            rbRJ.innerHTML = ''; rbNJ.innerHTML = ''; let c = { t: 0, j: 0, d: 0, w: 0 };
+            rbRJ.innerHTML = '';
+            rbNJ.innerHTML = '';
+            let c = { t: 0, o: 0, j: 0, d: 0, w: 0 };
             list.sort((a, b) => (a[headersS1[S1_IDX.BRAND]]||"").trim().localeCompare((b[headersS1[S1_IDX.BRAND]]||"").trim())).forEach(i => {
-                c.t++; const n = i[headersS1[S1_IDX.NAME]], rjnj = (i[headersS1[S1_IDX.RJNJ]]||"").toUpperCase(), dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(), obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
-                const st = (i[headersS1[22]]||"-"), z = (i[headersS1[25]]||"PENDING");
-                if (z.toUpperCase().includes('ONBOARD')) c.j++; else if (z.toUpperCase().includes('WITHDRAW') || st.toUpperCase().includes('WITHDRAW')) c.d++; else c.w++;
+                c.t++;
+                const n = i[headersS1[S1_IDX.NAME]] || '-';
+                const rjnj = (i[headersS1[S1_IDX.RJNJ]]||"").toUpperCase();
+                const dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim() || "-";
+                const obV = getS1RecordedOnboardDate(i) || "-";
+                const st = (i[headersS1[S1_IDX.STATUS]]||"-").trim() || "-";
+                const z = getReferralFinalMarker(i);
+                const isDrop = isRejectedOrWithdrawnStatus(st) || isRejectedOrWithdrawnStatus(z);
+                const isOffer = isSearchOfferRow(i);
+                const isOnboard = isSearchOnboardRow(i);
+                if (isOffer) c.o++;
+                if (isOnboard) c.j++;
+                else if (isDrop) c.d++;
+                else c.w++;
                 const tr = `
                     <tr>
                         <td class="text-left font-black text-base md:text-xl text-slate-900 px-6">${n}</td>
@@ -1747,91 +2975,472 @@
                     </tr>`;
                 rjnj.includes('RJ') ? rbRJ.innerHTML += tr : rbNJ.innerHTML += tr;
             });
-            const tc = document.getElementById('totalCount'), jc = document.getElementById('joinedCount'), wc = document.getElementById('withdrawCount'), pc = document.getElementById('pendingCount');
-            if(tc) tc.innerText = c.t; if(jc) jc.innerText = c.j; if(wc) wc.innerText = c.d; if(pc) pc.innerText = c.w;
+            const tc = document.getElementById('totalCount'), oc = document.getElementById('offerCount'), jc = document.getElementById('joinedCount'), wc = document.getElementById('withdrawCount'), pc = document.getElementById('pendingCount');
+            if(tc) tc.innerText = c.t; if(oc) oc.innerText = c.o; if(jc) jc.innerText = c.j; if(wc) wc.innerText = c.d; if(pc) pc.innerText = c.w;
             document.getElementById('resultArea').classList.remove('hidden');
         }
 
-        function renderS2(list, isLv) {
-            const rb = document.getElementById('sheet2TableBody'); if(!rb) return; rb.innerHTML = '';
-            list.sort((a, b) => (a[headersS2[S2_IDX.BRAND]]||"").trim().localeCompare((b[headersS2[S2_IDX.BRAND]]||"").trim())).forEach(i => {
-                let o = parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')), g = parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')), njo = parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
-                rb.innerHTML += `
-                    <tr class="hover:bg-sky-50 transition font-bold text-center">
-                        <td class="text-left border-r border-sky-50 px-6">${i[headersS2[S2_IDX.NAME]]}</td>
-                        <td class="border-r border-sky-50 px-4">${(parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0)}</td>
-                        <td class="border-r border-sky-50 px-4">${o}</td>
-                        <td class="border-r border-sky-50 px-4">${i[headersS2[S2_IDX.SHOULD]]}</td>
-                        <td class="border-r border-sky-50 px-4">${i[headersS2[S2_IDX.ONBOARD]]}</td>
-                        <td class="border-r border-blue-50 font-black ${g<0?'bg-rose-100 text-rose-900':''} text-2xl px-4">${g}</td>
-                        <td class="px-4">${njo}</td>
-                    </tr>`;
+        function renderReferralSummary(rows) {
+            const cards = document.getElementById('referralSummaryCards');
+            const leadEl = document.getElementById('referralSummaryLead');
+            const offerEl = document.getElementById('referralSummaryOffer');
+            const onboardEl = document.getElementById('referralSummaryOnboard');
+            const rejectEl = document.getElementById('referralSummaryReject');
+            const title = document.getElementById('resultAreaSheet2Title');
+            const filterBar = document.getElementById('referralFilterBar');
+            if (!cards || !leadEl || !offerEl || !onboardEl || !rejectEl) return;
+
+            if (filterBar && cards.previousElementSibling !== filterBar) {
+                filterBar.insertAdjacentElement('afterend', cards);
+            } else if (!filterBar && title && cards.previousElementSibling !== title) {
+                title.insertAdjacentElement('afterend', cards);
+            }
+
+            const leadCount = rows.length;
+            const offerCount = rows.filter(row => isSearchOfferRow(row)).length;
+            const onboardCount = rows.filter(row => isConfirmedOnboard(row)).length;
+            const rejectCount = rows.filter(row => isReferralRejectWithdrawRow(row)).length;
+
+            leadEl.innerText = leadCount;
+            offerEl.innerText = offerCount;
+            onboardEl.innerText = onboardCount;
+            rejectEl.innerText = rejectCount;
+            cards.classList.remove('hidden');
+            updateReferralSummaryCardUi();
+        }
+
+        function getReferralDetailSelectValues() {
+            return {
+                brand: ((document.getElementById('referralFilterBrand')?.value || '') + '').trim(),
+                floor: ((document.getElementById('referralFilterFloor')?.value || '') + '').trim(),
+                therapist: ((document.getElementById('referralFilterTherapist')?.value || '') + '').trim()
+            };
+        }
+
+        function setReferralDetailSelectOptions(selectEl, placeholder, values) {
+            if (!selectEl) return;
+            const previousValue = ((selectEl.value || '') + '').trim();
+            selectEl.innerHTML = '';
+            selectEl.appendChild(new Option(placeholder, ''));
+            values.forEach(value => selectEl.appendChild(new Option(value, value)));
+            selectEl.value = values.includes(previousValue) ? previousValue : '';
+        }
+
+        function populateReferralDetailSelectFilters() {
+            const brandSelect = document.getElementById('referralFilterBrand');
+            const floorSelect = document.getElementById('referralFilterFloor');
+            const therapistSelect = document.getElementById('referralFilterTherapist');
+            if (!brandSelect || !floorSelect || !therapistSelect) return;
+
+            const linkedRows = getReferralLinkedSalesRows();
+            const sortValues = values => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true, sensitivity: 'base' }));
+
+            const selected = getReferralDetailSelectValues();
+            const fallbackSalesRow = findReferralLinkedSalesRowByStaffId(currentReferralStaffId, currentReferralBrand);
+            const fallbackBrand = selected.brand || currentReferralBrand || getSalesQuickFilterBrand(fallbackSalesRow) || '';
+            const brandValues = sortValues(linkedRows.map(row => getSalesQuickFilterBrand(row)).filter(v => v && !v.toUpperCase().includes("TOTAL")));
+            const nextBrand = brandValues.includes(fallbackBrand) ? fallbackBrand : '';
+            setReferralDetailSelectOptions(brandSelect, 'All Brand', brandValues);
+            brandSelect.value = nextBrand;
+
+            const floorValues = sortValues(getReferralLinkedSalesRowsByFilters(brandSelect.value, '').map(row => getSalesQuickFilterFloor(row)));
+            const fallbackFloor = selected.floor || currentReferralFloor || getSalesQuickFilterFloor(fallbackSalesRow) || '';
+            setReferralDetailSelectOptions(floorSelect, 'All Floor', floorValues);
+            floorSelect.value = floorValues.includes(fallbackFloor) ? fallbackFloor : '';
+
+            const therapistRows = getReferralLinkedSalesRowsByFilters(brandSelect.value, floorSelect.value);
+            const previousTherapist = selected.therapist || currentReferralStaffId || getSalesQuickFilterStaffId(fallbackSalesRow) || '';
+            therapistSelect.innerHTML = '';
+            therapistSelect.appendChild(new Option('All Therapist', ''));
+            therapistRows.forEach(row => {
+                const staffId = getSalesQuickFilterStaffId(row);
+                const label = getSalesQuickFilterLabel(row);
+                if (!staffId || !label) return;
+                therapistSelect.appendChild(new Option(label, staffId));
             });
-            const s2Area = document.getElementById('resultAreaSheet2'); if(s2Area) s2Area.classList.toggle('hidden', list.length === 0);
+            const therapistValues = therapistRows.map(row => getSalesQuickFilterStaffId(row)).filter(Boolean);
+            therapistSelect.value = therapistValues.includes(previousTherapist) ? previousTherapist : '';
+        }
+
+        function handleReferralDetailSelectFilterChange(changedKey = '') {
+            const floorSelect = document.getElementById('referralFilterFloor');
+            const therapistSelect = document.getElementById('referralFilterTherapist');
+            if (changedKey === 'brand') {
+                if (floorSelect) floorSelect.value = '';
+                if (therapistSelect) therapistSelect.value = '';
+            } else if (changedKey === 'floor') {
+                if (therapistSelect) therapistSelect.value = '';
+            }
+            populateReferralDetailSelectFilters();
+            runReferralNavigationSearch();
+        }
+
+        function resetReferralDetailSelectFilters() {
+            const brandSelect = document.getElementById('referralFilterBrand');
+            const floorSelect = document.getElementById('referralFilterFloor');
+            const therapistSelect = document.getElementById('referralFilterTherapist');
+            const fallbackSalesRow = findReferralLinkedSalesRowByStaffId(currentReferralStaffId, currentReferralBrand);
+            const brandValue = currentReferralBrand || getSalesQuickFilterBrand(fallbackSalesRow) || '';
+            if (brandSelect) brandSelect.value = brandValue;
+            populateReferralDetailSelectFilters();
+            if (floorSelect) floorSelect.value = '';
+            if (therapistSelect) therapistSelect.value = '';
+            runReferralNavigationSearch();
+        }
+
+        function isReferralRejectWithdrawRow(row) {
+            const status = (row?.[headersS1[S1_IDX.STATUS]] || '').trim();
+            const finalMarker = getReferralFinalMarker(row);
+            return isRejectedOrWithdrawnStatus(status) || isRejectedOrWithdrawnStatus(finalMarker);
+        }
+
+        function getFilteredReferralDetailRows(rows) {
+            switch (currentReferralDetailSummaryFilter) {
+                case 'offer':
+                    return rows.filter(row => isSearchOfferRow(row));
+                case 'onboard':
+                    return rows.filter(row => isConfirmedOnboard(row));
+                case 'rejectWithdraw':
+                    return rows.filter(row => isReferralRejectWithdrawRow(row));
+                case 'all':
+                default:
+                    return rows.slice();
+            }
+        }
+
+        function updateReferralSummaryCardUi() {
+            const cardMap = {
+                all: document.getElementById('referralSummaryCardLead'),
+                offer: document.getElementById('referralSummaryCardOffer'),
+                onboard: document.getElementById('referralSummaryCardOnboard'),
+                rejectWithdraw: document.getElementById('referralSummaryCardReject')
+            };
+            Object.entries(cardMap).forEach(([key, card]) => {
+                if (!card) return;
+                const isActive = key === currentReferralDetailSummaryFilter;
+                card.classList.toggle('ring-2', isActive);
+                card.classList.toggle('ring-offset-2', isActive);
+                card.classList.toggle('ring-sky-400', isActive);
+                card.classList.toggle('shadow-lg', isActive);
+                card.classList.toggle('bg-sky-50/40', isActive);
+                card.classList.toggle('opacity-80', !isActive);
+            });
+        }
+
+        function setReferralDetailSummaryFilter(filterKey) {
+            currentReferralDetailSummaryFilter = filterKey;
+            updateReferralSummaryCardUi();
+            renderReferralDetailTable(currentReferralDetailBaseRows);
+        }
+
+        function getReferralDetailSortIndicator(sortKey) {
+            return referralDetailSort.key === sortKey ? (referralDetailSort.direction === 'asc' ? '▲' : '▼') : '';
+        }
+
+        function updateReferralDetailSortUi() {
+            ['brand', 'referBy', 'refereeName', 'status', 'leadDate', 'offerDate', 'onboardDate', 'onboardStatus', 'interviewBy'].forEach(sortKey => {
+                const el = document.getElementById(`referral-sort-indicator-${sortKey}`);
+                if (el) el.innerText = getReferralDetailSortIndicator(sortKey);
+            });
+        }
+
+        function getReferralDetailCellValue(row, sortKey) {
+            switch (sortKey) {
+                case 'brand':
+                    return (row[headersS1[S1_IDX.BRAND]] || '').trim();
+                case 'referBy':
+                    return (((row[headersS1[S1_IDX.STAFF_NAME]] || '') + '').trim()) || '-';
+                case 'refereeName':
+                    return (row[headersS1[S1_IDX.NAME]] || '').trim();
+                case 'status':
+                    return (row[headersS1[S1_IDX.STATUS]] || '').trim();
+                case 'leadDate':
+                    return parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) || row[headersS1[S1_IDX.LEAD_DATE]] || '';
+                case 'offerDate':
+                    return parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) || row[headersS1[S1_IDX.OFFER_DATE]] || '';
+                case 'onboardDate': {
+                    const rawValue = getS1RecordedOnboardDate(row) || '';
+                    return parseDate(rawValue) || rawValue;
+                }
+                case 'onboardStatus':
+                    return getS1OnboardStatus(row) || '';
+                case 'interviewBy':
+                    return getS1InterviewByValue(row) || '';
+                default:
+                    return '';
+            }
+        }
+
+        function sortReferralDetailRows(rows) {
+            const sortedRows = rows.slice();
+            sortedRows.sort((rowA, rowB) => {
+                const valueA = getReferralDetailCellValue(rowA, referralDetailSort.key);
+                const valueB = getReferralDetailCellValue(rowB, referralDetailSort.key);
+                let result = 0;
+
+                if (valueA instanceof Date && valueB instanceof Date) {
+                    result = valueA.getTime() - valueB.getTime();
+                } else {
+                    result = ((valueA ?? '') + '').localeCompare(((valueB ?? '') + ''), undefined, { numeric: true, sensitivity: 'base' });
+                }
+
+                if (result === 0) {
+                    const leadA = parseDate(rowA[headersS1[S1_IDX.LEAD_DATE]] || '') || new Date(0);
+                    const leadB = parseDate(rowB[headersS1[S1_IDX.LEAD_DATE]] || '') || new Date(0);
+                    result = leadB.getTime() - leadA.getTime();
+                }
+
+                if (result === 0) {
+                    const nameA = (rowA[headersS1[S1_IDX.NAME]] || '').trim();
+                    const nameB = (rowB[headersS1[S1_IDX.NAME]] || '').trim();
+                    result = nameA.localeCompare(nameB, 'zh-HK', { numeric: true, sensitivity: 'base' });
+                }
+
+                return referralDetailSort.direction === 'asc' ? result : -result;
+            });
+            return sortedRows;
+        }
+
+        function renderReferralDetailTable(rows) {
+            const rb = document.getElementById('sheet2TableBody');
+            if (!rb) return;
+
+            currentReferralDetailBaseRows = rows.slice();
+            renderReferralSummary(currentReferralDetailBaseRows);
+            currentReferralDetailRows = getFilteredReferralDetailRows(currentReferralDetailBaseRows);
+            const sortedRows = sortReferralDetailRows(currentReferralDetailRows);
+            updateReferralDetailSortUi();
+
+            if (!sortedRows.length) {
+                const emptyLabel = currentReferralDetailSummaryFilter === 'rejectWithdraw'
+                    ? 'No reject / withdraw detail under current filters.'
+                    : currentReferralDetailSummaryFilter === 'offer'
+                        ? 'No offer detail under current filters.'
+                        : currentReferralDetailSummaryFilter === 'onboard'
+                            ? 'No onboard detail under current filters.'
+                            : 'No referral detail under current filters.';
+                rb.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-sm font-bold text-slate-400 text-center">${emptyLabel}</td></tr>`;
+                return;
+            }
+
+            rb.innerHTML = sortedRows.map(row => `
+                    <tr class="hover:bg-sky-50 transition font-bold text-center">
+                        <td class="text-left border-r border-sky-50 text-indigo-700 px-6">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                        <td class="text-left border-r border-sky-50 text-slate-900 px-6">${((row[headersS1[S1_IDX.STAFF_NAME]] || "") + "").trim() || "-"}</td>
+                        <td class="text-left border-r border-sky-50 text-slate-800 px-6">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
+                        <td class="border-r border-sky-50 px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                        <td class="border-r border-sky-50 px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                        <td class="border-r border-sky-50 px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                        <td class="border-r border-sky-50 px-4">${getS1RecordedOnboardDate(row) || "-"}</td>
+                        <td class="border-r border-sky-50 px-4">${getS1OnboardStatus(row) || "-"}</td>
+                        <td class="text-left px-6 text-slate-700">${getS1InterviewByValue(row)}</td>
+                    </tr>`).join('');
+        }
+
+        function toggleReferralDetailSort(sortKey) {
+            if (referralDetailSort.key === sortKey) {
+                referralDetailSort.direction = referralDetailSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                referralDetailSort.key = sortKey;
+                referralDetailSort.direction = ['leadDate', 'offerDate', 'onboardDate'].includes(sortKey) ? 'desc' : 'asc';
+            }
+            renderReferralDetailTable(currentReferralDetailRows);
+        }
+
+        function renderS2(list, isLv) {
+            const rb = document.getElementById('sheet2TableBody');
+            const title = document.getElementById('resultAreaSheet2Title');
+            const s2Area = document.getElementById('resultAreaSheet2');
+            if (!rb || !title || !s2Area) return;
+
+            rb.innerHTML = '';
+
+            let rows = [];
+            let titleLabel = 'Referral Detail <span class="font-cyber text-sky-500 ml-2">REFERRAL DETAIL</span>';
+
+            if (isLv) {
+                const brand = ((currentReferralBrand || document.getElementById('referralFilterBrand')?.value || document.getElementById('filterBrand')?.value || "") + "").trim();
+                const staffIds = list.map(row => getSalesQuickFilterStaffId(row)).filter(Boolean);
+                rows = getReferralRowsByStaffIds(staffIds, brand);
+                titleLabel = `${brand || 'All'} Referral Detail <span class="font-cyber text-sky-500 ml-2">BY BRAND</span>`;
+            } else {
+                rows = getReferralRowsByStaffId(currentReferralStaffId);
+                const salesRow = findReferralLinkedSalesRowByStaffId(currentReferralStaffId, currentReferralBrand);
+                const referByName = ((getSalesQuickFilterLabel(salesRow) || document.getElementById('filterName')?.selectedOptions?.[0]?.text || currentReferralStaffId || "") + "").trim();
+                titleLabel = `${referByName || 'Referral'} Detail <span class="font-cyber text-sky-500 ml-2">BY REFER BY</span>`;
+            }
+
+            title.innerHTML = titleLabel;
+            populateReferralDetailSelectFilters();
+
+            if (!rows.length) {
+                const emptyLabel = isLv ? 'No referral detail under current brand / date filter.' : 'No referral detail under current search / date filter.';
+                rb.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-sm font-bold text-slate-400 text-center">${emptyLabel}</td></tr>`;
+                renderReferralSummary([]);
+                currentReferralDetailRows = [];
+                updateReferralDetailSortUi();
+                s2Area.classList.remove('hidden');
+                s2Area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+
+            renderReferralDetailTable(rows);
+
+            s2Area.classList.remove('hidden');
+            s2Area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderTrackingInfo(sId, p2) {
             const now = new Date(); let lD = null;
             dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId).forEach(i => { const d = parseDate(i[headersS1[S1_IDX.OFFER_DATE]]); if (d && (!lD || d > lD)) lD = d; });
-            const name = p2 ? p2[headersS2[S2_IDX.NAME]] : "同事";
+            const name = p2 ? p2[headersS2[S2_IDX.NAME]] : "Unknown";
             const trackingEl = document.getElementById('trackingText');
             if(trackingEl) {
-                trackingEl.innerHTML = lD ? `${name} 最後介紹同事 (<span class="text-rose-600 font-black">${Math.floor((now-lD)/(1000*60*60*24))} 天前</span>) (${lD.toLocaleDateString('zh-HK')})!` : `${name} 最後介紹同事 (從無記錄)!`;
+                trackingEl.innerHTML = lD
+                    ? `${name} latest offer update: <span class="text-rose-600 font-black">${Math.floor((now - lD) / (1000 * 60 * 60 * 24))} days ago</span> (${lD.toLocaleDateString('zh-HK')})`
+                    : `${name} latest offer update: no offer record yet`;
                 document.getElementById('referralTrackingInfo').classList.remove('hidden');
             }
         }
 
         function manualSearch() { const id = document.getElementById('staffId').value.trim(); if (id) executeSearch(id); }
-        function searchByFilter() { const n = document.getElementById('filterName').value, b = document.getElementById('filterBrand').value, s = dataS2.find(i => (i[headersS2[S2_IDX.NAME]]||"").trim() === n.trim() && (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase()); if (s) { document.getElementById('staffId').value = s[headersS2[S2_IDX.STAFF_ID]]; executeSearch(s[headersS2[S2_IDX.STAFF_ID]]); } }
+        function searchByFilter() {
+            const staffId = (document.getElementById('filterName')?.value || '').trim();
+            if (!staffId) return;
+            document.getElementById('staffId').value = staffId;
+            executeSearch(staffId);
+        }
+        function confirmQuickFilter() {
+            const brand = ((document.getElementById('filterBrand')?.value || '') + '').trim();
+            const center = ((document.getElementById('filterCenter')?.value || '') + '').trim();
+            const staffId = ((document.getElementById('filterName')?.value || '') + '').trim();
+
+            if (staffId) {
+                document.getElementById('staffId').value = staffId;
+                executeSearch(staffId);
+                return;
+            }
+
+            if (!brand && !center) return;
+            currentReferralStaffId = "";
+            currentReferralBrand = brand;
+            currentReferralFloor = center;
+            currentReferralSearchMode = "BRAND";
+            runReferralNavigationSearch(brand, center, "");
+        }
         function executeSearch(sId) {
+            const salesRow = findReferralLinkedSalesRowByStaffId(sId, document.getElementById('filterBrand')?.value || currentReferralBrand);
+            currentReferralStaffId = sId;
+            currentReferralBrand = getSalesQuickFilterBrand(salesRow) || currentReferralBrand || '';
+            currentReferralFloor = getSalesQuickFilterFloor(salesRow) || '';
+            currentReferralSearchMode = "STAFF";
             document.getElementById('initialPrompt')?.classList.add('hidden'); const p2 = dataS2.filter(i => (i[headersS2[S2_IDX.STAFF_ID]]||"").trim() === sId), f1 = dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId);
-            renderS2(p2, false); renderS1(f1); renderTrackingInfo(sId, p2[0]); const sa = document.getElementById('statsArea'); if(sa && (p2.length || f1.length)) sa.classList.remove('hidden');
+            renderS2(p2, false); renderS1(f1); renderTrackingInfo(sId, p2[0]);
         }
-        function updateFloorFilter() { const b = document.getElementById('filterBrand').value, fSel = document.getElementById('filterFloor'); if(!fSel) return; fSel.innerHTML = '<option value="">請選擇 Floor</option>'; if (!b) return resetFilters(); const br = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase()); renderS2(br, true); [...new Set(br.map(i => i[headersS2[S2_IDX.FLOOR]]).filter(v => v))].sort().forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`); fSel.disabled = false; }
-        function updateNameFilter() { const b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value, nSel = document.getElementById('filterName'); if(!nSel) return; nSel.innerHTML = '<option value="">請選擇姓名</option>'; if (!f) return; const fr = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase() && (i[headersS2[S2_IDX.FLOOR]]||"").toString() === f.toString()); fr.forEach(i => nSel.innerHTML += `<option value="${i[headersS2[S2_IDX.NAME]]}">${i[headersS2[S2_IDX.NAME]]}</option>`); nSel.disabled = false; }
-        
-        function checkInactiveByDays(days) {
-            showNone(); const now = new Date(), cut = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days), lMap = new Map();
-            dataS1.forEach(i => { 
-                const source = (i[headersS1[5]] || "").trim().toUpperCase();
-                if (!source.includes("OPERATION")) return;
-                const sId = (i[headersS1[S1_IDX.STAFF_ID]]||"").trim(), d = parseDate(i[headersS1[S1_IDX.OFFER_DATE]]); 
-                if (sId && d && (!lMap.has(sId) || d > lMap.get(sId))) lMap.set(sId, d); 
-            });
-            const container = document.getElementById('inactiveBrandContainer'); if(!container) return; container.innerHTML = '';
-            ['DERMES', 'ELYZE', 'REENEX'].forEach(bName => {
-                const inact = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === bName && !i[headersS2[S2_IDX.NAME]].toUpperCase().includes("TOTAL") && !['HIPO E1','CM','DM'].includes((i[headersS2[S2_IDX.POS]]||"").toUpperCase())).filter(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return !d || d < cut; });
-                if (inact.length > 0) container.innerHTML += `
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left">
-                            <span class="w-3 h-3 bg-rose-500 rounded-full mr-3"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm">Total: ${inact.length}</span>
-                        </h3>
-                        <div class="cyber-card overflow-hidden">
-                            <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full border-collapse text-center">
-                                    <thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm">
-                                        <tr><th class="text-left px-6">PIC</th><th class="text-left px-6">姓名 (Name)</th><th class="text-left px-6">職位</th><th class="px-4">最後日期</th><th class="px-4">距離</th></tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 font-bold text-lg">
-                                        ${inact.map(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return `<tr><td class="text-slate-600 text-left border-r border-rose-50 px-6">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50 px-6">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm px-6">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="border-r border-rose-50 px-4">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black px-4">${d ? Math.floor((new Date()-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`; }).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            const it = document.getElementById('inactiveTitleSpan'); if(it) it.innerText = days === 14 ? "最近 2 星期無推薦" : "最近 1 個月無推薦"; document.getElementById('inactiveResultArea')?.classList.remove('hidden');
+        function runReferralNavigationSearch(brandOverride = null, floorOverride = null, therapistOverride = null) {
+            const selected = getReferralDetailSelectValues();
+            const brand = brandOverride !== null ? brandOverride : selected.brand;
+            const floor = floorOverride !== null ? floorOverride : selected.floor;
+            const therapist = therapistOverride !== null ? therapistOverride : selected.therapist;
+
+            if (therapist) {
+                document.getElementById('staffId').value = therapist;
+                executeSearch(therapist);
+                return;
+            }
+
+            currentReferralStaffId = "";
+            currentReferralBrand = brand;
+            currentReferralFloor = floor;
+            currentReferralSearchMode = "BRAND";
+
+            const list = getReferralLinkedSalesRowsByFilters(brand, floor);
+            renderS2(list, true);
         }
-        function toggleBatchList(d) { currentDetailMode==="BATCH"&&currentDetailKey===d ? hideSharedDetail() : showSharedDetail("BATCH", d); }
-        function toggleWeeklyList(b) { currentDetailMode==="WEEKLY"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("WEEKLY", b); }
-        function toggleLeadList(b) { currentDetailMode==="LEAD"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("LEAD", b); }
-        function togglePendingList(b) { currentDetailMode==="PENDING"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("PENDING", b); }
-        function togglePicList(brand, picName) { const key = brand+"___"+picName; currentDetailMode==="PIC"&&currentDetailKey===key ? hideSharedDetail() : showSharedDetail("PIC", key); }
-        function toggleHrList(hr, brand) { const key = hr+"___"+brand; currentDetailMode==="HR"&&currentDetailKey===key ? hideSharedDetail() : showSharedDetail("HR", key); }
-        function hideSharedDetail() { const el = document.getElementById('sharedDetailArea'); if(el) el.classList.add('hidden'); document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card').forEach(c => c.classList.remove('active')); currentDetailMode = ""; currentDetailKey = ""; }
-        function resetFilters() { document.getElementById('filterBrand').value = ''; document.getElementById('filterFloor').disabled = true; document.getElementById('filterName').disabled = true; document.getElementById('staffId').value = ''; showNone(); const ip = document.getElementById('initialPrompt'); if(ip) ip.classList.remove('hidden'); }
+        function rerunCurrentReferralSearch() {
+            if (currentReferralSearchMode === "STAFF" && currentReferralStaffId) {
+                executeSearch(currentReferralStaffId);
+                return;
+            }
+            if (currentReferralSearchMode === "BRAND" && (currentReferralBrand || currentReferralFloor)) {
+                runReferralNavigationSearch();
+            }
+        }
+        function updateFloorFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const centerSelect = document.getElementById('filterCenter');
+            const nameSelect = document.getElementById('filterName');
+            if (!centerSelect) return;
+            centerSelect.innerHTML = '<option value="">請選擇 Centre</option>';
+            centerSelect.disabled = true;
+            if (nameSelect) {
+                nameSelect.innerHTML = '<option value="">請選擇 Refer By Name</option>';
+                nameSelect.disabled = true;
+            }
+            if (!brand) return resetFilters();
+            currentReferralStaffId = "";
+            currentReferralBrand = brand;
+            currentReferralFloor = "";
+            currentReferralSearchMode = "BRAND";
+            const brandRows = getReferralLinkedSalesRows().filter(i => getSalesQuickFilterBrand(i).toUpperCase() === brand.toUpperCase());
+            [...new Set(brandRows.map(i => getSalesQuickFilterFloor(i)).filter(v => v))]
+                .sort()
+                .forEach(center => {
+                    centerSelect.innerHTML += `<option value="${center}">${center}</option>`;
+                });
+            centerSelect.disabled = false;
+        }
+
+        function updateNameFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const center = document.getElementById('filterCenter')?.value || '';
+            const nameSelect = document.getElementById('filterName');
+            if (!nameSelect) return;
+            nameSelect.innerHTML = '<option value="">請選擇 Refer By Name</option>';
+            nameSelect.disabled = true;
+            if (!brand) return;
+            currentReferralFloor = center;
+
+            if (!center) {
+                return;
+            }
+
+            const centerRows = getReferralLinkedSalesRows().filter(i =>
+                getSalesQuickFilterBrand(i).toUpperCase() === brand.toUpperCase() &&
+                getSalesQuickFilterFloor(i).toString() === center.toString()
+            );
+            const seen = new Set();
+            centerRows.forEach(row => {
+                const staffId = getSalesQuickFilterStaffId(row);
+                const label = getSalesQuickFilterLabel(row);
+                if (!staffId || !label || seen.has(staffId)) return;
+                seen.add(staffId);
+                nameSelect.innerHTML += `<option value="${staffId}">${label}</option>`;
+            });
+            nameSelect.disabled = false;
+        }
+
+        function resetFilters() {
+            document.getElementById('filterBrand').value = '';
+            document.getElementById('filterCenter').value = '';
+            document.getElementById('filterCenter').disabled = true;
+            document.getElementById('filterName').value = '';
+            document.getElementById('filterName').disabled = true;
+            document.getElementById('staffId').value = '';
+            resetReferralDetailSelectFilters();
+            setDefaultReferralDateRange();
+            currentReferralStaffId = "";
+            currentReferralBrand = "";
+            currentReferralFloor = "";
+            currentReferralSearchMode = "";
+            showNone();
+            const ip = document.getElementById('initialPrompt');
+            if(ip) ip.classList.remove('hidden');
+        }
+
         function showNone() { ['statsArea','resultAreaSheet2','inactiveResultArea','resultArea','referralTrackingInfo'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); hideSharedDetail(); }
         window.onload = init;
     </script>
 </body>
 </html>
+
