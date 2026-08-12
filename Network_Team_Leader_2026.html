@@ -1095,11 +1095,11 @@
                 { title: 'On Board', value: totalOnboard, note: `${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--success)', bg: 'var(--success-soft)', mode: 'ONBOARD' },
                 { title: 'Upcoming On Board', value: totalUpcomingOnboard, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
                 { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
-                { title: 'Team Members', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
+                { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
             ];
 
-            const topCards = cards.filter(card => card.title === 'Network Team Leader' || card.title === 'Team Members');
-            const bottomCards = cards.filter(card => card.title !== 'Network Team Leader' && card.title !== 'Team Members');
+            const topCards = cards.filter(card => card.title === 'Network Team Leader' || card.title === 'Team Members ( Include Network Team Leader )');
+            const bottomCards = cards.filter(card => card.title !== 'Network Team Leader' && card.title !== 'Team Members ( Include Network Team Leader )');
             const renderCard = card => `
                 <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
