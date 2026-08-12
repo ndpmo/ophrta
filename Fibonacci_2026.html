@@ -164,6 +164,19 @@
             gap: 0.35rem;
             justify-content: flex-start;
         }
+
+        details > summary {
+            list-style: none;
+        }
+
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details[open] > summary {
+            border-color: rgba(20, 184, 166, 0.5);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.08);
+        }
     </style>
 </head>
 <body>
@@ -198,7 +211,7 @@
         </header>
 
         <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <div class="space-y-2">
                     <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Join Date From</label>
                     <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
@@ -208,8 +221,29 @@
                     <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
                 </div>
                 <div class="space-y-2">
-                    <label for="brandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                    <select id="brandFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
+                    <label class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                    <details id="brandFilter" class="relative">
+                        <summary id="brandFilterSummary" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none flex items-center justify-between cursor-pointer">
+                            <span id="brandFilterSummaryText">Loading brand...</span>
+                            <span class="text-slate-400 text-sm">&#9662;</span>
+                        </summary>
+                        <div class="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <button type="button" onclick="applyDefaultBrandFilter(event)" class="rounded-full bg-teal-100 px-3 py-1 text-xs font-black text-teal-700">Default</button>
+                                <button type="button" onclick="selectAllBrandFilter(event)" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">All</button>
+                                <button type="button" onclick="clearBrandFilter(event)" class="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">Clear</button>
+                            </div>
+                            <div id="brandFilterOptions" class="max-h-56 overflow-y-auto space-y-2 pr-1"></div>
+                        </div>
+                    </details>
+                </div>
+                <div class="space-y-2">
+                    <label for="sameBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Referral Same Brand</label>
+                    <select id="sameBrandFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                        <option value="ALL">All</option>
+                        <option value="Y" selected>Y</option>
+                        <option value="N">N</option>
+                    </select>
                 </div>
             </div>
             <div class="mt-5 flex flex-wrap gap-3">
@@ -218,7 +252,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
@@ -236,9 +270,10 @@
                     <p id="brandMeta" class="text-sm font-bold text-slate-500 sm:pb-3">-</p>
                 </div>
             </div>
+            <div id="brandTopCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5"></div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[900px] border-collapse">
+                    <table class="w-full min-w-[1040px] border-collapse">
                         <thead class="bg-teal-50 text-teal-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleBrandSort('brand')">Brand<span id="brandSortIndicator-brand" class="text-[11px]"></span></button></th>
@@ -247,8 +282,9 @@
                                 <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('lead')">Lead<span id="brandSortIndicator-lead" class="text-[11px]"></span></button></th>
                                 <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('offer')">Offer<span id="brandSortIndicator-offer" class="text-[11px]"></span></button></th>
                                 <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('onboard')">On Board<span id="brandSortIndicator-onboard" class="text-[11px]"></span></button></th>
-                                <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('referralRate')">Referral Rate<span id="brandSortIndicator-referralRate" class="text-[11px]"></span></button></th>
-                                <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('onboardRate')">On Board Rate<span id="brandSortIndicator-onboardRate" class="text-[11px]"></span></button></th>
+                                <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('upcomingOnboard')">Upcoming On Board<span id="brandSortIndicator-upcomingOnboard" class="text-[11px]"></span></button></th>
+                                <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('referralRate')">Referral %<span id="brandSortIndicator-referralRate" class="text-[11px]"></span></button></th>
+                                <th class="px-4 py-4 text-center"><button type="button" onclick="toggleBrandSort('onboardRate')">On Board Rate<br><span class="normal-case tracking-normal text-[10px] font-bold">(On Board Vs Lead)</span><span id="brandSortIndicator-onboardRate" class="text-[11px]"></span></button></th>
                             </tr>
                         </thead>
                         <tbody id="brandTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
@@ -257,7 +293,7 @@
             </div>
         </section>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
+        <section id="detailSection" class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Candidate Detail</p>
@@ -283,7 +319,7 @@
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1500px] border-collapse">
+                    <table class="w-full min-w-[1640px] border-collapse">
                         <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('staffId')">Staff ID<span id="detailSortIndicator-staffId" class="text-[11px]"></span></button></th>
@@ -292,16 +328,48 @@
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('center')">Centre / Floor<span id="detailSortIndicator-center" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('position')">Position<span id="detailSortIndicator-position" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('joinDateObj')">Join Date<span id="detailSortIndicator-joinDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referralCount')">Referral Count<span id="detailSortIndicator-referralCount" class="text-[11px]"></span></button></th>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referralCount')">Referral<span id="detailSortIndicator-referralCount" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leadCount')">Lead Count<span id="detailSortIndicator-leadCount" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offerCount')">Offer Count<span id="detailSortIndicator-offerCount" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardCount')">On Board Count<span id="detailSortIndicator-onboardCount" class="text-[11px]"></span></button></th>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('upcomingOnboardCount')">Upcoming On Board Count<span id="detailSortIndicator-upcomingOnboardCount" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestLeadDateObj')">Latest Lead Date<span id="detailSortIndicator-latestLeadDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestOfferDateObj')">Latest Offer Date<span id="detailSortIndicator-latestOfferDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestOnboardDateObj')">Latest On Board Date<span id="detailSortIndicator-latestOnboardDateObj" class="text-[11px]"></span></button></th>
                             </tr>
                         </thead>
                         <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="candidateDrilldownSection" class="glass-card p-5 md:p-6 mb-8 hidden">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">Referred Candidate</p>
+                    <h2 id="candidateDrilldownTitle" class="text-2xl font-black text-slate-900">Referral Candidate Details</h2>
+                </div>
+                <p id="candidateDrilldownMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[1340px] border-collapse">
+                        <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Candidate Name</th>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-5 py-4 text-left">RJ / NJ</th>
+                                <th class="px-5 py-4 text-left">Status</th>
+                                <th class="px-5 py-4 text-left">Lead Date</th>
+                                <th class="px-5 py-4 text-left">Offer Date</th>
+                                <th class="px-5 py-4 text-left">On Board Date</th>
+                                <th class="px-5 py-4 text-left">On Board Status</th>
+                                <th class="px-5 py-4 text-left">Interview By</th>
+                                <th class="px-5 py-4 text-left">CV Channel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidateDrilldownBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
                     </table>
                 </div>
             </div>
@@ -358,6 +426,10 @@
         let detailSortDirection = 'desc';
         let brandSortKey = 'brand';
         let brandSortDirection = 'asc';
+        let activeSummaryDetail = 'all';
+        let activeDrilldownStaffId = '';
+        let activeDrilldownMode = 'all';
+        const DEFAULT_BRANDS = ['Dermes', 'Reenex', 'Elyze'];
 
         function getSelectValue(id, fallback = 'ALL') {
             const el = document.getElementById(id);
@@ -373,6 +445,47 @@
 
         function safeTrim(value) {
             return ((value ?? '') + '').trim();
+        }
+
+        function getSelectedBrands() {
+            return [...document.querySelectorAll('.brand-filter-option:checked')]
+                .map(input => safeTrim(input.value))
+                .filter(Boolean);
+        }
+
+        function updateBrandFilterSummary() {
+            const selected = getSelectedBrands();
+            const summary = document.getElementById('brandFilterSummaryText');
+            if (!summary) return;
+
+            if (!selected.length) {
+                summary.innerText = 'No Brand Selected';
+                return;
+            }
+
+            if (selected.length <= 3) {
+                summary.innerText = selected.join(', ');
+                return;
+            }
+
+            summary.innerText = `${selected.length} Brands Selected`;
+        }
+
+        function setSelectedBrands(brands) {
+            const wanted = new Set((brands || []).map(safeTrim));
+            document.querySelectorAll('.brand-filter-option').forEach(input => {
+                input.checked = wanted.has(safeTrim(input.value));
+            });
+            updateBrandFilterSummary();
+        }
+
+        function escapeHtml(value) {
+            return `${value ?? ''}`
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function formatNumber(value) {
@@ -404,6 +517,14 @@
             if (raw.includes('gratus')) return 'Gratus';
             if (raw.includes('operations support')) return 'Operations Support';
             return safeTrim(value) || 'Other';
+        }
+
+        function getSameBrandFilterValue() {
+            return getSelectValue('sameBrandFilter');
+        }
+
+        function isSameBrandReferral(activeBrand, referralRow) {
+            return normalizeBrand(activeBrand) === normalizeBrand(getS1Value(referralRow, S1_IDX.BRAND) || '');
         }
 
         function parseDate(rawValue) {
@@ -615,6 +736,16 @@
             return !!parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE)) && !isRejectedOrWithdrawnStatus(status);
         }
 
+        function isUpcomingOnboardQualified(row) {
+            const onboardDate = parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE));
+            if (!onboardDate) return false;
+            if (onboardDate.getTime() <= TODAY.getTime()) return false;
+            const onboardStatus = getOnboardStatus(row).toUpperCase();
+            if (onboardStatus.includes('NO SHOW') || onboardStatus.includes('ONBOARD')) return false;
+            const status = getS1Value(row, S1_IDX.STATUS).toUpperCase();
+            return status.includes('ACCEPT') && !isRejectedOrWithdrawnStatus(status);
+        }
+
         function getReferralRowsByReferrerStaffId(staffId) {
             const target = safeTrim(staffId);
             if (!target) return [];
@@ -629,11 +760,18 @@
             return dates[0] || null;
         }
 
-        function summarizeReferralPerformance(staffId) {
-            const referralRows = getReferralRowsByReferrerStaffId(staffId);
+        function summarizeReferralPerformance(staffId, activeBrand) {
+            const sameBrandFilter = getSameBrandFilterValue();
+            let referralRows = getReferralRowsByReferrerStaffId(staffId);
+            if (sameBrandFilter === 'Y') {
+                referralRows = referralRows.filter(row => isSameBrandReferral(activeBrand, row));
+            } else if (sameBrandFilter === 'N') {
+                referralRows = referralRows.filter(row => !isSameBrandReferral(activeBrand, row));
+            }
             const leadRows = referralRows.filter(row => !!parseDate(getS1Value(row, S1_IDX.LEAD_DATE)));
             const offerRows = referralRows.filter(row => isOfferQualified(row));
             const onboardRows = referralRows.filter(row => isOnboardQualified(row));
+            const upcomingOnboardRows = referralRows.filter(row => isUpcomingOnboardQualified(row));
 
             return {
                 referralRows,
@@ -641,9 +779,11 @@
                 leadCount: leadRows.length,
                 offerCount: offerRows.length,
                 onboardCount: onboardRows.length,
+                upcomingOnboardCount: upcomingOnboardRows.length,
                 latestLeadDateObj: getLatestDate(leadRows, S1_IDX.LEAD_DATE),
                 latestOfferDateObj: getLatestDate(offerRows, S1_IDX.OFFER_DATE),
-                latestOnboardDateObj: getLatestDate(onboardRows, S1_IDX.ONBOARD_DATE)
+                latestOnboardDateObj: getLatestDate(onboardRows, S1_IDX.ONBOARD_DATE),
+                latestUpcomingOnboardDateObj: getLatestDate(upcomingOnboardRows, S1_IDX.ONBOARD_DATE)
             };
         }
 
@@ -665,7 +805,7 @@
             const brand = getActiveBrand(activeRow);
             const center = getActiveCenter(activeRow);
             const position = getActivePosition(activeRow);
-            const summary = summarizeReferralPerformance(staffId);
+            const summary = summarizeReferralPerformance(staffId, brand);
 
             return {
                 staffId,
@@ -685,24 +825,111 @@
                 leadCount: summary.leadCount,
                 offerCount: summary.offerCount,
                 onboardCount: summary.onboardCount,
+                upcomingOnboardCount: summary.upcomingOnboardCount,
                 latestLeadDateObj: summary.latestLeadDateObj,
                 latestLeadDateLabel: summary.latestLeadDateObj ? formatDateAsDMonY(summary.latestLeadDateObj) : '-',
                 latestOfferDateObj: summary.latestOfferDateObj,
                 latestOfferDateLabel: summary.latestOfferDateObj ? formatDateAsDMonY(summary.latestOfferDateObj) : '-',
                 latestOnboardDateObj: summary.latestOnboardDateObj,
-                latestOnboardDateLabel: summary.latestOnboardDateObj ? formatDateAsDMonY(summary.latestOnboardDateObj) : '-'
+                latestOnboardDateLabel: summary.latestOnboardDateObj ? formatDateAsDMonY(summary.latestOnboardDateObj) : '-',
+                latestUpcomingOnboardDateObj: summary.latestUpcomingOnboardDateObj,
+                latestUpcomingOnboardDateLabel: summary.latestUpcomingOnboardDateObj ? formatDateAsDMonY(summary.latestUpcomingOnboardDateObj) : '-'
             };
+        }
+
+        function getReferralDrilldownRows(record, mode) {
+            const referralRows = record?.referralRows || [];
+            switch (mode) {
+                case 'lead':
+                    return referralRows.filter(row => !!parseDate(getS1Value(row, S1_IDX.LEAD_DATE)));
+                case 'offer':
+                    return referralRows.filter(row => isOfferQualified(row));
+                case 'onboard':
+                    return referralRows.filter(row => isOnboardQualified(row));
+                case 'upcomingOnboard':
+                    return referralRows.filter(row => isUpcomingOnboardQualified(row));
+                case 'all':
+                default:
+                    return referralRows;
+            }
+        }
+
+        function getDrilldownModeLabel(mode) {
+            const labels = {
+                all: 'Referral',
+                lead: 'Lead',
+                offer: 'Offer',
+                onboard: 'On Board',
+                upcomingOnboard: 'Upcoming On Board'
+            };
+            return labels[mode] || 'Referral';
+        }
+
+        function renderCandidateDrilldown(record, mode) {
+            const section = document.getElementById('candidateDrilldownSection');
+            const title = document.getElementById('candidateDrilldownTitle');
+            const meta = document.getElementById('candidateDrilldownMeta');
+            const body = document.getElementById('candidateDrilldownBody');
+            if (!section || !title || !meta || !body) return;
+
+            if (!record) {
+                section.classList.add('hidden');
+                title.innerText = 'Referral Candidate Details';
+                meta.innerText = '-';
+                body.innerHTML = '';
+                return;
+            }
+
+            const rows = getReferralDrilldownRows(record, mode);
+            const modeLabel = getDrilldownModeLabel(mode);
+            title.innerText = `${record.employeeName} ${modeLabel} Details`;
+            meta.innerText = `${formatNumber(rows.length)} referred candidates from Staff ID ${record.staffId || '-'}`;
+
+            body.innerHTML = rows.length ? rows.map(row => `
+                <tr>
+                    <td class="px-5 py-4 font-black text-slate-900">${getS1Value(row, S1_IDX.CANDIDATE_NAME) || '-'}</td>
+                    <td class="px-5 py-4 font-black text-indigo-700">${normalizeBrand(getS1Value(row, S1_IDX.BRAND) || 'Other')}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.RJNJ) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.STATUS) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.LEAD_DATE) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.OFFER_DATE) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.ONBOARD_DATE) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getOnboardStatus(row) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.INTERVIEW_BY) || '-'}</td>
+                    <td class="px-5 py-4 text-slate-700">${getS1Value(row, S1_IDX.CV_CHANNEL) || '-'}</td>
+                </tr>
+            `).join('') : `
+                <tr>
+                    <td colspan="10" class="px-5 py-8 text-center text-sm font-bold text-slate-500">No ${modeLabel.toLowerCase()} candidates under current selection.</td>
+                </tr>
+            `;
+
+            section.classList.remove('hidden');
+        }
+
+        function findCandidateRecord(staffId) {
+            const target = safeTrim(staffId);
+            if (!target) return null;
+            return getBaseRows().find(record => record.staffId === target) || null;
+        }
+
+        function getBaseRows() {
+            const selectedBrands = getSelectedBrands();
+
+            return dataActive
+                .map(buildCandidateRecord)
+                .filter(record => {
+                    if (selectedBrands.length && !selectedBrands.includes(record.brand)) return false;
+                    return true;
+                });
         }
 
         function getFilteredRows() {
             const start = parseDate(document.getElementById('studyStart').value);
             const end = parseDate(document.getElementById('studyEnd').value);
-            const brandFilter = safeTrim(document.getElementById('brandFilter').value);
 
-            return dataActive
-                .map(buildCandidateRecord)
+            return getBaseRows()
                 .filter(record => {
-                    if (brandFilter && brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
                     const joinTs = record.joinDate ? record.joinDate.getTime() : null;
                     if (start && (!joinTs || joinTs < start.getTime())) return false;
                     if (end) {
@@ -718,20 +945,22 @@
             rows.forEach(record => {
                 const key = record.brand || 'Other';
                 if (!map.has(key)) {
-                    map.set(key, { brand: key, total: 0, referral: 0, lead: 0, offer: 0, onboard: 0 });
+                    map.set(key, { brand: key, total: 0, referral: 0, lead: 0, offer: 0, onboard: 0, upcomingOnboard: 0, referralStaffCount: 0 });
                 }
                 const entry = map.get(key);
                 entry.total += 1;
+                if (record.referralCount > 0) entry.referralStaffCount += 1;
                 entry.referral += record.referralCount;
                 entry.lead += record.leadCount;
                 entry.offer += record.offerCount;
                 entry.onboard += record.onboardCount;
+                entry.upcomingOnboard += record.upcomingOnboardCount;
             });
 
             return [...map.values()].map(entry => ({
                 ...entry,
-                referralRate: entry.total ? entry.referral / entry.total : 0,
-                onboardRate: entry.total ? entry.onboard / entry.total : 0
+                referralRate: entry.total ? entry.referralStaffCount / entry.total : 0,
+                onboardRate: entry.lead ? entry.onboard / entry.lead : 0
             }));
         }
 
@@ -760,6 +989,66 @@
             return brandRows;
         }
 
+        function getBrandSectionRows(rows) {
+            const brandFilter = getSelectValue('brandBreakdownFilter');
+            if (brandFilter !== 'ALL') {
+                return rows.filter(record => record.brand === brandFilter);
+            }
+            return rows;
+        }
+
+        function getTopPerformer(rows, key) {
+            const ranked = [...rows]
+                .filter(record => (Number(record?.[key]) || 0) > 0)
+                .sort((a, b) => {
+                    const diff = (Number(b?.[key]) || 0) - (Number(a?.[key]) || 0);
+                    if (diff !== 0) return diff;
+                    return (a.employeeName || '').localeCompare(b.employeeName || '', 'en', { sensitivity: 'base' });
+                });
+            return ranked[0] || null;
+        }
+
+        function renderBrandTopCards(rows) {
+            const sectionRows = getBrandSectionRows(rows);
+            const cards = [
+                {
+                    label: 'Referral Most',
+                    key: 'referralCount',
+                    accent: 'border-l-violet-600',
+                    bg: 'bg-violet-50',
+                    text: 'text-violet-900',
+                    empty: 'No referral yet'
+                },
+                {
+                    label: 'Offer Most',
+                    key: 'offerCount',
+                    accent: 'border-l-orange-500',
+                    bg: 'bg-orange-50',
+                    text: 'text-orange-900',
+                    empty: 'No offer yet'
+                },
+                {
+                    label: 'On Board Most',
+                    key: 'onboardCount',
+                    accent: 'border-l-emerald-600',
+                    bg: 'bg-emerald-50',
+                    text: 'text-emerald-900',
+                    empty: 'No onboard yet'
+                }
+            ];
+
+            document.getElementById('brandTopCards').innerHTML = cards.map(card => {
+                const top = getTopPerformer(sectionRows, card.key);
+                return `
+                    <div class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6">
+                        <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.label}</p>
+                        <p class="mt-3 text-xl md:text-2xl font-black ${card.text}">${top ? top.employeeName : '-'}</p>
+                        <p class="mt-2 text-sm font-black uppercase tracking-[0.12em] text-slate-500">${top ? `${formatNumber(top[card.key])} candidates` : card.empty}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function getDetailRows(rows) {
             const brandFilter = getSelectValue('detailBrandFilter');
             const referralFilter = getSelectValue('detailReferralFilter');
@@ -767,31 +1056,38 @@
                 if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
                 if (referralFilter === 'HAS' && record.referralCount <= 0) return false;
                 if (referralFilter === 'NO' && record.referralCount > 0) return false;
+                if (activeSummaryDetail === 'referral' && record.referralCount <= 0) return false;
+                if (activeSummaryDetail === 'lead' && record.leadCount <= 0) return false;
+                if (activeSummaryDetail === 'offer' && record.offerCount <= 0) return false;
+                if (activeSummaryDetail === 'onboard' && record.onboardCount <= 0) return false;
+                if (activeSummaryDetail === 'upcomingOnboard' && record.upcomingOnboardCount <= 0) return false;
                 return true;
             });
         }
 
-        function renderSummaryCards(rows) {
-            const total = rows.length;
-            const referral = rows.reduce((sum, row) => sum + row.referralCount, 0);
-            const lead = rows.reduce((sum, row) => sum + row.leadCount, 0);
-            const offer = rows.reduce((sum, row) => sum + row.offerCount, 0);
-            const onboard = rows.reduce((sum, row) => sum + row.onboardCount, 0);
+        function renderSummaryCards(allRows, filteredRows) {
+            const total = allRows.length;
+            const referral = filteredRows.reduce((sum, row) => sum + row.referralCount, 0);
+            const lead = filteredRows.reduce((sum, row) => sum + row.leadCount, 0);
+            const offer = filteredRows.reduce((sum, row) => sum + row.offerCount, 0);
+            const onboard = filteredRows.reduce((sum, row) => sum + row.onboardCount, 0);
+            const upcomingOnboard = filteredRows.reduce((sum, row) => sum + row.upcomingOnboardCount, 0);
 
             const cards = [
-                { label: 'Active NJ', value: total, note: 'still active in 2026 list', accent: 'border-l-blue-600', bg: 'bg-blue-50', text: 'text-blue-900' },
-                { label: 'Referral', value: referral, note: 'candidates referred by these active NJ', accent: 'border-l-violet-600', bg: 'bg-violet-50', text: 'text-violet-900' },
-                { label: 'Lead', value: lead, note: 'referred candidates reached lead', accent: 'border-l-sky-600', bg: 'bg-sky-50', text: 'text-sky-900' },
-                { label: 'Offer', value: offer, note: 'referred candidates reached offer', accent: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-900' },
-                { label: 'On Board', value: onboard, note: 'referred candidates onboarded', accent: 'border-l-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-900' }
+                { key: 'active', label: 'Active NJ', value: total, note: 'still active in 2026 list', accent: 'border-l-blue-600', bg: 'bg-blue-50', text: 'text-blue-900' },
+                { key: 'referral', label: 'Referral', value: referral, note: 'candidates referred by these active NJ', accent: 'border-l-violet-600', bg: 'bg-violet-50', text: 'text-violet-900' },
+                { key: 'lead', label: 'Lead', value: lead, note: 'referred candidates reached lead', accent: 'border-l-sky-600', bg: 'bg-sky-50', text: 'text-sky-900' },
+                { key: 'offer', label: 'Offer', value: offer, note: 'referred candidates reached offer', accent: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-900' },
+                { key: 'onboard', label: 'On Board', value: onboard, note: 'referred candidates onboarded', accent: 'border-l-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-900' },
+                { key: 'upcomingOnboard', label: 'Upcoming On Board', value: upcomingOnboard, note: 'accept + future onboard date', accent: 'border-l-fuchsia-600', bg: 'bg-fuchsia-50', text: 'text-fuchsia-900' }
             ];
 
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
-                <div class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6">
+                <button type="button" onclick="openSummaryDetail('${card.key}')" class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6 text-left w-full hover:-translate-y-1 transition-transform">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.label}</p>
                     <p class="mt-3 text-4xl font-black data-font ${card.text}">${formatNumber(card.value)}</p>
                     <p class="mt-3 text-xs font-black uppercase tracking-[0.18em] text-slate-500">${card.note}</p>
-                </div>
+                </button>
             `).join('');
         }
 
@@ -825,16 +1121,25 @@
                     <td class="px-4 py-4 text-center font-black data-font">${formatNumber(entry.lead)}</td>
                     <td class="px-4 py-4 text-center font-black data-font">${formatNumber(entry.offer)}</td>
                     <td class="px-4 py-4 text-center font-black data-font">${formatNumber(entry.onboard)}</td>
+                    <td class="px-4 py-4 text-center font-black data-font">${formatNumber(entry.upcomingOnboard)}</td>
                     <td class="px-4 py-4 text-center font-black data-font">${formatRate(entry.referral, entry.total)}</td>
                     <td class="px-4 py-4 text-center font-black data-font">${formatRate(entry.onboard, entry.total)}</td>
                 </tr>
             `).join('');
 
-            ['brand', 'total', 'referral', 'lead', 'offer', 'onboard', 'referralRate', 'onboardRate'].forEach(key => {
+            ['brand', 'total', 'referral', 'lead', 'offer', 'onboard', 'upcomingOnboard', 'referralRate', 'onboardRate'].forEach(key => {
                 const indicator = document.getElementById(`brandSortIndicator-${key}`);
                 if (!indicator) return;
                 indicator.innerText = brandSortKey === key ? (brandSortDirection === 'asc' ? '↑' : '↓') : '';
             });
+        }
+
+        function renderDetailMetricButton(staffId, mode, value, label) {
+            if ((Number(value) || 0) <= 0) {
+                return `<span class="font-black data-font">${formatNumber(value)}</span>`;
+            }
+
+            return `<button type="button" onclick="openReferralCandidateDetail('${staffId}', '${mode}')" class="font-black data-font text-sky-700 underline decoration-sky-300 underline-offset-4 hover:text-sky-900" title="View ${label} details">${formatNumber(value)}</button>`;
         }
 
         function renderDetailTable(rows) {
@@ -850,17 +1155,18 @@
                     <td class="px-5 py-4 text-slate-700">${record.center}</td>
                     <td class="px-5 py-4 text-slate-700">${record.position}</td>
                     <td class="px-5 py-4 text-slate-700">${record.joinDateLabel}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${formatNumber(record.referralCount)}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${formatNumber(record.leadCount)}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${formatNumber(record.offerCount)}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${formatNumber(record.onboardCount)}</td>
+                    <td class="px-5 py-4 text-slate-900 font-black data-font">${record.referralCount > 0 ? renderDetailMetricButton(record.staffId, 'all', record.referralCount, 'referral') : 'N'}</td>
+                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'lead', record.leadCount, 'lead')}</td>
+                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'offer', record.offerCount, 'offer')}</td>
+                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'onboard', record.onboardCount, 'on board')}</td>
+                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'upcomingOnboard', record.upcomingOnboardCount, 'upcoming on board')}</td>
                     <td class="px-5 py-4 text-slate-700">${record.latestLeadDateLabel}</td>
                     <td class="px-5 py-4 text-slate-700">${record.latestOfferDateLabel}</td>
                     <td class="px-5 py-4 text-slate-700">${record.latestOnboardDateLabel}</td>
                 </tr>
             `).join('');
 
-            ['staffId', 'employeeName', 'brand', 'center', 'position', 'joinDateObj', 'referralCount', 'leadCount', 'offerCount', 'onboardCount', 'latestLeadDateObj', 'latestOfferDateObj', 'latestOnboardDateObj'].forEach(key => {
+            ['staffId', 'employeeName', 'brand', 'center', 'position', 'joinDateObj', 'referralCount', 'leadCount', 'offerCount', 'onboardCount', 'upcomingOnboardCount', 'latestLeadDateObj', 'latestOfferDateObj', 'latestOnboardDateObj'].forEach(key => {
                 const indicator = document.getElementById(`detailSortIndicator-${key}`);
                 if (!indicator) return;
                 indicator.innerText = detailSortKey === key ? (detailSortDirection === 'asc' ? '↑' : '↓') : '';
@@ -887,25 +1193,79 @@
             renderBrandTable(currentBrandRows);
         }
 
+        function openSummaryDetail(key) {
+            activeSummaryDetail = key === 'active' ? 'all' : key;
+            renderDashboard();
+            const detailSection = document.getElementById('detailSection');
+            if (detailSection) {
+                detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function openReferralCandidateDetail(staffId, mode = 'all') {
+            activeDrilldownStaffId = safeTrim(staffId);
+            activeDrilldownMode = mode || 'all';
+            const record = findCandidateRecord(activeDrilldownStaffId);
+            renderCandidateDrilldown(record, activeDrilldownMode);
+            const section = document.getElementById('candidateDrilldownSection');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         function populateBrandFilter() {
-            const brandFilter = document.getElementById('brandFilter');
-            const currentValue = safeTrim(brandFilter.value) || 'ALL';
             const options = [...new Set(dataActive.map(getActiveBrand))].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
-            brandFilter.innerHTML = '<option value="ALL">All Brand</option>' + options.map(brand => `<option value="${brand}">${brand}</option>`).join('');
-            brandFilter.value = options.includes(currentValue) || currentValue === 'ALL' ? currentValue : 'ALL';
+            const optionContainer = document.getElementById('brandFilterOptions');
+            if (!optionContainer) return;
+
+            const currentSelected = getSelectedBrands();
+            const defaultSelected = options.filter(option => DEFAULT_BRANDS.includes(option));
+            const nextSelected = currentSelected.length ? currentSelected.filter(option => options.includes(option)) : defaultSelected;
+
+            optionContainer.innerHTML = options.map(brand => `
+                <label class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-slate-50 cursor-pointer">
+                    <input type="checkbox" class="brand-filter-option h-4 w-4 rounded border-slate-300" value="${brand}" onchange="updateBrandFilterSummary()">
+                    <span class="font-bold text-slate-700">${brand}</span>
+                </label>
+            `).join('');
+
+            setSelectedBrands(nextSelected.length ? nextSelected : defaultSelected);
+        }
+
+        function applyDefaultBrandFilter(event) {
+            if (event) event.preventDefault();
+            const options = [...document.querySelectorAll('.brand-filter-option')].map(input => safeTrim(input.value));
+            const defaultSelected = options.filter(option => DEFAULT_BRANDS.includes(option));
+            setSelectedBrands(defaultSelected);
+        }
+
+        function selectAllBrandFilter(event) {
+            if (event) event.preventDefault();
+            const options = [...document.querySelectorAll('.brand-filter-option')].map(input => safeTrim(input.value));
+            setSelectedBrands(options);
+        }
+
+        function clearBrandFilter(event) {
+            if (event) event.preventDefault();
+            setSelectedBrands([]);
         }
 
         function setDefaultFilters() {
             document.getElementById('studyStart').value = '2026-01-01';
             document.getElementById('studyEnd').value = formatDateToISO(TODAY);
+            document.getElementById('sameBrandFilter').value = 'Y';
         }
 
         function resetFilters() {
             setDefaultFilters();
-            document.getElementById('brandFilter').value = 'ALL';
+            applyDefaultBrandFilter();
             document.getElementById('brandBreakdownFilter').value = 'ALL';
             document.getElementById('detailBrandFilter').value = 'ALL';
             document.getElementById('detailReferralFilter').value = 'ALL';
+            activeSummaryDetail = 'all';
+            activeDrilldownStaffId = '';
+            activeDrilldownMode = 'all';
+            renderCandidateDrilldown(null, 'all');
             renderDashboard();
         }
 
@@ -960,13 +1320,16 @@
         }
 
         function renderDashboard() {
-            const rows = getFilteredRows();
-            populateSectionFilters(rows);
-            const brandRows = getBrandTableRows(rows);
-            const detailRows = getDetailRows(rows);
-            renderSummaryCards(rows);
+            const allRows = getBaseRows();
+            const filteredRows = getFilteredRows();
+            populateSectionFilters(allRows);
+            const brandRows = getBrandTableRows(filteredRows);
+            const detailRows = getDetailRows(filteredRows);
+            renderSummaryCards(allRows, filteredRows);
+            renderBrandTopCards(filteredRows);
             renderBrandTable(brandRows);
             renderDetailTable(detailRows);
+            renderCandidateDrilldown(findCandidateRecord(activeDrilldownStaffId), activeDrilldownMode);
         }
 
         init();
