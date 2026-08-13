@@ -115,6 +115,23 @@
             background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
             border-left: 4px solid #6366f1;
         }
+        .count-delta {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.3rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            font-weight: 900;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .count-delta.subtle {
+            margin-left: 0.22rem;
+            font-size: 0.66rem;
+        }
+        .count-delta.positive { color: #16a34a; }
+        .count-delta.negative { color: #dc2626; }
+        .count-delta.neutral { color: #64748b; }
 
         .mobile-filter-row {
             width: auto;
@@ -306,12 +323,16 @@
 
         <!-- Lead 蝯梯?? -->
         <div id="weeklyLeadArea" class="mb-10 text-left">
-            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4 mb-6">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase text-left">LEAD 統計 <span class="font-cyber text-violet-500 ml-2">MTD LEADS</span></h2>
                 <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left">
                     <input type="date" id="leadStart" onchange="handleLeadDateChange()" class="date-selector-input">
                     <span class="font-bold text-slate-400 text-xs">至</span>
                     <input type="date" id="leadEnd" onchange="handleLeadDateChange()" class="date-selector-input">
+                </div>
+                <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left shrink-0">
+                    <span class="filter-label ml-1">Compare Date:</span>
+                    <input type="date" id="compareDate" onchange="handleCompareDateChange()" class="date-selector-input">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -786,6 +807,90 @@
             const d = String(date.getDate()).padStart(2, '0'); 
             return `${y}-${m}-${d}`; 
         }
+        function cloneDate(date) {
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+            return new Date(date.getTime());
+        }
+        function shiftDate(date, days) {
+            const cloned = cloneDate(date);
+            if (!cloned) return null;
+            cloned.setDate(cloned.getDate() + days);
+            return cloned;
+        }
+        function getPreviousComparisonDate(date) {
+            const base = cloneDate(date);
+            if (!base) return null;
+            if (base.getDate() === 1) return null;
+            const previous = shiftDate(base, -1);
+            if (!previous) return null;
+            if (previous.getDay() === 0) {
+                if (previous.getMonth() !== base.getMonth()) return null;
+                const saturday = shiftDate(previous, -1);
+                return saturday && saturday.getMonth() === base.getMonth() ? saturday : null;
+            }
+            return previous.getMonth() === base.getMonth() ? previous : null;
+        }
+        function getEffectiveComparisonAnchor(date) {
+            const base = cloneDate(date);
+            if (!base) return null;
+            const now = new Date();
+            const sameDay =
+                base.getFullYear() === now.getFullYear() &&
+                base.getMonth() === now.getMonth() &&
+                base.getDate() === now.getDate();
+            if (sameDay && now.getHours() < 12) {
+                const fallback = shiftDate(base, -1);
+                if (!fallback || fallback.getMonth() !== base.getMonth()) return null;
+                return fallback;
+            }
+            return base;
+        }
+        function getManualComparisonDate() {
+            const compareInput = document.getElementById('compareDate');
+            return compareInput ? getLocalDateFromInput(compareInput.value) : null;
+        }
+        function getComparisonDateRange(start, end) {
+            const startDate = cloneDate(start);
+            const endDate = cloneDate(end);
+            if (!startDate || !endDate) return null;
+            const manualComparisonDate = getManualComparisonDate();
+            if (manualComparisonDate) {
+                if (manualComparisonDate.getTime() < startDate.getTime()) return null;
+                return { start: startDate, end: manualComparisonDate };
+            }
+            const effectiveEnd = getEffectiveComparisonAnchor(endDate);
+            if (!effectiveEnd) return null;
+            const comparisonEnd = getPreviousComparisonDate(effectiveEnd);
+            if (!comparisonEnd) return null;
+            if (comparisonEnd.getTime() < startDate.getTime()) return null;
+            return { start: startDate, end: comparisonEnd };
+        }
+        function getDeltaClass(delta) {
+            if (delta > 0) return 'positive';
+            if (delta < 0) return 'negative';
+            return 'neutral';
+        }
+        function formatDeltaLabel(current, previous) {
+            const safeCurrent = Number.isFinite(current) ? current : 0;
+            const safePrevious = Number.isFinite(previous) ? previous : 0;
+            const delta = safeCurrent - safePrevious;
+            const sign = delta > 0 ? '+' : '';
+            return { delta, text: `(${sign}${delta})`, className: getDeltaClass(delta) };
+        }
+        function renderDeltaLabel(current, previous, subtle = false) {
+            const formatted = formatDeltaLabel(current, previous);
+            return `<span class="count-delta${subtle ? ' subtle' : ''} ${formatted.className}">${formatted.text}</span>`;
+        }
+        function getDateRangeFromInputs(startId, endId) {
+            const start = getLocalDateFromInput(document.getElementById(startId)?.value);
+            const end = getLocalDateFromInput(document.getElementById(endId)?.value);
+            if (!start || !end) return null;
+            return { start, end };
+        }
+        function toEndOfDayTs(date) {
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999).getTime();
+        }
         function syncPrimaryDateFiltersFromLead() {
             const leadStart = document.getElementById('leadStart')?.value || '';
             const leadEnd = document.getElementById('leadEnd')?.value || '';
@@ -803,6 +908,13 @@
         }
         function handleLeadDateChange() {
             syncPrimaryDateFiltersFromLead();
+            calculateWeeklyLeads();
+            calculateWeeklyOffers();
+            calculatePendingOffers();
+            calculateOnboardSummary();
+        }
+        function handleCompareDateChange() {
+            calculateBatchCounts();
             calculateWeeklyLeads();
             calculateWeeklyOffers();
             calculatePendingOffers();
@@ -1138,10 +1250,15 @@
 
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const batchMap = new Map();
+            const comparisonMap = new Map();
 
             const todayMidnight = new Date();
             todayMidnight.setHours(0, 0, 0, 0);
             const todayTs = todayMidnight.getTime();
+            const comparisonBase = getPreviousComparisonDate(todayMidnight);
+            const canCompareMonth = !!comparisonBase;
+            const comparisonMonth = comparisonBase ? comparisonBase.getMonth() + 1 : null;
+            const comparisonYear = comparisonBase ? comparisonBase.getFullYear() : null;
 
             dataS1.forEach(row => {
                 if (!isBatchSourceIncluded(row)) return;
@@ -1163,6 +1280,16 @@
                 const rjnjType = (row[headersS1[S1_IDX.RJNJ]] || "").trim().toUpperCase();
                 if (rjnjType === "NJ") s.nj++;
                 else if (rjnjType === "RJ") s.rj++;
+
+                if (!canCompareMonth) return;
+                if (d.getFullYear() !== comparisonYear || d.getMonth() + 1 !== comparisonMonth) return;
+                if (!comparisonMap.has(normalizedKey)) {
+                    comparisonMap.set(normalizedKey, { total: 0, nj: 0, rj: 0 });
+                }
+                const previous = comparisonMap.get(normalizedKey);
+                previous.total++;
+                if (rjnjType === "NJ") previous.nj++;
+                else if (rjnjType === "RJ") previous.rj++;
             });
 
             const sortedKeys = Array.from(batchMap.keys()).sort((a, b) => batchMap.get(a).rawDate - batchMap.get(b).rawDate);
@@ -1175,6 +1302,7 @@
 
             sortedKeys.forEach((dateStr, index) => {
                 const s = batchMap.get(dateStr);
+                const prev = canCompareMonth ? (comparisonMap.get(dateStr) || { total: 0, nj: 0, rj: 0 }) : { total: s.total, nj: s.nj, rj: s.rj };
                 const colorSet = monthColors[index % monthColors.length];
                 container.innerHTML += `
                     <div onclick="toggleBatchList('${dateStr}')" class="batch-card cyber-card p-6 border-b-8 ${colorSet.border}">
@@ -1182,7 +1310,7 @@
                         <p class="text-lg font-black text-slate-900 mb-3 text-left">${dateStr}</p>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col items-start">
-                                <span class="text-4xl font-black ${colorSet.text} readable-nums text-center leading-none">${s.total}</span>
+                                <span class="text-4xl font-black ${colorSet.text} readable-nums text-center leading-none">${s.total}${renderDeltaLabel(s.total, prev.total)}</span>
                                 <div class="flex flex-col text-[10px] font-black text-slate-400 mt-2 uppercase tracking-tighter text-left">
                                     <span>(RJ: ${s.rj})</span>
                                     <span>(NJ: ${s.nj})</span>
@@ -1767,26 +1895,13 @@
         }
 
         function calculateWeeklyHrSources(startTs, endLimitTs) {
-            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
-
-            dataS1.forEach(row => {
-                if (!isHrLeadSource(row)) return;
-                if (!isPositionIncluded(row)) return;
-                const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
-                const ldTs = ld ? ld.getTime() : null;
-                if (!(ldTs && ldTs >= startTs && ldTs <= endLimitTs)) return;
-                const bucket = normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]]);
-                counts[bucket]++;
-            });
-
-            const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
-            const totalEl = document.getElementById('weekly-lead-hr-total');
-            if (totalEl) totalEl.innerText = total;
-
-            ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].forEach(brand => {
-                const el = document.getElementById(`weekly-lead-hr-${brand}`);
-                if (el) el.innerText = counts[brand];
-            });
+            const counts = buildHrLeadCounts(startTs, endLimitTs);
+            const leadRange = getDateRangeFromInputs('leadStart', 'leadEnd');
+            const comparisonRange = leadRange ? getComparisonDateRange(leadRange.start, leadRange.end) : null;
+            const previousCounts = comparisonRange
+                ? buildHrLeadCounts(comparisonRange.start.getTime(), toEndOfDayTs(comparisonRange.end))
+                : null;
+            renderHrSourceCountsWithDelta('weekly-lead-hr', counts, previousCounts);
         }
 
         function renderHrSourceCounts(prefix, counts) {
@@ -1800,9 +1915,34 @@
             });
         }
 
-        function calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange) {
-            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+        function renderHrSourceCountsWithDelta(prefix, counts, previousCounts = null) {
+            const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+            const previous = previousCounts || { ...counts };
+            const previousTotal = Object.values(previous).reduce((sum, value) => sum + value, 0);
+            const totalEl = document.getElementById(`${prefix}-total`);
+            if (totalEl) totalEl.innerHTML = `${total}${renderDeltaLabel(total, previousTotal)}`;
 
+            ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].forEach(brand => {
+                const el = document.getElementById(`${prefix}-${brand}`);
+                if (el) el.innerHTML = `${counts[brand]}${renderDeltaLabel(counts[brand], previous[brand] || 0, true)}`;
+            });
+        }
+
+        function buildHrLeadCounts(startTs, endLimitTs) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+            dataS1.forEach(row => {
+                if (!isHrLeadSource(row)) return;
+                if (!isPositionIncluded(row)) return;
+                const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                const ldTs = ld ? ld.getTime() : null;
+                if (!(ldTs && ldTs >= startTs && ldTs <= endLimitTs)) return;
+                counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+            });
+            return counts;
+        }
+
+        function buildHrOfferCounts(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange) {
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
             dataS1.forEach(row => {
                 if (!isHrLeadSource(row)) return;
                 if (!isPositionIncluded(row)) return;
@@ -1817,13 +1957,11 @@
                 }
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
-
-            renderHrSourceCounts('weekly-offer-hr', counts);
+            return counts;
         }
 
-        function calculatePendingHrSources(startTs, endLimitTs) {
+        function buildPendingHrCounts(startTs, endLimitTs) {
             const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
-
             dataS1.forEach(row => {
                 if (!isHrLeadSource(row)) return;
                 if (!isPositionIncluded(row)) return;
@@ -1833,13 +1971,11 @@
                 if (!(odTs && odTs >= startTs && odTs <= endLimitTs && stMatch)) return;
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
-
-            renderHrSourceCounts('pending-hr', counts);
+            return counts;
         }
 
-        function calculateOnboardHrSources(startTs, endLimitTs) {
+        function buildOnboardHrCounts(startTs, endLimitTs) {
             const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
-
             dataS1.forEach(row => {
                 if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return;
                 if (!isPositionIncluded(row)) return;
@@ -1848,8 +1984,44 @@
                 if (!(onboardTs && onboardTs >= startTs && onboardTs <= endLimitTs)) return;
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
+            return counts;
+        }
 
-            renderHrSourceCounts('onboard-hr', counts);
+        function calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange) {
+            const counts = buildHrOfferCounts(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange);
+            const offerRange = getDateRangeFromInputs('offerStart', 'offerEnd');
+            const comparisonRange = offerRange ? getComparisonDateRange(offerRange.start, offerRange.end) : null;
+            const previousCounts = comparisonRange
+                ? buildHrOfferCounts(
+                    comparisonRange.start.getTime(),
+                    toEndOfDayTs(comparisonRange.end),
+                    useOb,
+                    obSTs,
+                    obETs,
+                    hasObRange
+                )
+                : null;
+            renderHrSourceCountsWithDelta('weekly-offer-hr', counts, previousCounts);
+        }
+
+        function calculatePendingHrSources(startTs, endLimitTs) {
+            const counts = buildPendingHrCounts(startTs, endLimitTs);
+            const pendingRange = getDateRangeFromInputs('pendingStart', 'pendingEnd');
+            const comparisonRange = pendingRange ? getComparisonDateRange(pendingRange.start, pendingRange.end) : null;
+            const previousCounts = comparisonRange
+                ? buildPendingHrCounts(comparisonRange.start.getTime(), toEndOfDayTs(comparisonRange.end))
+                : null;
+            renderHrSourceCountsWithDelta('pending-hr', counts, previousCounts);
+        }
+
+        function calculateOnboardHrSources(startTs, endLimitTs) {
+            const counts = buildOnboardHrCounts(startTs, endLimitTs);
+            const onboardRange = getDateRangeFromInputs('onboardStart', 'onboardEnd');
+            const comparisonRange = onboardRange ? getComparisonDateRange(onboardRange.start, onboardRange.end) : null;
+            const previousCounts = comparisonRange
+                ? buildOnboardHrCounts(comparisonRange.start.getTime(), toEndOfDayTs(comparisonRange.end))
+                : null;
+            renderHrSourceCountsWithDelta('onboard-hr', counts, previousCounts);
         }
 
         function calculateOnboardSummary() {
@@ -1878,7 +2050,21 @@
                 const elTotal = document.getElementById(`onboard-total-${brand}`);
                 if (elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
                 if (elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                if (elTotal) elTotal.innerText = list.length;
+                if (elTotal) {
+                    const comparisonRange = getComparisonDateRange(start, end);
+                    let previousTotal = list.length;
+                    if (comparisonRange) {
+                        previousTotal = dataS1.filter(row => {
+                            if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
+                            if (!isPositionIncluded(row)) return false;
+                            if ((row[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase() !== brand) return false;
+                            const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                            const onboardTs = onboardDate ? onboardDate.getTime() : null;
+                            return onboardTs && onboardTs >= comparisonRange.start.getTime() && onboardTs <= toEndOfDayTs(comparisonRange.end);
+                        }).length;
+                    }
+                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                }
             });
 
             calculateOnboardHrSources(startTs, endLimitTs);
@@ -1911,7 +2097,21 @@
                 
                 if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                if(elTotal) elTotal.innerText = list.length;
+                if(elTotal) {
+                    const comparisonRange = getComparisonDateRange(start, end);
+                    let previousTotal = list.length;
+                    if (comparisonRange) {
+                        previousTotal = dataS1.filter(row => {
+                            if (!isOperationLeadSource(row)) return false;
+                            if (!isPositionIncluded(row)) return false;
+                            if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
+                            const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                            const ldTs = ld ? ld.getTime() : null;
+                            return ldTs && ldTs >= comparisonRange.start.getTime() && ldTs <= toEndOfDayTs(comparisonRange.end);
+                        }).length;
+                    }
+                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                }
             });
             calculateWeeklyHrSources(startTs, endLimitTs);
             if (currentDetailMode === "LEAD" || currentDetailMode === "LEAD_HR") showSharedDetail(currentDetailMode, currentDetailKey);
@@ -1958,7 +2158,28 @@
                 
                 if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                if(elTotal) elTotal.innerText = list.length;
+                if(elTotal) {
+                    const comparisonRange = getComparisonDateRange(oStart, oEnd);
+                    let previousTotal = list.length;
+                    if (comparisonRange) {
+                        previousTotal = dataS1.filter(row => {
+                            if (!isOperationLeadSource(row)) return false;
+                            if (!isPositionIncluded(row)) return false;
+                            if((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
+                            const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                            const odTs = od ? od.getTime() : null;
+                            const st = (row[headersS1[S1_IDX.STATUS]]||"").toUpperCase();
+                            if(!(odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && (st.includes("OFFER") || st.includes("ACCEPT")))) return false;
+                            if(useOb && hasObRange) {
+                                const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                                const obdTs = obd ? obd.getTime() : null;
+                                if(!obdTs || obdTs < obSTs || obdTs > obETs) return false;
+                            }
+                            return true;
+                        }).length;
+                    }
+                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                }
             });
             calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange);
             if (currentDetailMode === "WEEKLY" || currentDetailMode === "WEEKLY_HR") showSharedDetail(currentDetailMode, currentDetailKey);
@@ -1992,7 +2213,22 @@
                 
                 if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
                 if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                if(elTotal) elTotal.innerText = list.length;
+                if(elTotal) {
+                    const comparisonRange = getComparisonDateRange(start, end);
+                    let previousTotal = list.length;
+                    if (comparisonRange) {
+                        previousTotal = dataS1.filter(row => {
+                            if (!isOperationLeadSource(row)) return false;
+                            if (!isPositionIncluded(row)) return false;
+                            if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
+                            const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                            const odTs = od ? od.getTime() : null;
+                            const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
+                            return odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && stMatch;
+                        }).length;
+                    }
+                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                }
             });
             calculatePendingHrSources(startTs, endLimitTs);
             if (currentDetailMode === "PENDING" || currentDetailMode === "PENDING_HR") showSharedDetail(currentDetailMode, currentDetailKey);
