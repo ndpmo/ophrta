@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Network Team Leader Study 2026</title>
+    <title>HR Study 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -13,26 +13,22 @@
         :root {
             --ink: #0f172a;
             --muted: #64748b;
-            --paper: rgba(255, 255, 255, 0.9);
+            --paper: rgba(255, 255, 255, 0.88);
             --line: rgba(148, 163, 184, 0.28);
-            --brand: #2563eb;
-            --brand-soft: rgba(37, 99, 235, 0.12);
-            --violet: #7c3aed;
-            --violet-soft: rgba(124, 58, 237, 0.12);
+            --brand: #7c3aed;
+            --brand-soft: rgba(124, 58, 237, 0.12);
             --success: #059669;
             --success-soft: rgba(16, 185, 129, 0.12);
             --warning: #ea580c;
             --warning-soft: rgba(249, 115, 22, 0.12);
-            --rose: #e11d48;
-            --rose-soft: rgba(225, 29, 72, 0.12);
         }
 
         body {
             font-family: 'Noto Sans TC', sans-serif;
             color: var(--ink);
             background:
-                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30%),
-                radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 24%),
+                radial-gradient(circle at top left, rgba(124, 58, 237, 0.18), transparent 30%),
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.15), transparent 24%),
                 linear-gradient(160deg, #f6f8ff 0%, #eef6ff 48%, #fbfffd 100%);
             background-attachment: fixed;
             min-height: 100vh;
@@ -71,22 +67,6 @@
         .summary-card {
             position: relative;
             overflow: hidden;
-        }
-
-        .summary-card-button {
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .summary-card-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.34);
-        }
-
-        .summary-card-button.active {
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16), 0 24px 60px -30px rgba(15, 23, 42, 0.34);
         }
 
         .summary-card::before {
@@ -129,61 +109,54 @@
             background: rgba(255, 255, 255, 0.78);
             font-weight: 800;
             box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.28);
-            transition: transform 0.2s ease;
         }
 
-        .pill-button:hover {
-            transform: translateY(-2px);
+        .filter-surface {
+            position: relative;
+            z-index: 80;
+            overflow: visible;
         }
 
-        .status-chip {
+        .position-filter-group {
+            position: relative;
+            z-index: 90;
+            isolation: isolate;
+        }
+
+        .position-filter-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            left: 0;
+            right: 0;
+            min-width: 260px;
+            max-height: 320px;
+            overflow-y: auto;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(196, 181, 253, 0.95);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 28px 56px -28px rgba(15, 23, 42, 0.42);
+            backdrop-filter: blur(14px);
+            z-index: 120;
+        }
+
+        .position-filter-menu::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .position-filter-menu::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 9999px;
+        }
+
+        .tag {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             border-radius: 9999px;
-            padding: 0.3rem 0.7rem;
+            padding: 0.28rem 0.65rem;
             font-size: 0.72rem;
             font-weight: 900;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
-        }
-
-        .status-onboard {
-            background: rgba(16, 185, 129, 0.14);
-            color: #047857;
-        }
-
-        .status-offer {
-            background: rgba(59, 130, 246, 0.14);
-            color: #1d4ed8;
-        }
-
-        .status-reject {
-            background: rgba(225, 29, 72, 0.12);
-            color: #be123c;
-        }
-
-        .status-pending {
-            background: rgba(249, 115, 22, 0.14);
-            color: #c2410c;
-        }
-
-        .status-upcoming {
-            background: rgba(139, 92, 246, 0.14);
-            color: #7c3aed;
-        }
-
-        .clickable-row {
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .clickable-row:hover {
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .clickable-row.active {
-            background: rgba(37, 99, 235, 0.08);
         }
     </style>
 </head>
@@ -192,78 +165,127 @@
         <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
             <div class="space-y-4">
                 <div class="flex flex-wrap items-center gap-3">
-                    <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700">
+                    <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">
                         <span>&larr;</span>
                         <span>Back To Dashboard</span>
                     </a>
-                    <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-sky-700">Network Team Leader</span>
-                    <span class="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-violet-700">Cohort By Lead Date</span>
+                    <span class="tag bg-violet-100 text-violet-700">HR Sources Only</span>
+                    <span class="tag bg-emerald-100 text-emerald-700">Cohort By CV Date</span>
                 </div>
                 <div>
                     <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
-                        Network Team Leader <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">Study 2026</span>
+                        HR Study <span class="title-tech text-violet-600 text-2xl md:text-3xl uppercase">2026</span>
                     </h1>
+                    <p class="mt-3 max-w-3xl text-sm md:text-base font-bold text-slate-600">
+                        Focus on HR source recruitment funnel: how many CVs come from each channel, how many reach offer, and how many finally onboard.
+                        The date filter below uses CV / Lead Date as the cohort entry point.
+                    </p>
                 </div>
             </div>
-            <div class="glass-card px-5 py-4 min-w-[260px]">
+            <div class="glass-card px-5 py-4 min-w-[240px]">
                 <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
-                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading live data...</p>
-                <p class="mt-2 text-xs font-bold text-slate-500">Sheet1 + Network Team Leader</p>
+                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading latest sheet data...</p>
+                <p class="mt-2 text-xs font-bold text-slate-500">Sheet 1 / HR source / Position + Channel + Interviewer</p>
             </div>
         </header>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <div class="space-y-2">
-                    <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
-                    <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+        <section class="glass-card filter-surface p-5 md:p-6 mb-8">
+            <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 flex-1">
+                    <div class="space-y-2">
+                        <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">CV / Lead Date From</label>
+                        <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">CV / Lead Date To</label>
+                        <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Position Filter</label>
+                        <div class="position-filter-group" id="positionFilterGroup">
+                            <button id="positionFilterButton" type="button" class="w-full pill-button justify-between text-slate-700" onclick="togglePositionMenu()">
+                                <span class="text-sm uppercase tracking-[0.14em] text-slate-500">Position</span>
+                                <span id="positionFilterLabel" class="text-sm font-black text-slate-900">All Position</span>
+                            </button>
+                            <div id="positionFilterMenu" class="position-filter-menu hidden p-3">
+                                <div id="positionFilterList" class="space-y-2"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="space-y-2">
-                    <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
-                    <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" onclick="resetFilters()" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">Reset</button>
+                    <button type="button" onclick="renderDashboard()" class="pill-button bg-violet-600 text-white border-transparent hover:-translate-y-0.5 transition">Refresh Study</button>
                 </div>
-                <div class="space-y-2">
-                    <label for="brandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                    <select id="brandFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
-                </div>
-                <div class="space-y-2">
-                    <label for="centerFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Centre</label>
-                    <select id="centerFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
-                </div>
-                <div class="space-y-2">
-                    <label for="leaderFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Leader</label>
-                    <select id="leaderFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
-                </div>
-            </div>
-            <div class="mt-5 flex flex-wrap gap-3">
-                <button type="button" onclick="resetFilters()" class="pill-button text-slate-700">Reset</button>
-                <button type="button" onclick="renderDashboard(false)" class="pill-button bg-sky-600 text-white border-transparent">Refresh Study</button>
             </div>
         </section>
 
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
+        <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6 mb-8">
+            <div class="glass-card p-5 md:p-6">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">HR Channel Funnel</p>
+                        <h2 class="text-2xl font-black text-slate-900">CV Channel Overview</h2>
+                    </div>
+                    <p class="text-sm font-bold text-slate-500" id="channelMeta">-</p>
+                </div>
+                <div class="table-shell">
+                    <div class="table-wrap">
+                        <table class="w-full min-w-[760px] border-collapse">
+                            <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
+                                <tr>
+                                    <th class="px-5 py-4 text-left">Channel</th>
+                                    <th class="px-4 py-4 text-right">CV</th>
+                                    <th class="px-4 py-4 text-right">Offer</th>
+                                    <th class="px-4 py-4 text-right">On Board</th>
+                                    <th class="px-4 py-4 text-right">Offer Rate</th>
+                                    <th class="px-4 py-4 text-right">On Board Rate</th>
+                                    <th class="px-5 py-4 text-left">Main Brand</th>
+                                </tr>
+                            </thead>
+                            <tbody id="channelTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-5 md:p-6">
+                <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">Study Note</p>
+                <h2 class="mt-2 text-2xl font-black text-slate-900">How To Read</h2>
+                <div class="mt-4 space-y-3 text-sm font-bold text-slate-600">
+                    <p>Only rows with <span class="text-slate-900">Source = HR</span> are included.</p>
+                    <p>The cohort is selected by <span class="text-slate-900">CV / Lead Date</span>.</p>
+                    <p><span class="text-slate-900">Offer</span> means the selected CV eventually reached offer stage.</p>
+                    <p><span class="text-slate-900">On Board</span> means the selected CV finally onboarded.</p>
+                    <p>Position filter supports multi-select and applies to the full page.</p>
+                </div>
+                <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3" id="quickInsights"></div>
+            </div>
+        </section>
+
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">By Brand</p>
-                    <h2 class="text-2xl font-black text-slate-900">Brand Breakdown</h2>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-blue-500">HR Brand Study</p>
+                    <h2 class="text-2xl font-black text-slate-900">Dermes / Reenex / Elyze Recruitment Situation</h2>
                 </div>
-                <p id="brandMeta" class="text-sm font-bold text-slate-500">-</p>
+                <p class="text-sm font-bold text-slate-500">Recruitment funnel from HR channels by brand</p>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[820px] border-collapse">
-                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                    <table class="w-full min-w-[760px] border-collapse">
+                        <thead class="bg-blue-50 text-blue-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left">Brand</th>
-                                <th class="px-4 py-4 text-center">Network Teams</th>
-                                <th class="px-4 py-4 text-center">Team Members</th>
-                                <th class="px-4 py-4 text-center">Lead</th>
-                                <th class="px-4 py-4 text-center">Offer</th>
-                                <th class="px-4 py-4 text-center">On Board</th>
-                                <th class="px-4 py-4 text-center">Offer Achieve Rate</th>
-                                <th class="px-4 py-4 text-center">On Board Achieve Rate</th>
+                                <th class="px-4 py-4 text-right">CV</th>
+                                <th class="px-4 py-4 text-right">Offer</th>
+                                <th class="px-4 py-4 text-right">On Board</th>
+                                <th class="px-4 py-4 text-right">Offer Rate</th>
+                                <th class="px-4 py-4 text-right">On Board Rate</th>
+                                <th class="px-5 py-4 text-left">Top Channel</th>
+                                <th class="px-5 py-4 text-left">Top Interviewer</th>
                             </tr>
                         </thead>
                         <tbody id="brandTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
@@ -272,245 +294,60 @@
             </div>
         </section>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
+        <section class="glass-card p-5 md:p-6 mb-10">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">By Floor</p>
-                    <h2 class="text-2xl font-black text-slate-900">Floor Breakdown</h2>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-orange-500">By Interviewer</p>
+                    <h2 class="text-2xl font-black text-slate-900">HR Source Recruitment By Interviewer</h2>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <label for="floorSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                        <select id="floorSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
-                            <option value="">All Brand</option>
-                        </select>
-                    </div>
-                    <p id="floorMeta" class="text-sm font-bold text-slate-500">-</p>
-                </div>
+                <p class="text-sm font-bold text-slate-500">Interview BY (TA) performance under current filters</p>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[980px] border-collapse">
-                        <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
+                    <table class="w-full min-w-[880px] border-collapse">
+                        <thead class="bg-orange-50 text-orange-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
-                                <th class="px-5 py-4 text-left">
-                                    <button type="button" onclick="toggleFloorSort('label')" class="inline-flex items-center gap-2">
-                                        <span>Floor / Centre</span>
-                                        <span id="floorSortIndicator" class="text-[11px]">↑</span>
-                                    </button>
-                                </th>
-                                <th class="px-5 py-4 text-left">Brand Mix</th>
-                                <th class="px-4 py-4 text-center">Network Teams</th>
-                                <th class="px-4 py-4 text-center">Team Members</th>
-                                <th class="px-4 py-4 text-center">Lead</th>
-                                <th class="px-4 py-4 text-center">Offer</th>
-                                <th class="px-4 py-4 text-center">On Board</th>
-                                <th class="px-4 py-4 text-center">Offer Achieve Rate</th>
-                                <th class="px-4 py-4 text-center">On Board Achieve Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody id="floorTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">By Network Team</p>
-                    <h2 class="text-2xl font-black text-slate-900">Network Team Breakdown</h2>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <label for="networkSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                        <select id="networkSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
-                            <option value="">All Brand</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <label for="networkSectionFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
-                        <select id="networkSectionFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
-                            <option value="">All Floor</option>
-                        </select>
-                    </div>
-                    <p id="networkMeta" class="text-sm font-bold text-slate-500">-</p>
-                </div>
-            </div>
-            <div class="table-shell">
-                <div class="table-wrap">
-                    <table class="w-full min-w-[980px] border-collapse">
-                        <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
-                            <tr>
-                                <th class="px-5 py-4 text-left">Network Team</th>
-                                <th class="px-5 py-4 text-left">Brand</th>
-                                <th class="px-5 py-4 text-left">Floor Mix</th>
-                                <th class="px-4 py-4 text-right">Team Size</th>
-                                <th class="px-4 py-4 text-right">Lead</th>
+                                <th class="px-5 py-4 text-left">Interviewer</th>
+                                <th class="px-4 py-4 text-right">CV</th>
                                 <th class="px-4 py-4 text-right">Offer</th>
                                 <th class="px-4 py-4 text-right">On Board</th>
-                                <th class="px-4 py-4 text-right">Offer Achieve Rate</th>
-                                <th class="px-4 py-4 text-right">On Board Achieve Rate</th>
-                                <th class="px-5 py-4 text-center">Action</th>
+                                <th class="px-4 py-4 text-right">Offer Rate</th>
+                                <th class="px-4 py-4 text-right">On Board Rate</th>
+                                <th class="px-5 py-4 text-left">Top Channel</th>
+                                <th class="px-5 py-4 text-left">Brands</th>
                             </tr>
                         </thead>
-                        <tbody id="networkTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="mt-5 border-t border-slate-200/80 pt-5 hidden" id="leaderPerformanceSection">
-                <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-3 mb-4">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Selected Network Team</p>
-                        <h2 id="leaderPerformanceTitle" class="text-xl md:text-2xl font-black text-slate-900">Network Team Performance</h2>
-                    </div>
-                    <p id="leaderPerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
-                </div>
-                <div id="leaderPerformanceCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-5"></div>
-                <div>
-                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">Team Mate Performance</p>
-                            <h3 class="text-lg md:text-xl font-black text-slate-900">Team Mate Breakdown</h3>
-                        </div>
-                        <p id="teamMatePerformanceMeta" class="text-sm font-bold text-slate-500">-</p>
-                    </div>
-                    <div class="table-shell">
-                        <div class="table-wrap">
-                            <table class="w-full min-w-[980px] border-collapse">
-                                <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
-                                    <tr>
-                                        <th class="px-5 py-4 text-left">Role</th>
-                                        <th class="px-5 py-4 text-left">Team Mate</th>
-                                        <th class="px-5 py-4 text-left">Position</th>
-                                        <th class="px-5 py-4 text-left">Brand</th>
-                                        <th class="px-5 py-4 text-left">Floor</th>
-                                        <th class="px-4 py-4 text-center">Lead</th>
-                                        <th class="px-4 py-4 text-center">Offer</th>
-                                        <th class="px-4 py-4 text-center">On Board</th>
-                                        <th class="px-4 py-4 text-center">Upcoming On Board</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="teamMatePerformanceBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="glass-card p-5 md:p-6 mb-8" id="detailSection">
-            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">Candidate Detail</p>
-                    <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Leader Candidate Detail</h2>
-                </div>
-                <div class="flex flex-col lg:flex-row lg:items-center gap-3">
-                    <div class="flex flex-col gap-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div class="flex items-center gap-2">
-                                <label for="detailBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                                <select id="detailBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
-                                    <option value="">All Brand</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <label for="detailFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
-                                <select id="detailFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
-                                    <option value="">All Floor</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div class="flex items-center gap-2">
-                                <label for="detailStatusFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Status</label>
-                                <select id="detailStatusFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
-                                    <option value="">All Status</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <label for="detailOnboardStatusFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Status</label>
-                                <select id="detailOnboardStatusFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[190px]">
-                                    <option value="">All On Board Status</option>
-                                </select>
-                            </div>
-                            <button type="button" onclick="resetDetailFilters()" class="pill-button px-4 py-2 text-xs uppercase tracking-[0.14em]">Reset Filters</button>
-                        </div>
-                    </div>
-                    <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
-                </div>
-            </div>
-            <div class="table-shell">
-                <div class="table-wrap">
-                    <table class="w-full min-w-[1320px] border-collapse">
-                        <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
-                            <tr>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leaderName')" class="inline-flex items-center gap-2"><span>Leader</span><span id="detailSortIndicator-leaderName" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('memberName')" class="inline-flex items-center gap-2"><span>Team Member</span><span id="detailSortIndicator-memberName" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('candidateName')" class="inline-flex items-center gap-2"><span>Candidate Name</span><span id="detailSortIndicator-candidateName" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('brand')" class="inline-flex items-center gap-2"><span>Brand</span><span id="detailSortIndicator-brand" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('rjnj')" class="inline-flex items-center gap-2"><span>RJ/NJ</span><span id="detailSortIndicator-rjnj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('status')" class="inline-flex items-center gap-2"><span>Status</span><span id="detailSortIndicator-status" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leadDateObj')" class="inline-flex items-center gap-2"><span>Lead Date</span><span id="detailSortIndicator-leadDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offerDateObj')" class="inline-flex items-center gap-2"><span>Offer Date</span><span id="detailSortIndicator-offerDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardDateObj')" class="inline-flex items-center gap-2"><span>On Board Date</span><span id="detailSortIndicator-onboardDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardStatus')" class="inline-flex items-center gap-2"><span>On Board Status</span><span id="detailSortIndicator-onboardStatus" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('interviewer')" class="inline-flex items-center gap-2"><span>Interviewer</span><span id="detailSortIndicator-interviewer" class="text-[11px]"></span></button></th>
-                            </tr>
-                        </thead>
-                        <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                        <tbody id="interviewerTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <section id="loadingState" class="glass-card p-5 text-sm font-black text-slate-600">Loading Network Team Leader study data...</section>
+        <section id="loadingState" class="glass-card p-5 text-sm font-black text-slate-600">Loading HR study data...</section>
     </div>
 
     <script>
         const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
         const SHEET1_GID = '1328974285';
-        const NETWORK_TEAM_SHEET_NAME = 'Network Team Leader';
-
         const S1_IDX = {
             BRAND: 0,
-            STAFF_ID: 9,
-            STAFF_NAME: 10,
-            RJNJ: 12,
+            POSITION: 4,
+            SOURCE: 5,
+            CHANNEL: 6,
             NAME: 13,
-            STATUS: 23,
             INTERVIEWER: 25,
             ONBOARD_STATUS: 27,
             LEAD_DATE: 35,
             OFFER_DATE: 36,
             ONBOARD_DATE: 37
         };
-
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
-        const NTL_IDX = {
-            BRAND: 0,
-            CENTER: 1,
-            THERAPIST: 2,
-            STAFF_NO: 3,
-            POSITION: 4,
-            NETWORK_TEAM: 9,
-            LEADER_JUL: 10,
-            LEADER_AUG: 11
-        };
 
         let headersS1 = [];
         let dataS1 = [];
-        let headersNTL = [];
-        let dataNTL = [];
-        let leaderDirectory = [];
-        let selectedLeaderKey = '';
-        let currentDetailScope = 'SUMMARY';
-        let currentSummaryDetailMode = 'LEAD';
-        let floorSortKey = 'label';
-        let floorSortDirection = 'asc';
-        let detailSortKey = 'leadDateObj';
-        let detailSortDirection = 'desc';
+        let availablePositions = [];
+        let selectedPositions = [];
 
         function formatDateToISO(date) {
             const y = date.getFullYear();
@@ -528,96 +365,10 @@
             return `${Math.round((part / total) * 100)}%`;
         }
 
-        function formatAchieveRate(value, networkTeamCount) {
-            const target = Math.max((Number(networkTeamCount) || 0) * 2, 0);
-            if (!target) return '0%';
-            return `${Math.round((value / target) * 100)}%`;
-        }
-
-        function cloneDate(date) {
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-        }
-
-        function shiftDate(date, days) {
-            const shifted = cloneDate(date);
-            shifted.setDate(shifted.getDate() + days);
-            return shifted;
-        }
-
-        function getPreviousComparisonDate(date) {
-            const previous = shiftDate(date, -1);
-            if (previous.getDay() === 0) {
-                return shiftDate(previous, -1);
-            }
-            return previous;
-        }
-
-        function getComparisonDateRange(range) {
-            if (!range?.start || !range?.end) return null;
-            const rawEnd = new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate(), 0, 0, 0, 0);
-            const comparisonEndDate = getPreviousComparisonDate(rawEnd);
-            if (comparisonEndDate.getTime() < range.start.getTime()) return null;
-            const comparisonEnd = new Date(comparisonEndDate.getFullYear(), comparisonEndDate.getMonth(), comparisonEndDate.getDate(), 23, 59, 59, 999);
-            return { start: cloneDate(range.start), end: comparisonEnd };
-        }
-
-        function getDeltaClass(delta) {
-            if (delta > 0) return 'text-emerald-700';
-            if (delta < 0) return 'text-rose-600';
-            return 'text-slate-400';
-        }
-
-        function formatDeltaLabel(delta) {
-            if (delta > 0) return `(+${formatNumber(delta)})`;
-            if (delta < 0) return `(-${formatNumber(Math.abs(delta))})`;
-            return '(0)';
-        }
-
-        function renderDeltaLabel(delta, extraClass = '') {
-            return `<span class="data-font text-xs md:text-sm font-black ${getDeltaClass(delta)} ${extraClass}">${formatDeltaLabel(delta)}</span>`;
-        }
-
         function formatDateAsDMonY(date) {
             if (!(date instanceof Date) || isNaN(date)) return '-';
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-        }
-
-        function safeTrim(value) {
-            return ((value ?? '') + '').trim();
-        }
-
-        function escapeHtml(value) {
-            return safeTrim(value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function normalizeKey(value) {
-            return safeTrim(value).toLowerCase();
-        }
-
-        function normalizeBrand(value) {
-            const raw = normalizeKey(value);
-            if (raw === 'dermes') return 'DERMES';
-            if (raw === 'reenex') return 'REENEX';
-            if (raw === 'elyze') return 'ELYZE';
-            return raw ? raw.toUpperCase() : 'OTHER';
-        }
-
-        function displayBrand(value) {
-            const brand = normalizeBrand(value);
-            if (brand === 'OTHER') return 'Other';
-            return brand.charAt(0) + brand.slice(1).toLowerCase();
-        }
-
-        function isSameBrandReferral(member, row) {
-            const memberBrand = normalizeBrand(member?.brandKey || member?.brand || '');
-            const candidateBrand = normalizeBrand(getS1Value(row, S1_IDX.BRAND) || '');
-            return !!memberBrand && !!candidateBrand && memberBrand === candidateBrand;
         }
 
         function parseDate(rawValue) {
@@ -648,12 +399,12 @@
         }
 
         function parseDateByParts(dayPart, monthPart, yearPart) {
-            const d = parseInt(safeTrim(dayPart), 10);
-            let y = parseInt(safeTrim(yearPart), 10);
+            const d = parseInt((dayPart ?? '').toString().trim(), 10);
+            let y = parseInt((yearPart ?? '').toString().trim(), 10);
             if (!d || !y) return null;
             if (y < 100) y += 2000;
 
-            const monthRaw = safeTrim(monthPart);
+            const monthRaw = (monthPart ?? '').toString().trim();
             let month = parseInt(monthRaw, 10);
             if (isNaN(month)) {
                 const monthList = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -668,15 +419,15 @@
         }
 
         function buildDateFromTripletColumns(row, tripletIdx, fallbackValue, allowFallback = true) {
-            const raw = tripletIdx.map(i => safeTrim(row[headersS1[i]]));
+            const raw = tripletIdx.map(i => ((row[headersS1[i]] ?? '') + '').trim());
             const nonEmpty = raw.filter(value => value && value !== '-');
-            if (!nonEmpty.length) return allowFallback ? safeTrim(fallbackValue) : '-';
+            if (!nonEmpty.length) return allowFallback ? ((fallbackValue ?? '') + '').trim() : '-';
             if (nonEmpty.length === 3) {
                 const parsed = parseDateByParts(nonEmpty[0], nonEmpty[1], nonEmpty[2]) || parseDateByParts(nonEmpty[2], nonEmpty[1], nonEmpty[0]);
                 if (parsed) return formatDateAsDMonY(parsed);
             }
             const single = parseDate(nonEmpty.join(' '));
-            return single ? formatDateAsDMonY(single) : (allowFallback ? safeTrim(fallbackValue) : '-');
+            return single ? formatDateAsDMonY(single) : (allowFallback ? ((fallbackValue ?? '') + '').trim() : '-');
         }
 
         function hydrateS1DateFields(row) {
@@ -686,111 +437,103 @@
             const rawOnboardDateHeader = headersS1[S1_RAW_IDX.ONBOARD_DATE];
             const rawOnboardStatusHeader = headersS1[S1_RAW_IDX.ONBOARD_STATUS];
 
-            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = safeTrim(row[rawOnboardDateHeader]);
-            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = safeTrim(row[rawOnboardStatusHeader]);
+            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = (row[rawOnboardDateHeader] ?? '').toString().trim();
+            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = (row[rawOnboardStatusHeader] ?? '').toString().trim();
 
             if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
             if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
             if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
         }
 
-        function parseCsv(text) {
-            return new Promise((resolve, reject) => {
-                Papa.parse(text, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: results => resolve(results),
-                    error: reject
+        function csvEscape(value) {
+            const str = (value ?? '').toString();
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        function gvizTableToCsv(table) {
+            const cols = (table?.cols || []).map(col => col?.label || '');
+            const lines = [cols.map(csvEscape).join(',')];
+            (table?.rows || []).forEach(row => {
+                const values = cols.map((_, index) => {
+                    const cell = row?.c?.[index];
+                    if (!cell) return '';
+                    return cell.f != null ? cell.f : cell.v;
                 });
+                lines.push(values.map(csvEscape).join(','));
             });
+            return lines.join('\n');
         }
 
         function loadGvizCsvByJsonp(gid, docId = SHEET1_DOC_ID) {
             return new Promise((resolve, reject) => {
-                const callbackName = `gvizJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                const callbackName = `__gviz_hrstudy_${gid}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
                 const script = document.createElement('script');
-                let done = false;
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error(`Sheet ${gid} JSONP timeout`));
+                }, 15000);
+
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+                }
 
                 window[callbackName] = response => {
-                    if (done) return;
-                    done = true;
-                    cleanup();
                     try {
-                        resolve(gvizResponseToCsv(response));
+                        cleanup();
+                        resolve(gvizTableToCsv(response.table));
                     } catch (error) {
                         reject(error);
                     }
                 };
 
-                function cleanup() {
-                    delete window[callbackName];
-                    script.remove();
-                }
-
                 script.onerror = () => {
-                    if (done) return;
-                    done = true;
                     cleanup();
-                    reject(new Error('JSONP load failed'));
+                    reject(new Error(`Sheet ${gid} JSONP failed`));
                 };
 
-                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?gid=${encodeURIComponent(gid)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?gid=${gid}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
                 document.body.appendChild(script);
             });
         }
 
-        function loadGvizCsvByJsonpBySheetName(sheetName, docId = SHEET1_DOC_ID) {
-            return new Promise((resolve, reject) => {
-                const callbackName = `gvizSheetJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-                const script = document.createElement('script');
-                let done = false;
-
-                window[callbackName] = response => {
-                    if (done) return;
-                    done = true;
-                    cleanup();
-                    try {
-                        resolve(gvizResponseToCsv(response));
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-
-                function cleanup() {
-                    delete window[callbackName];
-                    script.remove();
-                }
-
-                script.onerror = () => {
-                    if (done) return;
-                    done = true;
-                    cleanup();
-                    reject(new Error('JSONP load failed'));
-                };
-
-                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
-                document.body.appendChild(script);
-            });
+        async function fetchSheetText() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
+            try {
+                const response = await fetch(`${url}&t=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            } catch (_) {
+                return loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID);
+            }
         }
 
-        function gvizResponseToCsv(response) {
-            const rows = response?.table?.rows || [];
-            const cols = response?.table?.cols || [];
-            const escapeCsv = value => {
-                const str = (value ?? '').toString();
-                if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
-                return str;
-            };
-            const header = cols.map(col => escapeCsv(col?.label || '')).join(',');
-            const body = rows.map(row => {
-                const cells = row?.c || [];
-                return cols.map((_, index) => {
-                    const cell = cells[index];
-                    const value = cell?.f ?? cell?.v ?? '';
-                    return escapeCsv(value);
-                }).join(',');
-            }).join('\n');
-            return body ? `${header}\n${body}` : header;
+        function normalizeBrand(value) {
+            const brand = ((value ?? '') + '').trim().toUpperCase();
+            if (brand === 'DERMES') return 'DERMES';
+            if (brand === 'REENEX') return 'REENEX';
+            if (brand === 'ELYZE') return 'ELYZE';
+            return 'OTHER';
+        }
+
+        function cleanChannel(row) {
+            return (((row?.[headersS1[S1_IDX.CHANNEL]] ?? '') + '').trim()) || 'UNKNOWN';
+        }
+
+        function cleanInterviewer(row) {
+            return (((row?.[headersS1[S1_IDX.INTERVIEWER]] ?? '') + '').trim()) || 'UNASSIGNED';
+        }
+
+        function cleanPosition(row) {
+            return (((row?.[headersS1[S1_IDX.POSITION]] ?? '') + '').trim().toUpperCase()) || 'UNKNOWN';
+        }
+
+        function isHrSource(row) {
+            return (((row?.[headersS1[S1_IDX.SOURCE]] ?? '') + '').trim().toUpperCase()) === 'HR';
         }
 
         function getSelectedDateRange() {
@@ -802,1233 +545,385 @@
             return { start, end: endLimit };
         }
 
+        function isSelectedPosition(row) {
+            const position = cleanPosition(row);
+            return selectedPositions.includes(position);
+        }
+
         function getRecordedOnboardDate(row) {
-            return safeTrim(row?.__rawOnboardDate) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_DATE]]);
+            return (((row?.__rawOnboardDate ?? '') + '').trim()) || (((row?.[headersS1[S1_IDX.ONBOARD_DATE]] ?? '') + '').trim());
         }
 
         function getOnboardStatus(row) {
-            return safeTrim(row?.__rawOnboardStatus) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_STATUS]]);
-        }
-
-        function isRejectedOrWithdrawnStatus(status) {
-            const upper = safeTrim(status).toUpperCase();
-            return upper.includes('REJECT') || upper.includes('WITHDRAW');
-        }
-
-        function isNoShowOnboardStatus(status) {
-            const upper = safeTrim(status).toUpperCase();
-            return upper.includes('NO SHOW') || upper.includes('NOSHOW');
-        }
-
-        function isAcceptedStatus(status) {
-            return safeTrim(status).toUpperCase().includes('ACCEPT');
+            return (((row?.__rawOnboardStatus ?? '') + '').trim()) || (((row?.[headersS1[S1_IDX.ONBOARD_STATUS]] ?? '') + '').trim());
         }
 
         function isOffered(row) {
-            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
-            if (isRejectedOrWithdrawnStatus(status)) return false;
-            const statusUpper = status.toUpperCase();
             const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
-            return !!offerDate || statusUpper.includes('OFFER') || statusUpper.includes('ACCEPT');
+            const status = `${row?.[headersS1[23]] ?? ''} ${row?.[headersS1[31]] ?? ''}`.toUpperCase();
+            return !!offerDate || status.includes('OFFER') || status.includes('ACCEPT');
         }
 
         function isOnboard(row) {
-            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
-            if (isRejectedOrWithdrawnStatus(status)) return false;
-
             const onboardStatus = getOnboardStatus(row).toUpperCase();
-            if (!onboardStatus) return false;
-            if (isNoShowOnboardStatus(onboardStatus)) return false;
-            if (isRejectedOrWithdrawnStatus(onboardStatus)) return false;
-            return onboardStatus.includes('ONBOARD');
-        }
-
-        function isUpcomingOnboard(row) {
-            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
-            if (isRejectedOrWithdrawnStatus(status) || !isAcceptedStatus(status)) return false;
-
-            const onboardStatus = getOnboardStatus(row).toUpperCase();
-            if (isNoShowOnboardStatus(onboardStatus) || onboardStatus.includes('ONBOARD')) return false;
+            if (onboardStatus.includes('ONBOARD')) return true;
 
             const recordedDate = parseDate(getRecordedOnboardDate(row));
             if (!recordedDate) return false;
 
             const today = new Date();
             today.setHours(23, 59, 59, 999);
-            return recordedDate.getTime() > today.getTime();
+            return recordedDate.getTime() <= today.getTime();
         }
 
-        function getStatusChip(status, offered, onboarded, upcomingOnboard = false) {
-            const rawStatus = safeTrim(status);
-            if (isRejectedOrWithdrawnStatus(status)) return '<span class="status-chip status-reject">Reject / Withdraw</span>';
-            if (onboarded) return '<span class="status-chip status-onboard">On Board</span>';
-            if (upcomingOnboard) return '<span class="status-chip status-upcoming">Upcoming</span>';
-            if (offered) return '<span class="status-chip status-offer">Offer</span>';
-            return `<span class="status-chip status-pending">${escapeHtml(rawStatus || 'Pending')}</span>`;
-        }
-
-        function getUniqueSorted(values) {
-            return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'en'));
-        }
-
-        function updateDetailFilterOptions(rows) {
-            const brandSelect = document.getElementById('detailBrandFilter');
-            const floorSelect = document.getElementById('detailFloorFilter');
-            const statusSelect = document.getElementById('detailStatusFilter');
-            const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
-            if (!brandSelect || !floorSelect || !statusSelect || !onboardStatusSelect) return;
-
-            const previousBrand = safeTrim(brandSelect.value);
-            const previousFloor = safeTrim(floorSelect.value);
-            const previousStatus = safeTrim(statusSelect.value);
-            const previousOnboardStatus = safeTrim(onboardStatusSelect.value);
-
-            const brandOptions = getUniqueSorted(rows.map(row => safeTrim(row.brand)).filter(Boolean));
-            brandSelect.innerHTML = ['<option value="">All Brand</option>']
-                .concat(brandOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousBrand && brandOptions.includes(previousBrand)) brandSelect.value = previousBrand;
-
-            const scopedRows = rows.filter(row => !brandSelect.value || safeTrim(row.brand) === brandSelect.value);
-            const floorOptions = getUniqueSorted(scopedRows.map(row => safeTrim(row.center)).filter(Boolean));
-            floorSelect.innerHTML = ['<option value="">All Floor</option>']
-                .concat(floorOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousFloor && floorOptions.includes(previousFloor)) floorSelect.value = previousFloor;
-
-            const scopedRowsForStatus = scopedRows.filter(row => !floorSelect.value || safeTrim(row.center) === floorSelect.value);
-            const statusOptions = getUniqueSorted(scopedRowsForStatus.map(row => safeTrim(row.status)).filter(Boolean));
-            statusSelect.innerHTML = ['<option value="">All Status</option>']
-                .concat(statusOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousStatus && statusOptions.includes(previousStatus)) statusSelect.value = previousStatus;
-
-            const scopedRowsForOnboardStatus = scopedRowsForStatus.filter(row => !statusSelect.value || safeTrim(row.status) === statusSelect.value);
-            const onboardStatusOptions = getUniqueSorted(scopedRowsForOnboardStatus.map(row => safeTrim(row.onboardStatus)).filter(Boolean));
-            onboardStatusSelect.innerHTML = ['<option value="">All On Board Status</option>']
-                .concat(onboardStatusOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousOnboardStatus && onboardStatusOptions.includes(previousOnboardStatus)) onboardStatusSelect.value = previousOnboardStatus;
-        }
-
-        function getDetailComparableValue(item, key) {
-            if (key === 'leadDateObj' || key === 'offerDateObj' || key === 'onboardDateObj') {
-                return item?.[key] instanceof Date ? item[key].getTime() : -1;
-            }
-            return safeTrim(item?.[key]).toLowerCase();
-        }
-
-        function updateDetailSortIndicators() {
-            ['leaderName', 'memberName', 'candidateName', 'brand', 'rjnj', 'status', 'leadDateObj', 'offerDateObj', 'onboardDateObj', 'onboardStatus', 'interviewer']
-                .forEach(key => {
-                    const indicator = document.getElementById(`detailSortIndicator-${key}`);
-                    if (!indicator) return;
-                    indicator.textContent = detailSortKey === key ? (detailSortDirection === 'asc' ? '↑' : '↓') : '';
-                });
-        }
-
-        function toggleDetailSort(key) {
-            if (detailSortKey === key) {
-                detailSortDirection = detailSortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                detailSortKey = key;
-                detailSortDirection = key === 'leadDateObj' || key === 'offerDateObj' || key === 'onboardDateObj' ? 'desc' : 'asc';
-            }
-            renderDashboard(false);
-        }
-
-        function resetDetailFilters() {
-            const brandSelect = document.getElementById('detailBrandFilter');
-            const floorSelect = document.getElementById('detailFloorFilter');
-            const statusSelect = document.getElementById('detailStatusFilter');
-            const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
-            if (brandSelect) brandSelect.value = '';
-            if (floorSelect) floorSelect.value = '';
-            if (statusSelect) statusSelect.value = '';
-            if (onboardStatusSelect) onboardStatusSelect.value = '';
-            detailSortKey = 'leadDateObj';
-            detailSortDirection = 'desc';
-            renderDashboard(false);
-        }
-
-        function getNtlValue(row, idx) {
-            return safeTrim(row?.[headersNTL[idx]]);
-        }
-
-        function getS1Value(row, idx) {
-            return safeTrim(row?.[headersS1[idx]]);
-        }
-
-        function buildLeaderDirectory() {
-            const directory = new Map();
-            const teamMembersByLeader = new Map();
-
-            dataNTL.forEach(row => {
-                const leaderName = getNtlValue(row, NTL_IDX.NETWORK_TEAM) || getNtlValue(row, NTL_IDX.THERAPIST);
-                if (!leaderName) return;
-                const key = normalizeKey(leaderName);
-                if (!key) return;
-
-                const leaderFlag = normalizeKey(getNtlValue(row, NTL_IDX.LEADER_JUL)) === 'y' || normalizeKey(getNtlValue(row, NTL_IDX.LEADER_AUG)) === 'y';
-                if (!leaderFlag) return;
-
-                if (!directory.has(key)) {
-                    directory.set(key, {
-                        key,
-                        name: leaderName,
-                        brands: new Set(),
-                        centers: new Set(),
-                        leaderRows: [],
-                        members: []
-                    });
-                }
-
-                const entry = directory.get(key);
-                entry.leaderRows.push(row);
-                entry.brands.add(displayBrand(getNtlValue(row, NTL_IDX.BRAND)));
-                entry.centers.add(getNtlValue(row, NTL_IDX.CENTER));
-            });
-
-            dataNTL.forEach(row => {
-                const teamOwner = getNtlValue(row, NTL_IDX.NETWORK_TEAM);
-                const key = normalizeKey(teamOwner);
-                if (!key || !directory.has(key)) return;
-
-                const member = {
-                    brand: displayBrand(getNtlValue(row, NTL_IDX.BRAND)),
-                    brandKey: normalizeBrand(getNtlValue(row, NTL_IDX.BRAND)),
-                    center: getNtlValue(row, NTL_IDX.CENTER),
-                    therapist: getNtlValue(row, NTL_IDX.THERAPIST),
-                    staffNo: getNtlValue(row, NTL_IDX.STAFF_NO),
-                    position: getNtlValue(row, NTL_IDX.POSITION),
-                    teamOwner
-                };
-
-                const dedupeKey = `${normalizeKey(member.staffNo) || normalizeKey(member.therapist)}|${normalizeKey(member.center)}`;
-                if (!teamMembersByLeader.has(key)) teamMembersByLeader.set(key, new Map());
-                if (!teamMembersByLeader.get(key).has(dedupeKey)) {
-                    teamMembersByLeader.get(key).set(dedupeKey, member);
-                }
-            });
-
-            directory.forEach(entry => {
-                entry.members = Array.from((teamMembersByLeader.get(entry.key) || new Map()).values())
-                    .filter(member => member.staffNo || member.therapist)
-                    .sort((a, b) => a.therapist.localeCompare(b.therapist, 'en'));
-            });
-
-            return Array.from(directory.values()).sort((a, b) => a.name.localeCompare(b.name, 'en'));
-        }
-
-        function getMemberReferralRows(member, range) {
-            const staffNo = safeTrim(member.staffNo);
-            if (!staffNo) return [];
+        function getFilteredRows() {
+            const range = getSelectedDateRange();
+            if (!range) return [];
 
             return dataS1.filter(row => {
-                if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
+                if (!isHrSource(row)) return false;
+                if (!isSelectedPosition(row)) return false;
                 const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
-                if (!leadDate || !range) return false;
+                if (!leadDate) return false;
                 return leadDate >= range.start && leadDate <= range.end;
             });
         }
 
-        function getFilterValues(source = {}) {
+        function updatePositionLabel() {
+            const label = document.getElementById('positionFilterLabel');
+            if (!label) return;
+            if (!selectedPositions.length) {
+                label.textContent = 'No Position';
+            } else if (selectedPositions.length === availablePositions.length) {
+                label.textContent = 'All Position';
+            } else if (selectedPositions.length <= 2) {
+                label.textContent = selectedPositions.join(', ');
+            } else {
+                label.textContent = `${selectedPositions.length} selected`;
+            }
+        }
+
+        function renderPositionMenu() {
+            const container = document.getElementById('positionFilterList');
+            if (!container) return;
+            container.innerHTML = availablePositions.map(position => `
+                <label class="flex items-center gap-3 rounded-2xl px-3 py-2 hover:bg-violet-50 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 accent-violet-600" value="${position}" ${selectedPositions.includes(position) ? 'checked' : ''} onchange="togglePosition('${position}', this.checked)">
+                    <span class="text-sm font-bold text-slate-700">${position}</span>
+                </label>
+            `).join('');
+            updatePositionLabel();
+        }
+
+        function togglePositionMenu() {
+            document.getElementById('positionFilterMenu')?.classList.toggle('hidden');
+        }
+
+        function togglePosition(position, checked) {
+            const next = new Set(selectedPositions);
+            if (checked) next.add(position);
+            else next.delete(position);
+            selectedPositions = availablePositions.filter(item => next.has(item));
+            renderPositionMenu();
+            renderDashboard();
+        }
+
+        function resetFilters() {
+            const start = new Date(2026, 0, 1, 0, 0, 0, 0);
+            const end = new Date(2026, 7, 10, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(start);
+            document.getElementById('studyEnd').value = formatDateToISO(end);
+            selectedPositions = availablePositions.slice();
+            renderPositionMenu();
+            renderDashboard();
+        }
+
+        function createEmptyBrandRow() {
             return {
-                brand: safeTrim(source.brand ?? document.getElementById('brandFilter')?.value),
-                center: safeTrim(source.center ?? document.getElementById('centerFilter')?.value),
-                leader: safeTrim(source.leader ?? document.getElementById('leaderFilter')?.value)
+                cv: 0,
+                offer: 0,
+                onboard: 0,
+                channels: new Map(),
+                interviewers: new Map()
             };
         }
 
-        function getFilteredLeaders(rangeOverride = null, filtersOverride = null) {
-            const range = rangeOverride || getSelectedDateRange();
-            if (!range) return [];
-
-            const filters = getFilterValues(filtersOverride || {});
-
-            return leaderDirectory.map(leader => {
-                const filteredMembers = leader.members.filter(member => {
-                    if (filters.brand && member.brandKey !== filters.brand) return false;
-                    if (filters.center && member.center !== filters.center) return false;
-                    return true;
-                });
-
-                if (!filteredMembers.length) return null;
-                if (filters.leader && leader.key !== filters.leader) return null;
-
-                const memberStats = filteredMembers.map(member => {
-                    const rows = getMemberReferralRows(member, range);
-                    const offer = rows.filter(isOffered).length;
-                    const onboardRows = rows.filter(isOnboard);
-                    const onboard = onboardRows.filter(row => isSameBrandReferral(member, row)).length;
-                    const nonSameBrandOnboard = onboardRows.filter(row => !isSameBrandReferral(member, row)).length;
-                    const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
-                    const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, onboard, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
-                });
-                const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
-                const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
-
-                const detailRows = [];
-                memberStats.forEach(member => {
-                    member.rows.forEach(row => {
-                        const actualOnboarded = isOnboard(row);
-                        const sameBrand = isSameBrandReferral(member, row);
-                        detailRows.push({
-                            leaderKey: leader.key,
-                            leaderName: leader.name,
-                            memberName: member.therapist || '-',
-                            brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
-                            center: member.center || '-',
-                            rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
-                            candidateName: getS1Value(row, S1_IDX.NAME) || '-',
-                            status: getS1Value(row, S1_IDX.STATUS) || '-',
-                            leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
-                            offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
-                            onboardDate: getRecordedOnboardDate(row) || '-',
-                            onboardStatus: getOnboardStatus(row) || '-',
-                            interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
-                            offered: isOffered(row),
-                            onboarded: actualOnboarded,
-                            sameBrand,
-                            sameBrandOnboarded: actualOnboarded && sameBrand,
-                            nonSameBrandOnboarded: actualOnboarded && !sameBrand,
-                            upcomingOnboard: isUpcomingOnboard(row),
-                            leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0),
-                            offerDateObj: parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]) || new Date(0),
-                            onboardDateObj: parseDate(getRecordedOnboardDate(row)) || new Date(0)
-                        });
-                    });
-                });
-
-                detailRows.sort((a, b) => b.leadDateObj - a.leadDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
-
-                return {
-                    key: leader.key,
-                    name: leader.name,
-                    brands: getUniqueSorted(filteredMembers.map(member => member.brand)),
-                    centers: getUniqueSorted(filteredMembers.map(member => member.center)),
-                    teamSize: memberStats.length,
-                    teamMateCount: teamMateStats.length,
-                    lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
-                    offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
-                    onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
-                    nonSameBrandOnboard: memberStats.reduce((sum, member) => sum + member.nonSameBrandOnboard, 0),
-                    upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
-                    leaderSelfStat,
-                    teamMateStats,
-                    memberStats,
-                    detailRows
-                };
-            }).filter(Boolean).sort((a, b) =>
-                b.onboard - a.onboard ||
-                b.offer - a.offer ||
-                b.lead - a.lead ||
-                a.name.localeCompare(b.name, 'en')
-            );
+        function topKeyFromMap(map) {
+            let topKey = '-';
+            let topValue = -1;
+            map.forEach((value, key) => {
+                if (value > topValue) {
+                    topKey = key;
+                    topValue = value;
+                }
+            });
+            return topKey;
         }
 
-        function updateFilterOptions() {
-            const brandSelect = document.getElementById('brandFilter');
-            const centerSelect = document.getElementById('centerFilter');
-            const leaderSelect = document.getElementById('leaderFilter');
-            if (!brandSelect || !centerSelect || !leaderSelect) return;
-
-            const previous = getFilterValues();
-            const allMembers = leaderDirectory.flatMap(leader => leader.members);
-            const brandOptions = getUniqueSorted(allMembers.map(member => member.brandKey));
-            brandSelect.innerHTML = ['<option value="">All Brand</option>']
-                .concat(brandOptions.map(brand => `<option value="${brand}">${displayBrand(brand)}</option>`))
-                .join('');
-            if (brandOptions.includes(previous.brand)) brandSelect.value = previous.brand;
-
-            const scopedMembers = allMembers.filter(member => !brandSelect.value || member.brandKey === brandSelect.value);
-            const centerOptions = getUniqueSorted(scopedMembers.map(member => member.center));
-            centerSelect.innerHTML = ['<option value="">All Centre</option>']
-                .concat(centerOptions.map(center => `<option value="${center}">${center}</option>`))
-                .join('');
-            if (centerOptions.includes(previous.center)) centerSelect.value = previous.center;
-
-            const leaderOptions = leaderDirectory.filter(leader => {
-                const members = leader.members.filter(member => {
-                    if (brandSelect.value && member.brandKey !== brandSelect.value) return false;
-                    if (centerSelect.value && member.center !== centerSelect.value) return false;
-                    return true;
-                });
-                return members.length > 0;
-            });
-
-            leaderSelect.innerHTML = ['<option value="">All Leader</option>']
-                .concat(leaderOptions.map(leader => `<option value="${leader.key}">${leader.name}</option>`))
-                .join('');
-            if (leaderOptions.some(leader => leader.key === previous.leader)) leaderSelect.value = previous.leader;
+        function brandMixLabel(map) {
+            const ordered = ['DERMES', 'REENEX', 'ELYZE', 'OTHER']
+                .map(key => ({ key, value: map.get(key) || 0 }))
+                .filter(entry => entry.value > 0);
+            if (!ordered.length) return '-';
+            return ordered.map(entry => `${entry.key}:${entry.value}`).join(' / ');
         }
 
-        function buildBreakdownLookup(rows) {
-            const lookup = new Map();
-            rows.forEach(row => {
-                lookup.set(safeTrim(row.label), row);
-            });
-            return lookup;
-        }
-
-        function renderSummaryCards(leaders, comparisonLeaders = []) {
-            const memberCount = leaders.reduce((sum, leader) => sum + leader.teamSize, 0);
-            const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
-            const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
-            const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
-            const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
-            const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
-            const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
-            const comparisonOffer = comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
-            const comparisonOnboard = comparisonLeaders.reduce((sum, leader) => sum + leader.onboard, 0);
-            const comparisonUpcoming = comparisonLeaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
-            const totalTarget = leaders.length * 2;
-            const leaderBrandCount = { Dermes: 0, Reenex: 0, Elyze: 0 };
-
-            leaders.forEach(leader => {
-                const brands = new Set((leader.brands || []).map(brand => safeTrim(brand).toLowerCase()));
-                if (brands.has('dermes')) leaderBrandCount.Dermes += 1;
-                if (brands.has('reenex')) leaderBrandCount.Reenex += 1;
-                if (brands.has('elyze')) leaderBrandCount.Elyze += 1;
-            });
-
-            const leaderBrandLines = `
-                <div class="mt-2 grid grid-cols-3 gap-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
-                    <span>Dermes ${formatNumber(leaderBrandCount.Dermes)}</span>
-                    <span>Reenex ${formatNumber(leaderBrandCount.Reenex)}</span>
-                    <span>Elyze ${formatNumber(leaderBrandCount.Elyze)}</span>
-                </div>
-            `;
-
+        function renderSummaryCards(rows, channelRows) {
+            const offered = rows.filter(isOffered).length;
+            const onboarded = rows.filter(isOnboard).length;
             const cards = [
-                { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
-                { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
+                { title: 'Total CV', value: rows.length, note: 'HR source CV cohort', accent: 'var(--brand)', bg: 'var(--brand-soft)' },
+                { title: 'Reached Offer', value: offered, note: formatRate(offered, rows.length), accent: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
+                { title: 'On Board', value: onboarded, note: formatRate(onboarded, rows.length), accent: 'var(--success)', bg: 'var(--success-soft)' },
+                { title: 'Active Channels', value: channelRows.length, note: 'Unique incoming channels', accent: 'var(--warning)', bg: 'var(--warning-soft)' }
+            ];
+
+            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+                <div class="glass-card summary-card p-5" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-right">${card.note}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderQuickInsights(channelRows, brandRows, interviewerRows) {
+            const topChannel = channelRows[0];
+            const topBrand = brandRows[0];
+            const topInterviewer = interviewerRows[0];
+            const insights = [
                 {
-                    title: 'On Board',
-                    value: totalOnboard,
-                    delta: totalOnboard - comparisonOnboard,
-                    note: `
-                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>
-                        <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Non Same Brand = ${formatNumber(totalNonSameBrandOnboard)}</div>
-                    `,
-                    accent: 'var(--success)',
-                    bg: 'var(--success-soft)',
-                    mode: 'ONBOARD',
-                    noteIsHtml: true
+                    title: 'Top Channel',
+                    value: topChannel ? topChannel.name : '-',
+                    note: topChannel ? `${topChannel.cv} CV / ${topChannel.offer} Offer` : 'No records'
                 },
-                { title: 'Upcoming On Board', value: totalUpcomingOnboard, delta: totalUpcomingOnboard - comparisonUpcoming, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
-                { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
-                { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
+                {
+                    title: 'Top Brand',
+                    value: topBrand ? topBrand.brand : '-',
+                    note: topBrand ? `${topBrand.cv} CV / ${topBrand.onboard} On Board` : 'No records'
+                },
+                {
+                    title: 'Top Interviewer',
+                    value: topInterviewer ? topInterviewer.name : '-',
+                    note: topInterviewer ? `${topInterviewer.cv} CV / ${topInterviewer.onboard} On Board` : 'No records'
+                },
+                {
+                    title: 'Selected Position',
+                    value: !selectedPositions.length || selectedPositions.length === availablePositions.length ? 'All Position' : `${selectedPositions.length} selected`,
+                    note: 'Global filter for this page'
+                }
             ];
 
-            const topCards = cards.filter(card => card.title === 'Network Team Leader' || card.title === 'Team Members ( Include Network Team Leader )');
-            const bottomCards = cards.filter(card => card.title !== 'Network Team Leader' && card.title !== 'Team Members ( Include Network Team Leader )');
-            const renderCard = card => `
-                <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
-                    <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
-                        <div class="flex items-baseline justify-center gap-2 text-center">
-                            <div class="text-4xl font-black data-font text-slate-900 text-center">${formatNumber(card.value)}</div>
-                            ${typeof card.delta === 'number' ? renderDeltaLabel(card.delta) : ''}
-                        </div>
-                        ${card.noteIsHtml
-                            ? `<div class="w-full text-center">${card.note}</div>`
-                            : (card.note ? `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${card.note}</div>` : '')}
-                    </div>
-                </button>
-            `;
-
-            document.getElementById('summaryCards').innerHTML = `
-                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-5">
-                    ${topCards.map(renderCard).join('')}
+            document.getElementById('quickInsights').innerHTML = insights.map(item => `
+                <div class="rounded-2xl border border-white/80 bg-white/70 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${item.title}</p>
+                    <div class="mt-2 text-lg font-black text-slate-900">${item.value}</div>
+                    <p class="mt-1 text-xs font-bold text-slate-500">${item.note}</p>
                 </div>
-                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-                    ${bottomCards.map(renderCard).join('')}
-                </div>
-            `;
-        }
-
-        function focusLeader(leaderKey, shouldScroll = true) {
-            currentDetailScope = 'LEADER';
-            selectedLeaderKey = leaderKey || '';
-            renderDashboard(false);
-            if (shouldScroll) {
-                document.getElementById('leaderPerformanceSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        function focusSummaryDetail(mode = 'LEAD') {
-            currentDetailScope = 'SUMMARY';
-            currentSummaryDetailMode = mode;
-            renderDashboard(false);
-            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function focusFloorDetail(floorLabel = '', mode = 'LEAD') {
-            currentDetailScope = 'SUMMARY';
-            currentSummaryDetailMode = mode;
-            renderDashboard(false);
-
-            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
-            const detailBrandFilter = document.getElementById('detailBrandFilter');
-            const detailFloorFilter = document.getElementById('detailFloorFilter');
-            const detailStatusFilter = document.getElementById('detailStatusFilter');
-            const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
-            const activeBrand = safeTrim(floorSectionBrandFilter?.value);
-
-            if (detailBrandFilter) {
-                detailBrandFilter.value = '';
-                if (activeBrand && Array.from(detailBrandFilter.options).some(option => option.value === activeBrand)) {
-                    detailBrandFilter.value = activeBrand;
-                }
-            }
-
-            renderDashboard(false);
-
-            if (detailFloorFilter) {
-                detailFloorFilter.value = '';
-                if (floorLabel && Array.from(detailFloorFilter.options).some(option => option.value === floorLabel)) {
-                    detailFloorFilter.value = floorLabel;
-                }
-            }
-
-            if (detailStatusFilter) detailStatusFilter.value = '';
-            if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
-
-            renderDashboard(false);
-            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function toggleFloorSort(key = 'label') {
-            if (floorSortKey === key) {
-                floorSortDirection = floorSortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                floorSortKey = key;
-                floorSortDirection = 'asc';
-            }
-            renderDashboard(false);
-        }
-
-        function getFloorSortIndicator(key) {
-            if (floorSortKey !== key) return '<span class="text-[11px] opacity-40">↕</span>';
-            return `<span class="text-[11px]">${floorSortDirection === 'asc' ? '↑' : '↓'}</span>`;
-        }
-
-        function renderFloorTableHeader() {
-            const headerRow = document.querySelector('#floorTableBody')?.closest('table')?.querySelector('thead tr');
-            if (!headerRow) return;
-
-            const headers = [
-                { key: 'label', label: 'Floor / Centre', align: 'left' },
-                { key: 'brandLabel', label: 'Brand Mix', align: 'left' },
-                { key: 'networkTeams', label: 'Network Teams', align: 'center' },
-                { key: 'members', label: 'Team Members', align: 'center' },
-                { key: 'lead', label: 'Lead', align: 'center' },
-                { key: 'offer', label: 'Offer', align: 'center' },
-                { key: 'onboard', label: 'On Board', align: 'center' },
-                { key: 'offerAchieveRate', label: 'Offer Achieve Rate', align: 'center' },
-                { key: 'onboardAchieveRate', label: 'On Board Achieve Rate', align: 'center' }
-            ];
-
-            headerRow.innerHTML = headers.map(({ key, label, align }) => `
-                <th class="${align === 'left' ? 'px-5 py-4 text-left' : 'px-4 py-4 text-center'}">
-                    <button type="button" onclick="toggleFloorSort('${key}')" class="inline-flex items-center ${align === 'left' ? 'gap-2' : 'justify-center gap-2'} transition hover:text-violet-700">
-                        <span>${label}</span>
-                        ${getFloorSortIndicator(key)}
-                    </button>
-                </th>
             `).join('');
         }
 
-        function getFloorSortValue(row, key) {
-            switch (key) {
-                case 'brandLabel':
-                    return Array.from(row.brands || []).join(', ') || '-';
-                case 'networkTeams':
-                    return row.leaders?.size || 0;
-                case 'members':
-                    return row.members || 0;
-                case 'lead':
-                    return row.lead || 0;
-                case 'offer':
-                    return row.offer || 0;
-                case 'onboard':
-                    return row.onboard || 0;
-                case 'offerAchieveRate':
-                    return row.leaders?.size ? row.offer / row.leaders.size : 0;
-                case 'onboardAchieveRate':
-                    return row.leaders?.size ? row.onboard / row.leaders.size : 0;
-                case 'label':
-                default:
-                    return row.label || '';
+        function renderChannelTable(rows) {
+            const body = document.getElementById('channelTableBody');
+            const meta = document.getElementById('channelMeta');
+            meta.textContent = `${rows.length} active channels under current filters`;
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-sm font-black text-slate-400">No HR channel data in this date / position selection.</td></tr>`;
+                return;
             }
+
+            body.innerHTML = rows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left text-slate-900 font-black">${row.name}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.offer, row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.onboard, row.cv)}</td>
+                    <td class="px-5 py-4 text-left">${row.mainBrand}</td>
+                </tr>
+            `).join('');
         }
 
-        function summarizeBreakdowns(leaders) {
-            const brandMap = new Map();
-            const floorMap = new Map();
-
-            leaders.forEach(leader => {
-                leader.memberStats.forEach(member => {
-                    const brandKey = member.brandKey || 'OTHER';
-                    if (!brandMap.has(brandKey)) {
-                        brandMap.set(brandKey, {
-                            label: member.brand || 'Other',
-                            leaders: new Set(),
-                            members: 0,
-                            lead: 0,
-                            offer: 0,
-                            onboard: 0
-                        });
-                    }
-
-                    const brandEntry = brandMap.get(brandKey);
-                    brandEntry.leaders.add(leader.name);
-                    brandEntry.members += 1;
-                    brandEntry.lead += member.lead;
-                    brandEntry.offer += member.offer;
-                    brandEntry.onboard += member.onboard;
-
-                    const floorKey = member.center || '-';
-                    if (!floorMap.has(floorKey)) {
-                        floorMap.set(floorKey, {
-                            label: floorKey,
-                            brands: new Set(),
-                            leaders: new Set(),
-                            members: 0,
-                            lead: 0,
-                            offer: 0,
-                            onboard: 0
-                        });
-                    }
-
-                    const floorEntry = floorMap.get(floorKey);
-                    floorEntry.brands.add(member.brand || 'Other');
-                    floorEntry.leaders.add(leader.name);
-                    floorEntry.members += 1;
-                    floorEntry.lead += member.lead;
-                    floorEntry.offer += member.offer;
-                    floorEntry.onboard += member.onboard;
-                });
-            });
-
-            const brandRows = Array.from(brandMap.values()).sort((a, b) =>
-                b.onboard - a.onboard ||
-                b.offer - a.offer ||
-                b.lead - a.lead ||
-                a.label.localeCompare(b.label, 'en')
-            );
-
-            const floorRows = Array.from(floorMap.values()).sort((a, b) =>
-                b.onboard - a.onboard ||
-                b.offer - a.offer ||
-                b.lead - a.lead ||
-                a.label.localeCompare(b.label, 'en')
-            );
-
-            return { brandRows, floorRows };
-        }
-
-        function renderBrandTable(rows, comparisonRows = []) {
+        function renderBrandTable(rows) {
             const body = document.getElementById('brandTableBody');
-            const meta = document.getElementById('brandMeta');
-            const comparisonLookup = buildBreakdownLookup(comparisonRows);
-            meta.textContent = `${rows.length} brands under current filters`;
-
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
+                body.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand recruitment data in this selection.</td></tr>`;
                 return;
             }
 
-            body.innerHTML = rows.map(row => {
-                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
-                const leadDelta = row.lead - (comparisonRow?.lead || 0);
-                const offerDelta = row.offer - (comparisonRow?.offer || 0);
-                const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
-                return `
+            body.innerHTML = rows.map(row => `
                 <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
-                </tr>
-            `; }).join('');
-        }
-
-        function updateFloorSectionBrandOptions(rows) {
-            const select = document.getElementById('floorSectionBrandFilter');
-            if (!select) return;
-            const previous = safeTrim(select.value);
-            const options = Array.from(new Set(
-                rows.flatMap(row => Array.from(row.brands || []))
-            )).sort((a, b) => a.localeCompare(b, 'en'));
-
-            select.innerHTML = ['<option value="">All Brand</option>']
-                .concat(options.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-
-            if (previous && options.includes(previous)) {
-                select.value = previous;
-            }
-        }
-
-        function updateNetworkSectionFilterOptions(leaders) {
-            const brandSelect = document.getElementById('networkSectionBrandFilter');
-            const floorSelect = document.getElementById('networkSectionFloorFilter');
-            if (!brandSelect || !floorSelect) return;
-
-            const previousBrand = safeTrim(brandSelect.value);
-            const previousFloor = safeTrim(floorSelect.value);
-
-            const brandOptions = Array.from(new Set(
-                leaders.flatMap(leader => leader.brands || [])
-            )).sort((a, b) => a.localeCompare(b, 'en'));
-
-            brandSelect.innerHTML = ['<option value="">All Brand</option>']
-                .concat(brandOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousBrand && brandOptions.includes(previousBrand)) {
-                brandSelect.value = previousBrand;
-            }
-
-            const scopedLeaders = leaders.filter(leader =>
-                !brandSelect.value || (leader.brands || []).includes(brandSelect.value)
-            );
-            const floorOptions = Array.from(new Set(
-                scopedLeaders.flatMap(leader => leader.centers || [])
-            )).sort((a, b) => a.localeCompare(b, 'en'));
-
-            floorSelect.innerHTML = ['<option value="">All Floor</option>']
-                .concat(floorOptions.map(option => `<option value="${option}">${option}</option>`))
-                .join('');
-            if (previousFloor && floorOptions.includes(previousFloor)) {
-                floorSelect.value = previousFloor;
-            }
-        }
-
-        function renderFloorTable(rows, comparisonRows = []) {
-            const body = document.getElementById('floorTableBody');
-            const meta = document.getElementById('floorMeta');
-            const indicator = document.getElementById('floorSortIndicator');
-            updateFloorSectionBrandOptions(rows);
-            renderFloorTableHeader();
-            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
-            const filteredRows = floorBrandFilterValue
-                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
-                : rows.slice();
-            const filteredComparisonRows = floorBrandFilterValue
-                ? comparisonRows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
-                : comparisonRows.slice();
-            const comparisonLookup = buildBreakdownLookup(filteredComparisonRows);
-            meta.textContent = `${filteredRows.length} floors under current filters`;
-            if (indicator) {
-                indicator.textContent = floorSortDirection === 'asc' ? '↑' : '↓';
-            }
-
-            if (!filteredRows.length) {
-                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
-                return;
-            }
-
-            const sortedRows = filteredRows.slice().sort((a, b) => {
-                const valueA = getFloorSortValue(a, floorSortKey);
-                const valueB = getFloorSortValue(b, floorSortKey);
-                let compared = 0;
-                if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    compared = valueA - valueB;
-                } else {
-                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
-                }
-                return floorSortDirection === 'asc' ? compared : -compared;
-            });
-
-            body.innerHTML = sortedRows.map(row => {
-                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
-                const leadDelta = row.lead - (comparisonRow?.lead || 0);
-                const offerDelta = row.offer - (comparisonRow?.offer || 0);
-                const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
-                return `
-                <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
-                    <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
-                </tr>
-            `; }).join('');
-        }
-
-        function renderNetworkTable(leaders, comparisonLeaders = []) {
-            const body = document.getElementById('networkTableBody');
-            const meta = document.getElementById('networkMeta');
-            updateNetworkSectionFilterOptions(leaders);
-
-            const networkBrandFilterValue = safeTrim(document.getElementById('networkSectionBrandFilter')?.value);
-            const networkFloorFilterValue = safeTrim(document.getElementById('networkSectionFloorFilter')?.value);
-            const filteredLeaders = leaders.filter(leader => {
-                if (networkBrandFilterValue && !(leader.brands || []).includes(networkBrandFilterValue)) return false;
-                if (networkFloorFilterValue && !(leader.centers || []).includes(networkFloorFilterValue)) return false;
-                return true;
-            });
-            const filteredComparisonLeaders = comparisonLeaders.filter(leader => {
-                if (networkBrandFilterValue && !(leader.brands || []).includes(networkBrandFilterValue)) return false;
-                if (networkFloorFilterValue && !(leader.centers || []).includes(networkFloorFilterValue)) return false;
-                return true;
-            });
-            const comparisonLookup = new Map(filteredComparisonLeaders.map(leader => [leader.key, leader]));
-
-            meta.textContent = `${filteredLeaders.length} network teams under current filters`;
-
-            if (!filteredLeaders.length) {
-                body.innerHTML = '<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No network team records in this selection.</td></tr>';
-                return;
-            }
-
-            body.innerHTML = filteredLeaders.map(leader => {
-                const comparisonLeader = comparisonLookup.get(leader.key);
-                const leadDelta = leader.lead - (comparisonLeader?.lead || 0);
-                const offerDelta = leader.offer - (comparisonLeader?.offer || 0);
-                const onboardDelta = leader.onboard - (comparisonLeader?.onboard || 0);
-                return `
-                <tr class="clickable-row ${leader.key === selectedLeaderKey ? 'active' : ''}" onclick="focusLeader('${leader.key}')">
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${leader.name}</td>
-                    <td class="px-5 py-4 text-left text-slate-700">${leader.brands.join(', ') || '-'}</td>
-                    <td class="px-5 py-4 text-left text-slate-700">${leader.centers.join(', ') || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.teamSize)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.lead)} ${renderDeltaLabel(leadDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.offer)} ${renderDeltaLabel(offerDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.onboard)} ${renderDeltaLabel(onboardDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.offer, 1)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.onboard, 1)}</td>
-                    <td class="px-5 py-4 text-center">
-                        <button type="button" onclick="event.stopPropagation(); focusLeader('${leader.key}')" class="rounded-full bg-sky-600 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">Review Details</button>
-                    </td>
-                </tr>
-            `; }).join('');
-        }
-
-        function renderLeaderPerformance(leaders) {
-            const section = document.getElementById('leaderPerformanceSection');
-            const title = document.getElementById('leaderPerformanceTitle');
-            const meta = document.getElementById('leaderPerformanceMeta');
-            const cards = document.getElementById('leaderPerformanceCards');
-            const teamMateMeta = document.getElementById('teamMatePerformanceMeta');
-            const teamMateBody = document.getElementById('teamMatePerformanceBody');
-            if (!section || !title || !meta || !cards || !teamMateMeta || !teamMateBody) return;
-
-            if (!leaders.length || currentDetailScope !== 'LEADER') {
-                section.classList.add('hidden');
-                title.textContent = 'Network Team Performance';
-                meta.textContent = '-';
-                cards.innerHTML = '';
-                teamMateMeta.textContent = '-';
-                teamMateBody.innerHTML = '';
-                return;
-            }
-
-            const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
-            selectedLeaderKey = active.key;
-            section.classList.remove('hidden');
-
-            const leaderSelfStat = active.memberStats.find(member => normalizeKey(member.therapist) === active.key) || null;
-            const teamMateStats = active.memberStats
-                .filter(member => !leaderSelfStat || member !== leaderSelfStat)
-                .sort((a, b) =>
-                    b.onboard - a.onboard ||
-                    b.offer - a.offer ||
-                    b.lead - a.lead ||
-                    a.therapist.localeCompare(b.therapist, 'en')
-                );
-            const performanceRows = [];
-            if (leaderSelfStat) {
-                performanceRows.push({ ...leaderSelfStat, roleLabel: 'Leader' });
-            }
-            teamMateStats.forEach(member => {
-                performanceRows.push({ ...member, roleLabel: 'Team Mate' });
-            });
-
-            title.textContent = `${active.name} Network Team Performance`;
-            meta.textContent = `${active.brands.join(', ') || '-'} / ${active.centers.join(', ') || '-'} / ${formatNumber(active.teamSize)} team members`;
-
-            const performanceCards = [
-                { title: 'Lead', value: active.lead || 0, accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', note: 'Whole network team performance' },
-                { title: 'Offer', value: active.offer || 0, accent: 'var(--warning)', bg: 'var(--warning-soft)', note: 'Whole network team performance' },
-                { title: 'On Board', value: active.onboard || 0, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'Whole network team performance' },
-                { title: 'Upcoming On Board', value: active.upcomingOnboard || 0, accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', note: 'Whole network team performance' },
-                { title: 'Team Size', value: active.teamSize, accent: 'var(--brand)', bg: 'var(--brand-soft)', note: `${formatNumber(active.teamSize)} total (leader + members)` }
-            ];
-
-            cards.innerHTML = performanceCards.map(card => `
-                <div class="glass-card p-4" style="border-left:6px solid ${card.accent}; background:${card.bg};">
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
-                    <div class="mt-3 flex flex-col items-center justify-center gap-2 text-center">
-                        <div class="text-3xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
-                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            teamMateMeta.textContent = leaderSelfStat
-                ? `${formatNumber(performanceRows.length)} rows (${formatNumber(teamMateStats.length)} team mates + 1 leader)`
-                : `${formatNumber(performanceRows.length)} rows (${formatNumber(teamMateStats.length)} team mates)`;
-
-            if (!performanceRows.length) {
-                teamMateBody.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No mapped network team performance under this network team.</td></tr>';
-                return;
-            }
-
-            teamMateBody.innerHTML = performanceRows.map(member => `
-                <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left font-black ${member.roleLabel === 'Leader' ? 'text-sky-700' : 'text-slate-500'}">${member.roleLabel}</td>
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${member.therapist || '-'}</td>
-                    <td class="px-5 py-4 text-left">${member.position || '-'}</td>
-                    <td class="px-5 py-4 text-left">${member.brand || '-'}</td>
-                    <td class="px-5 py-4 text-left">${member.center || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.onboard)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.upcomingOnboard)}</td>
+                    <td class="px-5 py-4 text-left text-slate-900 font-black">${row.brand}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.offer, row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.onboard, row.cv)}</td>
+                    <td class="px-5 py-4 text-left">${row.topChannel}</td>
+                    <td class="px-5 py-4 text-left">${row.topInterviewer}</td>
                 </tr>
             `).join('');
         }
 
-        function renderDetailTable(leaders) {
-            const body = document.getElementById('detailTableBody');
-            const title = document.getElementById('detailTitle');
-            const meta = document.getElementById('detailMeta');
-
-            if (!leaders.length) {
-                title.textContent = 'Leader Candidate Detail';
-                meta.textContent = 'No selection';
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
-                return;
-            }
-
-            const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
-            selectedLeaderKey = active.key;
-
-            title.textContent = `${active.name} Candidate Detail`;
-            meta.textContent = `${formatNumber(active.detailRows.length)} candidates / ${formatNumber(active.teamSize)} team members`;
-
-            if (!active.detailRows.length) {
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">This leader has no candidate records in the selected date range.</td></tr>';
-                return;
-            }
-
-            body.innerHTML = active.detailRows.map(item => `
-                <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
-                    <td class="px-5 py-4 text-left">${item.memberName}</td>
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
-                    <td class="px-5 py-4 text-left">${item.brand}</td>
-                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
-                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
-                    <td class="px-5 py-4 text-left">${item.leadDate}</td>
-                    <td class="px-5 py-4 text-left">${item.offerDate}</td>
-                    <td class="px-5 py-4 text-left">${item.onboardDate}</td>
-                    <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
-                    <td class="px-5 py-4 text-left">${item.interviewer}</td>
-                </tr>
-            `).join('');
-        }
-
-        function renderFloorTableLegacy(rows) {
-            const body = document.getElementById('floorTableBody');
-            const meta = document.getElementById('floorMeta');
-            updateFloorSectionBrandOptions(rows);
-            renderFloorTableHeader();
-            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
-            const filteredRows = floorBrandFilterValue
-                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
-                : rows.slice();
-
-            meta.textContent = `${filteredRows.length} floors under current filters`;
-
-            if (!filteredRows.length) {
-                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
-                return;
-            }
-
-            const sortedRows = filteredRows.slice().sort((a, b) => {
-                const valueA = getFloorSortValue(a, floorSortKey);
-                const valueB = getFloorSortValue(b, floorSortKey);
-                let compared = 0;
-
-                if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    compared = valueA - valueB;
-                } else {
-                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
-                }
-
-                return floorSortDirection === 'asc' ? compared : -compared;
-            });
-
-            body.innerHTML = sortedRows.map(row => `
-                <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
-                    <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
-                </tr>
-            `).join('');
-        }
-
-        function renderDetailTable(leaders) {
-            const body = document.getElementById('detailTableBody');
-            const title = document.getElementById('detailTitle');
-            const meta = document.getElementById('detailMeta');
-
-            if (!leaders.length) {
-                title.textContent = 'Leader Candidate Detail';
-                meta.textContent = 'No selection';
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
-                return;
-            }
-
-            let rows = [];
-            let titleText = 'Leader Candidate Detail';
-            let metaText = '';
-
-            if (currentDetailScope === 'SUMMARY') {
-                rows = leaders.flatMap(leader => leader.detailRows);
-                if (currentSummaryDetailMode === 'OFFER') {
-                    rows = rows.filter(item => item.offered);
-                    titleText = 'Network Team Leader Offer Detail';
-                } else if (currentSummaryDetailMode === 'ONBOARD') {
-                    rows = rows.filter(item => item.sameBrandOnboarded);
-                    titleText = 'Network Team Leader On Board Detail';
-                } else if (currentSummaryDetailMode === 'UPCOMING') {
-                    rows = rows.filter(item => item.upcomingOnboard);
-                    titleText = 'Network Team Leader Upcoming On Board Detail';
-                } else if (currentSummaryDetailMode === 'ALL') {
-                    titleText = 'Network Team Leader Candidate Detail';
-                } else {
-                    titleText = 'Network Team Leader Lead Detail';
-                }
-                metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(leaders.length)} network teams`;
-            } else {
-                const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
-                selectedLeaderKey = active.key;
-                rows = active.detailRows;
-                titleText = `${active.name} Candidate Detail`;
-                metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(active.teamSize)} team members`;
-            }
-
-            title.textContent = titleText;
-            updateDetailFilterOptions(rows);
-
-            const detailBrandFilterValue = safeTrim(document.getElementById('detailBrandFilter')?.value);
-            const detailFloorFilterValue = safeTrim(document.getElementById('detailFloorFilter')?.value);
-            const detailStatusFilterValue = safeTrim(document.getElementById('detailStatusFilter')?.value);
-            const detailOnboardStatusFilterValue = safeTrim(document.getElementById('detailOnboardStatusFilter')?.value);
-            rows = rows.filter(item => {
-                if (detailBrandFilterValue && safeTrim(item.brand) !== detailBrandFilterValue) return false;
-                if (detailFloorFilterValue && safeTrim(item.center) !== detailFloorFilterValue) return false;
-                if (detailStatusFilterValue && safeTrim(item.status) !== detailStatusFilterValue) return false;
-                if (detailOnboardStatusFilterValue && safeTrim(item.onboardStatus) !== detailOnboardStatusFilterValue) return false;
-                return true;
-            });
-
-            rows = rows.slice().sort((a, b) => {
-                const valueA = getDetailComparableValue(a, detailSortKey);
-                const valueB = getDetailComparableValue(b, detailSortKey);
-                let compared = 0;
-
-                if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    compared = valueA - valueB;
-                } else {
-                    compared = valueA.localeCompare(valueB, 'en');
-                }
-
-                if (compared === 0) {
-                    compared = (b.leadDateObj?.getTime?.() || 0) - (a.leadDateObj?.getTime?.() || 0);
-                }
-
-                return detailSortDirection === 'asc' ? compared : -compared;
-            });
-
-            meta.textContent = `${formatNumber(rows.length)} filtered candidates / ${metaText}`;
-            updateDetailSortIndicators();
-
+        function renderInterviewerTable(rows) {
+            const body = document.getElementById('interviewerTableBody');
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                body.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">No interviewer data in this selection.</td></tr>`;
                 return;
             }
 
-            body.innerHTML = rows.map(item => `
+            body.innerHTML = rows.map(row => `
                 <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
-                    <td class="px-5 py-4 text-left">${item.memberName}</td>
-                    <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
-                    <td class="px-5 py-4 text-left">${item.brand}</td>
-                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
-                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
-                    <td class="px-5 py-4 text-left">${item.leadDate}</td>
-                    <td class="px-5 py-4 text-left">${item.offerDate}</td>
-                    <td class="px-5 py-4 text-left">${item.onboardDate}</td>
-                    <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
-                    <td class="px-5 py-4 text-left">${item.interviewer}</td>
+                    <td class="px-5 py-4 text-left text-slate-900 font-black">${row.name}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.offer)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.offer, row.cv)}</td>
+                    <td class="px-4 py-4 text-right data-font">${formatRate(row.onboard, row.cv)}</td>
+                    <td class="px-5 py-4 text-left">${row.topChannel}</td>
+                    <td class="px-5 py-4 text-left">${row.brandMix}</td>
                 </tr>
             `).join('');
         }
 
-        function renderDashboard(keepScroll = false) {
-            const leaders = getFilteredLeaders();
-            const { brandRows, floorRows } = summarizeBreakdowns(leaders);
-            const selectedRange = getSelectedDateRange();
-            const comparisonRange = getComparisonDateRange(selectedRange);
-            const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
-            const { brandRows: comparisonBrandRows, floorRows: comparisonFloorRows } = summarizeBreakdowns(comparisonLeaders);
-            if (!leaders.length) {
-                selectedLeaderKey = '';
-            } else if (!leaders.some(leader => leader.key === selectedLeaderKey)) {
-                selectedLeaderKey = leaders[0].key;
-            }
-            renderSummaryCards(leaders, comparisonLeaders);
-            renderBrandTable(brandRows, comparisonBrandRows);
-            renderFloorTable(floorRows, comparisonFloorRows);
-            renderNetworkTable(leaders, comparisonLeaders);
-            renderLeaderPerformance(leaders);
-            renderDetailTable(leaders);
+        function summarizeRows(rows) {
+            const channelMap = new Map();
+            const brandMap = new Map([
+                ['DERMES', createEmptyBrandRow()],
+                ['REENEX', createEmptyBrandRow()],
+                ['ELYZE', createEmptyBrandRow()],
+                ['OTHER', createEmptyBrandRow()]
+            ]);
+            const interviewerMap = new Map();
+
+            rows.forEach(row => {
+                const brand = normalizeBrand(row?.[headersS1[S1_IDX.BRAND]]);
+                const channel = cleanChannel(row);
+                const interviewer = cleanInterviewer(row);
+                const offered = isOffered(row);
+                const onboarded = isOnboard(row);
+
+                if (!channelMap.has(channel)) {
+                    channelMap.set(channel, { name: channel, cv: 0, offer: 0, onboard: 0, brandMix: new Map() });
+                }
+                const channelItem = channelMap.get(channel);
+                channelItem.cv += 1;
+                if (offered) channelItem.offer += 1;
+                if (onboarded) channelItem.onboard += 1;
+                channelItem.brandMix.set(brand, (channelItem.brandMix.get(brand) || 0) + 1);
+
+                const brandItem = brandMap.get(brand);
+                brandItem.cv += 1;
+                if (offered) brandItem.offer += 1;
+                if (onboarded) brandItem.onboard += 1;
+                brandItem.channels.set(channel, (brandItem.channels.get(channel) || 0) + 1);
+                brandItem.interviewers.set(interviewer, (brandItem.interviewers.get(interviewer) || 0) + 1);
+
+                if (!interviewerMap.has(interviewer)) {
+                    interviewerMap.set(interviewer, { name: interviewer, cv: 0, offer: 0, onboard: 0, channels: new Map(), brands: new Map() });
+                }
+                const interviewerItem = interviewerMap.get(interviewer);
+                interviewerItem.cv += 1;
+                if (offered) interviewerItem.offer += 1;
+                if (onboarded) interviewerItem.onboard += 1;
+                interviewerItem.channels.set(channel, (interviewerItem.channels.get(channel) || 0) + 1);
+                interviewerItem.brands.set(brand, (interviewerItem.brands.get(brand) || 0) + 1);
+            });
+
+            const channelRows = Array.from(channelMap.values())
+                .map(item => ({ ...item, mainBrand: topKeyFromMap(item.brandMix) }))
+                .sort((a, b) => b.cv - a.cv || b.offer - a.offer || a.name.localeCompare(b.name));
+
+            const brandRows = Array.from(brandMap.entries())
+                .map(([brand, item]) => ({
+                    brand,
+                    cv: item.cv,
+                    offer: item.offer,
+                    onboard: item.onboard,
+                    topChannel: topKeyFromMap(item.channels),
+                    topInterviewer: topKeyFromMap(item.interviewers)
+                }))
+                .sort((a, b) => b.cv - a.cv || a.brand.localeCompare(b.brand));
+
+            const interviewerRows = Array.from(interviewerMap.values())
+                .map(item => ({
+                    ...item,
+                    topChannel: topKeyFromMap(item.channels),
+                    brandMix: brandMixLabel(item.brands)
+                }))
+                .sort((a, b) => b.cv - a.cv || b.offer - a.offer || a.name.localeCompare(b.name));
+
+            return { channelRows, brandRows, interviewerRows };
+        }
+
+        function renderDashboard() {
+            const rows = getFilteredRows();
+            const { channelRows, brandRows, interviewerRows } = summarizeRows(rows);
+            renderSummaryCards(rows, channelRows);
+            renderChannelTable(channelRows);
+            renderBrandTable(brandRows);
+            renderInterviewerTable(interviewerRows);
+            renderQuickInsights(channelRows, brandRows, interviewerRows);
 
             const loading = document.getElementById('loadingState');
             if (loading) {
                 const range = getSelectedDateRange();
                 const fromLabel = range ? formatDateAsDMonY(range.start) : '-';
                 const toLabel = range ? formatDateAsDMonY(new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate())) : '-';
-                loading.textContent = `Showing Network Team Leader performance from ${fromLabel} to ${toLabel}.`;
-            }
-
-            if (!keepScroll) return;
-            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function resetFilters() {
-            const today = new Date();
-            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
-            document.getElementById('studyStart').value = formatDateToISO(monthStart);
-            document.getElementById('studyEnd').value = formatDateToISO(today);
-            document.getElementById('brandFilter').value = '';
-            updateFilterOptions();
-            document.getElementById('centerFilter').value = '';
-            updateFilterOptions();
-            document.getElementById('leaderFilter').value = '';
-            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
-            if (floorSectionBrandFilter) floorSectionBrandFilter.value = '';
-            const networkSectionBrandFilter = document.getElementById('networkSectionBrandFilter');
-            if (networkSectionBrandFilter) networkSectionBrandFilter.value = '';
-            const networkSectionFloorFilter = document.getElementById('networkSectionFloorFilter');
-            if (networkSectionFloorFilter) networkSectionFloorFilter.value = '';
-            const detailBrandFilter = document.getElementById('detailBrandFilter');
-            if (detailBrandFilter) detailBrandFilter.value = '';
-            const detailFloorFilter = document.getElementById('detailFloorFilter');
-            if (detailFloorFilter) detailFloorFilter.value = '';
-            detailSortKey = 'leadDateObj';
-            detailSortDirection = 'desc';
-            selectedLeaderKey = '';
-            renderDashboard(false);
-        }
-
-        async function fetchAllSheets() {
-            const sheet1CsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
-            const ntlCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}`;
-
-            try {
-                const [sheet1Response, ntlResponse] = await Promise.all([
-                    fetch(`${sheet1CsvUrl}&t=${Date.now()}`),
-                    fetch(`${ntlCsvUrl}&t=${Date.now()}`)
-                ]);
-                if (!sheet1Response.ok || !ntlResponse.ok) throw new Error('Fetch failed');
-                return Promise.all([sheet1Response.text(), ntlResponse.text()]);
-            } catch (error) {
-                console.warn('Fetch failed, fallback to JSONP:', error);
-                return Promise.all([
-                    loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
-                    loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID)
-                ]);
+                loading.textContent = `Showing ${formatNumber(rows.length)} HR CV records from ${fromLabel} to ${toLabel}.`;
             }
         }
 
         async function init() {
-            const today = new Date();
-            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
-            document.getElementById('studyStart').value = formatDateToISO(monthStart);
-            document.getElementById('studyEnd').value = formatDateToISO(today);
+            const defaultStart = new Date(2026, 0, 1, 0, 0, 0, 0);
+            const defaultEnd = new Date(2026, 7, 10, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(defaultStart);
+            document.getElementById('studyEnd').value = formatDateToISO(defaultEnd);
 
-            ['studyStart', 'studyEnd', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
-                document.getElementById(id)?.addEventListener('change', () => {
-                    if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
-                    if (id === 'detailBrandFilter') {
-                        const floorFilter = document.getElementById('detailFloorFilter');
-                        if (floorFilter) floorFilter.value = '';
-                        const statusFilter = document.getElementById('detailStatusFilter');
-                        if (statusFilter) statusFilter.value = '';
-                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
-                        if (onboardStatusFilter) onboardStatusFilter.value = '';
-                    }
-                    if (id === 'detailFloorFilter') {
-                        const statusFilter = document.getElementById('detailStatusFilter');
-                        if (statusFilter) statusFilter.value = '';
-                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
-                        if (onboardStatusFilter) onboardStatusFilter.value = '';
-                    }
-                    if (id === 'detailStatusFilter') {
-                        const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
-                        if (onboardStatusFilter) onboardStatusFilter.value = '';
-                    }
-                    if (id === 'networkSectionBrandFilter') {
-                        const floorFilter = document.getElementById('networkSectionFloorFilter');
-                        if (floorFilter) floorFilter.value = '';
-                    }
-                    if (id === 'networkSectionBrandFilter' || id === 'networkSectionFloorFilter') {
-                        currentDetailScope = 'SUMMARY';
-                        currentSummaryDetailMode = 'LEAD';
-                    }
-                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter') {
-                        selectedLeaderKey = '';
-                    }
-                    renderDashboard(false);
-                });
+            document.getElementById('positionFilterGroup')?.addEventListener('click', event => event.stopPropagation());
+            document.addEventListener('click', event => {
+                const group = document.getElementById('positionFilterGroup');
+                if (group && !group.contains(event.target)) {
+                    document.getElementById('positionFilterMenu')?.classList.add('hidden');
+                }
             });
 
+            document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
+            document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
+
             try {
-                const [sheet1Text, ntlText] = await fetchAllSheets();
-                const [sheet1Results, ntlResults] = await Promise.all([parseCsv(sheet1Text), parseCsv(ntlText)]);
+                const sheetText = await fetchSheetText();
+                Papa.parse(sheetText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: result => {
+                        headersS1 = result.meta.fields || [];
+                        dataS1 = result.data || [];
+                        dataS1.forEach(hydrateS1DateFields);
 
-                headersS1 = sheet1Results.meta.fields || [];
-                headersNTL = ntlResults.meta.fields || [];
-                dataS1 = sheet1Results.data || [];
-                dataNTL = (ntlResults.data || []).filter(row => getNtlValue(row, NTL_IDX.THERAPIST) || getNtlValue(row, NTL_IDX.NETWORK_TEAM));
-                dataS1.forEach(hydrateS1DateFields);
+                        availablePositions = [...new Set(dataS1.map(cleanPosition).filter(Boolean))].sort();
+                        selectedPositions = availablePositions.slice();
+                        renderPositionMenu();
 
-                leaderDirectory = buildLeaderDirectory();
-                updateFilterOptions();
-                renderDashboard(false);
-
-                const lastUpdateValue = headersS1[33] || 'Sheet live';
-                document.getElementById('lastUpdate').textContent = `${lastUpdateValue} / ${leaderDirectory.length} leaders mapped`;
+                        const lastUpdateValue = headersS1[33] || 'Live sheet';
+                        document.getElementById('lastUpdate').textContent = `${lastUpdateValue}`;
+                        renderDashboard();
+                    },
+                    error: error => {
+                        throw error;
+                    }
+                });
             } catch (error) {
-                console.error(error);
-                document.getElementById('loadingState').textContent = `Unable to load Network Team Leader study data: ${error.message}`;
-                document.getElementById('lastUpdate').textContent = 'Load failed';
+                const loading = document.getElementById('loadingState');
+                if (loading) loading.textContent = `Load failed: ${error.message}`;
+                document.getElementById('lastUpdate').textContent = 'Unable to load sheet';
             }
         }
 
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>
