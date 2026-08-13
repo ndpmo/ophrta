@@ -544,6 +544,15 @@
             return ((value ?? '') + '').trim();
         }
 
+        function escapeHtml(value) {
+            return safeTrim(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function normalizeKey(value) {
             return safeTrim(value).toLowerCase();
         }
@@ -807,11 +816,12 @@
         }
 
         function getStatusChip(status, offered, onboarded, upcomingOnboard = false) {
+            const rawStatus = safeTrim(status);
             if (isRejectedOrWithdrawnStatus(status)) return '<span class="status-chip status-reject">Reject / Withdraw</span>';
             if (onboarded) return '<span class="status-chip status-onboard">On Board</span>';
             if (upcomingOnboard) return '<span class="status-chip status-upcoming">Upcoming</span>';
             if (offered) return '<span class="status-chip status-offer">Offer</span>';
-            return '<span class="status-chip status-pending">Pending</span>';
+            return `<span class="status-chip status-pending">${escapeHtml(rawStatus || 'Pending')}</span>`;
         }
 
         function getUniqueSorted(values) {
