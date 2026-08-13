@@ -1611,9 +1611,19 @@
                 const positionValue = getS1PositionValue(row);
                 return !positionSelect.value || positionValue === positionSelect.value;
             });
-            const uniqueStatuses = [...new Set(scopedByPosition.map(row => (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim()) || '-'))]
+            const statusValues = scopedByPosition.map(row => (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim()) || '-');
+            const uniqueStatuses = [...new Set(statusValues)]
                 .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-            setSharedDetailSelectOptions(statusSelect, 'All Status', uniqueStatuses);
+            const previousStatus = ((statusSelect.value || '') + '').trim();
+            statusSelect.innerHTML = [`<option value="">All Status (${statusValues.length})</option>`]
+                .concat(uniqueStatuses.map(status => {
+                    const count = statusValues.filter(value => value === status).length;
+                    return `<option value="${status}">${status} (${count})</option>`;
+                }))
+                .join('');
+            if (previousStatus && uniqueStatuses.includes(previousStatus)) {
+                statusSelect.value = previousStatus;
+            }
         }
 
         function getFilteredSharedDetailRows(rows) {
