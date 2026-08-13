@@ -534,6 +534,49 @@
             return `${Math.round((value / target) * 100)}%`;
         }
 
+        function cloneDate(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+        }
+
+        function shiftDate(date, days) {
+            const shifted = cloneDate(date);
+            shifted.setDate(shifted.getDate() + days);
+            return shifted;
+        }
+
+        function getPreviousComparisonDate(date) {
+            const previous = shiftDate(date, -1);
+            if (previous.getDay() === 0) {
+                return shiftDate(previous, -1);
+            }
+            return previous;
+        }
+
+        function getComparisonDateRange(range) {
+            if (!range?.start || !range?.end) return null;
+            const rawEnd = new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate(), 0, 0, 0, 0);
+            const comparisonEndDate = getPreviousComparisonDate(rawEnd);
+            if (comparisonEndDate.getTime() < range.start.getTime()) return null;
+            const comparisonEnd = new Date(comparisonEndDate.getFullYear(), comparisonEndDate.getMonth(), comparisonEndDate.getDate(), 23, 59, 59, 999);
+            return { start: cloneDate(range.start), end: comparisonEnd };
+        }
+
+        function getDeltaClass(delta) {
+            if (delta > 0) return 'text-emerald-700';
+            if (delta < 0) return 'text-rose-600';
+            return 'text-slate-400';
+        }
+
+        function formatDeltaLabel(delta) {
+            if (delta > 0) return `(+${formatNumber(delta)})`;
+            if (delta < 0) return `(-${formatNumber(Math.abs(delta))})`;
+            return '(0)';
+        }
+
+        function renderDeltaLabel(delta, extraClass = '') {
+            return `<span class="data-font text-xs md:text-sm font-black ${getDeltaClass(delta)} ${extraClass}">${formatDeltaLabel(delta)}</span>`;
+        }
+
         function formatDateAsDMonY(date) {
             if (!(date instanceof Date) || isNaN(date)) return '-';
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -989,19 +1032,19 @@
             });
         }
 
-        function getFilterValues() {
+        function getFilterValues(source = {}) {
             return {
-                brand: safeTrim(document.getElementById('brandFilter')?.value),
-                center: safeTrim(document.getElementById('centerFilter')?.value),
-                leader: safeTrim(document.getElementById('leaderFilter')?.value)
+                brand: safeTrim(source.brand ?? document.getElementById('brandFilter')?.value),
+                center: safeTrim(source.center ?? document.getElementById('centerFilter')?.value),
+                leader: safeTrim(source.leader ?? document.getElementById('leaderFilter')?.value)
             };
         }
 
-        function getFilteredLeaders() {
-            const range = getSelectedDateRange();
+        function getFilteredLeaders(rangeOverride = null, filtersOverride = null) {
+            const range = rangeOverride || getSelectedDateRange();
             if (!range) return [];
 
-            const filters = getFilterValues();
+            const filters = getFilterValues(filtersOverride || {});
 
             return leaderDirectory.map(leader => {
                 const filteredMembers = leader.members.filter(member => {
@@ -1121,13 +1164,25 @@
             if (leaderOptions.some(leader => leader.key === previous.leader)) leaderSelect.value = previous.leader;
         }
 
-        function renderSummaryCards(leaders) {
+        function buildBreakdownLookup(rows) {
+            const lookup = new Map();
+            rows.forEach(row => {
+                lookup.set(safeTrim(row.label), row);
+            });
+            return lookup;
+        }
+
+        function renderSummaryCards(leaders, comparisonLeaders = []) {
             const memberCount = leaders.reduce((sum, leader) => sum + leader.teamSize, 0);
             const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
             const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
+            const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
+            const comparisonOffer = comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const comparisonOnboard = comparisonLeaders.reduce((sum, leader) => sum + leader.onboard, 0);
+            const comparisonUpcoming = comparisonLeaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
             const totalTarget = leaders.length * 2;
             const leaderBrandCount = { Dermes: 0, Reenex: 0, Elyze: 0 };
 
@@ -1147,11 +1202,12 @@
             `;
 
             const cards = [
-                { title: 'Lead', value: totalLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
-                { title: 'Offer', value: totalOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
+                { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
+                { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
                 {
                     title: 'On Board',
                     value: totalOnboard,
+                    delta: totalOnboard - comparisonOnboard,
                     note: `
                         <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>
                         <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Non Same Brand = ${formatNumber(totalNonSameBrandOnboard)}</div>
@@ -1161,7 +1217,7 @@
                     mode: 'ONBOARD',
                     noteIsHtml: true
                 },
-                { title: 'Upcoming On Board', value: totalUpcomingOnboard, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
+                { title: 'Upcoming On Board', value: totalUpcomingOnboard, delta: totalUpcomingOnboard - comparisonUpcoming, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
                 { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
                 { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
             ];
@@ -1172,7 +1228,10 @@
                 <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
                     <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
-                        <div class="text-4xl font-black data-font text-slate-900 text-center">${formatNumber(card.value)}</div>
+                        <div class="flex items-baseline justify-center gap-2 text-center">
+                            <div class="text-4xl font-black data-font text-slate-900 text-center">${formatNumber(card.value)}</div>
+                            ${typeof card.delta === 'number' ? renderDeltaLabel(card.delta) : ''}
+                        </div>
                         ${card.noteIsHtml
                             ? `<div class="w-full text-center">${card.note}</div>`
                             : (card.note ? `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${card.note}</div>` : '')}
@@ -1371,9 +1430,10 @@
             return { brandRows, floorRows };
         }
 
-        function renderBrandTable(rows) {
+        function renderBrandTable(rows, comparisonRows = []) {
             const body = document.getElementById('brandTableBody');
             const meta = document.getElementById('brandMeta');
+            const comparisonLookup = buildBreakdownLookup(comparisonRows);
             meta.textContent = `${rows.length} brands under current filters`;
 
             if (!rows.length) {
@@ -1381,18 +1441,23 @@
                 return;
             }
 
-            body.innerHTML = rows.map(row => `
+            body.innerHTML = rows.map(row => {
+                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
+                const leadDelta = row.lead - (comparisonRow?.lead || 0);
+                const offerDelta = row.offer - (comparisonRow?.offer || 0);
+                const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
+                return `
                 <tr class="text-sm font-bold text-slate-700">
                     <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
                 </tr>
-            `).join('');
+            `; }).join('');
         }
 
         function updateFloorSectionBrandOptions(rows) {
@@ -1446,43 +1511,63 @@
             }
         }
 
-        function renderFloorTable(rows) {
+        function renderFloorTable(rows, comparisonRows = []) {
             const body = document.getElementById('floorTableBody');
             const meta = document.getElementById('floorMeta');
             const indicator = document.getElementById('floorSortIndicator');
-            meta.textContent = `${rows.length} floors under current filters`;
+            updateFloorSectionBrandOptions(rows);
+            renderFloorTableHeader();
+            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
+            const filteredRows = floorBrandFilterValue
+                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
+                : rows.slice();
+            const filteredComparisonRows = floorBrandFilterValue
+                ? comparisonRows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
+                : comparisonRows.slice();
+            const comparisonLookup = buildBreakdownLookup(filteredComparisonRows);
+            meta.textContent = `${filteredRows.length} floors under current filters`;
             if (indicator) {
                 indicator.textContent = floorSortDirection === 'asc' ? '↑' : '↓';
             }
 
-            if (!rows.length) {
+            if (!filteredRows.length) {
                 body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
                 return;
             }
 
-            const sortedRows = rows.slice().sort((a, b) => {
-                const valueA = (a?.[floorSortKey] ?? '').toString();
-                const valueB = (b?.[floorSortKey] ?? '').toString();
-                const compared = valueA.localeCompare(valueB, 'en');
+            const sortedRows = filteredRows.slice().sort((a, b) => {
+                const valueA = getFloorSortValue(a, floorSortKey);
+                const valueB = getFloorSortValue(b, floorSortKey);
+                let compared = 0;
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    compared = valueA - valueB;
+                } else {
+                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
+                }
                 return floorSortDirection === 'asc' ? compared : -compared;
             });
 
-            body.innerHTML = sortedRows.map(row => `
+            body.innerHTML = sortedRows.map(row => {
+                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
+                const leadDelta = row.lead - (comparisonRow?.lead || 0);
+                const offerDelta = row.offer - (comparisonRow?.offer || 0);
+                const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
+                return `
                 <tr class="text-sm font-bold text-slate-700">
                     <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
                     <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'ml-1 text-[11px]')}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'ml-1 text-[11px]')}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'ml-1 text-[11px]')}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
                 </tr>
-            `).join('');
+            `; }).join('');
         }
 
-        function renderNetworkTable(leaders) {
+        function renderNetworkTable(leaders, comparisonLeaders = []) {
             const body = document.getElementById('networkTableBody');
             const meta = document.getElementById('networkMeta');
             updateNetworkSectionFilterOptions(leaders);
@@ -1494,6 +1579,12 @@
                 if (networkFloorFilterValue && !(leader.centers || []).includes(networkFloorFilterValue)) return false;
                 return true;
             });
+            const filteredComparisonLeaders = comparisonLeaders.filter(leader => {
+                if (networkBrandFilterValue && !(leader.brands || []).includes(networkBrandFilterValue)) return false;
+                if (networkFloorFilterValue && !(leader.centers || []).includes(networkFloorFilterValue)) return false;
+                return true;
+            });
+            const comparisonLookup = new Map(filteredComparisonLeaders.map(leader => [leader.key, leader]));
 
             meta.textContent = `${filteredLeaders.length} network teams under current filters`;
 
@@ -1502,22 +1593,27 @@
                 return;
             }
 
-            body.innerHTML = filteredLeaders.map(leader => `
+            body.innerHTML = filteredLeaders.map(leader => {
+                const comparisonLeader = comparisonLookup.get(leader.key);
+                const leadDelta = leader.lead - (comparisonLeader?.lead || 0);
+                const offerDelta = leader.offer - (comparisonLeader?.offer || 0);
+                const onboardDelta = leader.onboard - (comparisonLeader?.onboard || 0);
+                return `
                 <tr class="clickable-row ${leader.key === selectedLeaderKey ? 'active' : ''}" onclick="focusLeader('${leader.key}')">
                     <td class="px-5 py-4 text-left font-black text-slate-900">${leader.name}</td>
                     <td class="px-5 py-4 text-left text-slate-700">${leader.brands.join(', ') || '-'}</td>
                     <td class="px-5 py-4 text-left text-slate-700">${leader.centers.join(', ') || '-'}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.teamSize)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.lead)} ${renderDeltaLabel(leadDelta, 'ml-1 text-[11px]')}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.offer)} ${renderDeltaLabel(offerDelta, 'ml-1 text-[11px]')}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(leader.onboard)} ${renderDeltaLabel(onboardDelta, 'ml-1 text-[11px]')}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.offer, 1)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(leader.onboard, 1)}</td>
                     <td class="px-5 py-4 text-center">
                         <button type="button" onclick="event.stopPropagation(); focusLeader('${leader.key}')" class="rounded-full bg-sky-600 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">Review Details</button>
                     </td>
                 </tr>
-            `).join('');
+            `; }).join('');
         }
 
         function renderLeaderPerformance(leaders) {
@@ -1645,7 +1741,7 @@
             `).join('');
         }
 
-        function renderFloorTable(rows) {
+        function renderFloorTableLegacy(rows) {
             const body = document.getElementById('floorTableBody');
             const meta = document.getElementById('floorMeta');
             updateFloorSectionBrandOptions(rows);
@@ -1793,15 +1889,19 @@
         function renderDashboard(keepScroll = false) {
             const leaders = getFilteredLeaders();
             const { brandRows, floorRows } = summarizeBreakdowns(leaders);
+            const selectedRange = getSelectedDateRange();
+            const comparisonRange = getComparisonDateRange(selectedRange);
+            const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
+            const { brandRows: comparisonBrandRows, floorRows: comparisonFloorRows } = summarizeBreakdowns(comparisonLeaders);
             if (!leaders.length) {
                 selectedLeaderKey = '';
             } else if (!leaders.some(leader => leader.key === selectedLeaderKey)) {
                 selectedLeaderKey = leaders[0].key;
             }
-            renderSummaryCards(leaders);
-            renderBrandTable(brandRows);
-            renderFloorTable(floorRows);
-            renderNetworkTable(leaders);
+            renderSummaryCards(leaders, comparisonLeaders);
+            renderBrandTable(brandRows, comparisonBrandRows);
+            renderFloorTable(floorRows, comparisonFloorRows);
+            renderNetworkTable(leaders, comparisonLeaders);
             renderLeaderPerformance(leaders);
             renderDetailTable(leaders);
 
