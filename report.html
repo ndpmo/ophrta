@@ -475,6 +475,20 @@
 
         <div id="sharedDetailArea" class="hidden mt-8 mb-24 space-y-6">
             <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 詳細名單</h3>
+            <div id="sharedDetailFilterBar" class="cyber-card p-4 md:p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                    <select id="sharedDetailFilterBrand" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Brand</option>
+                    </select>
+                    <select id="sharedDetailFilterPosition" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Position</option>
+                    </select>
+                    <select id="sharedDetailFilterStatus" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Status</option>
+                    </select>
+                    <button type="button" onclick="resetSharedDetailFilters()" class="px-3.5 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Reset Filters</button>
+                </div>
+            </div>
             <div class="cyber-card overflow-hidden shadow-2xl">
                 <div class="mobile-table-wrap overflow-x-auto custom-scrollbar text-left">
                     <table class="w-full border-collapse">
@@ -689,6 +703,7 @@
         // --- ?詨?霈 ---
         let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [];
         let currentDetailMode = ""; let currentDetailKey = "";
+        let currentSharedDetailBaseRows = [];
         let currentSharedDetailRows = [];
         let sharedDetailSort = { key: 'brand', direction: 'asc' };
         let availableMonths = [];
@@ -1563,6 +1578,76 @@
             return sharedDetailSort.key === sortKey ? (sharedDetailSort.direction === 'asc' ? '▲' : '▼') : '';
         }
 
+        function setSharedDetailSelectOptions(select, placeholder, values) {
+            if (!select) return;
+            const previousValue = ((select.value || '') + '').trim();
+            select.innerHTML = [`<option value="">${placeholder}</option>`]
+                .concat(values.map(value => `<option value="${value}">${value}</option>`))
+                .join('');
+            if (previousValue && values.includes(previousValue)) {
+                select.value = previousValue;
+            }
+        }
+
+        function updateSharedDetailFilterOptions(rows) {
+            const brandSelect = document.getElementById('sharedDetailFilterBrand');
+            const positionSelect = document.getElementById('sharedDetailFilterPosition');
+            const statusSelect = document.getElementById('sharedDetailFilterStatus');
+            if (!brandSelect || !positionSelect || !statusSelect) return;
+
+            const uniqueBrands = [...new Set(rows.map(row => ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim()).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            setSharedDetailSelectOptions(brandSelect, 'All Brand', uniqueBrands);
+
+            const scopedByBrand = rows.filter(row => {
+                const brandValue = ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim();
+                return !brandSelect.value || brandValue === brandSelect.value;
+            });
+            const uniquePositions = [...new Set(scopedByBrand.map(row => getS1PositionValue(row)).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            setSharedDetailSelectOptions(positionSelect, 'All Position', uniquePositions);
+
+            const scopedByPosition = scopedByBrand.filter(row => {
+                const positionValue = getS1PositionValue(row);
+                return !positionSelect.value || positionValue === positionSelect.value;
+            });
+            const uniqueStatuses = [...new Set(scopedByPosition.map(row => (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim()) || '-'))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            setSharedDetailSelectOptions(statusSelect, 'All Status', uniqueStatuses);
+        }
+
+        function getFilteredSharedDetailRows(rows) {
+            const brandValue = ((document.getElementById('sharedDetailFilterBrand')?.value || '') + '').trim();
+            const positionValue = ((document.getElementById('sharedDetailFilterPosition')?.value || '') + '').trim();
+            const statusValue = ((document.getElementById('sharedDetailFilterStatus')?.value || '') + '').trim();
+
+            return rows.filter(row => {
+                const brand = ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim();
+                const position = getS1PositionValue(row);
+                const status = (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim()) || '-';
+                if (brandValue && brand !== brandValue) return false;
+                if (positionValue && position !== positionValue) return false;
+                if (statusValue && status !== statusValue) return false;
+                return true;
+            });
+        }
+
+        function handleSharedDetailFilterChange() {
+            updateSharedDetailFilterOptions(currentSharedDetailBaseRows);
+            renderSharedDetailTable(currentSharedDetailBaseRows, false);
+        }
+
+        function resetSharedDetailFilters() {
+            const brandSelect = document.getElementById('sharedDetailFilterBrand');
+            const positionSelect = document.getElementById('sharedDetailFilterPosition');
+            const statusSelect = document.getElementById('sharedDetailFilterStatus');
+            if (brandSelect) brandSelect.value = '';
+            if (positionSelect) positionSelect.value = '';
+            if (statusSelect) statusSelect.value = '';
+            updateSharedDetailFilterOptions(currentSharedDetailBaseRows);
+            renderSharedDetailTable(currentSharedDetailBaseRows, false);
+        }
+
         function updateSharedDetailSortUi() {
             ['brand', 'position', 'leadDate', 'offerDate', 'onboardDate', 'status', 'onboardStatus', 'rjnj', 'name', 'tail'].forEach(sortKey => {
                 const el = document.getElementById(`sort-indicator-${sortKey}`);
@@ -1631,13 +1716,20 @@
             return sortedRows;
         }
 
-        function renderSharedDetailTable(rows) {
+        function renderSharedDetailTable(rows, syncBase = true) {
             const tbody = document.getElementById('sharedDetailTableBody');
             if (!tbody) return;
 
-            currentSharedDetailRows = rows.slice();
+            if (syncBase) currentSharedDetailBaseRows = rows.slice();
+            updateSharedDetailFilterOptions(currentSharedDetailBaseRows);
+            currentSharedDetailRows = getFilteredSharedDetailRows(currentSharedDetailBaseRows);
             const sortedRows = sortSharedDetailRows(currentSharedDetailRows);
             updateSharedDetailSortUi();
+
+            if (!sortedRows.length) {
+                tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-sm font-black text-slate-400">No matched detail under current filters.</td></tr>';
+                return;
+            }
 
             tbody.innerHTML = sortedRows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
@@ -1661,7 +1753,7 @@
                 sharedDetailSort.key = sortKey;
                 sharedDetailSort.direction = 'asc';
             }
-            renderSharedDetailTable(currentSharedDetailRows);
+            renderSharedDetailTable(currentSharedDetailBaseRows, false);
         }
 
         function calculateWeeklyHrSources(startTs, endLimitTs) {
@@ -2454,6 +2546,9 @@
             currentDetailMode = mode; currentDetailKey = key;
             const area = document.getElementById('sharedDetailArea'), tbody = document.getElementById('sharedDetailTableBody');
             if(!area || !tbody) return;
+            const detailBrandFilter = document.getElementById('sharedDetailFilterBrand');
+            const detailPositionFilter = document.getElementById('sharedDetailFilterPosition');
+            const detailStatusFilter = document.getElementById('sharedDetailFilterStatus');
             const tailHeader = document.getElementById('sharedDetailTailHeaderLabel');
             if (tailHeader) tailHeader.innerText = isHrSourceDetailMode(mode) ? 'CV RECEIVED CHANNEL' : 'REFER BY';
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -2663,6 +2758,9 @@
             if (mode !== "BATCH") {
                 list = list.filter(row => isPositionIncluded(row));
             }
+            if (detailBrandFilter) detailBrandFilter.value = '';
+            if (detailPositionFilter) detailPositionFilter.value = '';
+            if (detailStatusFilter) detailStatusFilter.value = '';
             renderSharedDetailTable(list);
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -3445,3 +3543,4 @@
     </script>
 </body>
 </html>
+
