@@ -478,6 +478,7 @@
 
         const S1_IDX = {
             BRAND: 0,
+            POSITION: 4,
             STAFF_ID: 9,
             STAFF_NAME: 10,
             RJNJ: 12,
@@ -632,6 +633,32 @@
             const memberBrand = normalizeBrand(member?.brandKey || member?.brand || '');
             const candidateBrand = normalizeBrand(getS1Value(row, S1_IDX.BRAND) || '');
             return !!memberBrand && !!candidateBrand && memberBrand === candidateBrand;
+        }
+
+        function getS1PositionValue(row) {
+            return getS1Value(row, S1_IDX.POSITION) || '-';
+        }
+
+        function isBeautySpecialistPosition(row) {
+            const position = safeTrim(getS1PositionValue(row)).toUpperCase();
+            return position === 'BS' || position === 'BEAUTY SPECIALIST';
+        }
+
+        function isCoreBrandOffer(row) {
+            const brand = normalizeBrand(getS1Value(row, S1_IDX.BRAND) || '');
+            return brand === 'DERMES' || brand === 'REENEX' || brand === 'ELYZE';
+        }
+
+        function isCountedOffer(row) {
+            return isOffered(row) && !isBeautySpecialistPosition(row) && isCoreBrandOffer(row);
+        }
+
+        function isOtherBrandOffer(row) {
+            return isOffered(row) && !isBeautySpecialistPosition(row) && !isCoreBrandOffer(row);
+        }
+
+        function isBeautySpecialistOffer(row) {
+            return isOffered(row) && isBeautySpecialistPosition(row);
         }
 
         function parseDate(rawValue) {
@@ -1072,13 +1099,15 @@
 
                 const memberStats = filteredMembers.map(member => {
                     const rows = getMemberReferralRows(member, range);
-                    const offer = rows.filter(isOffered).length;
+                    const offer = rows.filter(isCountedOffer).length;
+                    const offerOtherBrand = rows.filter(isOtherBrandOffer).length;
+                    const offerBS = rows.filter(isBeautySpecialistOffer).length;
                     const onboardRows = rows.filter(isOnboard);
                     const onboard = onboardRows.filter(row => isSameBrandReferral(member, row)).length;
                     const nonSameBrandOnboard = onboardRows.filter(row => !isSameBrandReferral(member, row)).length;
                     const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, onboard, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -1103,6 +1132,9 @@
                             onboardStatus: getOnboardStatus(row) || '-',
                             interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
                             offered: isOffered(row),
+                            countedOffer: isCountedOffer(row),
+                            otherBrandOffer: isOtherBrandOffer(row),
+                            beautySpecialistOffer: isBeautySpecialistOffer(row),
                             onboarded: actualOnboarded,
                             sameBrand,
                             sameBrandOnboarded: actualOnboarded && sameBrand,
@@ -1126,6 +1158,8 @@
                     teamMateCount: teamMateStats.length,
                     lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
                     offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
+                    offerOtherBrand: memberStats.reduce((sum, member) => sum + (member.offerOtherBrand || 0), 0),
+                    offerBS: memberStats.reduce((sum, member) => sum + (member.offerBS || 0), 0),
                     onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
                     nonSameBrandOnboard: memberStats.reduce((sum, member) => sum + member.nonSameBrandOnboard, 0),
                     upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
@@ -1190,6 +1224,8 @@
             const memberCount = leaders.reduce((sum, leader) => sum + leader.teamSize, 0);
             const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
             const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const totalOfferOtherBrand = leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
+            const totalOfferBS = leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
@@ -1215,9 +1251,19 @@
                 </div>
             `;
 
+            const offerNoteLines = [
+                `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>`
+            ];
+            if (totalOfferOtherBrand > 0) {
+                offerNoteLines.push(`<div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Other Offer = ${formatNumber(totalOfferOtherBrand)}</div>`);
+            }
+            if (totalOfferBS > 0) {
+                offerNoteLines.push(`<div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalOfferBS)}</div>`);
+            }
+
             const cards = [
                 { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
-                { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: `${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)`, accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER' },
+                { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: offerNoteLines.join(''), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER', noteIsHtml: true },
                 {
                     title: 'On Board',
                     value: totalOnboard,
@@ -1820,7 +1866,7 @@
             if (currentDetailScope === 'SUMMARY') {
                 rows = leaders.flatMap(leader => leader.detailRows);
                 if (currentSummaryDetailMode === 'OFFER') {
-                    rows = rows.filter(item => item.offered);
+                    rows = rows.filter(item => item.countedOffer);
                     titleText = 'Network Team Leader Offer Detail';
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
                     rows = rows.filter(item => item.sameBrandOnboarded);
