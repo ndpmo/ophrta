@@ -132,6 +132,16 @@
         .count-delta.positive { color: #16a34a; }
         .count-delta.negative { color: #dc2626; }
         .count-delta.neutral { color: #64748b; }
+        .bs-count {
+            display: inline-block;
+            margin-top: 1.05rem;
+            font-size: 1.5rem !important;
+            line-height: 1.1;
+        }
+        .bs-subcount {
+            font-size: 0.72rem;
+            line-height: 1.2;
+        }
 
         .mobile-filter-row {
             width: auto;
@@ -332,7 +342,7 @@
                 </div>
                 <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left shrink-0">
                     <span class="filter-label ml-1">Compare Date:</span>
-                    <input type="date" id="compareDate" onchange="handleCompareDateChange()" class="date-selector-input">
+                    <input type="date" id="compareDate" onchange="handleCompareDateChange('compareDate')" class="date-selector-input">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -376,23 +386,24 @@
                 <div class="flex flex-col md:flex-row gap-4 text-left">
                     <div class="mobile-filter-row flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm text-left"><span class="filter-label ml-1">Offer Date:</span><div class="mobile-inline-date-range"><input type="date" id="offerStart" onchange="calculateWeeklyOffers()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="offerEnd" onchange="calculateWeeklyOffers()" class="date-selector-input"></div></div>
                     <div class="mobile-filter-row flex items-center gap-3 bg-blue-50/50 p-2 rounded-xl border border-blue-100 shadow-sm text-left"><label class="checkbox-container ml-1"><input type="checkbox" id="useObFilter" onchange="calculateWeeklyOffers()"><span class="filter-label ml-2 text-blue-700">套用 On Board Date:</span></label><div class="mobile-inline-date-range text-left"><input type="date" id="obOfferStart" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"><span class="font-bold text-blue-300 text-xs">至</span><input type="date" id="obOfferEnd" onchange="calculateWeeklyOffers()" class="date-selector-input border-blue-100"></div></div>
+                    <div class="mobile-filter-row flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white text-left shrink-0"><span class="filter-label ml-1">Compare Date:</span><input type="date" id="offerCompareDate" onchange="handleCompareDateChange('offerCompareDate')" class="date-selector-input"></div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 text-left">
                 <div onclick="toggleWeeklyList('DERMES')" class="weekly-card cyber-card p-6 border-b-8 border-rose-500 text-left">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">DERMES</p>
-                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-DERMES">0</span></div>
+                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span><span class="bs-count font-black text-rose-600 readable-nums" id="weekly-bs-DERMES">BS: 0</span></div><span class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-DERMES">0</span></div>
                 </div>
                 <div onclick="toggleWeeklyList('REENEX')" class="weekly-card cyber-card p-6 border-b-8 border-indigo-500 text-left">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p>
-                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-REENEX">0</span></div>
+                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span><span class="bs-count font-black text-indigo-600 readable-nums" id="weekly-bs-REENEX">BS: 0</span></div><span class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-REENEX">0</span></div>
                 </div>
                 <div onclick="toggleWeeklyList('ELYZE')" class="weekly-card cyber-card p-6 border-b-8 border-emerald-500 text-left">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
-                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-ELYZE">0</span></div>
+                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span><span class="bs-count font-black text-emerald-600 readable-nums" id="weekly-bs-ELYZE">BS: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-ELYZE">0</span></div>
                 </div>
                 <div id="weekly-HR" onclick="toggleWeeklyHrList()" class="weekly-card cyber-card p-6 border-b-8 border-sky-400 text-left cursor-pointer">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (Accepted/Offered)</p>
@@ -408,8 +419,10 @@
                         <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-sky-700" id="weekly-offer-hr-ELYZE">0</span></div>
                         <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-sky-700" id="weekly-offer-hr-OTHER">0</span></div>
                     </div>
+                    <div class="mt-2 flex items-center justify-between gap-3 bs-subcount font-black uppercase tracking-wide readable-nums"><span class="text-slate-500">BS</span><span class="text-sky-700" id="weekly-offer-hr-BS">0</span></div>
                 </div>
             </div>
+            <p class="mt-4 text-sm font-semibold text-slate-500 text-left">格內總數不計算 BS / Beauty Specialist 職位</p>
         </div>
 
         <div id="pendingOfferArea" class="mb-12 text-left">
@@ -453,17 +466,17 @@
                 <div id="onboard-DERMES" onclick="toggleOnboardList('DERMES')" class="onboard-card cyber-card p-6 border-b-8 border-emerald-400 text-left cursor-pointer">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
-                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-DERMES">0</span></div>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="onboard-nj-DERMES">NJ: 0</span><span class="bs-count font-black text-emerald-600 readable-nums" id="onboard-bs-DERMES">BS: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-DERMES">0</span></div>
                 </div>
                 <div id="onboard-REENEX" onclick="toggleOnboardList('REENEX')" class="onboard-card cyber-card p-6 border-b-8 border-teal-400 text-left cursor-pointer">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
-                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-teal-50 text-teal-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-REENEX">0</span></div>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-teal-600 readable-nums" id="onboard-nj-REENEX">NJ: 0</span><span class="bs-count font-black text-teal-600 readable-nums" id="onboard-bs-REENEX">BS: 0</span></div><span class="px-4 py-2 bg-teal-50 text-teal-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-REENEX">0</span></div>
                 </div>
                 <div id="onboard-ELYZE" onclick="toggleOnboardList('ELYZE')" class="onboard-card cyber-card p-6 border-b-8 border-lime-400 text-left cursor-pointer">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
-                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-lime-50 text-lime-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-ELYZE">0</span></div>
+                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-lime-600 readable-nums" id="onboard-nj-ELYZE">NJ: 0</span><span class="bs-count font-black text-lime-600 readable-nums" id="onboard-bs-ELYZE">BS: 0</span></div><span class="px-4 py-2 bg-lime-50 text-lime-700 rounded-xl text-4xl font-black shadow-inner" id="onboard-total-ELYZE">0</span></div>
                 </div>
                 <div id="onboard-HR" onclick="toggleOnboardHrList()" class="onboard-card cyber-card p-6 border-b-8 border-green-400 text-left cursor-pointer">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Onboard (AB = Onboard)</p>
@@ -479,8 +492,10 @@
                         <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Elyze</span><span class="text-green-700" id="onboard-hr-ELYZE">0</span></div>
                         <div class="flex items-center justify-between gap-3"><span class="text-slate-500">Other</span><span class="text-green-700" id="onboard-hr-OTHER">0</span></div>
                     </div>
+                    <div class="mt-2 flex items-center justify-between gap-3 bs-subcount font-black uppercase tracking-wide readable-nums"><span class="text-slate-500">BS</span><span class="text-green-700" id="onboard-hr-BS">0</span></div>
                 </div>
             </div>
+            <p class="mt-4 text-sm font-semibold text-slate-500 text-left">格內總數不計算 BS / Beauty Specialist 職位</p>
         </div>
 
         <script>
@@ -849,6 +864,16 @@
             const compareInput = document.getElementById('compareDate');
             return compareInput ? getLocalDateFromInput(compareInput.value) : null;
         }
+        function syncCompareDateInputs(sourceId = 'compareDate') {
+            const source = document.getElementById(sourceId);
+            const targetIds = ['compareDate', 'offerCompareDate'];
+            const nextValue = source ? (source.value || '') : '';
+            targetIds.forEach(id => {
+                if (id === sourceId) return;
+                const el = document.getElementById(id);
+                if (el) el.value = nextValue;
+            });
+        }
         function getComparisonDateRange(start, end) {
             const startDate = cloneDate(start);
             const endDate = cloneDate(end);
@@ -913,7 +938,8 @@
             calculatePendingOffers();
             calculateOnboardSummary();
         }
-        function handleCompareDateChange() {
+        function handleCompareDateChange(sourceId = 'compareDate') {
+            syncCompareDateInputs(sourceId);
             calculateBatchCounts();
             calculateWeeklyLeads();
             calculateWeeklyOffers();
@@ -1272,7 +1298,17 @@
 
                 const normalizedKey = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
                 if (!batchMap.has(normalizedKey)) {
-                    batchMap.set(normalizedKey, { total: 0, nj: 0, rj: 0, rawDate: dTs });
+                    batchMap.set(normalizedKey, {
+                        total: 0,
+                        nj: 0,
+                        rj: 0,
+                        rawDate: dTs,
+                        DERMES: 0,
+                        REENEX: 0,
+                        ELYZE: 0,
+                        OTHER: 0,
+                        BS: 0
+                    });
                 }
 
                 const s = batchMap.get(normalizedKey);
@@ -1280,16 +1316,35 @@
                 const rjnjType = (row[headersS1[S1_IDX.RJNJ]] || "").trim().toUpperCase();
                 if (rjnjType === "NJ") s.nj++;
                 else if (rjnjType === "RJ") s.rj++;
+                if (isBeautySpecialistPosition(row)) {
+                    s.BS++;
+                } else {
+                    s[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+                }
 
                 if (!canCompareMonth) return;
                 if (d.getFullYear() !== comparisonYear || d.getMonth() + 1 !== comparisonMonth) return;
                 if (!comparisonMap.has(normalizedKey)) {
-                    comparisonMap.set(normalizedKey, { total: 0, nj: 0, rj: 0 });
+                    comparisonMap.set(normalizedKey, {
+                        total: 0,
+                        nj: 0,
+                        rj: 0,
+                        DERMES: 0,
+                        REENEX: 0,
+                        ELYZE: 0,
+                        OTHER: 0,
+                        BS: 0
+                    });
                 }
                 const previous = comparisonMap.get(normalizedKey);
                 previous.total++;
                 if (rjnjType === "NJ") previous.nj++;
                 else if (rjnjType === "RJ") previous.rj++;
+                if (isBeautySpecialistPosition(row)) {
+                    previous.BS++;
+                } else {
+                    previous[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
+                }
             });
 
             const sortedKeys = Array.from(batchMap.keys()).sort((a, b) => batchMap.get(a).rawDate - batchMap.get(b).rawDate);
@@ -1302,7 +1357,9 @@
 
             sortedKeys.forEach((dateStr, index) => {
                 const s = batchMap.get(dateStr);
-                const prev = canCompareMonth ? (comparisonMap.get(dateStr) || { total: 0, nj: 0, rj: 0 }) : { total: s.total, nj: s.nj, rj: s.rj };
+                const prev = canCompareMonth
+                    ? (comparisonMap.get(dateStr) || { total: 0, nj: 0, rj: 0, DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0, BS: 0 })
+                    : { total: s.total, nj: s.nj, rj: s.rj, DERMES: s.DERMES, REENEX: s.REENEX, ELYZE: s.ELYZE, OTHER: s.OTHER, BS: s.BS };
                 const colorSet = monthColors[index % monthColors.length];
                 container.innerHTML += `
                     <div onclick="toggleBatchList('${dateStr}')" class="batch-card cyber-card p-6 border-b-8 ${colorSet.border}">
@@ -1314,6 +1371,16 @@
                                 <div class="flex flex-col text-[10px] font-black text-slate-400 mt-2 uppercase tracking-tighter text-left">
                                     <span>(RJ: ${s.rj})</span>
                                     <span>(NJ: ${s.nj})</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-[10px] font-black uppercase tracking-tight readable-nums text-left">
+                                    <div class="flex items-center gap-1"><span class="text-slate-400">Dermes</span><span class="${colorSet.accent}">${s.DERMES}</span></div>
+                                    <div class="flex items-center gap-1"><span class="text-slate-400">Reenex</span><span class="${colorSet.accent}">${s.REENEX}</span></div>
+                                    <div class="flex items-center gap-1"><span class="text-slate-400">Elyze</span><span class="${colorSet.accent}">${s.ELYZE}</span></div>
+                                    <div class="flex items-center gap-1"><span class="text-slate-400">Other</span><span class="${colorSet.accent}">${s.OTHER}</span></div>
+                                </div>
+                                <div class="mt-1 flex items-center gap-1 bs-subcount font-black uppercase tracking-tight readable-nums text-left">
+                                    <span class="text-slate-400">BS</span>
+                                    <span class="${colorSet.accent}">${s.BS}</span>
                                 </div>
                             </div>
                             <span class="px-3 py-1 ${colorSet.bg} ${colorSet.accent} rounded-lg text-xs font-black mt-auto mb-2">Batch</span>
@@ -1636,6 +1703,11 @@
             return (((row?.[headersS1[4]] ?? '') + '').trim()) || '-';
         }
 
+        function isBeautySpecialistPosition(row) {
+            const position = getS1PositionValue(row).toUpperCase();
+            return position === 'BS' || position === 'BEAUTY SPECIALIST';
+        }
+
         function isPositionIncluded(row) {
             if (!positionFilterInitialized) return true;
             const position = getS1PositionValue(row).toUpperCase();
@@ -1916,9 +1988,9 @@
         }
 
         function renderHrSourceCountsWithDelta(prefix, counts, previousCounts = null) {
-            const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
             const previous = previousCounts || { ...counts };
-            const previousTotal = Object.values(previous).reduce((sum, value) => sum + value, 0);
+            const total = ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].reduce((sum, brand) => sum + (counts[brand] || 0), 0);
+            const previousTotal = ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].reduce((sum, brand) => sum + (previous[brand] || 0), 0);
             const totalEl = document.getElementById(`${prefix}-total`);
             if (totalEl) totalEl.innerHTML = `${total}${renderDeltaLabel(total, previousTotal)}`;
 
@@ -1926,6 +1998,8 @@
                 const el = document.getElementById(`${prefix}-${brand}`);
                 if (el) el.innerHTML = `${counts[brand]}${renderDeltaLabel(counts[brand], previous[brand] || 0, true)}`;
             });
+            const bsEl = document.getElementById(`${prefix}-BS`);
+            if (bsEl) bsEl.textContent = counts.BS || 0;
         }
 
         function buildHrLeadCounts(startTs, endLimitTs) {
@@ -1942,7 +2016,7 @@
         }
 
         function buildHrOfferCounts(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange) {
-            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0, BS: 0 };
             dataS1.forEach(row => {
                 if (!isHrLeadSource(row)) return;
                 if (!isPositionIncluded(row)) return;
@@ -1954,6 +2028,10 @@
                     const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
                     const obdTs = obd ? obd.getTime() : null;
                     if (!obdTs || obdTs < obSTs || obdTs > obETs) return;
+                }
+                if (isBeautySpecialistPosition(row)) {
+                    counts.BS++;
+                    return;
                 }
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
@@ -1975,13 +2053,17 @@
         }
 
         function buildOnboardHrCounts(startTs, endLimitTs) {
-            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0 };
+            const counts = { DERMES: 0, REENEX: 0, ELYZE: 0, OTHER: 0, BS: 0 };
             dataS1.forEach(row => {
                 if (!isHrLeadSource(row) || !isConfirmedOnboard(row)) return;
                 if (!isPositionIncluded(row)) return;
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const onboardTs = onboardDate ? onboardDate.getTime() : null;
                 if (!(onboardTs && onboardTs >= startTs && onboardTs <= endLimitTs)) return;
+                if (isBeautySpecialistPosition(row)) {
+                    counts.BS++;
+                    return;
+                }
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
             return counts;
@@ -2044,26 +2126,37 @@
                     const onboardTs = onboardDate ? onboardDate.getTime() : null;
                     return onboardTs && onboardTs >= startTs && onboardTs <= endLimitTs;
                 });
+                const displayList = list.filter(row => !isBeautySpecialistPosition(row));
+                const bsCount = list.length - displayList.length;
+                const rjCount = displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length;
+                const njCount = displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length;
+                const nonBsTotal = rjCount + njCount;
 
                 const elRj = document.getElementById(`onboard-rj-${brand}`);
                 const elNj = document.getElementById(`onboard-nj-${brand}`);
+                const elBs = document.getElementById(`onboard-bs-${brand}`);
                 const elTotal = document.getElementById(`onboard-total-${brand}`);
-                if (elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
-                if (elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if (elRj) elRj.innerText = `RJ: ${rjCount}`;
+                if (elNj) elNj.innerText = `NJ: ${njCount}`;
+                if (elBs) elBs.innerText = `BS: ${bsCount}`;
                 if (elTotal) {
                     const comparisonRange = getComparisonDateRange(start, end);
-                    let previousTotal = list.length;
+                    let previousTotal = nonBsTotal;
                     if (comparisonRange) {
                         previousTotal = dataS1.filter(row => {
                             if (!isOperationLeadSource(row) || !isConfirmedOnboard(row)) return false;
                             if (!isPositionIncluded(row)) return false;
+                            if (isBeautySpecialistPosition(row)) return false;
                             if ((row[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase() !== brand) return false;
                             const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                             const onboardTs = onboardDate ? onboardDate.getTime() : null;
                             return onboardTs && onboardTs >= comparisonRange.start.getTime() && onboardTs <= toEndOfDayTs(comparisonRange.end);
+                        }).filter(r => {
+                            const type = (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase();
+                            return type === "RJ" || type === "NJ";
                         }).length;
                     }
-                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                    elTotal.innerHTML = `${nonBsTotal}${renderDeltaLabel(nonBsTotal, previousTotal)}`;
                 }
             });
 
@@ -2152,19 +2245,27 @@
                     }
                     return true;
                 });
+                const displayList = list.filter(row => !isBeautySpecialistPosition(row));
+                const bsCount = list.length - displayList.length;
+                const rjCount = displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length;
+                const njCount = displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length;
+                const nonBsTotal = rjCount + njCount;
                 const elRj = document.getElementById(`weekly-rj-${brand}`);
                 const elNj = document.getElementById(`weekly-nj-${brand}`);
+                const elBs = document.getElementById(`weekly-bs-${brand}`);
                 const elTotal = document.getElementById(`weekly-total-${brand}`);
                 
-                if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
-                if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if(elRj) elRj.innerText = `RJ: ${rjCount}`;
+                if(elNj) elNj.innerText = `NJ: ${njCount}`;
+                if(elBs) elBs.innerText = `BS: ${bsCount}`;
                 if(elTotal) {
                     const comparisonRange = getComparisonDateRange(oStart, oEnd);
-                    let previousTotal = list.length;
+                    let previousTotal = nonBsTotal;
                     if (comparisonRange) {
                         previousTotal = dataS1.filter(row => {
                             if (!isOperationLeadSource(row)) return false;
                             if (!isPositionIncluded(row)) return false;
+                            if (isBeautySpecialistPosition(row)) return false;
                             if((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                             const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                             const odTs = od ? od.getTime() : null;
@@ -2176,9 +2277,12 @@
                                 if(!obdTs || obdTs < obSTs || obdTs > obETs) return false;
                             }
                             return true;
+                        }).filter(r => {
+                            const type = (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase();
+                            return type === "RJ" || type === "NJ";
                         }).length;
                     }
-                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                    elTotal.innerHTML = `${nonBsTotal}${renderDeltaLabel(nonBsTotal, previousTotal)}`;
                 }
             });
             calculateWeeklyHrOfferSources(oStartTs, oLimitTs, useOb, obSTs, obETs, hasObRange);
@@ -3148,6 +3252,7 @@
                 const el = document.getElementById(id); 
                 if(el) el.value = id.includes('End') ? isoToday : isoMonthStart; 
             });
+            syncCompareDateInputs('compareDate');
             ['useObFilter', 'usePerfObFilter', 'useHrPerfObFilter'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
             setDefaultReferralDateRange();
 
