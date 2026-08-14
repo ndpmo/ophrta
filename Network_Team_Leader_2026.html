@@ -213,7 +213,7 @@
         </header>
 
         <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
                 <div class="space-y-2">
                     <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
                     <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
@@ -233,6 +233,10 @@
                 <div class="space-y-2">
                     <label for="leaderFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Leader</label>
                     <select id="leaderFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none"></select>
+                </div>
+                <div class="space-y-2">
+                    <label for="compareDateFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Compare Date</label>
+                    <input id="compareDateFilter" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
                 </div>
             </div>
             <div class="mt-5 flex flex-wrap gap-3">
@@ -552,10 +556,20 @@
             return previous;
         }
 
+        function getManualComparisonDate() {
+            const input = document.getElementById('compareDateFilter');
+            if (!input?.value) return null;
+            const raw = new Date(`${input.value}T00:00:00`);
+            return Number.isNaN(raw.getTime()) ? null : raw;
+        }
+
         function getComparisonDateRange(range) {
             if (!range?.start || !range?.end) return null;
-            const rawEnd = new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate(), 0, 0, 0, 0);
-            const comparisonEndDate = getPreviousComparisonDate(rawEnd);
+            const manualComparisonDate = getManualComparisonDate();
+            const rawEnd = manualComparisonDate
+                ? new Date(manualComparisonDate.getFullYear(), manualComparisonDate.getMonth(), manualComparisonDate.getDate(), 0, 0, 0, 0)
+                : new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate(), 0, 0, 0, 0);
+            const comparisonEndDate = manualComparisonDate || getPreviousComparisonDate(rawEnd);
             if (comparisonEndDate.getTime() < range.start.getTime()) return null;
             const comparisonEnd = new Date(comparisonEndDate.getFullYear(), comparisonEndDate.getMonth(), comparisonEndDate.getDate(), 23, 59, 59, 999);
             return { start: cloneDate(range.start), end: comparisonEnd };
@@ -1922,6 +1936,8 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            const compareDateFilter = document.getElementById('compareDateFilter');
+            if (compareDateFilter) compareDateFilter.value = '';
             document.getElementById('brandFilter').value = '';
             updateFilterOptions();
             document.getElementById('centerFilter').value = '';
@@ -1969,7 +1985,7 @@
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'detailBrandFilter') {
