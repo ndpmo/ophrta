@@ -263,9 +263,11 @@
                                 <th class="px-5 py-4 text-left">Brand</th>
                                 <th class="px-4 py-4 text-center">Network Teams</th>
                                 <th class="px-4 py-4 text-center">Team Members</th>
+                                <th class="px-4 py-4 text-center">No. of staff referral</th>
                                 <th class="px-4 py-4 text-center">Lead</th>
                                 <th class="px-4 py-4 text-center">Offer</th>
                                 <th class="px-4 py-4 text-center">On Board</th>
+                                <th class="px-4 py-4 text-center">Referral %</th>
                                 <th class="px-4 py-4 text-center">Offer Achieve Rate</th>
                                 <th class="px-4 py-4 text-center">On Board Achieve Rate</th>
                             </tr>
@@ -512,8 +514,12 @@
         let selectedLeaderKey = '';
         let currentDetailScope = 'SUMMARY';
         let currentSummaryDetailMode = 'LEAD';
+        let currentSummaryDetailBrand = '';
+        let currentSummaryDetailFloor = '';
         let floorSortKey = 'label';
         let floorSortDirection = 'asc';
+        let networkSortKey = 'lead';
+        let networkSortDirection = 'desc';
         let detailSortKey = 'leadDateObj';
         let detailSortDirection = 'desc';
 
@@ -1121,6 +1127,9 @@
                             leaderKey: leader.key,
                             leaderName: leader.name,
                             memberName: member.therapist || '-',
+                            memberBrand: member.brand || '-',
+                            memberBrandKey: member.brandKey || '',
+                            memberCenter: member.center || '-',
                             brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
                             center: member.center || '-',
                             rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
@@ -1312,6 +1321,8 @@
         function focusLeader(leaderKey, shouldScroll = true) {
             currentDetailScope = 'LEADER';
             selectedLeaderKey = leaderKey || '';
+            currentSummaryDetailBrand = '';
+            currentSummaryDetailFloor = '';
             renderDashboard(false);
             if (shouldScroll) {
                 document.getElementById('leaderPerformanceSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1321,26 +1332,22 @@
         function focusSummaryDetail(mode = 'LEAD') {
             currentDetailScope = 'SUMMARY';
             currentSummaryDetailMode = mode;
+            currentSummaryDetailBrand = '';
+            currentSummaryDetailFloor = '';
             renderDashboard(false);
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function focusFloorDetail(floorLabel = '', mode = 'LEAD') {
-            currentDetailScope = 'SUMMARY';
-            currentSummaryDetailMode = mode;
-            renderDashboard(false);
-
-            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
+        function applyDetailFilters({ brand = '', floor = '', status = '', onboardStatus = '' } = {}) {
             const detailBrandFilter = document.getElementById('detailBrandFilter');
             const detailFloorFilter = document.getElementById('detailFloorFilter');
             const detailStatusFilter = document.getElementById('detailStatusFilter');
             const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
-            const activeBrand = safeTrim(floorSectionBrandFilter?.value);
 
             if (detailBrandFilter) {
                 detailBrandFilter.value = '';
-                if (activeBrand && Array.from(detailBrandFilter.options).some(option => option.value === activeBrand)) {
-                    detailBrandFilter.value = activeBrand;
+                if (brand && Array.from(detailBrandFilter.options).some(option => option.value === brand)) {
+                    detailBrandFilter.value = brand;
                 }
             }
 
@@ -1348,14 +1355,44 @@
 
             if (detailFloorFilter) {
                 detailFloorFilter.value = '';
-                if (floorLabel && Array.from(detailFloorFilter.options).some(option => option.value === floorLabel)) {
-                    detailFloorFilter.value = floorLabel;
+                if (floor && Array.from(detailFloorFilter.options).some(option => option.value === floor)) {
+                    detailFloorFilter.value = floor;
                 }
             }
+            if (detailStatusFilter) {
+                detailStatusFilter.value = '';
+                if (status && Array.from(detailStatusFilter.options).some(option => option.value === status)) {
+                    detailStatusFilter.value = status;
+                }
+            }
+            if (detailOnboardStatusFilter) {
+                detailOnboardStatusFilter.value = '';
+                if (onboardStatus && Array.from(detailOnboardStatusFilter.options).some(option => option.value === onboardStatus)) {
+                    detailOnboardStatusFilter.value = onboardStatus;
+                }
+            }
+        }
 
-            if (detailStatusFilter) detailStatusFilter.value = '';
-            if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
+        function focusBrandDetail(brandLabel = '', mode = 'LEAD') {
+            currentDetailScope = 'SUMMARY';
+            currentSummaryDetailMode = mode;
+            currentSummaryDetailBrand = safeTrim(brandLabel);
+            currentSummaryDetailFloor = '';
+            renderDashboard(false);
+            applyDetailFilters();
+            renderDashboard(false);
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
+        function focusFloorDetail(floorLabel = '', mode = 'LEAD') {
+            currentDetailScope = 'SUMMARY';
+            currentSummaryDetailMode = mode;
+            const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
+            const activeBrand = safeTrim(floorSectionBrandFilter?.value);
+            currentSummaryDetailBrand = activeBrand ? displayBrand(activeBrand) : '';
+            currentSummaryDetailFloor = safeTrim(floorLabel);
+            renderDashboard(false);
+            applyDetailFilters();
             renderDashboard(false);
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -1366,6 +1403,16 @@
             } else {
                 floorSortKey = key;
                 floorSortDirection = 'asc';
+            }
+            renderDashboard(false);
+        }
+
+        function toggleNetworkSort(key = 'lead') {
+            if (networkSortKey === key) {
+                networkSortDirection = networkSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                networkSortKey = key;
+                networkSortDirection = ['networkTeam', 'brandLabel', 'floorLabel'].includes(key) ? 'asc' : 'desc';
             }
             renderDashboard(false);
         }
@@ -1399,6 +1446,64 @@
                     </button>
                 </th>
             `).join('');
+        }
+
+        function getNetworkSortIndicator(key) {
+            if (networkSortKey !== key) return '<span class="text-[11px] opacity-40">↕</span>';
+            return `<span class="text-[11px]">${networkSortDirection === 'asc' ? '↑' : '↓'}</span>`;
+        }
+
+        function renderNetworkTableHeader() {
+            const headerRow = document.querySelector('#networkTableBody')?.closest('table')?.querySelector('thead tr');
+            if (!headerRow) return;
+
+            const headers = [
+                { key: 'networkTeam', label: 'Network Team', align: 'left' },
+                { key: 'brandLabel', label: 'Brand', align: 'left' },
+                { key: 'floorLabel', label: 'Floor Mix', align: 'left' },
+                { key: 'teamSize', label: 'Team Size', align: 'center' },
+                { key: 'lead', label: 'Lead', align: 'center' },
+                { key: 'offer', label: 'Offer', align: 'center' },
+                { key: 'onboard', label: 'On Board', align: 'center' },
+                { key: 'offerAchieveRate', label: 'Offer Achieve Rate', align: 'center' },
+                { key: 'onboardAchieveRate', label: 'On Board Achieve Rate', align: 'center' }
+            ];
+
+            headerRow.innerHTML = headers.map(({ key, label, align }) => `
+                <th class="${align === 'left' ? 'px-5 py-4 text-left' : 'px-4 py-4 text-center'}">
+                    <button type="button" onclick="toggleNetworkSort('${key}')" class="inline-flex items-center ${align === 'left' ? 'gap-2' : 'justify-center gap-2'} transition hover:text-sky-700">
+                        <span>${label}</span>
+                        ${getNetworkSortIndicator(key)}
+                    </button>
+                </th>
+            `).join('') + `
+                <th class="px-5 py-4 text-center">Action</th>
+            `;
+        }
+
+        function getNetworkSortValue(leader, key) {
+            switch (key) {
+                case 'networkTeam':
+                    return leader.name || '';
+                case 'brandLabel':
+                    return (leader.brands || []).join(', ') || '-';
+                case 'floorLabel':
+                    return (leader.centers || []).join(', ') || '-';
+                case 'teamSize':
+                    return leader.teamSize || 0;
+                case 'lead':
+                    return leader.lead || 0;
+                case 'offer':
+                    return leader.offer || 0;
+                case 'onboard':
+                    return leader.onboard || 0;
+                case 'offerAchieveRate':
+                    return leader.lead ? (leader.offer / leader.lead) : 0;
+                case 'onboardAchieveRate':
+                    return leader.lead ? (leader.onboard / leader.lead) : 0;
+                default:
+                    return leader.lead || 0;
+            }
         }
 
         function getFloorSortValue(row, key) {
@@ -1437,6 +1542,7 @@
                             label: member.brand || 'Other',
                             leaders: new Set(),
                             members: 0,
+                            referralMembers: 0,
                             lead: 0,
                             offer: 0,
                             onboard: 0
@@ -1446,6 +1552,7 @@
                     const brandEntry = brandMap.get(brandKey);
                     brandEntry.leaders.add(leader.name);
                     brandEntry.members += 1;
+                    if (member.lead > 0) brandEntry.referralMembers += 1;
                     brandEntry.lead += member.lead;
                     brandEntry.offer += member.offer;
                     brandEntry.onboard += member.onboard;
@@ -1497,12 +1604,13 @@
             meta.textContent = `${rows.length} brands under current filters`;
 
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
                 return;
             }
 
             body.innerHTML = rows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
+                const referralDelta = (row.referralMembers || 0) - (comparisonRow?.referralMembers || 0);
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
                 const offerDelta = row.offer - (comparisonRow?.offer || 0);
                 const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
@@ -1511,9 +1619,11 @@
                     <td class="px-5 py-4 text-left font-black text-slate-900">${row.label}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'REFERRAL')" class="inline-flex items-baseline justify-center gap-1 font-black text-violet-700 underline-offset-4 hover:underline">${formatNumber(row.referralMembers || 0)} ${renderDeltaLabel(referralDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.referralMembers || 0, row.members)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
                 </tr>
@@ -1631,6 +1741,7 @@
             const body = document.getElementById('networkTableBody');
             const meta = document.getElementById('networkMeta');
             updateNetworkSectionFilterOptions(leaders);
+            renderNetworkTableHeader();
 
             const networkBrandFilterValue = safeTrim(document.getElementById('networkSectionBrandFilter')?.value);
             const networkFloorFilterValue = safeTrim(document.getElementById('networkSectionFloorFilter')?.value);
@@ -1653,7 +1764,25 @@
                 return;
             }
 
-            body.innerHTML = filteredLeaders.map(leader => {
+            const sortedLeaders = filteredLeaders.slice().sort((a, b) => {
+                const valueA = getNetworkSortValue(a, networkSortKey);
+                const valueB = getNetworkSortValue(b, networkSortKey);
+                let compared = 0;
+
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    compared = valueA - valueB;
+                } else {
+                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
+                }
+
+                if (compared === 0) {
+                    compared = (b.lead || 0) - (a.lead || 0) || a.name.localeCompare(b.name, 'en');
+                }
+
+                return networkSortDirection === 'asc' ? compared : -compared;
+            });
+
+            body.innerHTML = sortedLeaders.map(leader => {
                 const comparisonLeader = comparisonLookup.get(leader.key);
                 const leadDelta = leader.lead - (comparisonLeader?.lead || 0);
                 const offerDelta = leader.offer - (comparisonLeader?.offer || 0);
@@ -1862,22 +1991,36 @@
             let rows = [];
             let titleText = 'Leader Candidate Detail';
             let metaText = '';
+            const summaryBrandLabel = safeTrim(currentSummaryDetailBrand);
+            const summaryFloorLabel = safeTrim(currentSummaryDetailFloor);
+            const contextLabel = summaryBrandLabel && summaryFloorLabel
+                ? `${summaryBrandLabel} / ${summaryFloorLabel}`
+                : (summaryBrandLabel || summaryFloorLabel);
+            const withContext = base => contextLabel ? `${contextLabel} ${base}` : `Network Team Leader ${base}`;
 
             if (currentDetailScope === 'SUMMARY') {
                 rows = leaders.flatMap(leader => leader.detailRows);
-                if (currentSummaryDetailMode === 'OFFER') {
+                if (summaryBrandLabel) {
+                    rows = rows.filter(item => safeTrim(item.memberBrand) === summaryBrandLabel);
+                }
+                if (summaryFloorLabel) {
+                    rows = rows.filter(item => safeTrim(item.memberCenter) === summaryFloorLabel);
+                }
+                if (currentSummaryDetailMode === 'REFERRAL') {
+                    titleText = withContext('Referral Detail');
+                } else if (currentSummaryDetailMode === 'OFFER') {
                     rows = rows.filter(item => item.countedOffer);
-                    titleText = 'Network Team Leader Offer Detail';
+                    titleText = withContext('Offer Detail');
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
                     rows = rows.filter(item => item.sameBrandOnboarded);
-                    titleText = 'Network Team Leader On Board Detail';
+                    titleText = withContext('On Board Detail');
                 } else if (currentSummaryDetailMode === 'UPCOMING') {
                     rows = rows.filter(item => item.upcomingOnboard);
-                    titleText = 'Network Team Leader Upcoming On Board Detail';
+                    titleText = withContext('Upcoming On Board Detail');
                 } else if (currentSummaryDetailMode === 'ALL') {
-                    titleText = 'Network Team Leader Candidate Detail';
+                    titleText = withContext('Candidate Detail');
                 } else {
-                    titleText = 'Network Team Leader Lead Detail';
+                    titleText = withContext('Lead Detail');
                 }
                 metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(leaders.length)} network teams`;
             } else {
@@ -1999,9 +2142,15 @@
             if (detailBrandFilter) detailBrandFilter.value = '';
             const detailFloorFilter = document.getElementById('detailFloorFilter');
             if (detailFloorFilter) detailFloorFilter.value = '';
+            const detailStatusFilter = document.getElementById('detailStatusFilter');
+            if (detailStatusFilter) detailStatusFilter.value = '';
+            const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+            if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
             detailSortKey = 'leadDateObj';
             detailSortDirection = 'desc';
             selectedLeaderKey = '';
+            currentSummaryDetailBrand = '';
+            currentSummaryDetailFloor = '';
             renderDashboard(false);
         }
 
@@ -2035,6 +2184,7 @@
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'detailBrandFilter') {
+                        currentSummaryDetailBrand = '';
                         const floorFilter = document.getElementById('detailFloorFilter');
                         if (floorFilter) floorFilter.value = '';
                         const statusFilter = document.getElementById('detailStatusFilter');
@@ -2043,6 +2193,7 @@
                         if (onboardStatusFilter) onboardStatusFilter.value = '';
                     }
                     if (id === 'detailFloorFilter') {
+                        currentSummaryDetailFloor = '';
                         const statusFilter = document.getElementById('detailStatusFilter');
                         if (statusFilter) statusFilter.value = '';
                         const onboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
