@@ -2285,8 +2285,8 @@
                     if((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const odTs = od ? od.getTime() : null;
-                    const st = (row[headersS1[S1_IDX.STATUS]]||"").toUpperCase();
-                    if(!(odTs && odTs >= oStartTs && odTs <= oLimitTs && (st.includes("OFFER") || st.includes("ACCEPT")))) return false;
+                    if(!(odTs && odTs >= oStartTs && odTs <= oLimitTs)) return false;
+                    if (!isSearchOfferRow(row)) return false;
                     if(useOb && hasObRange) { 
                         const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]); 
                         const obdTs = obd ? obd.getTime() : null;
@@ -2318,8 +2318,8 @@
                             if((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                             const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                             const odTs = od ? od.getTime() : null;
-                            const st = (row[headersS1[S1_IDX.STATUS]]||"").toUpperCase();
-                            if(!(odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && (st.includes("OFFER") || st.includes("ACCEPT")))) return false;
+                            if(!(odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end))) return false;
+                            if (!isSearchOfferRow(row)) return false;
                             if(useOb && hasObRange) {
                                 const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
                                 const obdTs = obd ? obd.getTime() : null;
@@ -3004,10 +3004,8 @@
                     const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const onbD = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
-                    const st = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
                     const dMatch = od && startO && endO && od >= startO && od <= (new Date(endO).setHours(23,59,59));
-                    const stMatch = st.includes("OFFER") || st.includes("ACCEPT");
-                    if (!bMatch || !dMatch || !stMatch) return false;
+                    if (!bMatch || !dMatch || !isSearchOfferRow(row)) return false;
                     if (useOb && obS && obE) {
                         if (!onbD || onbD < obS || onbD > (new Date(obE).setHours(23,59,59))) return false;
                     }
@@ -3020,10 +3018,8 @@
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const onbD = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
-                    const st = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
                     const dMatch = od && startO && endO && od >= startO && od <= (new Date(endO).setHours(23,59,59));
-                    const stMatch = st.includes("OFFER") || st.includes("ACCEPT");
-                    if (!dMatch || !stMatch) return false;
+                    if (!dMatch || !isSearchOfferRow(row)) return false;
                     if (useOb && obS && obE) {
                         if (!onbD || onbD < obS || onbD > (new Date(obE).setHours(23,59,59))) return false;
                     }
