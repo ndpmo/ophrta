@@ -1499,10 +1499,18 @@
             return upper.includes("REJECT") || upper.includes("WITHDRAW");
         }
 
+        function isNoShowOnboardStatus(value) {
+            const upper = ((value || "") + "").trim().toUpperCase();
+            return upper.includes("NO SHOW") || upper.includes("NOSHOW");
+        }
+
         function isSearchOfferRow(row) {
             const statusUpper = ((row?.[headersS1[S1_IDX.STATUS]] || "") + "").trim().toUpperCase();
             const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            const onboardStatusUpper = getS1OnboardStatus(row).toUpperCase();
             if (isRejectedOrWithdrawnStatus(statusUpper)) return false;
+            if (isRejectedOrWithdrawnStatus(onboardStatusUpper)) return false;
+            if (isNoShowOnboardStatus(onboardStatusUpper)) return false;
             if (statusUpper.includes("OFFER") || statusUpper.includes("ACCEPT")) return true;
             return !!offerDate;
         }
@@ -2057,7 +2065,11 @@
                 const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                 const odTs = od ? od.getTime() : null;
                 const st = (row[headersS1[S1_IDX.STATUS]] || "").toUpperCase();
+                const onboardStatus = getS1OnboardStatus(row);
                 if (!(odTs && odTs >= oStartTs && odTs <= oLimitTs && (st.includes("OFFER") || st.includes("ACCEPT")))) return;
+                if (isRejectedOrWithdrawnStatus(st)) return;
+                if (isRejectedOrWithdrawnStatus(onboardStatus)) return;
+                if (isNoShowOnboardStatus(onboardStatus)) return;
                 if (useOb && hasObRange) {
                     const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
                     const obdTs = obd ? obd.getTime() : null;
