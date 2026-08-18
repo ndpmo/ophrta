@@ -874,6 +874,9 @@
         function isOffered(row) {
             const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
             if (isRejectedOrWithdrawnStatus(status)) return false;
+            const onboardStatus = getOnboardStatus(row);
+            if (isRejectedOrWithdrawnStatus(onboardStatus)) return false;
+            if (isNoShowOnboardStatus(onboardStatus)) return false;
             const statusUpper = status.toUpperCase();
             const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
             return !!offerDate || statusUpper.includes('OFFER') || statusUpper.includes('ACCEPT');
