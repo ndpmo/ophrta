@@ -1112,11 +1112,13 @@
                     const offerOtherBrand = rows.filter(isOtherBrandOffer).length;
                     const offerBS = rows.filter(isBeautySpecialistOffer).length;
                     const onboardRows = rows.filter(isOnboard);
-                    const onboard = onboardRows.filter(row => isSameBrandReferral(member, row)).length;
+                    const sameBrandOnboardRows = onboardRows.filter(row => isSameBrandReferral(member, row));
+                    const onboard = sameBrandOnboardRows.filter(row => !isBeautySpecialistPosition(row)).length;
+                    const onboardBS = sameBrandOnboardRows.filter(isBeautySpecialistPosition).length;
                     const nonSameBrandOnboard = onboardRows.filter(row => !isSameBrandReferral(member, row)).length;
                     const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -1149,7 +1151,9 @@
                             beautySpecialistOffer: isBeautySpecialistOffer(row),
                             onboarded: actualOnboarded,
                             sameBrand,
-                            sameBrandOnboarded: actualOnboarded && sameBrand,
+                            countedOnboard: actualOnboarded && sameBrand && !isBeautySpecialistPosition(row),
+                            sameBrandOnboarded: actualOnboarded && sameBrand && !isBeautySpecialistPosition(row),
+                            beautySpecialistOnboard: actualOnboarded && sameBrand && isBeautySpecialistPosition(row),
                             nonSameBrandOnboarded: actualOnboarded && !sameBrand,
                             upcomingOnboard: isUpcomingOnboard(row),
                             leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0),
@@ -1173,6 +1177,7 @@
                     offerOtherBrand: memberStats.reduce((sum, member) => sum + (member.offerOtherBrand || 0), 0),
                     offerBS: memberStats.reduce((sum, member) => sum + (member.offerBS || 0), 0),
                     onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
+                    onboardBS: memberStats.reduce((sum, member) => sum + (member.onboardBS || 0), 0),
                     nonSameBrandOnboard: memberStats.reduce((sum, member) => sum + member.nonSameBrandOnboard, 0),
                     upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
                     leaderSelfStat,
@@ -1239,6 +1244,7 @@
             const totalOfferOtherBrand = leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
             const totalOfferBS = leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
+            const totalOnboardBS = leaders.reduce((sum, leader) => sum + (leader.onboardBS || 0), 0);
             const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
             const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
@@ -1283,6 +1289,7 @@
                     note: `
                         <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>
                         <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Non Same Brand = ${formatNumber(totalNonSameBrandOnboard)}</div>
+                        <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalOnboardBS)}</div>
                     `,
                     accent: 'var(--success)',
                     bg: 'var(--success-soft)',
@@ -1731,9 +1738,9 @@
                     <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'ml-1 text-[11px]')}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'ml-1 text-[11px]')}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
                 </tr>
@@ -1970,9 +1977,9 @@
                     <td class="px-5 py-4 text-left text-slate-700">${Array.from(row.brands).join(', ') || '-'}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
                 </tr>
@@ -2015,7 +2022,7 @@
                     rows = rows.filter(item => item.countedOffer);
                     titleText = withContext('Offer Detail');
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
-                    rows = rows.filter(item => item.sameBrandOnboarded);
+                    rows = rows.filter(item => item.countedOnboard);
                     titleText = withContext('On Board Detail');
                 } else if (currentSummaryDetailMode === 'UPCOMING') {
                     rows = rows.filter(item => item.upcomingOnboard);
