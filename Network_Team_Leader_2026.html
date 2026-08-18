@@ -1116,9 +1116,11 @@
                     const onboard = sameBrandOnboardRows.filter(row => !isBeautySpecialistPosition(row)).length;
                     const onboardBS = sameBrandOnboardRows.filter(isBeautySpecialistPosition).length;
                     const nonSameBrandOnboard = onboardRows.filter(row => !isSameBrandReferral(member, row)).length;
-                    const upcomingOnboard = rows.filter(isUpcomingOnboard).length;
+                    const upcomingOnboardRows = rows.filter(isUpcomingOnboard);
+                    const upcomingOnboard = upcomingOnboardRows.filter(row => !isBeautySpecialistPosition(row)).length;
+                    const upcomingOnboardBS = upcomingOnboardRows.filter(isBeautySpecialistPosition).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, upcomingOnboardBS, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -1156,6 +1158,8 @@
                             beautySpecialistOnboard: actualOnboarded && sameBrand && isBeautySpecialistPosition(row),
                             nonSameBrandOnboarded: actualOnboarded && !sameBrand,
                             upcomingOnboard: isUpcomingOnboard(row),
+                            countedUpcomingOnboard: isUpcomingOnboard(row) && !isBeautySpecialistPosition(row),
+                            beautySpecialistUpcomingOnboard: isUpcomingOnboard(row) && isBeautySpecialistPosition(row),
                             leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0),
                             offerDateObj: parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]) || new Date(0),
                             onboardDateObj: parseDate(getRecordedOnboardDate(row)) || new Date(0)
@@ -1180,6 +1184,7 @@
                     onboardBS: memberStats.reduce((sum, member) => sum + (member.onboardBS || 0), 0),
                     nonSameBrandOnboard: memberStats.reduce((sum, member) => sum + member.nonSameBrandOnboard, 0),
                     upcomingOnboard: memberStats.reduce((sum, member) => sum + member.upcomingOnboard, 0),
+                    upcomingOnboardBS: memberStats.reduce((sum, member) => sum + (member.upcomingOnboardBS || 0), 0),
                     leaderSelfStat,
                     teamMateStats,
                     memberStats,
@@ -1247,6 +1252,7 @@
             const totalOnboardBS = leaders.reduce((sum, leader) => sum + (leader.onboardBS || 0), 0);
             const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
+            const totalUpcomingOnboardBS = leaders.reduce((sum, leader) => sum + (leader.upcomingOnboardBS || 0), 0);
             const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
             const comparisonOffer = comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
             const comparisonOnboard = comparisonLeaders.reduce((sum, leader) => sum + leader.onboard, 0);
@@ -1296,7 +1302,19 @@
                     mode: 'ONBOARD',
                     noteIsHtml: true
                 },
-                { title: 'Upcoming On Board', value: totalUpcomingOnboard, delta: totalUpcomingOnboard - comparisonUpcoming, note: 'Accept + future onboard date', accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', mode: 'UPCOMING' },
+                {
+                    title: 'Upcoming On Board',
+                    value: totalUpcomingOnboard,
+                    delta: totalUpcomingOnboard - comparisonUpcoming,
+                    note: `
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">Accept + future onboard date</div>
+                        <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalUpcomingOnboardBS)}</div>
+                    `,
+                    accent: '#7c3aed',
+                    bg: 'rgba(139,92,246,0.12)',
+                    mode: 'UPCOMING',
+                    noteIsHtml: true
+                },
                 { title: 'Network Team Leader', value: leaders.length, note: leaderBrandLines, accent: 'var(--brand)', bg: 'var(--brand-soft)', mode: 'ALL', noteIsHtml: true },
                 { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
             ];
@@ -1862,7 +1880,17 @@
                 { title: 'Lead', value: active.lead || 0, accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', note: 'Whole network team performance' },
                 { title: 'Offer', value: active.offer || 0, accent: 'var(--warning)', bg: 'var(--warning-soft)', note: 'Whole network team performance' },
                 { title: 'On Board', value: active.onboard || 0, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'Whole network team performance' },
-                { title: 'Upcoming On Board', value: active.upcomingOnboard || 0, accent: '#7c3aed', bg: 'rgba(139,92,246,0.12)', note: 'Whole network team performance' },
+                {
+                    title: 'Upcoming On Board',
+                    value: active.upcomingOnboard || 0,
+                    accent: '#7c3aed',
+                    bg: 'rgba(139,92,246,0.12)',
+                    note: `
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">Whole network team performance</div>
+                        <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(active.upcomingOnboardBS || 0)}</div>
+                    `,
+                    noteIsHtml: true
+                },
                 { title: 'Team Size', value: active.teamSize, accent: 'var(--brand)', bg: 'var(--brand-soft)', note: `${formatNumber(active.teamSize)} total (leader + members)` }
             ];
 
@@ -1871,7 +1899,9 @@
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
                     <div class="mt-3 flex flex-col items-center justify-center gap-2 text-center">
                         <div class="text-3xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
-                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
+                        ${card.noteIsHtml
+                            ? `<div class="w-full text-center">${card.note}</div>`
+                            : `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>`}
                     </div>
                 </div>
             `).join('');
@@ -2025,7 +2055,7 @@
                     rows = rows.filter(item => item.countedOnboard);
                     titleText = withContext('On Board Detail');
                 } else if (currentSummaryDetailMode === 'UPCOMING') {
-                    rows = rows.filter(item => item.upcomingOnboard);
+                    rows = rows.filter(item => item.countedUpcomingOnboard);
                     titleText = withContext('Upcoming On Board Detail');
                 } else if (currentSummaryDetailMode === 'ALL') {
                     titleText = withContext('Candidate Detail');
