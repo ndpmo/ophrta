@@ -230,7 +230,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
@@ -288,7 +288,8 @@
             LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
             OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
             ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
-            PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' }
+            PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
+            REJECT_WITHDRAW: { title: 'Reject / Withdraw Details', accent: '#dc2626', soft: 'rgba(248, 113, 113, 0.12)' }
         };
 
         let headersS1 = [];
@@ -536,6 +537,23 @@
             return null;
         }
 
+        function getRejectWithdrawBucket(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            const onboardStatusUpper = getOnboardStatus(row).toUpperCase();
+            const combined = `${statusUpper} ${onboardStatusUpper}`.trim();
+            if (!combined) return null;
+
+            if (combined.includes('DUPLICATED CV')) return 'DUPLICATED CV';
+            if (combined.includes('BLACKLIST')) return 'BLACKLISTED';
+            if (combined.includes('REJECT OFFER BY CDD')) return 'REJECT OFFER BY CDD';
+            if (combined.includes('WITHDRAW OFFER')) return 'WITHDRAW OFFER';
+
+            const hasRejectOrWithdraw = combined.includes('REJECT') || combined.includes('WITHDRAW');
+            if (!hasRejectOrWithdraw) return null;
+
+            return 'REJECT / WITHDRAW INTERVIEW';
+        }
+
         function getFilteredRows() {
             const range = getRange();
             if (!range) return [];
@@ -575,6 +593,32 @@
             };
         }
 
+        function getRejectWithdrawCounts(rows) {
+            const buckets = {
+                'REJECT / WITHDRAW INTERVIEW': [],
+                'REJECT OFFER BY CDD': [],
+                'WITHDRAW OFFER': [],
+                'BLACKLISTED': [],
+                'DUPLICATED CV': []
+            };
+
+            rows.forEach(row => {
+                const bucket = getRejectWithdrawBucket(row);
+                if (bucket) buckets[bucket].push(row);
+            });
+
+            const allRows = Object.values(buckets).flat();
+            return {
+                rows: allRows,
+                total: allRows.length,
+                rejectWithdrawInterview: buckets['REJECT / WITHDRAW INTERVIEW'].length,
+                rejectOfferByCdd: buckets['REJECT OFFER BY CDD'].length,
+                withdrawOffer: buckets['WITHDRAW OFFER'].length,
+                blacklisted: buckets['BLACKLISTED'].length,
+                duplicatedCv: buckets['DUPLICATED CV'].length
+            };
+        }
+
         function renderSummaryCards(summary) {
             const cards = [
                 {
@@ -589,6 +633,37 @@
                         ['OP', summary.lead.op]
                     ],
                     extra: summary.lead.other > 0 ? `Other source = ${summary.lead.other}` : ''
+                },
+                {
+                    key: 'PENDING',
+                    title: 'Pending',
+                    value: summary.pending.total,
+                    note: 'Current pending pipeline',
+                    accent: 'var(--pending)',
+                    bg: 'var(--pending-soft)',
+                    lines: [
+                        ['Pending Ccd Reply', summary.pending.pendingCcdReply],
+                        ['Pending TA', summary.pending.pendingTa],
+                        ['Cdd unreachable', summary.pending.cddUnreachable],
+                        ['Presented to line', summary.pending.presentedToLine]
+                    ],
+                    extra: ''
+                },
+                {
+                    key: 'REJECT_WITHDRAW',
+                    title: 'Reject / Withdraw',
+                    value: summary.rejectWithdraw.total,
+                    note: 'Rejected / withdrawn / blacklist / duplicated',
+                    accent: '#dc2626',
+                    bg: 'rgba(248, 113, 113, 0.12)',
+                    lines: [
+                        ['Reject/Withdraw Interview', summary.rejectWithdraw.rejectWithdrawInterview],
+                        ['Reject Offer By cdd', summary.rejectWithdraw.rejectOfferByCdd],
+                        ['Withdraw Offer', summary.rejectWithdraw.withdrawOffer],
+                        ['Blacklisted', summary.rejectWithdraw.blacklisted],
+                        ['Duplicated CV', summary.rejectWithdraw.duplicatedCv]
+                    ],
+                    extra: ''
                 },
                 {
                     key: 'OFFER',
@@ -615,21 +690,6 @@
                         ['OP', summary.onboard.op]
                     ],
                     extra: summary.onboard.other > 0 ? `Other source = ${summary.onboard.other}` : ''
-                },
-                {
-                    key: 'PENDING',
-                    title: 'Pending',
-                    value: summary.pending.total,
-                    note: 'Current pending pipeline',
-                    accent: 'var(--pending)',
-                    bg: 'var(--pending-soft)',
-                    lines: [
-                        ['Pending Ccd Reply', summary.pending.pendingCcdReply],
-                        ['Pending TA', summary.pending.pendingTa],
-                        ['Cdd unreachable', summary.pending.cddUnreachable],
-                        ['Presented to line', summary.pending.presentedToLine]
-                    ],
-                    extra: ''
                 }
             ];
 
@@ -662,9 +722,10 @@
         function renderDetailTable(summary) {
             const stageRows = {
                 LEAD: summary.lead.rows,
+                PENDING: summary.pending.rows,
+                REJECT_WITHDRAW: summary.rejectWithdraw.rows,
                 OFFER: summary.offer.rows,
-                ONBOARD: summary.onboard.rows,
-                PENDING: summary.pending.rows
+                ONBOARD: summary.onboard.rows
             };
             const rows = getSourceFilteredRows(stageRows[activeStage] || []);
             const stageConfig = STAGE_CONFIG[activeStage];
@@ -705,9 +766,10 @@
             const rows = getFilteredRows();
             const summary = {
                 lead: buildCounts(rows),
+                pending: getPendingCounts(rows),
+                rejectWithdraw: getRejectWithdrawCounts(rows),
                 offer: buildCounts(rows, isOfferRow),
-                onboard: buildCounts(rows, isOnboardRow),
-                pending: getPendingCounts(rows)
+                onboard: buildCounts(rows, isOnboardRow)
             };
             renderSummaryCards(summary);
             renderDetailTable(summary);
