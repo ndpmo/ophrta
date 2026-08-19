@@ -1,1 +1,769 @@
 
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WA Process 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --paper: rgba(255, 255, 255, 0.88);
+            --line: rgba(148, 163, 184, 0.26);
+            --lead: #2563eb;
+            --lead-soft: rgba(37, 99, 235, 0.12);
+            --offer: #ea580c;
+            --offer-soft: rgba(249, 115, 22, 0.12);
+            --onboard: #059669;
+            --onboard-soft: rgba(16, 185, 129, 0.12);
+            --pending: #7c3aed;
+            --pending-soft: rgba(124, 58, 237, 0.12);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 26%),
+                radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 22%),
+                linear-gradient(160deg, #f7f9ff 0%, #edf6ff 52%, #fbfffd 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.34) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.34) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: var(--paper);
+            border: 1px solid rgba(255,255,255,0.78);
+            box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.28);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+        }
+
+        .title-tech,
+        .data-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .data-font {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pill-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 3rem;
+            border-radius: 9999px;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255,255,255,0.84);
+            background: rgba(255,255,255,0.78);
+            font-weight: 800;
+            box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.28);
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .summary-card.active {
+            box-shadow: 0 24px 50px -28px rgba(15, 23, 42, 0.34);
+            border-color: rgba(15, 23, 42, 0.2);
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.36), transparent 40%);
+            pointer-events: none;
+        }
+
+        .table-shell {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255,255,255,0.76);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 22px 45px -34px rgba(15, 23, 42, 0.35);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 9999px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.28rem 0.65rem;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .metric-subline {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            font-size: 0.78rem;
+            line-height: 1.2rem;
+            font-weight: 900;
+        }
+
+        .count-delta {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.28rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            font-weight: 900;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .count-delta.positive { color: #16a34a; }
+        .count-delta.negative { color: #dc2626; }
+        .count-delta.neutral { color: #64748b; }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 0.75rem 0.2rem 2.5rem;
+            }
+
+            .glass-card {
+                border-radius: 1rem;
+            }
+
+            .pill-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
+        <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">
+                        <span>&larr;</span>
+                        <span>Back To Dashboard</span>
+                    </a>
+                    <span class="tag bg-sky-100 text-sky-700">OS-CRA</span>
+                    <span class="tag bg-violet-100 text-violet-700">WA Process</span>
+                    <span class="tag bg-emerald-100 text-emerald-700">MTD From Lead Date</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+                        WA Process <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">2026</span>
+                    </h1>
+                    <p class="mt-3 max-w-3xl text-sm md:text-base font-bold text-slate-600">
+                        Focus on <span class="text-slate-900">Position = OS-CRA</span>. The cohort is filtered by Lead Date, then split into HR / OP sources for lead, offer, onboard, and current pending pipeline.
+                    </p>
+                </div>
+            </div>
+            <div class="glass-card px-5 py-4 min-w-[240px]">
+                <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
+                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading latest sheet data...</p>
+                <p class="mt-2 text-xs font-bold text-slate-500">Sheet 1 + Position OS-CRA</p>
+            </div>
+        </header>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 flex-1">
+                    <div class="space-y-2">
+                        <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
+                        <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
+                        <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="detailSourceFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Details Source</label>
+                        <select id="detailSourceFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                            <option value="ALL">All Source</option>
+                            <option value="HR">HR</option>
+                            <option value="OP">OP</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" onclick="resetFilters()" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">Reset</button>
+                    <button type="button" onclick="renderDashboard()" class="pill-button bg-sky-600 text-white border-transparent hover:-translate-y-0.5 transition">Refresh Study</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
+                    <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Lead Details</h2>
+                </div>
+                <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[1120px] border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-4 py-4 text-left">Source</th>
+                                <th class="px-4 py-4 text-left">Position</th>
+                                <th class="px-4 py-4 text-left">Lead Date</th>
+                                <th class="px-4 py-4 text-left">Offer Date</th>
+                                <th class="px-4 py-4 text-left">On Board Date</th>
+                                <th class="px-4 py-4 text-left">Status</th>
+                                <th class="px-4 py-4 text-left">On Board Status</th>
+                                <th class="px-4 py-4 text-left">RJ/NJ</th>
+                                <th class="px-5 py-4 text-left">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="loadingState" class="glass-card p-5 text-sm font-black text-slate-600">Loading WA process data...</section>
+    </div>
+
+    <script>
+        const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
+        const SHEET1_GID = '1328974285';
+        const S1_IDX = {
+            BRAND: 0,
+            POSITION: 4,
+            SOURCE: 5,
+            NAME: 13,
+            ONBOARD_STATUS: 27,
+            STATUS: 23,
+            RJNJ: 12,
+            LEAD_DATE: 35,
+            OFFER_DATE: 36,
+            ONBOARD_DATE: 37
+        };
+        const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
+        const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
+        const TARGET_POSITION = 'OS-CRA';
+        const STAGE_CONFIG = {
+            LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
+            OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
+            ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
+            PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' }
+        };
+
+        let headersS1 = [];
+        let dataS1 = [];
+        let activeStage = 'LEAD';
+
+        function formatDateToISO(date) {
+            const y = date.getFullYear();
+            const m = `${date.getMonth() + 1}`.padStart(2, '0');
+            const d = `${date.getDate()}`.padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value || 0);
+        }
+
+        function formatDateAsDMonY(date) {
+            if (!(date instanceof Date) || isNaN(date)) return '-';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function parseDate(rawValue) {
+            if (!rawValue) return null;
+            if (rawValue instanceof Date && !isNaN(rawValue)) {
+                return new Date(rawValue.getFullYear(), rawValue.getMonth(), rawValue.getDate(), 0, 0, 0, 0);
+            }
+
+            const value = rawValue.toString().trim();
+            if (!value || value === '-' || value.toUpperCase() === 'N/A' || value === '#N/A') return null;
+
+            const isoMatch = value.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+            if (isoMatch) {
+                const year = parseInt(isoMatch[1], 10);
+                const month = parseInt(isoMatch[2], 10);
+                const day = parseInt(isoMatch[3], 10);
+                const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+                return isNaN(date) ? null : date;
+            }
+
+            const parts = value.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+            if (parts.length >= 3) {
+                const parsed = parseDateByParts(parts[0], parts[1], parts[2]) || parseDateByParts(parts[2], parts[1], parts[0]);
+                if (parsed) return parsed;
+            }
+
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return null;
+        }
+
+        function parseDateByParts(dayPart, monthPart, yearPart) {
+            const d = parseInt((dayPart ?? '').toString().trim(), 10);
+            let y = parseInt((yearPart ?? '').toString().trim(), 10);
+            if (!d || !y) return null;
+            if (y < 100) y += 2000;
+
+            const monthRaw = (monthPart ?? '').toString().trim();
+            let month = parseInt(monthRaw, 10);
+            if (isNaN(month)) {
+                const monthList = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                const index = monthList.indexOf(monthRaw.toLowerCase().slice(0, 3));
+                month = index >= 0 ? index + 1 : NaN;
+            }
+            if (!month || month < 1 || month > 12) return null;
+
+            const date = new Date(y, month - 1, d, 0, 0, 0, 0);
+            if (date.getFullYear() !== y || date.getMonth() !== month - 1 || date.getDate() !== d) return null;
+            return date;
+        }
+
+        function buildDateFromTripletColumns(row, tripletIdx, fallbackValue, allowFallback = true) {
+            const raw = tripletIdx.map(i => ((row[headersS1[i]] ?? '') + '').trim());
+            const nonEmpty = raw.filter(value => value && value !== '-');
+            if (!nonEmpty.length) return allowFallback ? ((fallbackValue ?? '') + '').trim() : '-';
+            if (nonEmpty.length === 3) {
+                const parsed = parseDateByParts(nonEmpty[0], nonEmpty[1], nonEmpty[2]) || parseDateByParts(nonEmpty[2], nonEmpty[1], nonEmpty[0]);
+                if (parsed) return formatDateAsDMonY(parsed);
+            }
+            const single = parseDate(nonEmpty.join(' '));
+            return single ? formatDateAsDMonY(single) : (allowFallback ? ((fallbackValue ?? '') + '').trim() : '-');
+        }
+
+        function hydrateS1DateFields(row) {
+            const leadHeader = headersS1[S1_IDX.LEAD_DATE];
+            const offerHeader = headersS1[S1_IDX.OFFER_DATE];
+            const onboardHeader = headersS1[S1_IDX.ONBOARD_DATE];
+            const rawOnboardDateHeader = headersS1[S1_RAW_IDX.ONBOARD_DATE];
+            const rawOnboardStatusHeader = headersS1[S1_RAW_IDX.ONBOARD_STATUS];
+
+            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = (row[rawOnboardDateHeader] ?? '').toString().trim();
+            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = (row[rawOnboardStatusHeader] ?? '').toString().trim();
+
+            if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
+            if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
+            if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
+        }
+
+        function csvEscape(value) {
+            const str = (value ?? '').toString();
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        function gvizTableToCsv(table) {
+            const cols = (table?.cols || []).map(col => col?.label || '');
+            const lines = [cols.map(csvEscape).join(',')];
+            (table?.rows || []).forEach(row => {
+                const values = cols.map((_, index) => {
+                    const cell = row?.c?.[index];
+                    if (!cell) return '';
+                    return cell.f != null ? cell.f : cell.v;
+                });
+                lines.push(values.map(csvEscape).join(','));
+            });
+            return lines.join('\n');
+        }
+
+        function loadGvizCsvByJsonp(gid, docId = SHEET1_DOC_ID) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `__gviz_wa_${gid}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error(`Sheet ${gid} JSONP timeout`));
+                }, 15000);
+
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+                }
+
+                window[callbackName] = response => {
+                    try {
+                        cleanup();
+                        resolve(gvizTableToCsv(response.table));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error(`Sheet ${gid} JSONP failed`));
+                };
+
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?gid=${gid}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                document.body.appendChild(script);
+            });
+        }
+
+        async function fetchSheetText() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
+            try {
+                const response = await fetch(`${url}&t=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            } catch (_) {
+                return loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID);
+            }
+        }
+
+        function cleanText(value, fallback = '-') {
+            const result = ((value ?? '') + '').trim();
+            return result || fallback;
+        }
+
+        function normalizeBrand(value) {
+            return cleanText(value).toUpperCase();
+        }
+
+        function getSourceType(row) {
+            const source = cleanText(row?.[headersS1[S1_IDX.SOURCE]], '').toUpperCase();
+            if (source === 'HR') return 'HR';
+            if (source.includes('OPERATION')) return 'OP';
+            return 'OTHER';
+        }
+
+        function getStatus(row) {
+            return cleanText(row?.[headersS1[S1_IDX.STATUS]], '');
+        }
+
+        function getOnboardStatus(row) {
+            return cleanText(row?.__rawOnboardStatus ?? row?.[headersS1[S1_IDX.ONBOARD_STATUS]], '');
+        }
+
+        function getRecordedOnboardDate(row) {
+            return cleanText(row?.__rawOnboardDate ?? row?.[headersS1[S1_IDX.ONBOARD_DATE]], '');
+        }
+
+        function getRange() {
+            const start = parseDate(document.getElementById('studyStart')?.value);
+            const end = parseDate(document.getElementById('studyEnd')?.value);
+            if (!start || !end) return null;
+            const endLimit = new Date(end.getTime());
+            endLimit.setHours(23, 59, 59, 999);
+            return { start, end: endLimit };
+        }
+
+        function isTargetPosition(row) {
+            return cleanText(row?.[headersS1[S1_IDX.POSITION]], '').toUpperCase() === TARGET_POSITION;
+        }
+
+        function isInLeadRange(row, range) {
+            const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
+            if (!leadDate) return false;
+            return leadDate >= range.start && leadDate <= range.end;
+        }
+
+        function isRejectedOrWithdrawn(value) {
+            const upper = cleanText(value, '').toUpperCase();
+            return upper.includes('REJECT') || upper.includes('WITHDRAW');
+        }
+
+        function isNoShow(value) {
+            const upper = cleanText(value, '').toUpperCase();
+            return upper.includes('NO SHOW') || upper.includes('NOSHOW');
+        }
+
+        function isOfferRow(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            const onboardStatusUpper = getOnboardStatus(row).toUpperCase();
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            if (isRejectedOrWithdrawn(statusUpper)) return false;
+            if (isRejectedOrWithdrawn(onboardStatusUpper)) return false;
+            if (isNoShow(onboardStatusUpper)) return false;
+            if (statusUpper.includes('OFFER') || statusUpper.includes('ACCEPT')) return true;
+            return !!offerDate;
+        }
+
+        function isOnboardRow(row) {
+            return getOnboardStatus(row).toUpperCase().includes('ONBOARD');
+        }
+
+        function getPendingBucket(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            if (statusUpper.includes('PENDING CCD REPLY')) return 'PENDING CCD REPLY';
+            if (statusUpper.includes('PENDING TA')) return 'PENDING TA';
+            if (statusUpper.includes('CDD UNREACHABLE')) return 'CDD UNREACHABLE';
+            if (statusUpper.includes('PRESENTED TO LINE')) return 'PRESENTED TO LINE';
+            return null;
+        }
+
+        function getFilteredRows() {
+            const range = getRange();
+            if (!range) return [];
+            return dataS1.filter(row => isTargetPosition(row) && isInLeadRange(row, range));
+        }
+
+        function buildCounts(rows, predicate) {
+            const matched = predicate ? rows.filter(predicate) : rows.slice();
+            return {
+                rows: matched,
+                total: matched.length,
+                hr: matched.filter(row => getSourceType(row) === 'HR').length,
+                op: matched.filter(row => getSourceType(row) === 'OP').length,
+                other: matched.filter(row => getSourceType(row) === 'OTHER').length
+            };
+        }
+
+        function getPendingCounts(rows) {
+            const buckets = {
+                'PENDING CCD REPLY': [],
+                'PENDING TA': [],
+                'CDD UNREACHABLE': [],
+                'PRESENTED TO LINE': []
+            };
+            rows.forEach(row => {
+                const bucket = getPendingBucket(row);
+                if (bucket) buckets[bucket].push(row);
+            });
+            const allRows = Object.values(buckets).flat();
+            return {
+                rows: allRows,
+                total: allRows.length,
+                pendingCcdReply: buckets['PENDING CCD REPLY'].length,
+                pendingTa: buckets['PENDING TA'].length,
+                cddUnreachable: buckets['CDD UNREACHABLE'].length,
+                presentedToLine: buckets['PRESENTED TO LINE'].length
+            };
+        }
+
+        function renderSummaryCards(summary) {
+            const cards = [
+                {
+                    key: 'LEAD',
+                    title: 'Lead',
+                    value: summary.lead.total,
+                    note: 'OS-CRA lead cohort',
+                    accent: 'var(--lead)',
+                    bg: 'var(--lead-soft)',
+                    lines: [
+                        ['HR', summary.lead.hr],
+                        ['OP', summary.lead.op]
+                    ],
+                    extra: summary.lead.other > 0 ? `Other source = ${summary.lead.other}` : ''
+                },
+                {
+                    key: 'OFFER',
+                    title: 'Offer',
+                    value: summary.offer.total,
+                    note: 'Exclude No Show / Reject / Withdraw',
+                    accent: 'var(--offer)',
+                    bg: 'var(--offer-soft)',
+                    lines: [
+                        ['HR', summary.offer.hr],
+                        ['OP', summary.offer.op]
+                    ],
+                    extra: summary.offer.other > 0 ? `Other source = ${summary.offer.other}` : ''
+                },
+                {
+                    key: 'ONBOARD',
+                    title: 'On Board',
+                    value: summary.onboard.total,
+                    note: 'On Board Status = Onboard only',
+                    accent: 'var(--onboard)',
+                    bg: 'var(--onboard-soft)',
+                    lines: [
+                        ['HR', summary.onboard.hr],
+                        ['OP', summary.onboard.op]
+                    ],
+                    extra: summary.onboard.other > 0 ? `Other source = ${summary.onboard.other}` : ''
+                },
+                {
+                    key: 'PENDING',
+                    title: 'Pending',
+                    value: summary.pending.total,
+                    note: 'Current pending pipeline',
+                    accent: 'var(--pending)',
+                    bg: 'var(--pending-soft)',
+                    lines: [
+                        ['Pending Ccd Reply', summary.pending.pendingCcdReply],
+                        ['Pending TA', summary.pending.pendingTa],
+                        ['Cdd unreachable', summary.pending.cddUnreachable],
+                        ['Presented to line', summary.pending.presentedToLine]
+                    ],
+                    extra: ''
+                }
+            ];
+
+            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+                <div class="glass-card summary-card p-5 ${activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                    </div>
+                    <p class="mt-2 text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</p>
+                    <div class="mt-4 space-y-1">
+                        ${card.lines.map(([label, value]) => `
+                            <div class="metric-subline">
+                                <span class="text-slate-500">${label}</span>
+                                <span class="text-slate-900 data-font">${formatNumber(value)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${card.extra ? `<p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">${card.extra}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getSourceFilteredRows(rows) {
+            const filter = document.getElementById('detailSourceFilter')?.value || 'ALL';
+            if (filter === 'ALL') return rows;
+            return rows.filter(row => getSourceType(row) === filter);
+        }
+
+        function renderDetailTable(summary) {
+            const stageRows = {
+                LEAD: summary.lead.rows,
+                OFFER: summary.offer.rows,
+                ONBOARD: summary.onboard.rows,
+                PENDING: summary.pending.rows
+            };
+            const rows = getSourceFilteredRows(stageRows[activeStage] || []);
+            const stageConfig = STAGE_CONFIG[activeStage];
+            document.getElementById('detailTitle').textContent = stageConfig.title;
+            const sourceFilter = document.getElementById('detailSourceFilter')?.value || 'ALL';
+            document.getElementById('detailMeta').textContent = `${formatNumber(rows.length)} rows under ${sourceFilter === 'ALL' ? 'all source' : sourceFilter} / ${stageConfig.title}`;
+
+            const body = document.getElementById('detailTableBody');
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${stageConfig.title.toLowerCase()} rows in this selection.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = rows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left text-slate-900 font-black">${cleanText(row?.[headersS1[S1_IDX.BRAND]])}</td>
+                    <td class="px-4 py-4 text-left">${getSourceType(row)}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.POSITION]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getRecordedOnboardDate(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getStatus(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getOnboardStatus(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.RJNJ]])}</td>
+                    <td class="px-5 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.NAME]])}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLoading(summary) {
+            const range = getRange();
+            if (!range) return;
+            const loading = document.getElementById('loadingState');
+            loading.textContent = `Showing ${formatNumber(summary.lead.total)} OS-CRA lead rows from ${formatDateAsDMonY(range.start)} to ${formatDateAsDMonY(new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate()))}.`;
+        }
+
+        function renderDashboard() {
+            const rows = getFilteredRows();
+            const summary = {
+                lead: buildCounts(rows),
+                offer: buildCounts(rows, isOfferRow),
+                onboard: buildCounts(rows, isOnboardRow),
+                pending: getPendingCounts(rows)
+            };
+            renderSummaryCards(summary);
+            renderDetailTable(summary);
+            updateLoading(summary);
+        }
+
+        function setActiveStage(stage) {
+            activeStage = stage;
+            renderDashboard();
+        }
+
+        function resetFilters() {
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(monthStart);
+            document.getElementById('studyEnd').value = formatDateToISO(today);
+            document.getElementById('detailSourceFilter').value = 'ALL';
+            activeStage = 'LEAD';
+            renderDashboard();
+        }
+
+        async function init() {
+            document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
+            document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
+            document.getElementById('detailSourceFilter')?.addEventListener('change', renderDashboard);
+
+            try {
+                const today = new Date();
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+                document.getElementById('studyStart').value = formatDateToISO(monthStart);
+                document.getElementById('studyEnd').value = formatDateToISO(today);
+
+                const sheetText = await fetchSheetText();
+                Papa.parse(sheetText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: results => {
+                        headersS1 = results.meta.fields || [];
+                        dataS1 = (results.data || []).map(row => {
+                            hydrateS1DateFields(row);
+                            return row;
+                        });
+                        document.getElementById('lastUpdate').textContent = `Sheet 1 + OS-CRA loaded on ${formatDateAsDMonY(today)}`;
+                        renderDashboard();
+                    },
+                    error: err => {
+                        throw err;
+                    }
+                });
+            } catch (error) {
+                document.getElementById('loadingState').textContent = `Failed to load WA process data: ${error.message}`;
+                document.getElementById('lastUpdate').textContent = 'Failed to load sheet data';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
