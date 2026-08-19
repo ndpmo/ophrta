@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -404,6 +405,157 @@
             </div>
         </section>
 
+        <section class="glass-card p-5 md:p-6 mb-8" id="fibonacciSection">
+            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-teal-500">Fibonacci</p>
+                    <h2 class="text-2xl font-black text-slate-900">Network Team Fibonacci</h2>
+                </div>
+                <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label for="fibStudyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Date From</label>
+                            <input id="fibStudyStart" type="date" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="fibStudyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Date To</label>
+                            <input id="fibStudyEnd" type="date" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label for="fibBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                            <select id="fibBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
+                                <option value="">All Brand</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="fibFloorFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
+                            <select id="fibFloorFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[170px]">
+                                <option value="">All Floor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p id="fibMeta" class="text-sm font-bold text-slate-500">-</p>
+                </div>
+            </div>
+            <p class="mb-5 text-sm font-bold text-slate-500">Cohort is based on first-level referred candidates whose On Board Date falls inside this Fibonacci date range.</p>
+            <div id="fibSummaryCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-5"></div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[1120px] border-collapse">
+                        <thead class="bg-teal-50 text-teal-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Network Team</th>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-5 py-4 text-left">Floor</th>
+                                <th class="px-4 py-4 text-center">Team Size</th>
+                                <th class="px-4 py-4 text-center">1st On Board</th>
+                                <th class="px-4 py-4 text-center">2nd Referrer</th>
+                                <th class="px-4 py-4 text-center">2nd Lead</th>
+                                <th class="px-4 py-4 text-center">2nd Offer</th>
+                                <th class="px-4 py-4 text-center">2nd On Board</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fibTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8 hidden" id="fibDetailSection">
+            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-fuchsia-500">Fibonacci Detail</p>
+                    <h2 id="fibDetailTitle" class="text-2xl font-black text-slate-900">Network Team Fibonacci Detail</h2>
+                </div>
+                <p id="fibDetailMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div id="fibDetailCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5"></div>
+            <div class="grid grid-cols-1 gap-6">
+                <div id="fibFirstLevelCard" class="rounded-[28px] border border-white/70 bg-white/55 p-4 md:p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <div class="flex items-end justify-between gap-3 mb-3">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-teal-500">1st Level</p>
+                            <h3 class="text-lg md:text-xl font-black text-slate-900">On Board Candidates</h3>
+                        </div>
+                        <p id="fibFirstLevelMeta" class="text-sm font-bold text-slate-500">-</p>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-wrap">
+                            <table class="w-full min-w-[760px] border-collapse">
+                                <thead class="bg-teal-50 text-teal-950 text-xs uppercase tracking-[0.14em] font-black">
+                                    <tr>
+                                        <th class="px-4 py-4 text-left">Team Member</th>
+                                        <th class="px-4 py-4 text-left">Candidate</th>
+                                        <th class="px-4 py-4 text-left">Brand</th>
+                                        <th class="px-4 py-4 text-center">RJ/NJ</th>
+                                        <th class="px-4 py-4 text-left">On Board Date</th>
+                                        <th class="px-4 py-4 text-center">2nd On Board</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fibFirstLevelBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="fibReferrerSummaryCard" class="rounded-[28px] border border-white/70 bg-white/55 p-4 md:p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <div class="flex items-end justify-between gap-3 mb-3">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-violet-500">2nd Referrer List</p>
+                            <h3 class="text-lg md:text-xl font-black text-slate-900">Referrer Summary</h3>
+                        </div>
+                        <p id="fibReferrerSummaryMeta" class="text-sm font-bold text-slate-500">-</p>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-wrap">
+                            <table class="w-full min-w-[860px] border-collapse">
+                                <thead class="bg-violet-50 text-violet-950 text-xs uppercase tracking-[0.14em] font-black">
+                                    <tr>
+                                        <th class="px-4 py-4 text-left">1st Referrer</th>
+                                        <th class="px-4 py-4 text-left">Hired Staff ID</th>
+                                        <th class="px-4 py-4 text-center">Referral</th>
+                                        <th class="px-4 py-4 text-center">2nd Lead</th>
+                                        <th class="px-4 py-4 text-center">2nd Offer</th>
+                                        <th class="px-4 py-4 text-center">2nd On Board</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fibReferrerSummaryBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="fibSecondLevelCard" class="rounded-[28px] border border-white/70 bg-white/55 p-4 md:p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <div class="flex items-end justify-between gap-3 mb-3">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">2nd Level</p>
+                            <h3 id="fibSecondLevelTitle" class="text-lg md:text-xl font-black text-slate-900">On Board Candidates</h3>
+                        </div>
+                        <p id="fibSecondLevelMeta" class="text-sm font-bold text-slate-500">-</p>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-wrap">
+                            <table class="w-full min-w-[900px] border-collapse">
+                                <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
+                                    <tr>
+                                        <th class="px-4 py-4 text-left">1st Referrer</th>
+                                        <th class="px-4 py-4 text-left">2nd Candidate</th>
+                                        <th class="px-4 py-4 text-left">Brand</th>
+                                        <th class="px-4 py-4 text-center">RJ/NJ</th>
+                                        <th class="px-4 py-4 text-left">Lead Date</th>
+                                        <th class="px-4 py-4 text-left">Offer Date</th>
+                                        <th class="px-4 py-4 text-left">On Board Date</th>
+                                        <th class="px-4 py-4 text-left">On Board Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fibSecondLevelBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="glass-card p-5 md:p-6 mb-8" id="detailSection">
             <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
                 <div>
@@ -487,6 +639,7 @@
             STATUS: 23,
             INTERVIEWER: 25,
             ONBOARD_STATUS: 27,
+            HIRED_STAFF_NUMBER: 33,
             LEAD_DATE: 35,
             OFFER_DATE: 36,
             ONBOARD_DATE: 37
@@ -511,6 +664,8 @@
         let dataNTL = [];
         let leaderDirectory = [];
         let selectedLeaderKey = '';
+        let selectedFibLeaderKey = '';
+        let selectedFibSummaryMode = '';
         let currentDetailScope = 'SUMMARY';
         let currentSummaryDetailMode = 'LEAD';
         let currentSummaryDetailBrand = '';
@@ -521,6 +676,9 @@
         let networkSortDirection = 'desc';
         let detailSortKey = 'leadDateObj';
         let detailSortDirection = 'desc';
+        const DEFAULT_SECTION_BRAND = 'DERMES';
+        let floorSectionBrandDefaultApplied = false;
+        let networkSectionBrandDefaultApplied = false;
 
         function formatDateToISO(date) {
             const y = date.getFullYear();
@@ -848,6 +1006,20 @@
             return { start, end: endLimit };
         }
 
+        function getFibDateRange() {
+            const start = parseDate(document.getElementById('fibStudyStart')?.value);
+            const end = parseDate(document.getElementById('fibStudyEnd')?.value);
+            if (!start || !end) return null;
+            const endLimit = new Date(end.getTime());
+            endLimit.setHours(23, 59, 59, 999);
+            return { start, end: endLimit };
+        }
+
+        function isDateWithinRange(date, range) {
+            if (!(date instanceof Date) || isNaN(date) || !range?.start || !range?.end) return false;
+            return date.getTime() >= range.start.getTime() && date.getTime() <= range.end.getTime();
+        }
+
         function getRecordedOnboardDate(row) {
             return safeTrim(row?.__rawOnboardDate) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_DATE]]);
         }
@@ -1008,6 +1180,259 @@
             return safeTrim(row?.[headersS1[idx]]);
         }
 
+        function getScopedLeaders(filtersOverride = null) {
+            const filters = getFilterValues(filtersOverride || {});
+
+            return leaderDirectory.map(leader => {
+                const filteredMembers = leader.members.filter(member => {
+                    if (filters.brand && member.brandKey !== filters.brand) return false;
+                    if (filters.center && member.center !== filters.center) return false;
+                    return true;
+                });
+
+                if (!filteredMembers.length) return null;
+                if (filters.leader && leader.key !== filters.leader) return null;
+
+                return {
+                    key: leader.key,
+                    name: leader.name,
+                    brands: filteredMembers.map(member => member.brand).filter(Boolean),
+                    centers: filteredMembers.map(member => member.center).filter(Boolean),
+                    members: filteredMembers
+                };
+            }).filter(Boolean);
+        }
+
+        function getRowIdentity(row) {
+            return [
+                getS1Value(row, S1_IDX.STAFF_ID),
+                getS1Value(row, S1_IDX.NAME),
+                getS1Value(row, S1_IDX.BRAND),
+                getS1Value(row, S1_IDX.LEAD_DATE),
+                getS1Value(row, S1_IDX.OFFER_DATE),
+                getRecordedOnboardDate(row),
+                getOnboardStatus(row)
+            ].join('|');
+        }
+
+        function getReferralRowsByReferrerStaffId(staffId) {
+            const target = safeTrim(staffId);
+            if (!target) return [];
+            return dataS1.filter(row => getS1Value(row, S1_IDX.STAFF_ID) === target);
+        }
+
+        function getMemberFirstLevelOnboardRows(member, fibRange) {
+            const staffNo = safeTrim(member?.staffNo);
+            if (!staffNo || !fibRange) return [];
+            return dataS1.filter(row => {
+                if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
+                if (!isOnboard(row)) return false;
+                if (!isSameBrandReferral(member, row)) return false;
+                if (isBeautySpecialistPosition(row)) return false;
+                const onboardDate = parseDate(getRecordedOnboardDate(row)) || parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE));
+                return isDateWithinRange(onboardDate, fibRange);
+            });
+        }
+
+        function buildFibonacciMemberStat(member, fibRange) {
+            const firstLevelRows = getMemberFirstLevelOnboardRows(member, fibRange);
+            const firstLevelDetailMap = new Map();
+            const secondLevelReferrerSummaryMap = new Map();
+            const secondLevelDetailMap = new Map();
+
+            firstLevelRows.forEach(row => {
+                const rowKey = getRowIdentity(row);
+                if (!firstLevelDetailMap.has(rowKey)) {
+                    firstLevelDetailMap.set(rowKey, {
+                        key: rowKey,
+                        teamMember: member.therapist || '-',
+                        candidateName: getS1Value(row, S1_IDX.NAME) || '-',
+                        brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
+                        rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
+                        leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
+                        offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                        onboardDate: getRecordedOnboardDate(row) || '-',
+                        onboardStatus: getOnboardStatus(row) || '-',
+                        hiredStaffId: getS1Value(row, S1_IDX.HIRED_STAFF_NUMBER) || '-',
+                        secondLevelOnboardCount: 0,
+                        onboardDateObj: parseDate(getRecordedOnboardDate(row)) || parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE)) || new Date(0)
+                    });
+                }
+            });
+
+            const firstLevelReferrerIds = Array.from(new Set(
+                firstLevelRows
+                    .map(row => getS1Value(row, S1_IDX.HIRED_STAFF_NUMBER))
+                    .filter(Boolean)
+            ));
+
+            const secondLevelRowMap = new Map();
+            const secondLevelOnboardDetailMap = new Map();
+            let activatedReferrerCount = 0;
+
+            firstLevelReferrerIds.forEach(staffId => {
+                const rows = getReferralRowsByReferrerStaffId(staffId).filter(row =>
+                    isSameBrandReferral(member, row) && !isBeautySpecialistPosition(row)
+                );
+                if (rows.length) {
+                    activatedReferrerCount += 1;
+                }
+                rows.forEach(row => {
+                    secondLevelRowMap.set(getRowIdentity(row), row);
+                });
+            });
+
+            firstLevelRows.forEach(firstLevelRow => {
+                const firstLevelKey = getRowIdentity(firstLevelRow);
+                const hiredStaffId = getS1Value(firstLevelRow, S1_IDX.HIRED_STAFF_NUMBER);
+                if (!hiredStaffId) return;
+
+                const referralRows = getReferralRowsByReferrerStaffId(hiredStaffId).filter(row =>
+                    isSameBrandReferral(member, row) && !isBeautySpecialistPosition(row)
+                );
+                if (referralRows.length) {
+                    const uniqueReferralRows = Array.from(new Map(
+                        referralRows.map(row => [getRowIdentity(row), row])
+                    ).values());
+                    const secondLevelLeadRowsForReferrer = uniqueReferralRows.filter(row => !!parseDate(getS1Value(row, S1_IDX.LEAD_DATE)));
+                    const secondLevelOfferRowsForReferrer = uniqueReferralRows.filter(row => isOffered(row));
+                    const secondLevelOnboardRowsForReferrer = uniqueReferralRows.filter(row => isOnboard(row));
+                    secondLevelReferrerSummaryMap.set(`${firstLevelKey}::${hiredStaffId}`, {
+                        key: `${firstLevelKey}::${hiredStaffId}`,
+                        firstLevelCandidateName: getS1Value(firstLevelRow, S1_IDX.NAME) || '-',
+                        hiredStaffId,
+                        referralCount: uniqueReferralRows.length,
+                        secondLevelLead: secondLevelLeadRowsForReferrer.length,
+                        secondLevelOffer: secondLevelOfferRowsForReferrer.length,
+                        secondLevelOnboard: secondLevelOnboardRowsForReferrer.length,
+                        onboardDateObj: parseDate(getRecordedOnboardDate(firstLevelRow)) || parseDate(getS1Value(firstLevelRow, S1_IDX.ONBOARD_DATE)) || new Date(0)
+                    });
+                }
+
+                referralRows.forEach(row => {
+                    const detailKey = `${firstLevelKey}::${getRowIdentity(row)}`;
+                    if (secondLevelDetailMap.has(detailKey)) return;
+
+                    const leadDateObj = parseDate(getS1Value(row, S1_IDX.LEAD_DATE));
+                    const offerDateObj = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
+                    const onboardDateObj = parseDate(getRecordedOnboardDate(row)) || parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE));
+
+                    secondLevelDetailMap.set(detailKey, {
+                        key: detailKey,
+                        firstLevelCandidateName: getS1Value(firstLevelRow, S1_IDX.NAME) || '-',
+                        firstLevelHiredStaffId: hiredStaffId,
+                        candidateName: getS1Value(row, S1_IDX.NAME) || '-',
+                        brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
+                        rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
+                        status: getS1Value(row, S1_IDX.STATUS) || '-',
+                        leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
+                        offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                        onboardDate: getRecordedOnboardDate(row) || '-',
+                        onboardStatus: getOnboardStatus(row) || '-',
+                        countedLead: !!leadDateObj,
+                        countedOffer: isOffered(row),
+                        countedOnboard: isOnboard(row),
+                        timelineDateObj: onboardDateObj || offerDateObj || leadDateObj || new Date(0),
+                        onboardDateObj: onboardDateObj || new Date(0)
+                    });
+                });
+
+                referralRows
+                    .filter(row => isOnboard(row))
+                    .forEach(row => {
+                        const detailKey = `${firstLevelKey}::${getRowIdentity(row)}`;
+                        if (secondLevelOnboardDetailMap.has(detailKey)) return;
+                        secondLevelOnboardDetailMap.set(detailKey, {
+                            key: detailKey,
+                            firstLevelCandidateName: getS1Value(firstLevelRow, S1_IDX.NAME) || '-',
+                            firstLevelHiredStaffId: hiredStaffId,
+                            candidateName: getS1Value(row, S1_IDX.NAME) || '-',
+                            brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
+                            rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
+                            leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
+                            offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                            onboardDate: getRecordedOnboardDate(row) || '-',
+                            onboardStatus: getOnboardStatus(row) || '-',
+                            onboardDateObj: parseDate(getRecordedOnboardDate(row)) || parseDate(getS1Value(row, S1_IDX.ONBOARD_DATE)) || new Date(0)
+                        });
+
+                        const firstDetail = firstLevelDetailMap.get(firstLevelKey);
+                        if (firstDetail) {
+                            firstDetail.secondLevelOnboardCount += 1;
+                        }
+                    });
+            });
+
+            const secondLevelRows = Array.from(secondLevelRowMap.values());
+            const secondLevelLeadRows = secondLevelRows.filter(row => !!parseDate(getS1Value(row, S1_IDX.LEAD_DATE)));
+            const secondLevelOfferRows = secondLevelRows.filter(row => isOffered(row));
+            const secondLevelOnboardRows = secondLevelRows.filter(row => isOnboard(row));
+            const secondLevelDetails = Array.from(secondLevelDetailMap.values())
+                .sort((a, b) => b.timelineDateObj - a.timelineDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+            const firstLevelDetails = Array.from(firstLevelDetailMap.values())
+                .sort((a, b) => b.onboardDateObj - a.onboardDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+            const secondLevelReferrerSummaries = Array.from(secondLevelReferrerSummaryMap.values())
+                .sort((a, b) => b.secondLevelOnboard - a.secondLevelOnboard || b.referralCount - a.referralCount || b.onboardDateObj - a.onboardDateObj || a.firstLevelCandidateName.localeCompare(b.firstLevelCandidateName, 'zh-HK'));
+            const secondLevelOnboardDetails = Array.from(secondLevelOnboardDetailMap.values())
+                .sort((a, b) => b.onboardDateObj - a.onboardDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+
+            return {
+                ...member,
+                firstLevelRows,
+                firstLevelOnboard: firstLevelRows.length,
+                firstLevelReferrerIds,
+                firstLevelDetails,
+                activatedReferrerCount,
+                secondLevelRows,
+                secondLevelLeadRows,
+                secondLevelOfferRows,
+                secondLevelOnboardRows,
+                secondLevelDetails,
+                secondLevelReferrerSummaries,
+                secondLevelOnboardDetails,
+                secondLevelLead: secondLevelLeadRows.length,
+                secondLevelOffer: secondLevelOfferRows.length,
+                secondLevelOnboard: secondLevelOnboardRows.length
+            };
+        }
+
+        function getFibonacciRows() {
+            const fibRange = getFibDateRange();
+            if (!fibRange) return [];
+            const fibFilters = getFibFilterValues();
+
+            return leaderDirectory.map(leader => {
+                const scopedMembers = (leader.members || []).filter(member => {
+                    if (fibFilters.brand && member.brandKey !== fibFilters.brand) return false;
+                    if (fibFilters.floor && member.center !== fibFilters.floor) return false;
+                    return true;
+                });
+
+                if (!scopedMembers.length) return null;
+
+                const memberStats = scopedMembers.map(member => buildFibonacciMemberStat(member, fibRange));
+                return {
+                    key: leader.key,
+                    name: leader.name,
+                    brands: Array.from(new Set(memberStats.map(member => member.brand).filter(Boolean))),
+                    centers: Array.from(new Set(memberStats.map(member => member.center).filter(Boolean))),
+                    teamSize: memberStats.length,
+                    firstLevelOnboard: memberStats.reduce((sum, member) => sum + member.firstLevelOnboard, 0),
+                    activatedReferrerCount: memberStats.reduce((sum, member) => sum + member.activatedReferrerCount, 0),
+                    secondLevelLead: memberStats.reduce((sum, member) => sum + member.secondLevelLead, 0),
+                    secondLevelOffer: memberStats.reduce((sum, member) => sum + member.secondLevelOffer, 0),
+                    secondLevelOnboard: memberStats.reduce((sum, member) => sum + member.secondLevelOnboard, 0),
+                    memberStats
+                };
+            }).filter(Boolean).filter(row =>
+                row.firstLevelOnboard > 0 ||
+                row.activatedReferrerCount > 0 ||
+                row.secondLevelLead > 0 ||
+                row.secondLevelOffer > 0 ||
+                row.secondLevelOnboard > 0
+            );
+        }
+
         function buildLeaderDirectory() {
             const directory = new Map();
             const teamMembersByLeader = new Map();
@@ -1086,6 +1511,13 @@
                 brand: safeTrim(source.brand ?? document.getElementById('brandFilter')?.value),
                 center: safeTrim(source.center ?? document.getElementById('centerFilter')?.value),
                 leader: safeTrim(source.leader ?? document.getElementById('leaderFilter')?.value)
+            };
+        }
+
+        function getFibFilterValues(source = {}) {
+            return {
+                brand: safeTrim(source.brand ?? document.getElementById('fibBrandFilter')?.value),
+                floor: safeTrim(source.floor ?? document.getElementById('fibFloorFilter')?.value)
             };
         }
 
@@ -1231,6 +1663,36 @@
                 .concat(leaderOptions.map(leader => `<option value="${leader.key}">${leader.name}</option>`))
                 .join('');
             if (leaderOptions.some(leader => leader.key === previous.leader)) leaderSelect.value = previous.leader;
+        }
+
+        function updateFibFilterOptions() {
+            const brandSelect = document.getElementById('fibBrandFilter');
+            const floorSelect = document.getElementById('fibFloorFilter');
+            if (!brandSelect || !floorSelect) return;
+
+            const previousBrand = safeTrim(brandSelect.value);
+            const previousFloor = safeTrim(floorSelect.value);
+            const allMembers = leaderDirectory.flatMap(leader => leader.members || []);
+            const brandOptions = getUniqueSorted(allMembers.map(member => member.brandKey));
+
+            brandSelect.innerHTML = ['<option value="">All Brand</option>']
+                .concat(brandOptions.map(brand => `<option value="${brand}">${displayBrand(brand)}</option>`))
+                .join('');
+
+            if (previousBrand && brandOptions.includes(previousBrand)) {
+                brandSelect.value = previousBrand;
+            }
+
+            const scopedMembers = allMembers.filter(member => !brandSelect.value || member.brandKey === brandSelect.value);
+            const floorOptions = getUniqueSorted(scopedMembers.map(member => member.center));
+
+            floorSelect.innerHTML = ['<option value="">All Floor</option>']
+                .concat(floorOptions.map(floor => `<option value="${floor}">${floor}</option>`))
+                .join('');
+
+            if (previousFloor && floorOptions.includes(previousFloor)) {
+                floorSelect.value = previousFloor;
+            }
         }
 
         function buildBreakdownLookup(rows) {
@@ -1671,6 +2133,9 @@
 
             if (previous && options.includes(previous)) {
                 select.value = previous;
+            } else if (!floorSectionBrandDefaultApplied && options.includes(displayBrand(DEFAULT_SECTION_BRAND))) {
+                select.value = displayBrand(DEFAULT_SECTION_BRAND);
+                floorSectionBrandDefaultApplied = true;
             }
         }
 
@@ -1691,6 +2156,9 @@
                 .join('');
             if (previousBrand && brandOptions.includes(previousBrand)) {
                 brandSelect.value = previousBrand;
+            } else if (!networkSectionBrandDefaultApplied && brandOptions.includes(displayBrand(DEFAULT_SECTION_BRAND))) {
+                brandSelect.value = displayBrand(DEFAULT_SECTION_BRAND);
+                networkSectionBrandDefaultApplied = true;
             }
 
             const scopedLeaders = leaders.filter(leader =>
@@ -1929,6 +2397,290 @@
             `).join('');
         }
 
+        function renderFibSection() {
+            const summary = document.getElementById('fibSummaryCards');
+            const body = document.getElementById('fibTableBody');
+            const meta = document.getElementById('fibMeta');
+            if (!summary || !body || !meta) return;
+            updateFibFilterOptions();
+
+            const fibRows = getFibonacciRows();
+            const fibRange = getFibDateRange();
+
+            if (!fibRange) {
+                meta.textContent = 'Please select Fibonacci date range';
+                summary.innerHTML = '';
+                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">Please choose Fibonacci date range.</td></tr>';
+                return;
+            }
+
+            const totalFirstLevelOnboard = fibRows.reduce((sum, row) => sum + row.firstLevelOnboard, 0);
+            const totalActivatedReferrers = fibRows.reduce((sum, row) => sum + row.activatedReferrerCount, 0);
+            const totalSecondLevelLead = fibRows.reduce((sum, row) => sum + row.secondLevelLead, 0);
+            const totalSecondLevelOffer = fibRows.reduce((sum, row) => sum + row.secondLevelOffer, 0);
+            const totalSecondLevelOnboard = fibRows.reduce((sum, row) => sum + row.secondLevelOnboard, 0);
+
+            const cards = [
+                { mode: 'FIRST_ONBOARD', title: '1st On Board', value: totalFirstLevelOnboard, accent: '#14b8a6', bg: 'rgba(20,184,166,0.12)', note: 'First-level onboarded referrals' },
+                { mode: 'SECOND_REFERRER', title: '2nd Referrer', value: totalActivatedReferrers, accent: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', note: 'Onboarded referrals who referred again' },
+                { mode: 'SECOND_LEAD', title: '2nd Lead', value: totalSecondLevelLead, accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', note: 'Second-level referred candidates reached lead' },
+                { mode: 'SECOND_OFFER', title: '2nd Offer', value: totalSecondLevelOffer, accent: 'var(--warning)', bg: 'var(--warning-soft)', note: 'Second-level referred candidates reached offer' },
+                { mode: 'SECOND_ONBOARD', title: '2nd On Board', value: totalSecondLevelOnboard, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'Second-level referred candidates onboarded' }
+            ];
+
+            summary.innerHTML = cards.map(card => `
+                <button type="button" onclick="openFibSummaryDetail('${card.mode}')" class="glass-card p-4 text-left transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.12)]" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex flex-col items-center justify-center gap-2 text-center">
+                        <div class="text-3xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
+                    </div>
+                </button>
+            `).join('');
+
+            meta.textContent = `${formatNumber(fibRows.length)} network teams / ${formatNumber(totalFirstLevelOnboard)} first-level onboarded referrals under current selection`;
+
+            if (!fibRows.length) {
+                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No Fibonacci chain records in this selection.</td></tr>';
+                return;
+            }
+
+            const sortedRows = fibRows.slice().sort((a, b) =>
+                b.secondLevelOnboard - a.secondLevelOnboard ||
+                b.secondLevelOffer - a.secondLevelOffer ||
+                b.secondLevelLead - a.secondLevelLead ||
+                b.activatedReferrerCount - a.activatedReferrerCount ||
+                b.firstLevelOnboard - a.firstLevelOnboard ||
+                a.name.localeCompare(b.name, 'en')
+            );
+
+            body.innerHTML = sortedRows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left font-black text-slate-900">
+                        <button type="button" onclick="openFibDetail('${row.key}')" class="text-left transition hover:text-teal-600 underline-offset-4 hover:underline">${row.name}</button>
+                    </td>
+                    <td class="px-5 py-4 text-left">${row.brands.join(', ') || '-'}</td>
+                    <td class="px-5 py-4 text-left">${row.centers.join(', ') || '-'}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.teamSize)}</td>
+                    <td class="px-4 py-4 text-center data-font text-teal-700">${formatNumber(row.firstLevelOnboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-violet-700">${formatNumber(row.activatedReferrerCount)}</td>
+                    <td class="px-4 py-4 text-center data-font text-indigo-700">${formatNumber(row.secondLevelLead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-amber-700">${formatNumber(row.secondLevelOffer)}</td>
+                    <td class="px-4 py-4 text-center data-font text-emerald-700">${formatNumber(row.secondLevelOnboard)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function openFibDetail(leaderKey) {
+            selectedFibSummaryMode = '';
+            selectedFibLeaderKey = safeTrim(leaderKey);
+            renderDashboard(false);
+            requestAnimationFrame(() => {
+                document.getElementById('fibDetailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function openFibSummaryDetail(mode) {
+            selectedFibLeaderKey = '';
+            selectedFibSummaryMode = safeTrim(mode);
+            renderDashboard(false);
+            requestAnimationFrame(() => {
+                document.getElementById('fibDetailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function renderFibDetailSection() {
+            const section = document.getElementById('fibDetailSection');
+            const title = document.getElementById('fibDetailTitle');
+            const meta = document.getElementById('fibDetailMeta');
+            const cards = document.getElementById('fibDetailCards');
+            const firstLevelCard = document.getElementById('fibFirstLevelCard');
+            const firstLevelMeta = document.getElementById('fibFirstLevelMeta');
+            const firstLevelBody = document.getElementById('fibFirstLevelBody');
+            const referrerSummaryCard = document.getElementById('fibReferrerSummaryCard');
+            const referrerSummaryMeta = document.getElementById('fibReferrerSummaryMeta');
+            const referrerSummaryBody = document.getElementById('fibReferrerSummaryBody');
+            const secondLevelCard = document.getElementById('fibSecondLevelCard');
+            const secondLevelTitle = document.getElementById('fibSecondLevelTitle');
+            const secondLevelMeta = document.getElementById('fibSecondLevelMeta');
+            const secondLevelBody = document.getElementById('fibSecondLevelBody');
+
+            if (!section || !title || !meta || !cards || !firstLevelCard || !firstLevelMeta || !firstLevelBody || !referrerSummaryCard || !referrerSummaryMeta || !referrerSummaryBody || !secondLevelCard || !secondLevelTitle || !secondLevelMeta || !secondLevelBody) return;
+
+            const fibRows = getFibonacciRows();
+            const active = fibRows.find(row => row.key === selectedFibLeaderKey);
+            const summaryMode = selectedFibSummaryMode;
+
+            if (!active && !summaryMode) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            const scopedRows = active ? [active] : fibRows;
+            const firstLevelDetails = scopedRows
+                .flatMap(row => row.memberStats)
+                .flatMap(member => member.firstLevelDetails || [])
+                .sort((a, b) => b.onboardDateObj - a.onboardDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+            const secondLevelReferrerSummaries = scopedRows
+                .flatMap(row => row.memberStats)
+                .flatMap(member => member.secondLevelReferrerSummaries || [])
+                .sort((a, b) => b.secondLevelOnboard - a.secondLevelOnboard || b.referralCount - a.referralCount || b.onboardDateObj - a.onboardDateObj || a.firstLevelCandidateName.localeCompare(b.firstLevelCandidateName, 'zh-HK'));
+            const secondLevelDetails = scopedRows
+                .flatMap(row => row.memberStats)
+                .flatMap(member => member.secondLevelDetails || [])
+                .sort((a, b) => b.timelineDateObj - a.timelineDateObj || a.candidateName.localeCompare(b.candidateName, 'zh-HK'));
+            const secondLevelOnboardDetails = secondLevelDetails.filter(item => item.countedOnboard);
+
+            let detailCards = [];
+            let scopedSecondLevelDetails = secondLevelOnboardDetails;
+
+            if (active) {
+                title.textContent = `${active.name} Fibonacci Detail`;
+                meta.textContent = `${active.brands.join(', ') || '-'} / ${active.centers.join(', ') || '-'} / ${formatNumber(active.teamSize)} team members`;
+                detailCards = [
+                    { title: 'Team Size', value: active.teamSize, accent: '#64748b', bg: 'rgba(100,116,139,0.10)', note: 'Mapped team members under this network team' },
+                    { title: '1st On Board', value: active.firstLevelOnboard, accent: '#14b8a6', bg: 'rgba(20,184,166,0.12)', note: 'People directly referred by this team and onboarded' },
+                    { title: '2nd Referrer', value: active.activatedReferrerCount, accent: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', note: '1st-level onboarded people who referred again' },
+                    { title: '2nd On Board', value: active.secondLevelOnboard, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'People onboarded from those 1st-level referrers' }
+                ];
+                firstLevelCard.classList.remove('hidden');
+                referrerSummaryCard.classList.remove('hidden');
+                secondLevelCard.classList.remove('hidden');
+                secondLevelTitle.textContent = 'On Board Candidates';
+            } else {
+                const summaryCardMap = {
+                    FIRST_ONBOARD: {
+                        title: 'Network Team Fibonacci 1st On Board Detail',
+                        meta: `${formatNumber(firstLevelDetails.length)} first-level onboarded referrals under current selection`
+                    },
+                    SECOND_REFERRER: {
+                        title: 'Network Team Fibonacci 2nd Referrer Detail',
+                        meta: `${formatNumber(secondLevelReferrerSummaries.length)} 1st-level onboarded people referred again under current selection`
+                    },
+                    SECOND_LEAD: {
+                        title: 'Network Team Fibonacci 2nd Lead Detail',
+                        meta: `${formatNumber(secondLevelDetails.filter(item => item.countedLead).length)} 2nd-level lead records under current selection`
+                    },
+                    SECOND_OFFER: {
+                        title: 'Network Team Fibonacci 2nd Offer Detail',
+                        meta: `${formatNumber(secondLevelDetails.filter(item => item.countedOffer).length)} 2nd-level offer records under current selection`
+                    },
+                    SECOND_ONBOARD: {
+                        title: 'Network Team Fibonacci 2nd On Board Detail',
+                        meta: `${formatNumber(secondLevelDetails.filter(item => item.countedOnboard).length)} 2nd-level onboard records under current selection`
+                    }
+                };
+                const summaryConfig = summaryCardMap[summaryMode] || summaryCardMap.FIRST_ONBOARD;
+                title.textContent = summaryConfig.title;
+                meta.textContent = summaryConfig.meta;
+                detailCards = [
+                    { title: 'Network Teams', value: fibRows.length, accent: '#64748b', bg: 'rgba(100,116,139,0.10)', note: 'Teams under current Fibonacci filters' },
+                    { title: '1st On Board', value: firstLevelDetails.length, accent: '#14b8a6', bg: 'rgba(20,184,166,0.12)', note: 'First-level onboarded referrals' },
+                    { title: '2nd Referrer', value: secondLevelReferrerSummaries.length, accent: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', note: '1st-level onboarded people who referred again' },
+                    { title: '2nd On Board', value: secondLevelDetails.filter(item => item.countedOnboard).length, accent: 'var(--success)', bg: 'var(--success-soft)', note: 'Second-level referred candidates onboarded' }
+                ];
+
+                if (summaryMode === 'FIRST_ONBOARD') {
+                    firstLevelCard.classList.remove('hidden');
+                    referrerSummaryCard.classList.add('hidden');
+                    secondLevelCard.classList.add('hidden');
+                } else if (summaryMode === 'SECOND_REFERRER') {
+                    firstLevelCard.classList.add('hidden');
+                    referrerSummaryCard.classList.remove('hidden');
+                    secondLevelCard.classList.add('hidden');
+                } else {
+                    firstLevelCard.classList.add('hidden');
+                    referrerSummaryCard.classList.add('hidden');
+                    secondLevelCard.classList.remove('hidden');
+                    if (summaryMode === 'SECOND_LEAD') {
+                        scopedSecondLevelDetails = secondLevelDetails.filter(item => item.countedLead);
+                        secondLevelTitle.textContent = 'Lead Candidates';
+                    } else if (summaryMode === 'SECOND_OFFER') {
+                        scopedSecondLevelDetails = secondLevelDetails.filter(item => item.countedOffer);
+                        secondLevelTitle.textContent = 'Offer Candidates';
+                    } else {
+                        scopedSecondLevelDetails = secondLevelDetails.filter(item => item.countedOnboard);
+                        secondLevelTitle.textContent = 'On Board Candidates';
+                    }
+                }
+            }
+
+            cards.innerHTML = detailCards.map(card => `
+                <div class="glass-card p-4" style="border-left:6px solid ${card.accent}; background:${card.bg};">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex flex-col items-center justify-center gap-2 text-center">
+                        <div class="text-3xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            firstLevelMeta.textContent = active
+                ? `${formatNumber(firstLevelDetails.length)} onboarded people directly referred by ${active.name}`
+                : `${formatNumber(firstLevelDetails.length)} first-level onboarded referrals under current selection`;
+            if (!firstLevelDetails.length) {
+                firstLevelBody.innerHTML = '<tr><td colspan="6" class="px-5 py-8 text-center text-sm font-black text-slate-400">No 1st-level onboarded referrals under this selection.</td></tr>';
+            } else {
+                firstLevelBody.innerHTML = firstLevelDetails.map(item => `
+                    <tr class="text-sm font-bold text-slate-700">
+                        <td class="px-4 py-4 text-left">${item.teamMember}</td>
+                        <td class="px-4 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
+                        <td class="px-4 py-4 text-left">${item.brand}</td>
+                        <td class="px-4 py-4 text-center">${item.rjnj}</td>
+                        <td class="px-4 py-4 text-left">${item.onboardDate}</td>
+                        <td class="px-4 py-4 text-center data-font text-emerald-700">${formatNumber(item.secondLevelOnboardCount)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            referrerSummaryMeta.textContent = `${formatNumber(secondLevelReferrerSummaries.length)} 1st-level onboarded people referred again`;
+            if (!secondLevelReferrerSummaries.length) {
+                referrerSummaryBody.innerHTML = '<tr><td colspan="6" class="px-5 py-8 text-center text-sm font-black text-slate-400">No 1st-level onboarded referrer created any 2nd-level referral under this selection.</td></tr>';
+            } else {
+                referrerSummaryBody.innerHTML = secondLevelReferrerSummaries.map(item => `
+                    <tr class="text-sm font-bold text-slate-700">
+                        <td class="px-4 py-4 text-left font-black text-slate-900">${item.firstLevelCandidateName}</td>
+                        <td class="px-4 py-4 text-left">${item.hiredStaffId}</td>
+                        <td class="px-4 py-4 text-center data-font text-violet-700">${formatNumber(item.referralCount)}</td>
+                        <td class="px-4 py-4 text-center data-font text-indigo-700">${formatNumber(item.secondLevelLead)}</td>
+                        <td class="px-4 py-4 text-center data-font text-amber-700">${formatNumber(item.secondLevelOffer)}</td>
+                        <td class="px-4 py-4 text-center data-font text-emerald-700">${formatNumber(item.secondLevelOnboard)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const secondLevelMetaText = summaryMode === 'SECOND_LEAD'
+                ? `${formatNumber(scopedSecondLevelDetails.length)} 2nd-level lead records under current selection`
+                : summaryMode === 'SECOND_OFFER'
+                    ? `${formatNumber(scopedSecondLevelDetails.length)} 2nd-level offer records under current selection`
+                    : `${formatNumber(scopedSecondLevelDetails.length)} onboarded people referred by those 1st-level hires`;
+            secondLevelMeta.textContent = secondLevelMetaText;
+
+            if (!scopedSecondLevelDetails.length) {
+                const emptyMessage = summaryMode === 'SECOND_LEAD'
+                    ? 'No 2nd-level lead referrals under this selection.'
+                    : summaryMode === 'SECOND_OFFER'
+                        ? 'No 2nd-level offer referrals under this selection.'
+                        : 'No 2nd-level onboarded referrals under this selection.';
+                secondLevelBody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-sm font-black text-slate-400">${emptyMessage}</td></tr>`;
+            } else {
+                secondLevelBody.innerHTML = scopedSecondLevelDetails.map(item => `
+                    <tr class="text-sm font-bold text-slate-700">
+                        <td class="px-4 py-4 text-left font-black text-slate-900">${item.firstLevelCandidateName}</td>
+                        <td class="px-4 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
+                        <td class="px-4 py-4 text-left">${item.brand}</td>
+                        <td class="px-4 py-4 text-center">${item.rjnj}</td>
+                        <td class="px-4 py-4 text-left">${item.leadDate}</td>
+                        <td class="px-4 py-4 text-left">${item.offerDate}</td>
+                        <td class="px-4 py-4 text-left">${item.onboardDate}</td>
+                        <td class="px-4 py-4 text-left">${item.onboardStatus}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
         function renderDetailTable(leaders) {
             const body = document.getElementById('detailTableBody');
             const title = document.getElementById('detailTitle');
@@ -2130,6 +2882,7 @@
 
         function renderDashboard(keepScroll = false) {
             const leaders = getFilteredLeaders();
+            const fibRows = getFibonacciRows();
             const { brandRows, floorRows } = summarizeBreakdowns(leaders);
             const selectedRange = getSelectedDateRange();
             const comparisonRange = getComparisonDateRange(selectedRange);
@@ -2140,10 +2893,18 @@
             } else if (!leaders.some(leader => leader.key === selectedLeaderKey)) {
                 selectedLeaderKey = leaders[0].key;
             }
+            if (selectedFibLeaderKey && !fibRows.some(row => row.key === selectedFibLeaderKey)) {
+                selectedFibLeaderKey = '';
+            }
+            if (selectedFibSummaryMode && !fibRows.length) {
+                selectedFibSummaryMode = '';
+            }
             renderSummaryCards(leaders, comparisonLeaders);
             renderBrandTable(brandRows, comparisonBrandRows);
             renderFloorTable(floorRows, comparisonFloorRows);
             renderNetworkTable(leaders, comparisonLeaders);
+            renderFibSection();
+            renderFibDetailSection();
             renderLeaderPerformance(leaders);
             renderDetailTable(leaders);
 
@@ -2164,6 +2925,10 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            const fibStudyStart = document.getElementById('fibStudyStart');
+            const fibStudyEnd = document.getElementById('fibStudyEnd');
+            if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
+            if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
             const compareDateFilter = document.getElementById('compareDateFilter');
             if (compareDateFilter) compareDateFilter.value = '';
             document.getElementById('brandFilter').value = '';
@@ -2172,11 +2937,17 @@
             updateFilterOptions();
             document.getElementById('leaderFilter').value = '';
             const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
-            if (floorSectionBrandFilter) floorSectionBrandFilter.value = '';
+            if (floorSectionBrandFilter) floorSectionBrandFilter.value = displayBrand(DEFAULT_SECTION_BRAND);
+            floorSectionBrandDefaultApplied = true;
             const networkSectionBrandFilter = document.getElementById('networkSectionBrandFilter');
-            if (networkSectionBrandFilter) networkSectionBrandFilter.value = '';
+            if (networkSectionBrandFilter) networkSectionBrandFilter.value = displayBrand(DEFAULT_SECTION_BRAND);
+            networkSectionBrandDefaultApplied = true;
             const networkSectionFloorFilter = document.getElementById('networkSectionFloorFilter');
             if (networkSectionFloorFilter) networkSectionFloorFilter.value = '';
+            const fibBrandFilter = document.getElementById('fibBrandFilter');
+            if (fibBrandFilter) fibBrandFilter.value = DEFAULT_SECTION_BRAND;
+            const fibFloorFilter = document.getElementById('fibFloorFilter');
+            if (fibFloorFilter) fibFloorFilter.value = '';
             const detailBrandFilter = document.getElementById('detailBrandFilter');
             if (detailBrandFilter) detailBrandFilter.value = '';
             const detailFloorFilter = document.getElementById('detailFloorFilter');
@@ -2218,10 +2989,18 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            const fibStudyStart = document.getElementById('fibStudyStart');
+            const fibStudyEnd = document.getElementById('fibStudyEnd');
+            if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
+            if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
+                    if (id === 'fibBrandFilter') {
+                        const fibFloorFilter = document.getElementById('fibFloorFilter');
+                        if (fibFloorFilter) fibFloorFilter.value = '';
+                    }
                     if (id === 'detailBrandFilter') {
                         currentSummaryDetailBrand = '';
                         const floorFilter = document.getElementById('detailFloorFilter');
@@ -2269,6 +3048,7 @@
 
                 leaderDirectory = buildLeaderDirectory();
                 updateFilterOptions();
+                updateFibFilterOptions();
                 renderDashboard(false);
 
                 const lastUpdateValue = headersS1[33] || 'Sheet live';
