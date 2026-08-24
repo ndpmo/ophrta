@@ -591,6 +591,14 @@
                                     <option value="">All On Board Status</option>
                                 </select>
                             </div>
+                            <div class="flex items-center gap-2">
+                                <label for="detailReferralFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Referral</label>
+                                <select id="detailReferralFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[220px]">
+                                    <option value="">All Referral</option>
+                                    <option value="LEADER">Referral by Leader</option>
+                                    <option value="TEAMMATE">Referral by Teammate</option>
+                                </select>
+                            </div>
                             <button type="button" onclick="resetDetailFilters()" class="pill-button px-4 py-2 text-xs uppercase tracking-[0.14em]">Reset Filters</button>
                         </div>
                     </div>
@@ -1139,6 +1147,10 @@
             return safeTrim(item?.[key]).toLowerCase();
         }
 
+        function getDetailReferralRole(item) {
+            return normalizeKey(item?.memberName) === item?.leaderKey ? 'LEADER' : 'TEAMMATE';
+        }
+
         function updateDetailSortIndicators() {
             ['leaderName', 'memberName', 'candidateName', 'brand', 'rjnj', 'status', 'leadDateObj', 'offerDateObj', 'onboardDateObj', 'onboardStatus', 'interviewer']
                 .forEach(key => {
@@ -1163,10 +1175,12 @@
             const floorSelect = document.getElementById('detailFloorFilter');
             const statusSelect = document.getElementById('detailStatusFilter');
             const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
+            const referralSelect = document.getElementById('detailReferralFilter');
             if (brandSelect) brandSelect.value = '';
             if (floorSelect) floorSelect.value = '';
             if (statusSelect) statusSelect.value = '';
             if (onboardStatusSelect) onboardStatusSelect.value = '';
+            if (referralSelect) referralSelect.value = '';
             detailSortKey = 'leadDateObj';
             detailSortDirection = 'desc';
             renderDashboard(false);
@@ -1706,13 +1720,21 @@
         function renderSummaryCards(leaders, comparisonLeaders = []) {
             const memberCount = leaders.reduce((sum, leader) => sum + leader.teamSize, 0);
             const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
+            const totalLeadTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.lead || 0), 0);
+            const totalLeadTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.lead || 0), 0), 0);
             const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const totalOfferTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.offer || 0), 0);
+            const totalOfferTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.offer || 0), 0), 0);
             const totalOfferOtherBrand = leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
             const totalOfferBS = leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
+            const totalOnboardTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.onboard || 0), 0);
+            const totalOnboardTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.onboard || 0), 0), 0);
             const totalOnboardBS = leaders.reduce((sum, leader) => sum + (leader.onboardBS || 0), 0);
             const totalNonSameBrandOnboard = leaders.reduce((sum, leader) => sum + (leader.nonSameBrandOnboard || 0), 0);
             const totalUpcomingOnboard = leaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
+            const totalUpcomingOnboardTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.upcomingOnboard || 0), 0);
+            const totalUpcomingOnboardTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.upcomingOnboard || 0), 0), 0);
             const totalUpcomingOnboardBS = leaders.reduce((sum, leader) => sum + (leader.upcomingOnboardBS || 0), 0);
             const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
             const comparisonOffer = comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
@@ -1736,7 +1758,15 @@
                 </div>
             `;
 
+            const renderTLTMBreakdown = (tl, tm) => `
+                <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+                    <span>TL: (${formatNumber(tl)})</span>
+                    <span>TM: (${formatNumber(tm)})</span>
+                </div>
+            `;
+
             const offerNoteLines = [
+                renderTLTMBreakdown(totalOfferTL, totalOfferTM),
                 `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>`
             ];
             if (totalOfferOtherBrand > 0) {
@@ -1747,13 +1777,14 @@
             }
 
             const cards = [
-                { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: 'From network team leaders', accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD' },
+                { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: renderTLTMBreakdown(totalLeadTL, totalLeadTM), accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD', noteIsHtml: true },
                 { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: offerNoteLines.join(''), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER', noteIsHtml: true },
                 {
                     title: 'On Board',
                     value: totalOnboard,
                     delta: totalOnboard - comparisonOnboard,
                     note: `
+                        ${renderTLTMBreakdown(totalOnboardTL, totalOnboardTM)}
                         <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOnboard, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>
                         <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Non Same Brand = ${formatNumber(totalNonSameBrandOnboard)}</div>
                         <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalOnboardBS)}</div>
@@ -1768,6 +1799,7 @@
                     value: totalUpcomingOnboard,
                     delta: totalUpcomingOnboard - comparisonUpcoming,
                     note: `
+                        ${renderTLTMBreakdown(totalUpcomingOnboardTL, totalUpcomingOnboardTM)}
                         <div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">Accept + future onboard date</div>
                         <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalUpcomingOnboardBS)}</div>
                     `,
@@ -1827,11 +1859,12 @@
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function applyDetailFilters({ brand = '', floor = '', status = '', onboardStatus = '' } = {}) {
+        function applyDetailFilters({ brand = '', floor = '', status = '', onboardStatus = '', referral = '' } = {}) {
             const detailBrandFilter = document.getElementById('detailBrandFilter');
             const detailFloorFilter = document.getElementById('detailFloorFilter');
             const detailStatusFilter = document.getElementById('detailStatusFilter');
             const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
+            const detailReferralFilter = document.getElementById('detailReferralFilter');
 
             if (detailBrandFilter) {
                 detailBrandFilter.value = '';
@@ -1858,6 +1891,12 @@
                 detailOnboardStatusFilter.value = '';
                 if (onboardStatus && Array.from(detailOnboardStatusFilter.options).some(option => option.value === onboardStatus)) {
                     detailOnboardStatusFilter.value = onboardStatus;
+                }
+            }
+            if (detailReferralFilter) {
+                detailReferralFilter.value = '';
+                if (referral && Array.from(detailReferralFilter.options).some(option => option.value === referral)) {
+                    detailReferralFilter.value = referral;
                 }
             }
         }
@@ -2829,11 +2868,13 @@
             const detailFloorFilterValue = safeTrim(document.getElementById('detailFloorFilter')?.value);
             const detailStatusFilterValue = safeTrim(document.getElementById('detailStatusFilter')?.value);
             const detailOnboardStatusFilterValue = safeTrim(document.getElementById('detailOnboardStatusFilter')?.value);
+            const detailReferralFilterValue = safeTrim(document.getElementById('detailReferralFilter')?.value);
             rows = rows.filter(item => {
                 if (detailBrandFilterValue && safeTrim(item.brand) !== detailBrandFilterValue) return false;
                 if (detailFloorFilterValue && safeTrim(item.center) !== detailFloorFilterValue) return false;
                 if (detailStatusFilterValue && safeTrim(item.status) !== detailStatusFilterValue) return false;
                 if (detailOnboardStatusFilterValue && safeTrim(item.onboardStatus) !== detailOnboardStatusFilterValue) return false;
+                if (detailReferralFilterValue && getDetailReferralRole(item) !== detailReferralFilterValue) return false;
                 return true;
             });
 
@@ -2956,6 +2997,8 @@
             if (detailStatusFilter) detailStatusFilter.value = '';
             const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
             if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
+            const detailReferralFilter = document.getElementById('detailReferralFilter');
+            if (detailReferralFilter) detailReferralFilter.value = '';
             detailSortKey = 'leadDateObj';
             detailSortDirection = 'desc';
             selectedLeaderKey = '';
@@ -2994,7 +3037,7 @@
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'fibBrandFilter') {
