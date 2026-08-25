@@ -322,6 +322,65 @@
         </section>
 
         <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="grid gap-5 xl:grid-cols-[240px_minmax(0,1fr)] xl:items-start mb-5">
+                <div class="min-w-0">
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">By Network Team Leader</p>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900 leading-tight">Network Team Leader</h2>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 2xl:items-end">
+                    <div class="min-w-0">
+                        <label for="leaderOnlyStart" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
+                        <input id="leaderOnlyStart" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyEnd" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
+                        <input id="leaderOnlyEnd" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyBrandFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                        <select id="leaderOnlyBrandFilter" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                            <option value="">All Brand</option>
+                        </select>
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyFloorFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
+                        <select id="leaderOnlyFloorFilter" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                            <option value="">All Floor</option>
+                        </select>
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderGapFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Gap</label>
+                        <select id="leaderGapFilter" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                            <option value="">All Gap</option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+                    <p id="leaderOnlyMeta" class="rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold leading-snug text-slate-500 sm:col-span-2 lg:col-span-3 2xl:col-span-5 2xl:text-right">-</p>
+                </div>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[900px] border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Network Team Leader</th>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-5 py-4 text-left">Floor</th>
+                                <th class="px-4 py-4 text-center">Lead</th>
+                                <th class="px-4 py-4 text-center">Offer</th>
+                                <th class="px-4 py-4 text-center">On Board</th>
+                                <th class="px-4 py-4 text-center">Gap</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderOnlyTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">By Network Team</p>
@@ -682,6 +741,8 @@
         let floorSortDirection = 'asc';
         let networkSortKey = 'lead';
         let networkSortDirection = 'desc';
+        let leaderOnlySortKey = 'floorLabel';
+        let leaderOnlySortDirection = 'asc';
         let detailSortKey = 'leadDateObj';
         let detailSortDirection = 'desc';
         const DEFAULT_SECTION_BRAND = 'DERMES';
@@ -1008,6 +1069,15 @@
         function getSelectedDateRange() {
             const start = parseDate(document.getElementById('studyStart')?.value);
             const end = parseDate(document.getElementById('studyEnd')?.value);
+            if (!start || !end) return null;
+            const endLimit = new Date(end.getTime());
+            endLimit.setHours(23, 59, 59, 999);
+            return { start, end: endLimit };
+        }
+
+        function getLeaderOnlyDateRange() {
+            const start = parseDate(document.getElementById('leaderOnlyStart')?.value);
+            const end = parseDate(document.getElementById('leaderOnlyEnd')?.value);
             if (!start || !end) return null;
             const endLimit = new Date(end.getTime());
             endLimit.setHours(23, 59, 59, 999);
@@ -1945,6 +2015,16 @@
             renderDashboard(false);
         }
 
+        function toggleLeaderOnlySort(key = 'floorLabel') {
+            if (leaderOnlySortKey === key) {
+                leaderOnlySortDirection = leaderOnlySortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                leaderOnlySortKey = key;
+                leaderOnlySortDirection = ['networkTeam', 'brandLabel', 'floorLabel'].includes(key) ? 'asc' : 'desc';
+            }
+            renderDashboard(false);
+        }
+
         function getFloorSortIndicator(key) {
             if (floorSortKey !== key) return '<span class="text-[11px] opacity-40">↕</span>';
             return `<span class="text-[11px]">${floorSortDirection === 'asc' ? '↑' : '↓'}</span>`;
@@ -2009,6 +2089,35 @@
             `;
         }
 
+        function getLeaderOnlySortIndicator(key) {
+            if (leaderOnlySortKey !== key) return '<span class="text-[11px] opacity-40">↕</span>';
+            return `<span class="text-[11px]">${leaderOnlySortDirection === 'asc' ? '↑' : '↓'}</span>`;
+        }
+
+        function renderLeaderOnlyTableHeader() {
+            const headerRow = document.querySelector('#leaderOnlyTableBody')?.closest('table')?.querySelector('thead tr');
+            if (!headerRow) return;
+
+            const headers = [
+                { key: 'networkTeam', label: 'Network Team Leader', align: 'left' },
+                { key: 'brandLabel', label: 'Brand', align: 'left' },
+                { key: 'floorLabel', label: 'Floor', align: 'left' },
+                { key: 'lead', label: 'Lead', align: 'center' },
+                { key: 'offer', label: 'Offer', align: 'center' },
+                { key: 'onboard', label: 'On Board', align: 'center' },
+                { key: 'gap', label: 'Gap', align: 'center' }
+            ];
+
+            headerRow.innerHTML = headers.map(({ key, label, align }) => `
+                <th class="${align === 'left' ? 'px-5 py-4 text-left' : 'px-4 py-4 text-center'}">
+                    <button type="button" onclick="toggleLeaderOnlySort('${key}')" class="inline-flex items-center ${align === 'left' ? 'gap-2' : 'justify-center gap-2'} transition hover:text-sky-700">
+                        <span>${label}</span>
+                        ${getLeaderOnlySortIndicator(key)}
+                    </button>
+                </th>
+            `).join('');
+        }
+
         function getNetworkSortValue(leader, key) {
             switch (key) {
                 case 'networkTeam':
@@ -2056,6 +2165,180 @@
                 default:
                     return row.label || '';
             }
+        }
+
+        function buildLeaderSelfStatForRange(leader, range) {
+            const selfMember = (leader.members || []).find(member => normalizeKey(member.therapist) === leader.key);
+            if (!selfMember || !range) return null;
+            const rows = getMemberReferralRows(selfMember, range).filter(row => isLeaderSelfEligibleReferral(selfMember, row));
+            const offerRows = rows.filter(isCountedOffer);
+            const onboardRows = rows.filter(isOnboard);
+            return {
+                ...selfMember,
+                rows,
+                lead: rows.length,
+                offer: offerRows.length,
+                onboard: onboardRows.length,
+                achieved: countUniqueLeaderAchievedCandidates(rows, selfMember)
+            };
+        }
+
+        function isLeaderSelfEligibleReferral(member, row) {
+            return isSameBrandReferral(member, row) && !isBeautySpecialistPosition(row);
+        }
+
+        function getReferralCandidateIdentity(row) {
+            const directKey = normalizeKey(getS1Value(row, S1_IDX.HIRED_STAFF_NUMBER) || getS1Value(row, S1_IDX.NAME));
+            if (directKey) return directKey;
+            return normalizeKey([
+                getS1Value(row, S1_IDX.BRAND),
+                getS1Value(row, S1_IDX.POSITION),
+                getS1Value(row, S1_IDX.LEAD_DATE),
+                getS1Value(row, S1_IDX.OFFER_DATE),
+                getRecordedOnboardDate(row),
+                getS1Value(row, S1_IDX.STATUS),
+                getOnboardStatus(row)
+            ].join('|'));
+        }
+
+        function countUniqueLeaderAchievedCandidates(rows, member) {
+            const achievedCandidates = new Set();
+            (rows || []).forEach((row, index) => {
+                if (member && !isLeaderSelfEligibleReferral(member, row)) return;
+                const offered = isCountedOffer(row);
+                const onboarded = isOnboard(row);
+                if (!offered && !onboarded) return;
+                const key = getReferralCandidateIdentity(row) || `candidate-${index}`;
+                achievedCandidates.add(key);
+            });
+            return achievedCandidates.size;
+        }
+
+        function buildLeaderOnlyRows(leaders) {
+            const range = getLeaderOnlyDateRange() || getSelectedDateRange();
+            return leaders.map(leader => {
+                const stat = buildLeaderSelfStatForRange(leader, range) || leader.leaderSelfStat || {};
+                const brandLabel = safeTrim(stat.brand) || (leader.brands || [])[0] || '-';
+                const floorLabel = safeTrim(stat.center) || (leader.centers || [])[0] || '-';
+                const lead = Number(stat.lead) || 0;
+                const offer = Number(stat.offer) || 0;
+                const onboard = Number(stat.onboard) || 0;
+                return {
+                    key: leader.key,
+                    name: leader.name,
+                    brandLabel,
+                    floorLabel,
+                    lead,
+                    offer,
+                    onboard,
+                    gap: Math.max(0, 2 - offer)
+                };
+            });
+        }
+
+        function getLeaderOnlySortValue(row, key) {
+            switch (key) {
+                case 'networkTeam':
+                    return row.name || '';
+                case 'brandLabel':
+                    return row.brandLabel || '';
+                case 'floorLabel':
+                    return row.floorLabel || '';
+                case 'lead':
+                    return row.lead || 0;
+                case 'offer':
+                    return row.offer || 0;
+                case 'onboard':
+                    return row.onboard || 0;
+                case 'gap':
+                default:
+                    return row.gap || 0;
+            }
+        }
+
+        function updateLeaderOnlyFilterOptions(leaders) {
+            const brandSelect = document.getElementById('leaderOnlyBrandFilter');
+            const floorSelect = document.getElementById('leaderOnlyFloorFilter');
+            if (!brandSelect || !floorSelect) return;
+
+            const rows = buildLeaderOnlyRows(leaders);
+            const previousBrand = safeTrim(brandSelect.value);
+            const previousFloor = safeTrim(floorSelect.value);
+            const brandOptions = getUniqueSorted(rows.map(row => row.brandLabel).filter(value => value && value !== '-'));
+            const defaultBrand = brandOptions.find(value => normalizeBrand(value) === DEFAULT_SECTION_BRAND) || '';
+            const selectedBrand = previousBrand || defaultBrand;
+            brandSelect.innerHTML = ['<option value="">All Brand</option>'].concat(
+                brandOptions.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+            ).join('');
+            if (selectedBrand && brandOptions.includes(selectedBrand)) brandSelect.value = selectedBrand;
+
+            const activeBrand = safeTrim(brandSelect.value);
+            const scopedRows = activeBrand ? rows.filter(row => row.brandLabel === activeBrand) : rows;
+            const floorOptions = getUniqueSorted(scopedRows.map(row => row.floorLabel).filter(value => value && value !== '-'));
+            floorSelect.innerHTML = ['<option value="">All Floor</option>'].concat(
+                floorOptions.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+            ).join('');
+            if (previousFloor && floorOptions.includes(previousFloor)) floorSelect.value = previousFloor;
+        }
+
+        function renderLeaderGap(gap) {
+            const rawGap = Math.max(0, Number(gap) || 0);
+            const className = rawGap > 0 ? 'text-rose-600' : 'text-emerald-600';
+            const label = formatNumber(rawGap);
+            return `<span class="font-black ${className}">${label}</span>`;
+        }
+
+        function renderLeaderOnlyTable(leaders) {
+            const body = document.getElementById('leaderOnlyTableBody');
+            const meta = document.getElementById('leaderOnlyMeta');
+            if (!body) return;
+
+            renderLeaderOnlyTableHeader();
+            updateLeaderOnlyFilterOptions(leaders);
+
+            const brandValue = safeTrim(document.getElementById('leaderOnlyBrandFilter')?.value);
+            const floorValue = safeTrim(document.getElementById('leaderOnlyFloorFilter')?.value);
+            const gapValue = safeTrim(document.getElementById('leaderGapFilter')?.value);
+
+            let rows = buildLeaderOnlyRows(leaders).filter(row => {
+                if (brandValue && row.brandLabel !== brandValue) return false;
+                if (floorValue && row.floorLabel !== floorValue) return false;
+                if (gapValue !== '' && row.gap !== Number(gapValue)) return false;
+                return true;
+            });
+
+            if (meta) meta.textContent = `${formatNumber(rows.length)} network team leaders under current filters`;
+
+            rows.sort((a, b) => {
+                const aVal = getLeaderOnlySortValue(a, leaderOnlySortKey);
+                const bVal = getLeaderOnlySortValue(b, leaderOnlySortKey);
+                if (typeof aVal === 'string' || typeof bVal === 'string') {
+                    return leaderOnlySortDirection === 'asc'
+                        ? String(aVal).localeCompare(String(bVal), 'en')
+                        : String(bVal).localeCompare(String(aVal), 'en');
+                }
+                return leaderOnlySortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-sm font-black text-slate-400">No network team leader records in this selection.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = rows.map(row => {
+                const keyAttr = String(row.key || '').replace(/'/g, "\\'");
+                return `
+                    <tr class="clickable-row cursor-pointer" onclick="focusLeader('${keyAttr}')">
+                        <td class="px-5 py-4 font-black text-slate-900">${escapeHtml(row.name || '-')}</td>
+                        <td class="px-5 py-4 font-bold text-slate-600">${escapeHtml(row.brandLabel || '-')}</td>
+                        <td class="px-5 py-4 font-bold text-slate-600">${escapeHtml(row.floorLabel || '-')}</td>
+                        <td class="px-4 py-4 text-center font-black text-indigo-600">${formatNumber(row.lead)}</td>
+                        <td class="px-4 py-4 text-center font-black text-orange-600">${formatNumber(row.offer)}</td>
+                        <td class="px-4 py-4 text-center font-black text-emerald-600">${formatNumber(row.onboard)}</td>
+                        <td class="px-4 py-4 text-center">${renderLeaderGap(row.gap)}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function summarizeBreakdowns(leaders) {
@@ -2943,6 +3226,7 @@
             renderSummaryCards(leaders, comparisonLeaders);
             renderBrandTable(brandRows, comparisonBrandRows);
             renderFloorTable(floorRows, comparisonFloorRows);
+            renderLeaderOnlyTable(leaders);
             renderNetworkTable(leaders, comparisonLeaders);
             renderFibSection();
             renderFibDetailSection();
@@ -2966,6 +3250,10 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            const leaderOnlyStart = document.getElementById('leaderOnlyStart');
+            const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
+            if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyEnd) leaderOnlyEnd.value = formatDateToISO(today);
             const fibStudyStart = document.getElementById('fibStudyStart');
             const fibStudyEnd = document.getElementById('fibStudyEnd');
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
@@ -2985,6 +3273,12 @@
             networkSectionBrandDefaultApplied = true;
             const networkSectionFloorFilter = document.getElementById('networkSectionFloorFilter');
             if (networkSectionFloorFilter) networkSectionFloorFilter.value = '';
+            const leaderOnlyBrandFilter = document.getElementById('leaderOnlyBrandFilter');
+            if (leaderOnlyBrandFilter) leaderOnlyBrandFilter.value = displayBrand(DEFAULT_SECTION_BRAND);
+            const leaderOnlyFloorFilter = document.getElementById('leaderOnlyFloorFilter');
+            if (leaderOnlyFloorFilter) leaderOnlyFloorFilter.value = '';
+            const leaderGapFilter = document.getElementById('leaderGapFilter');
+            if (leaderGapFilter) leaderGapFilter.value = '';
             const fibBrandFilter = document.getElementById('fibBrandFilter');
             if (fibBrandFilter) fibBrandFilter.value = DEFAULT_SECTION_BRAND;
             const fibFloorFilter = document.getElementById('fibFloorFilter');
@@ -2999,6 +3293,8 @@
             if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
             const detailReferralFilter = document.getElementById('detailReferralFilter');
             if (detailReferralFilter) detailReferralFilter.value = '';
+            leaderOnlySortKey = 'floorLabel';
+            leaderOnlySortDirection = 'asc';
             detailSortKey = 'leadDateObj';
             detailSortDirection = 'desc';
             selectedLeaderKey = '';
@@ -3032,14 +3328,22 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            const leaderOnlyStart = document.getElementById('leaderOnlyStart');
+            const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
+            if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyEnd) leaderOnlyEnd.value = formatDateToISO(today);
             const fibStudyStart = document.getElementById('fibStudyStart');
             const fibStudyEnd = document.getElementById('fibStudyEnd');
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
+                    if (id === 'leaderOnlyBrandFilter') {
+                        const floorFilter = document.getElementById('leaderOnlyFloorFilter');
+                        if (floorFilter) floorFilter.value = '';
+                    }
                     if (id === 'fibBrandFilter') {
                         const fibFloorFilter = document.getElementById('fibFloorFilter');
                         if (fibFloorFilter) fibFloorFilter.value = '';
@@ -3072,7 +3376,7 @@
                         currentDetailScope = 'SUMMARY';
                         currentSummaryDetailMode = 'LEAD';
                     }
-                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter') {
+                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter' && id !== 'leaderOnlyBrandFilter' && id !== 'leaderOnlyFloorFilter' && id !== 'leaderGapFilter' && id !== 'leaderOnlyStart' && id !== 'leaderOnlyEnd') {
                         selectedLeaderKey = '';
                     }
                     renderDashboard(false);
