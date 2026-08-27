@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -1199,9 +1201,8 @@
                 list = dataS1.filter(row => {
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return dMatch && stMatch;
+                    return dMatch && !isExcludedPendingOfferRow(row);
                 });
             } else if (mode === "ONBOARD") {
                 const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
@@ -1227,9 +1228,8 @@
                 list = dataS1.filter(row => {
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return dMatch && stMatch;
+                    return dMatch && !isExcludedPendingOfferRow(row);
                 });
             } else if (mode === "ONBOARD") {
                 const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
@@ -1503,6 +1503,17 @@
         function isNoShowOnboardStatus(value) {
             const upper = ((value || "") + "").trim().toUpperCase();
             return upper.includes("NO SHOW") || upper.includes("NOSHOW");
+        }
+
+        function isExcludedPendingOfferRow(row) {
+            const status = (row?.[headersS1[S1_IDX.STATUS]] || "") + "";
+            const statusUpper = status.trim().toUpperCase();
+            const onboardStatus = getS1OnboardStatus(row);
+            return statusUpper.includes("ACCEPT")
+                || isRejectedOrWithdrawnStatus(status)
+                || isNoShowOnboardStatus(status)
+                || isRejectedOrWithdrawnStatus(onboardStatus)
+                || isNoShowOnboardStatus(onboardStatus);
         }
 
         function isSearchOfferRow(row) {
@@ -2092,8 +2103,8 @@
                 if (!isPositionIncluded(row)) return;
                 const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                 const odTs = od ? od.getTime() : null;
-                const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
-                if (!(odTs && odTs >= startTs && odTs <= endLimitTs && stMatch)) return;
+                if (!(odTs && odTs >= startTs && odTs <= endLimitTs)) return;
+                if (isExcludedPendingOfferRow(row)) return;
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
             return counts;
@@ -2357,8 +2368,7 @@
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const odTs = od ? od.getTime() : null;
-                    const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
-                    return odTs && odTs >= startTs && odTs <= endLimitTs && stMatch;
+                    return odTs && odTs >= startTs && odTs <= endLimitTs && !isExcludedPendingOfferRow(row);
                 });
                 
                 const elRj = document.getElementById(`pending-rj-${brand}`);
@@ -2377,8 +2387,7 @@
                             if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                             const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                             const odTs = od ? od.getTime() : null;
-                            const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
-                            return odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && stMatch;
+                            return odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && !isExcludedPendingOfferRow(row);
                         }).length;
                     }
                     elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
@@ -3116,9 +3125,8 @@
                 list = dataS1.filter(row => {
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const stMatch = !((row[headersS1[S1_IDX.STATUS]] || "").toUpperCase().includes("ACCEPT"));
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return dMatch && stMatch;
+                    return dMatch && !isExcludedPendingOfferRow(row);
                 });
             } else if (mode === "ONBOARD") {
                 const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
@@ -3146,9 +3154,8 @@
                     if (!source.includes("OPERATION")) return false;
                     const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const stMatch = !(row[headersS1[S1_IDX.STATUS]]||"").toUpperCase().includes("ACCEPT");
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return bMatch && dMatch && stMatch;
+                    return bMatch && dMatch && !isExcludedPendingOfferRow(row);
                 });
             }
             
