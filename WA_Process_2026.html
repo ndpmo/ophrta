@@ -200,6 +200,20 @@
             border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.82);
             box-shadow: 0 24px 60px -34px rgba(15, 23, 42, 0.22);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .specialist-card.clickable {
+            cursor: pointer;
+        }
+
+        .specialist-card.clickable:hover {
+            transform: translateY(-4px);
+        }
+
+        .specialist-card.active {
+            box-shadow: 0 24px 50px -28px rgba(15, 23, 42, 0.34);
+            border-color: rgba(15, 23, 42, 0.2);
         }
 
         .specialist-card::before {
@@ -280,6 +294,7 @@
                             <option value="ALL">All Source</option>
                             <option value="HR">HR</option>
                             <option value="OP">OP</option>
+                            <option value="AD_CIC">AD / CIC Assigned</option>
                         </select>
                     </div>
                 </div>
@@ -294,7 +309,7 @@
 
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
+        <section id="detailSection" class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
@@ -304,7 +319,7 @@
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1120px] border-collapse">
+                    <table class="w-full min-w-[1240px] border-collapse">
                         <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left">Brand</th>
@@ -315,6 +330,7 @@
                                 <th class="px-4 py-4 text-left">On Board Date</th>
                                 <th class="px-4 py-4 text-left">Status</th>
                                 <th class="px-4 py-4 text-left">On Board Status</th>
+                                <th class="px-4 py-4 text-left">AD / CIC</th>
                                 <th class="px-4 py-4 text-left">RJ/NJ</th>
                                 <th class="px-5 py-4 text-left">Name</th>
                             </tr>
@@ -358,10 +374,17 @@
             PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
             REJECT_WITHDRAW: { title: 'Reject / Withdraw Details', accent: '#dc2626', soft: 'rgba(248, 113, 113, 0.12)' }
         };
+        const DETAIL_FILTER_LABELS = {
+            ALL: 'all source',
+            HR: 'HR',
+            OP: 'OP',
+            AD_CIC: 'AD / CIC assigned'
+        };
 
         let headersS1 = [];
         let dataS1 = [];
         let activeStage = 'LEAD';
+        let activeSpecialistKey = '';
 
         function formatDateToISO(date) {
             const y = date.getFullYear();
@@ -650,6 +673,7 @@
             const ownerUpper = cleanText(owner, '').toUpperCase();
             const matched = rows.filter(row => getCicOwner(row).toUpperCase() === ownerUpper);
             return {
+                rows: matched,
                 total: matched.length,
                 offer: matched.filter(isOfferRow).length,
                 onboard: matched.filter(isOnboardRow).length
@@ -785,7 +809,7 @@
             ];
 
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
-                <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
+                <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${!activeSpecialistKey && activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
                     <p class="summary-card-title uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
                     <div class="mt-3 flex items-end justify-between gap-3">
                         <div class="text-[2.35rem] leading-none font-black data-font text-slate-900 md:text-[2.65rem]">${formatNumber(card.value)}</div>
@@ -806,7 +830,7 @@
 
         function renderSpecialistCards(summary) {
             document.getElementById('specialistCards').innerHTML = summary.specialists.map(card => `
-                <div class="glass-card specialist-card p-5 md:p-6" style="border-top:6px solid ${card.accent}; background:${card.soft};">
+                <div class="glass-card specialist-card clickable p-5 md:p-6 ${activeSpecialistKey === card.key ? 'active' : ''}" style="border-top:6px solid ${card.accent}; background:${card.soft};" onclick="setActiveSpecialist('${card.key}')">
                     <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                             <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.owner}</p>
@@ -818,6 +842,7 @@
                             <p class="mt-2 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.total)}</p>
                         </div>
                     </div>
+                    <p class="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Click card to show matched lead details below</p>
                     <div class="mt-5 grid gap-3 sm:grid-cols-2">
                         <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
                             <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Offer</p>
@@ -835,6 +860,7 @@
         function getSourceFilteredRows(rows) {
             const filter = document.getElementById('detailSourceFilter')?.value || 'ALL';
             if (filter === 'ALL') return rows;
+            if (filter === 'AD_CIC') return rows.filter(hasAdAssignment);
             return rows.filter(row => getSourceType(row) === filter);
         }
 
@@ -846,15 +872,23 @@
                 OFFER: summary.offer.rows,
                 ONBOARD: summary.onboard.rows
             };
-            const rows = getSourceFilteredRows(stageRows[activeStage] || []);
-            const stageConfig = STAGE_CONFIG[activeStage];
-            document.getElementById('detailTitle').textContent = stageConfig.title;
+            const activeSpecialist = activeSpecialistKey
+                ? summary.specialists.find(card => card.key === activeSpecialistKey)
+                : null;
+            const baseRows = activeSpecialist ? activeSpecialist.rows : (stageRows[activeStage] || []);
+            const rows = getSourceFilteredRows(baseRows);
+            const detailTitle = activeSpecialist
+                ? `${activeSpecialist.owner} Matched Lead Details`
+                : STAGE_CONFIG[activeStage].title;
+            document.getElementById('detailTitle').textContent = detailTitle;
             const sourceFilter = document.getElementById('detailSourceFilter')?.value || 'ALL';
-            document.getElementById('detailMeta').textContent = `${formatNumber(rows.length)} rows under ${sourceFilter === 'ALL' ? 'all source' : sourceFilter} / ${stageConfig.title}`;
+            const filterLabel = DETAIL_FILTER_LABELS[sourceFilter] || sourceFilter;
+            document.getElementById('detailMeta').textContent = `${formatNumber(rows.length)} rows under ${filterLabel} / ${activeSpecialist ? `${activeSpecialist.owner} matched leads` : detailTitle}`;
 
             const body = document.getElementById('detailTableBody');
             if (!rows.length) {
-                body.innerHTML = `<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${stageConfig.title.toLowerCase()} rows in this selection.</td></tr>`;
+                const emptyLabel = activeSpecialist ? `${activeSpecialist.owner.toLowerCase()} matched lead` : detailTitle.toLowerCase();
+                body.innerHTML = `<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
                 return;
             }
 
@@ -868,6 +902,7 @@
                     <td class="px-4 py-4 text-left">${cleanText(getRecordedOnboardDate(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getStatus(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getOnboardStatus(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getCicOwner(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.RJNJ]])}</td>
                     <td class="px-5 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.NAME]])}</td>
                 </tr>
@@ -900,9 +935,21 @@
             updateLoading(summary);
         }
 
+        function scrollToDetailView() {
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function setActiveStage(stage) {
             activeStage = stage;
+            activeSpecialistKey = '';
             renderDashboard();
+            scrollToDetailView();
+        }
+
+        function setActiveSpecialist(key) {
+            activeSpecialistKey = key;
+            renderDashboard();
+            scrollToDetailView();
         }
 
         function resetFilters() {
@@ -912,6 +959,7 @@
             document.getElementById('studyEnd').value = formatDateToISO(today);
             document.getElementById('detailSourceFilter').value = 'ALL';
             activeStage = 'LEAD';
+            activeSpecialistKey = '';
             renderDashboard();
         }
 
