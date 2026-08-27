@@ -94,6 +94,30 @@
             border-color: rgba(15, 23, 42, 0.2);
         }
 
+        .summary-card-shell {
+            min-height: 326px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-card-title {
+            font-size: 0.78rem;
+            line-height: 1rem;
+        }
+
+        .summary-card-note {
+            min-height: 3rem;
+            font-size: 0.78rem;
+            line-height: 1.15rem;
+            letter-spacing: 0.11em;
+        }
+
+        .summary-card-lines {
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.45rem;
+        }
+
         .summary-card::before {
             content: "";
             position: absolute;
@@ -138,9 +162,21 @@
             display: flex;
             justify-content: space-between;
             gap: 0.8rem;
-            font-size: 0.78rem;
-            line-height: 1.2rem;
+            align-items: flex-start;
+            font-size: 0.84rem;
+            line-height: 1.18rem;
             font-weight: 900;
+        }
+
+        .metric-subline span:first-child {
+            flex: 1;
+            max-width: 72%;
+        }
+
+        .metric-subline span:last-child {
+            flex-shrink: 0;
+            min-width: 1.25rem;
+            text-align: right;
         }
 
         .count-delta {
@@ -158,6 +194,22 @@
         .count-delta.negative { color: #dc2626; }
         .count-delta.neutral { color: #64748b; }
 
+        .specialist-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            box-shadow: 0 24px 60px -34px rgba(15, 23, 42, 0.22);
+        }
+
+        .specialist-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.32), transparent 48%);
+            pointer-events: none;
+        }
+
         @media (max-width: 767px) {
             body {
                 padding: 0.75rem 0.2rem 2.5rem;
@@ -165,6 +217,14 @@
 
             .glass-card {
                 border-radius: 1rem;
+            }
+
+            .summary-card-shell {
+                min-height: auto;
+            }
+
+            .summary-card-note {
+                min-height: auto;
             }
 
             .pill-button {
@@ -232,6 +292,8 @@
 
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
 
+        <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
+
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
                 <div>
@@ -275,6 +337,7 @@
             SOURCE: 5,
             NAME: 13,
             ONBOARD_STATUS: 27,
+            CIC: 29,
             STATUS: 23,
             RJNJ: 12,
             LEAD_DATE: 35,
@@ -284,6 +347,10 @@
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
         const TARGET_POSITION = 'OS-CRA';
+        const SPECIALIST_CONFIG = [
+            { key: 'LILY', title: 'Body & Wellness Specialist', owner: 'Lily', accent: '#0f766e', soft: 'rgba(20, 184, 166, 0.12)' },
+            { key: 'DENISE', title: 'Facial Fitness Specialist', owner: 'Denise', accent: '#be185d', soft: 'rgba(244, 114, 182, 0.12)' }
+        ];
         const STAGE_CONFIG = {
             LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
             OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
@@ -484,6 +551,14 @@
             return cleanText(row?.__rawOnboardDate ?? row?.[headersS1[S1_IDX.ONBOARD_DATE]], '');
         }
 
+        function getCicOwner(row) {
+            return cleanText(row?.[headersS1[S1_IDX.CIC]], '');
+        }
+
+        function hasAdAssignment(row) {
+            return !!getCicOwner(row);
+        }
+
         function getRange() {
             const start = parseDate(document.getElementById('studyStart')?.value);
             const end = parseDate(document.getElementById('studyEnd')?.value);
@@ -548,10 +623,9 @@
             if (combined.includes('REJECT OFFER BY CDD')) return 'REJECT OFFER BY CDD';
             if (combined.includes('WITHDRAW OFFER')) return 'WITHDRAW OFFER';
 
-            const hasRejectOrWithdraw = combined.includes('REJECT') || combined.includes('WITHDRAW');
-            if (!hasRejectOrWithdraw) return null;
-
-            return 'REJECT / WITHDRAW INTERVIEW';
+            if (combined.includes('REJECT')) return 'REJECT INTERVIEW';
+            if (combined.includes('WITHDRAW')) return 'WITHDRAW INTERVIEW';
+            return null;
         }
 
         function getFilteredRows() {
@@ -567,7 +641,18 @@
                 total: matched.length,
                 hr: matched.filter(row => getSourceType(row) === 'HR').length,
                 op: matched.filter(row => getSourceType(row) === 'OP').length,
+                ad: matched.filter(hasAdAssignment).length,
                 other: matched.filter(row => getSourceType(row) === 'OTHER').length
+            };
+        }
+
+        function getSpecialistCounts(rows, owner) {
+            const ownerUpper = cleanText(owner, '').toUpperCase();
+            const matched = rows.filter(row => getCicOwner(row).toUpperCase() === ownerUpper);
+            return {
+                total: matched.length,
+                offer: matched.filter(isOfferRow).length,
+                onboard: matched.filter(isOnboardRow).length
             };
         }
 
@@ -595,7 +680,8 @@
 
         function getRejectWithdrawCounts(rows) {
             const buckets = {
-                'REJECT / WITHDRAW INTERVIEW': [],
+                'REJECT INTERVIEW': [],
+                'WITHDRAW INTERVIEW': [],
                 'REJECT OFFER BY CDD': [],
                 'WITHDRAW OFFER': [],
                 'BLACKLISTED': [],
@@ -611,7 +697,8 @@
             return {
                 rows: allRows,
                 total: allRows.length,
-                rejectWithdrawInterview: buckets['REJECT / WITHDRAW INTERVIEW'].length,
+                rejectInterview: buckets['REJECT INTERVIEW'].length,
+                withdrawInterview: buckets['WITHDRAW INTERVIEW'].length,
                 rejectOfferByCdd: buckets['REJECT OFFER BY CDD'].length,
                 withdrawOffer: buckets['WITHDRAW OFFER'].length,
                 blacklisted: buckets['BLACKLISTED'].length,
@@ -630,7 +717,8 @@
                     bg: 'var(--lead-soft)',
                     lines: [
                         ['HR', summary.lead.hr],
-                        ['OP', summary.lead.op]
+                        ['OP', summary.lead.op],
+                        ['AD / CIC', summary.lead.ad]
                     ],
                     extra: summary.lead.other > 0 ? `Other source = ${summary.lead.other}` : ''
                 },
@@ -651,13 +739,14 @@
                 },
                 {
                     key: 'REJECT_WITHDRAW',
-                    title: 'Reject / Withdraw',
+                    title: 'Reject',
                     value: summary.rejectWithdraw.total,
                     note: 'Rejected / withdrawn / blacklist / duplicated',
                     accent: '#dc2626',
                     bg: 'rgba(248, 113, 113, 0.12)',
                     lines: [
-                        ['Reject/Withdraw Interview', summary.rejectWithdraw.rejectWithdrawInterview],
+                        ['Reject Interview', summary.rejectWithdraw.rejectInterview],
+                        ['Withdraw Interview', summary.rejectWithdraw.withdrawInterview],
                         ['Reject Offer By cdd', summary.rejectWithdraw.rejectOfferByCdd],
                         ['Withdraw Offer', summary.rejectWithdraw.withdrawOffer],
                         ['Blacklisted', summary.rejectWithdraw.blacklisted],
@@ -674,7 +763,8 @@
                     bg: 'var(--offer-soft)',
                     lines: [
                         ['HR', summary.offer.hr],
-                        ['OP', summary.offer.op]
+                        ['OP', summary.offer.op],
+                        ['AD / CIC', summary.offer.ad]
                     ],
                     extra: summary.offer.other > 0 ? `Other source = ${summary.offer.other}` : ''
                 },
@@ -687,20 +777,21 @@
                     bg: 'var(--onboard-soft)',
                     lines: [
                         ['HR', summary.onboard.hr],
-                        ['OP', summary.onboard.op]
+                        ['OP', summary.onboard.op],
+                        ['AD / CIC', summary.onboard.ad]
                     ],
                     extra: summary.onboard.other > 0 ? `Other source = ${summary.onboard.other}` : ''
                 }
             ];
 
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
-                <div class="glass-card summary-card p-5 ${activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
+                    <p class="summary-card-title uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
                     <div class="mt-3 flex items-end justify-between gap-3">
-                        <div class="text-4xl font-black data-font text-slate-900">${formatNumber(card.value)}</div>
+                        <div class="text-[2.35rem] leading-none font-black data-font text-slate-900 md:text-[2.65rem]">${formatNumber(card.value)}</div>
                     </div>
-                    <p class="mt-2 text-xs font-black uppercase tracking-[0.14em] text-slate-500">${card.note}</p>
-                    <div class="mt-4 space-y-1">
+                    <p class="summary-card-note mt-3 font-black uppercase text-slate-500">${card.note}</p>
+                    <div class="summary-card-lines">
                         ${card.lines.map(([label, value]) => `
                             <div class="metric-subline">
                                 <span class="text-slate-500">${label}</span>
@@ -708,7 +799,35 @@
                             </div>
                         `).join('')}
                     </div>
-                    ${card.extra ? `<p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">${card.extra}</p>` : ''}
+                    ${card.extra ? `<p class="mt-4 text-[11px] leading-4 font-black uppercase tracking-[0.12em] text-slate-500">${card.extra}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderSpecialistCards(summary) {
+            document.getElementById('specialistCards').innerHTML = summary.specialists.map(card => `
+                <div class="glass-card specialist-card p-5 md:p-6" style="border-top:6px solid ${card.accent}; background:${card.soft};">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.owner}</p>
+                            <h3 class="mt-2 text-xl md:text-2xl font-black text-slate-900">${card.title}</h3>
+                            <p class="mt-2 text-xs font-black uppercase tracking-[0.12em] text-slate-500">AD / CIC marked as ${card.owner}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/70 px-4 py-3 text-right shadow-sm">
+                            <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Matched Leads</p>
+                            <p class="mt-2 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.total)}</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Offer</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.offer)}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">On Board</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.onboard)}</p>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
@@ -769,9 +888,14 @@
                 pending: getPendingCounts(rows),
                 rejectWithdraw: getRejectWithdrawCounts(rows),
                 offer: buildCounts(rows, isOfferRow),
-                onboard: buildCounts(rows, isOnboardRow)
+                onboard: buildCounts(rows, isOnboardRow),
+                specialists: SPECIALIST_CONFIG.map(config => ({
+                    ...config,
+                    ...getSpecialistCounts(rows, config.owner)
+                }))
             };
             renderSummaryCards(summary);
+            renderSpecialistCards(summary);
             renderDetailTable(summary);
             updateLoading(summary);
         }
