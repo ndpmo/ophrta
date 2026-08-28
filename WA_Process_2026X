@@ -1,0 +1,1041 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WA Process 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --paper: rgba(255, 255, 255, 0.88);
+            --line: rgba(148, 163, 184, 0.26);
+            --lead: #2563eb;
+            --lead-soft: rgba(37, 99, 235, 0.12);
+            --offer: #ea580c;
+            --offer-soft: rgba(249, 115, 22, 0.12);
+            --onboard: #059669;
+            --onboard-soft: rgba(16, 185, 129, 0.12);
+            --pending: #7c3aed;
+            --pending-soft: rgba(124, 58, 237, 0.12);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 26%),
+                radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 22%),
+                linear-gradient(160deg, #f7f9ff 0%, #edf6ff 52%, #fbfffd 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.34) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.34) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: var(--paper);
+            border: 1px solid rgba(255,255,255,0.78);
+            box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.28);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+        }
+
+        .title-tech,
+        .data-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .data-font {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pill-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 3rem;
+            border-radius: 9999px;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255,255,255,0.84);
+            background: rgba(255,255,255,0.78);
+            font-weight: 800;
+            box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.28);
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .summary-card.active {
+            box-shadow: 0 24px 50px -28px rgba(15, 23, 42, 0.34);
+            border-color: rgba(15, 23, 42, 0.2);
+        }
+
+        .summary-card-shell {
+            min-height: 326px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-card-title {
+            font-size: 0.78rem;
+            line-height: 1rem;
+        }
+
+        .summary-card-note {
+            min-height: 3rem;
+            font-size: 0.78rem;
+            line-height: 1.15rem;
+            letter-spacing: 0.11em;
+        }
+
+        .summary-card-lines {
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.36), transparent 40%);
+            pointer-events: none;
+        }
+
+        .table-shell {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255,255,255,0.76);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 22px 45px -34px rgba(15, 23, 42, 0.35);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 9999px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.28rem 0.65rem;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .metric-subline {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            align-items: flex-start;
+            font-size: 0.84rem;
+            line-height: 1.18rem;
+            font-weight: 900;
+        }
+
+        .metric-subline span:first-child {
+            flex: 1;
+            max-width: 72%;
+        }
+
+        .metric-subline span:last-child {
+            flex-shrink: 0;
+            min-width: 1.25rem;
+            text-align: right;
+        }
+
+        .count-delta {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.28rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            font-weight: 900;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .count-delta.positive { color: #16a34a; }
+        .count-delta.negative { color: #dc2626; }
+        .count-delta.neutral { color: #64748b; }
+
+        .specialist-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            box-shadow: 0 24px 60px -34px rgba(15, 23, 42, 0.22);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .specialist-card.clickable {
+            cursor: pointer;
+        }
+
+        .specialist-card.clickable:hover {
+            transform: translateY(-4px);
+        }
+
+        .specialist-card.active {
+            box-shadow: 0 24px 50px -28px rgba(15, 23, 42, 0.34);
+            border-color: rgba(15, 23, 42, 0.2);
+        }
+
+        .specialist-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.32), transparent 48%);
+            pointer-events: none;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 0.75rem 0.2rem 2.5rem;
+            }
+
+            .glass-card {
+                border-radius: 1rem;
+            }
+
+            .summary-card-shell {
+                min-height: auto;
+            }
+
+            .summary-card-note {
+                min-height: auto;
+            }
+
+            .pill-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
+        <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">
+                        <span>&larr;</span>
+                        <span>Back To Dashboard</span>
+                    </a>
+                    <span class="tag bg-sky-100 text-sky-700">OS-CRA</span>
+                    <span class="tag bg-violet-100 text-violet-700">WA Process</span>
+                    <span class="tag bg-emerald-100 text-emerald-700">MTD From Lead Date</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+                        WA Process <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">2026</span>
+                    </h1>
+                    <p class="mt-3 max-w-3xl text-sm md:text-base font-bold text-slate-600">
+                        Focus on <span class="text-slate-900">Position = OS-CRA</span>. The cohort is filtered by Lead Date, then split into HR / OP sources for lead, offer, onboard, and current pending pipeline.
+                    </p>
+                </div>
+            </div>
+            <div class="glass-card px-5 py-4 min-w-[240px]">
+                <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
+                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading latest sheet data...</p>
+                <p class="mt-2 text-xs font-bold text-slate-500">Sheet 1 + Position OS-CRA</p>
+            </div>
+        </header>
+
+        <section class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 flex-1">
+                    <div class="space-y-2">
+                        <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
+                        <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
+                        <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="detailSourceFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Details Source</label>
+                        <select id="detailSourceFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                            <option value="ALL">All Source</option>
+                            <option value="HR">HR</option>
+                            <option value="OP">OP</option>
+                            <option value="AD_CIC">AD / CIC Assigned</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" onclick="resetFilters()" class="pill-button text-slate-700 hover:-translate-y-0.5 transition">Reset</button>
+                    <button type="button" onclick="renderDashboard()" class="pill-button bg-sky-600 text-white border-transparent hover:-translate-y-0.5 transition">Refresh Study</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
+
+        <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
+
+        <section id="detailSection" class="glass-card p-5 md:p-6 mb-8">
+            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
+                    <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Lead Details</h2>
+                </div>
+                <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+            </div>
+            <div class="table-shell">
+                <div class="table-wrap">
+                    <table class="w-full min-w-[1360px] border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                            <tr>
+                                <th class="px-5 py-4 text-left">Brand</th>
+                                <th class="px-4 py-4 text-left">Source</th>
+                                <th class="px-4 py-4 text-left">Position</th>
+                                <th class="px-4 py-4 text-left">Lead Date</th>
+                                <th class="px-4 py-4 text-left">Offer Date</th>
+                                <th class="px-4 py-4 text-left">On Board Date</th>
+                                <th class="px-4 py-4 text-left">Last Employment Day</th>
+                                <th class="px-4 py-4 text-left">Status</th>
+                                <th class="px-4 py-4 text-left">On Board Status</th>
+                                <th class="px-4 py-4 text-left">AD / CIC</th>
+                                <th class="px-4 py-4 text-left">RJ/NJ</th>
+                                <th class="px-5 py-4 text-left">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="loadingState" class="glass-card p-5 text-sm font-black text-slate-600">Loading WA process data...</section>
+    </div>
+
+    <script>
+        const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
+        const SHEET1_GID = '1328974285';
+        const S1_IDX = {
+            BRAND: 0,
+            POSITION: 4,
+            SOURCE: 5,
+            NAME: 13,
+            ONBOARD_STATUS: 27,
+            CIC: 29,
+            STATUS: 23,
+            RJNJ: 12,
+            LEAD_DATE: 35,
+            OFFER_DATE: 36,
+            ONBOARD_DATE: 37,
+            LAST_EMPLOYMENT_DAY: 52
+        };
+        const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
+        const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
+        const TARGET_POSITION = 'OS-CRA';
+        const SPECIALIST_CONFIG = [
+            { key: 'LILY', title: 'Body & Wellness Specialist', owner: 'Lily', accent: '#0f766e', soft: 'rgba(20, 184, 166, 0.12)' },
+            { key: 'DENISE', title: 'Facial Fitness Specialist', owner: 'Denise', accent: '#be185d', soft: 'rgba(244, 114, 182, 0.12)' }
+        ];
+        const STAGE_CONFIG = {
+            LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
+            OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
+            ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
+            STILL_ACTIVE: { title: 'Still Active Details', accent: '#0891b2', soft: 'rgba(6, 182, 212, 0.12)' },
+            PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
+            REJECT_WITHDRAW: { title: 'Reject / Withdraw Details', accent: '#dc2626', soft: 'rgba(248, 113, 113, 0.12)' }
+        };
+        const DETAIL_FILTER_LABELS = {
+            ALL: 'all source',
+            HR: 'HR',
+            OP: 'OP',
+            AD_CIC: 'AD / CIC assigned'
+        };
+
+        let headersS1 = [];
+        let dataS1 = [];
+        let activeStage = 'LEAD';
+        let activeSpecialistKey = '';
+
+        function formatDateToISO(date) {
+            const y = date.getFullYear();
+            const m = `${date.getMonth() + 1}`.padStart(2, '0');
+            const d = `${date.getDate()}`.padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value || 0);
+        }
+
+        function formatDateAsDMonY(date) {
+            if (!(date instanceof Date) || isNaN(date)) return '-';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function parseDate(rawValue) {
+            if (!rawValue) return null;
+            if (rawValue instanceof Date && !isNaN(rawValue)) {
+                return new Date(rawValue.getFullYear(), rawValue.getMonth(), rawValue.getDate(), 0, 0, 0, 0);
+            }
+
+            const value = rawValue.toString().trim();
+            if (!value || value === '-' || value.toUpperCase() === 'N/A' || value === '#N/A') return null;
+
+            const isoMatch = value.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+            if (isoMatch) {
+                const year = parseInt(isoMatch[1], 10);
+                const month = parseInt(isoMatch[2], 10);
+                const day = parseInt(isoMatch[3], 10);
+                const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+                return isNaN(date) ? null : date;
+            }
+
+            const parts = value.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+            if (parts.length >= 3) {
+                const parsed = parseDateByParts(parts[0], parts[1], parts[2]) || parseDateByParts(parts[2], parts[1], parts[0]);
+                if (parsed) return parsed;
+            }
+
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return null;
+        }
+
+        function parseDateByParts(dayPart, monthPart, yearPart) {
+            const d = parseInt((dayPart ?? '').toString().trim(), 10);
+            let y = parseInt((yearPart ?? '').toString().trim(), 10);
+            if (!d || !y) return null;
+            if (y < 100) y += 2000;
+
+            const monthRaw = (monthPart ?? '').toString().trim();
+            let month = parseInt(monthRaw, 10);
+            if (isNaN(month)) {
+                const monthList = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                const index = monthList.indexOf(monthRaw.toLowerCase().slice(0, 3));
+                month = index >= 0 ? index + 1 : NaN;
+            }
+            if (!month || month < 1 || month > 12) return null;
+
+            const date = new Date(y, month - 1, d, 0, 0, 0, 0);
+            if (date.getFullYear() !== y || date.getMonth() !== month - 1 || date.getDate() !== d) return null;
+            return date;
+        }
+
+        function buildDateFromTripletColumns(row, tripletIdx, fallbackValue, allowFallback = true) {
+            const raw = tripletIdx.map(i => ((row[headersS1[i]] ?? '') + '').trim());
+            const nonEmpty = raw.filter(value => value && value !== '-');
+            if (!nonEmpty.length) return allowFallback ? ((fallbackValue ?? '') + '').trim() : '-';
+            if (nonEmpty.length === 3) {
+                const parsed = parseDateByParts(nonEmpty[0], nonEmpty[1], nonEmpty[2]) || parseDateByParts(nonEmpty[2], nonEmpty[1], nonEmpty[0]);
+                if (parsed) return formatDateAsDMonY(parsed);
+            }
+            const single = parseDate(nonEmpty.join(' '));
+            return single ? formatDateAsDMonY(single) : (allowFallback ? ((fallbackValue ?? '') + '').trim() : '-');
+        }
+
+        function hydrateS1DateFields(row) {
+            const leadHeader = headersS1[S1_IDX.LEAD_DATE];
+            const offerHeader = headersS1[S1_IDX.OFFER_DATE];
+            const onboardHeader = headersS1[S1_IDX.ONBOARD_DATE];
+            const rawOnboardDateHeader = headersS1[S1_RAW_IDX.ONBOARD_DATE];
+            const rawOnboardStatusHeader = headersS1[S1_RAW_IDX.ONBOARD_STATUS];
+
+            if (rawOnboardDateHeader && row.__rawOnboardDate == null) row.__rawOnboardDate = (row[rawOnboardDateHeader] ?? '').toString().trim();
+            if (rawOnboardStatusHeader && row.__rawOnboardStatus == null) row.__rawOnboardStatus = (row[rawOnboardStatusHeader] ?? '').toString().trim();
+
+            if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
+            if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
+            if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
+        }
+
+        function csvEscape(value) {
+            const str = (value ?? '').toString();
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        function gvizTableToCsv(table) {
+            const cols = (table?.cols || []).map(col => col?.label || '');
+            const lines = [cols.map(csvEscape).join(',')];
+            (table?.rows || []).forEach(row => {
+                const values = cols.map((_, index) => {
+                    const cell = row?.c?.[index];
+                    if (!cell) return '';
+                    return cell.f != null ? cell.f : cell.v;
+                });
+                lines.push(values.map(csvEscape).join(','));
+            });
+            return lines.join('\n');
+        }
+
+        function loadGvizCsvByJsonp(gid, docId = SHEET1_DOC_ID) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `__gviz_wa_${gid}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error(`Sheet ${gid} JSONP timeout`));
+                }, 15000);
+
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+                }
+
+                window[callbackName] = response => {
+                    try {
+                        cleanup();
+                        resolve(gvizTableToCsv(response.table));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error(`Sheet ${gid} JSONP failed`));
+                };
+
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?gid=${gid}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                document.body.appendChild(script);
+            });
+        }
+
+        async function fetchSheetText() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
+            try {
+                const response = await fetch(`${url}&t=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            } catch (_) {
+                return loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID);
+            }
+        }
+
+        function cleanText(value, fallback = '-') {
+            const result = ((value ?? '') + '').trim();
+            return result || fallback;
+        }
+
+        function normalizeBrand(value) {
+            return cleanText(value).toUpperCase();
+        }
+
+        function getSourceType(row) {
+            const source = cleanText(row?.[headersS1[S1_IDX.SOURCE]], '').toUpperCase();
+            if (source === 'HR') return 'HR';
+            if (source.includes('OPERATION')) return 'OP';
+            return 'OTHER';
+        }
+
+        function getStatus(row) {
+            return cleanText(row?.[headersS1[S1_IDX.STATUS]], '');
+        }
+
+        function getOnboardStatus(row) {
+            return cleanText(row?.__rawOnboardStatus ?? row?.[headersS1[S1_IDX.ONBOARD_STATUS]], '');
+        }
+
+        function getRecordedOnboardDate(row) {
+            return cleanText(row?.__rawOnboardDate ?? row?.[headersS1[S1_IDX.ONBOARD_DATE]], '');
+        }
+
+        function getLastEmploymentDay(row) {
+            return cleanText(row?.[headersS1[S1_IDX.LAST_EMPLOYMENT_DAY]], '');
+        }
+
+        function getCicOwner(row) {
+            return cleanText(row?.[headersS1[S1_IDX.CIC]], '');
+        }
+
+        function hasAdAssignment(row) {
+            return !!getCicOwner(row);
+        }
+
+        function getRange() {
+            const start = parseDate(document.getElementById('studyStart')?.value);
+            const end = parseDate(document.getElementById('studyEnd')?.value);
+            if (!start || !end) return null;
+            const endLimit = new Date(end.getTime());
+            endLimit.setHours(23, 59, 59, 999);
+            return { start, end: endLimit };
+        }
+
+        function isTargetPosition(row) {
+            return cleanText(row?.[headersS1[S1_IDX.POSITION]], '').toUpperCase() === TARGET_POSITION;
+        }
+
+        function isInLeadRange(row, range) {
+            const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
+            if (!leadDate) return false;
+            return leadDate >= range.start && leadDate <= range.end;
+        }
+
+        function isRejectedOrWithdrawn(value) {
+            const upper = cleanText(value, '').toUpperCase();
+            return upper.includes('REJECT') || upper.includes('WITHDRAW');
+        }
+
+        function isNoShow(value) {
+            const upper = cleanText(value, '').toUpperCase();
+            return upper.includes('NO SHOW') || upper.includes('NOSHOW');
+        }
+
+        function isOfferRow(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            const onboardStatusUpper = getOnboardStatus(row).toUpperCase();
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            if (isRejectedOrWithdrawn(statusUpper)) return false;
+            if (isRejectedOrWithdrawn(onboardStatusUpper)) return false;
+            if (isNoShow(onboardStatusUpper)) return false;
+            if (statusUpper.includes('OFFER') || statusUpper.includes('ACCEPT')) return true;
+            return !!offerDate;
+        }
+
+        function isOnboardRow(row) {
+            return getOnboardStatus(row).toUpperCase().includes('ONBOARD');
+        }
+
+        function hasLastEmploymentDay(row) {
+            const value = getLastEmploymentDay(row).trim().toUpperCase();
+            return !!value && value !== '-' && value !== 'N/A' && value !== '#N/A';
+        }
+
+        function isStillActiveRow(row) {
+            return isOnboardRow(row) && !hasLastEmploymentDay(row);
+        }
+
+        function getPendingBucket(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            if (statusUpper.includes('PENDING CCD REPLY')) return 'PENDING CCD REPLY';
+            if (statusUpper.includes('PENDING TA')) return 'PENDING TA';
+            if (statusUpper.includes('CDD UNREACHABLE')) return 'CDD UNREACHABLE';
+            if (statusUpper.includes('PRESENTED TO LINE')) return 'PRESENTED TO LINE';
+            return null;
+        }
+
+        function getRejectWithdrawBucket(row) {
+            const statusUpper = getStatus(row).toUpperCase();
+            const onboardStatusUpper = getOnboardStatus(row).toUpperCase();
+            const combined = `${statusUpper} ${onboardStatusUpper}`.trim();
+            if (!combined) return null;
+
+            if (combined.includes('DUPLICATED CV')) return 'DUPLICATED CV';
+            if (combined.includes('BLACKLIST')) return 'BLACKLISTED';
+            if (combined.includes('REJECT OFFER BY CDD')) return 'REJECT OFFER BY CDD';
+            if (combined.includes('WITHDRAW OFFER')) return 'WITHDRAW OFFER';
+
+            if (combined.includes('REJECT')) return 'REJECT INTERVIEW';
+            if (combined.includes('WITHDRAW')) return 'WITHDRAW INTERVIEW';
+            return null;
+        }
+
+        function getFilteredRows() {
+            const range = getRange();
+            if (!range) return [];
+            return dataS1.filter(row => isTargetPosition(row) && isInLeadRange(row, range));
+        }
+
+        function buildCounts(rows, predicate) {
+            const matched = predicate ? rows.filter(predicate) : rows.slice();
+            return {
+                rows: matched,
+                total: matched.length,
+                hr: matched.filter(row => getSourceType(row) === 'HR').length,
+                op: matched.filter(row => getSourceType(row) === 'OP').length,
+                ad: matched.filter(hasAdAssignment).length,
+                other: matched.filter(row => getSourceType(row) === 'OTHER').length
+            };
+        }
+
+        function getSpecialistCounts(rows, owner) {
+            const ownerUpper = cleanText(owner, '').toUpperCase();
+            const matched = rows.filter(row => getCicOwner(row).toUpperCase() === ownerUpper);
+            return {
+                rows: matched,
+                total: matched.length,
+                offer: matched.filter(isOfferRow).length,
+                onboard: matched.filter(isOnboardRow).length,
+                stillActive: matched.filter(isStillActiveRow).length
+            };
+        }
+
+        function getPendingCounts(rows) {
+            const buckets = {
+                'PENDING CCD REPLY': [],
+                'PENDING TA': [],
+                'CDD UNREACHABLE': [],
+                'PRESENTED TO LINE': []
+            };
+            rows.forEach(row => {
+                const bucket = getPendingBucket(row);
+                if (bucket) buckets[bucket].push(row);
+            });
+            const allRows = Object.values(buckets).flat();
+            return {
+                rows: allRows,
+                total: allRows.length,
+                pendingCcdReply: buckets['PENDING CCD REPLY'].length,
+                pendingTa: buckets['PENDING TA'].length,
+                cddUnreachable: buckets['CDD UNREACHABLE'].length,
+                presentedToLine: buckets['PRESENTED TO LINE'].length
+            };
+        }
+
+        function getRejectWithdrawCounts(rows) {
+            const buckets = {
+                'REJECT INTERVIEW': [],
+                'WITHDRAW INTERVIEW': [],
+                'REJECT OFFER BY CDD': [],
+                'WITHDRAW OFFER': [],
+                'BLACKLISTED': [],
+                'DUPLICATED CV': []
+            };
+
+            rows.forEach(row => {
+                const bucket = getRejectWithdrawBucket(row);
+                if (bucket) buckets[bucket].push(row);
+            });
+
+            const allRows = Object.values(buckets).flat();
+            return {
+                rows: allRows,
+                total: allRows.length,
+                rejectInterview: buckets['REJECT INTERVIEW'].length,
+                withdrawInterview: buckets['WITHDRAW INTERVIEW'].length,
+                rejectOfferByCdd: buckets['REJECT OFFER BY CDD'].length,
+                withdrawOffer: buckets['WITHDRAW OFFER'].length,
+                blacklisted: buckets['BLACKLISTED'].length,
+                duplicatedCv: buckets['DUPLICATED CV'].length
+            };
+        }
+
+        function renderSummaryCards(summary) {
+            const cards = [
+                {
+                    key: 'LEAD',
+                    title: 'Lead',
+                    value: summary.lead.total,
+                    note: 'OS-CRA lead cohort',
+                    accent: 'var(--lead)',
+                    bg: 'var(--lead-soft)',
+                    lines: [
+                        ['HR', summary.lead.hr],
+                        ['OP', summary.lead.op],
+                        ['AD / CIC', summary.lead.ad]
+                    ],
+                    extra: summary.lead.other > 0 ? `Other source = ${summary.lead.other}` : ''
+                },
+                {
+                    key: 'PENDING',
+                    title: 'Pending',
+                    value: summary.pending.total,
+                    note: 'Current pending pipeline',
+                    accent: 'var(--pending)',
+                    bg: 'var(--pending-soft)',
+                    lines: [
+                        ['Pending Ccd Reply', summary.pending.pendingCcdReply],
+                        ['Pending TA', summary.pending.pendingTa],
+                        ['Cdd unreachable', summary.pending.cddUnreachable],
+                        ['Presented to line', summary.pending.presentedToLine]
+                    ],
+                    extra: ''
+                },
+                {
+                    key: 'REJECT_WITHDRAW',
+                    title: 'Reject',
+                    value: summary.rejectWithdraw.total,
+                    note: 'Rejected / withdrawn / blacklist / duplicated',
+                    accent: '#dc2626',
+                    bg: 'rgba(248, 113, 113, 0.12)',
+                    lines: [
+                        ['Reject Interview', summary.rejectWithdraw.rejectInterview],
+                        ['Withdraw Interview', summary.rejectWithdraw.withdrawInterview],
+                        ['Reject Offer By cdd', summary.rejectWithdraw.rejectOfferByCdd],
+                        ['Withdraw Offer', summary.rejectWithdraw.withdrawOffer],
+                        ['Blacklisted', summary.rejectWithdraw.blacklisted],
+                        ['Duplicated CV', summary.rejectWithdraw.duplicatedCv]
+                    ],
+                    extra: ''
+                },
+                {
+                    key: 'OFFER',
+                    title: 'Offer',
+                    value: summary.offer.total,
+                    note: 'Exclude No Show / Reject / Withdraw',
+                    accent: 'var(--offer)',
+                    bg: 'var(--offer-soft)',
+                    lines: [
+                        ['HR', summary.offer.hr],
+                        ['OP', summary.offer.op],
+                        ['AD / CIC', summary.offer.ad]
+                    ],
+                    extra: summary.offer.other > 0 ? `Other source = ${summary.offer.other}` : ''
+                },
+                {
+                    key: 'ONBOARD',
+                    title: 'On Board',
+                    value: summary.onboard.total,
+                    note: 'On Board Status = Onboard only',
+                    accent: 'var(--onboard)',
+                    bg: 'var(--onboard-soft)',
+                    lines: [
+                        ['HR', summary.onboard.hr],
+                        ['OP', summary.onboard.op],
+                        ['AD / CIC', summary.onboard.ad]
+                    ],
+                    extra: summary.onboard.other > 0 ? `Other source = ${summary.onboard.other}` : ''
+                },
+                {
+                    key: 'STILL_ACTIVE',
+                    title: 'Still Active',
+                    value: summary.stillActive.total,
+                    note: 'Onboard and no Last employment day',
+                    accent: '#0891b2',
+                    bg: 'rgba(6, 182, 212, 0.12)',
+                    lines: [
+                        ['HR', summary.stillActive.hr],
+                        ['OP', summary.stillActive.op],
+                        ['AD / CIC', summary.stillActive.ad]
+                    ],
+                    extra: summary.stillActive.other > 0 ? `Other source = ${summary.stillActive.other}` : ''
+                }
+            ];
+
+            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+                <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${!activeSpecialistKey && activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
+                    <p class="summary-card-title uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <div class="text-[2.35rem] leading-none font-black data-font text-slate-900 md:text-[2.65rem]">${formatNumber(card.value)}</div>
+                    </div>
+                    <p class="summary-card-note mt-3 font-black uppercase text-slate-500">${card.note}</p>
+                    <div class="summary-card-lines">
+                        ${card.lines.map(([label, value]) => `
+                            <div class="metric-subline">
+                                <span class="text-slate-500">${label}</span>
+                                <span class="text-slate-900 data-font">${formatNumber(value)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${card.extra ? `<p class="mt-4 text-[11px] leading-4 font-black uppercase tracking-[0.12em] text-slate-500">${card.extra}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderSpecialistCards(summary) {
+            document.getElementById('specialistCards').innerHTML = summary.specialists.map(card => `
+                <div class="glass-card specialist-card clickable p-5 md:p-6 ${activeSpecialistKey === card.key ? 'active' : ''}" style="border-top:6px solid ${card.accent}; background:${card.soft};" onclick="setActiveSpecialist('${card.key}')">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.owner}</p>
+                            <h3 class="mt-2 text-xl md:text-2xl font-black text-slate-900">${card.title}</h3>
+                            <p class="mt-2 text-xs font-black uppercase tracking-[0.12em] text-slate-500">AD / CIC marked as ${card.owner}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/70 px-4 py-3 text-right shadow-sm">
+                            <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Matched Leads</p>
+                            <p class="mt-2 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.total)}</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Click card to show matched lead details below</p>
+                    <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Offer</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.offer)}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">On Board</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.onboard)}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Still Active</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.stillActive)}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getSourceFilteredRows(rows) {
+            const filter = document.getElementById('detailSourceFilter')?.value || 'ALL';
+            if (filter === 'ALL') return rows;
+            if (filter === 'AD_CIC') return rows.filter(hasAdAssignment);
+            return rows.filter(row => getSourceType(row) === filter);
+        }
+
+        function renderDetailTable(summary) {
+            const stageRows = {
+                LEAD: summary.lead.rows,
+                PENDING: summary.pending.rows,
+                REJECT_WITHDRAW: summary.rejectWithdraw.rows,
+                OFFER: summary.offer.rows,
+                ONBOARD: summary.onboard.rows,
+                STILL_ACTIVE: summary.stillActive.rows
+            };
+            const activeSpecialist = activeSpecialistKey
+                ? summary.specialists.find(card => card.key === activeSpecialistKey)
+                : null;
+            const baseRows = activeSpecialist ? activeSpecialist.rows : (stageRows[activeStage] || []);
+            const rows = getSourceFilteredRows(baseRows);
+            const detailTitle = activeSpecialist
+                ? `${activeSpecialist.owner} Matched Lead Details`
+                : STAGE_CONFIG[activeStage].title;
+            document.getElementById('detailTitle').textContent = detailTitle;
+            const sourceFilter = document.getElementById('detailSourceFilter')?.value || 'ALL';
+            const filterLabel = DETAIL_FILTER_LABELS[sourceFilter] || sourceFilter;
+            document.getElementById('detailMeta').textContent = `${formatNumber(rows.length)} rows under ${filterLabel} / ${activeSpecialist ? `${activeSpecialist.owner} matched leads` : detailTitle}`;
+
+            const body = document.getElementById('detailTableBody');
+            if (!rows.length) {
+                const emptyLabel = activeSpecialist ? `${activeSpecialist.owner.toLowerCase()} matched lead` : detailTitle.toLowerCase();
+                body.innerHTML = `<tr><td colspan="12" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = rows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left text-slate-900 font-black">${cleanText(row?.[headersS1[S1_IDX.BRAND]])}</td>
+                    <td class="px-4 py-4 text-left">${getSourceType(row)}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.POSITION]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getRecordedOnboardDate(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getLastEmploymentDay(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getStatus(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getOnboardStatus(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getCicOwner(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.RJNJ]])}</td>
+                    <td class="px-5 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.NAME]])}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLoading(summary) {
+            const range = getRange();
+            if (!range) return;
+            const loading = document.getElementById('loadingState');
+            loading.textContent = `Showing ${formatNumber(summary.lead.total)} OS-CRA lead rows from ${formatDateAsDMonY(range.start)} to ${formatDateAsDMonY(new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate()))}.`;
+        }
+
+        function renderDashboard() {
+            const rows = getFilteredRows();
+            const summary = {
+                lead: buildCounts(rows),
+                pending: getPendingCounts(rows),
+                rejectWithdraw: getRejectWithdrawCounts(rows),
+                offer: buildCounts(rows, isOfferRow),
+                onboard: buildCounts(rows, isOnboardRow),
+                stillActive: buildCounts(rows, isStillActiveRow),
+                specialists: SPECIALIST_CONFIG.map(config => ({
+                    ...config,
+                    ...getSpecialistCounts(rows, config.owner)
+                }))
+            };
+            renderSummaryCards(summary);
+            renderSpecialistCards(summary);
+            renderDetailTable(summary);
+            updateLoading(summary);
+        }
+
+        function scrollToDetailView() {
+            document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function setActiveStage(stage) {
+            activeStage = stage;
+            activeSpecialistKey = '';
+            renderDashboard();
+            scrollToDetailView();
+        }
+
+        function setActiveSpecialist(key) {
+            activeSpecialistKey = key;
+            renderDashboard();
+            scrollToDetailView();
+        }
+
+        function resetFilters() {
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+            document.getElementById('studyStart').value = formatDateToISO(monthStart);
+            document.getElementById('studyEnd').value = formatDateToISO(today);
+            document.getElementById('detailSourceFilter').value = 'ALL';
+            activeStage = 'LEAD';
+            activeSpecialistKey = '';
+            renderDashboard();
+        }
+
+        async function init() {
+            document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
+            document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
+            document.getElementById('detailSourceFilter')?.addEventListener('change', renderDashboard);
+
+            try {
+                const today = new Date();
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+                document.getElementById('studyStart').value = formatDateToISO(monthStart);
+                document.getElementById('studyEnd').value = formatDateToISO(today);
+
+                const sheetText = await fetchSheetText();
+                Papa.parse(sheetText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: results => {
+                        headersS1 = results.meta.fields || [];
+                        dataS1 = (results.data || []).map(row => {
+                            hydrateS1DateFields(row);
+                            return row;
+                        });
+                        document.getElementById('lastUpdate').textContent = `Sheet 1 + OS-CRA loaded on ${formatDateAsDMonY(today)}`;
+                        renderDashboard();
+                    },
+                    error: err => {
+                        throw err;
+                    }
+                });
+            } catch (error) {
+                document.getElementById('loadingState').textContent = `Failed to load WA process data: ${error.message}`;
+                document.getElementById('lastUpdate').textContent = 'Failed to load sheet data';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
