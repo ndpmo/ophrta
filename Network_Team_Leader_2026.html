@@ -674,9 +674,10 @@
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1320px] border-collapse">
+                    <table class="w-full min-w-[1560px] border-collapse">
                         <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referrerFloor')" class="inline-flex items-center gap-2"><span>Referrer Floor</span><span id="detailSortIndicator-referrerFloor" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leaderName')" class="inline-flex items-center gap-2"><span>Leader</span><span id="detailSortIndicator-leaderName" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('memberName')" class="inline-flex items-center gap-2"><span>Team Member</span><span id="detailSortIndicator-memberName" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('candidateName')" class="inline-flex items-center gap-2"><span>Candidate Name</span><span id="detailSortIndicator-candidateName" class="text-[11px]"></span></button></th>
@@ -685,6 +686,7 @@
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('status')" class="inline-flex items-center gap-2"><span>Status</span><span id="detailSortIndicator-status" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leadDateObj')" class="inline-flex items-center gap-2"><span>Lead Date</span><span id="detailSortIndicator-leadDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offerDateObj')" class="inline-flex items-center gap-2"><span>Offer Date</span><span id="detailSortIndicator-offerDateObj" class="text-[11px]"></span></button></th>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offeredFloor')" class="inline-flex items-center gap-2"><span>Offered Floor</span><span id="detailSortIndicator-offeredFloor" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardDateObj')" class="inline-flex items-center gap-2"><span>On Board Date</span><span id="detailSortIndicator-onboardDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardStatus')" class="inline-flex items-center gap-2"><span>On Board Status</span><span id="detailSortIndicator-onboardStatus" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('interviewer')" class="inline-flex items-center gap-2"><span>Interviewer</span><span id="detailSortIndicator-interviewer" class="text-[11px]"></span></button></th>
@@ -709,8 +711,10 @@
             POSITION: 4,
             STAFF_ID: 9,
             STAFF_NAME: 10,
+            REFERRER_FLOOR: 11,
             RJNJ: 12,
             NAME: 13,
+            OFFER_PLACE: 18,
             STATUS: 23,
             INTERVIEWER: 25,
             ONBOARD_STATUS: 27,
@@ -1247,7 +1251,7 @@
         }
 
         function updateDetailSortIndicators() {
-            ['leaderName', 'memberName', 'candidateName', 'brand', 'rjnj', 'status', 'leadDateObj', 'offerDateObj', 'onboardDateObj', 'onboardStatus', 'interviewer']
+            ['referrerFloor', 'leaderName', 'memberName', 'candidateName', 'brand', 'rjnj', 'status', 'leadDateObj', 'offerDateObj', 'offeredFloor', 'onboardDateObj', 'onboardStatus', 'interviewer']
                 .forEach(key => {
                     const indicator = document.getElementById(`detailSortIndicator-${key}`);
                     if (!indicator) return;
@@ -1677,6 +1681,7 @@
                         detailRows.push({
                             leaderKey: leader.key,
                             leaderName: leader.name,
+                            referrerFloor: getS1Value(row, S1_IDX.REFERRER_FLOOR) || '-',
                             memberName: member.therapist || '-',
                             memberBrand: member.brand || '-',
                             memberBrandKey: member.brandKey || '',
@@ -1688,6 +1693,7 @@
                             status: getS1Value(row, S1_IDX.STATUS) || '-',
                             leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
                             offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                            offeredFloor: getS1Value(row, S1_IDX.OFFER_PLACE) || '-',
                             onboardDate: getRecordedOnboardDate(row) || '-',
                             onboardStatus: getOnboardStatus(row) || '-',
                             interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
@@ -3040,7 +3046,7 @@
             if (!leaders.length) {
                 title.textContent = 'Leader Candidate Detail';
                 meta.textContent = 'No selection';
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="13" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
                 return;
             }
 
@@ -3051,12 +3057,13 @@
             meta.textContent = `${formatNumber(active.detailRows.length)} candidates / ${formatNumber(active.teamSize)} team members`;
 
             if (!active.detailRows.length) {
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">This leader has no candidate records in the selected date range.</td></tr>';
+                body.innerHTML = '<tr><td colspan="13" class="px-5 py-8 text-center text-sm font-black text-slate-400">This leader has no candidate records in the selected date range.</td></tr>';
                 return;
             }
 
             body.innerHTML = active.detailRows.map(item => `
                 <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left">${item.referrerFloor}</td>
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
@@ -3065,6 +3072,7 @@
                     <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
+                    <td class="px-5 py-4 text-left">${item.offeredFloor}</td>
                     <td class="px-5 py-4 text-left">${item.onboardDate}</td>
                     <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
                     <td class="px-5 py-4 text-left">${item.interviewer}</td>
@@ -3126,7 +3134,7 @@
             if (!leaders.length) {
                 title.textContent = 'Leader Candidate Detail';
                 meta.textContent = 'No selection';
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="13" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
                 return;
             }
 
@@ -3212,12 +3220,13 @@
             updateDetailSortIndicators();
 
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="13" class="px-5 py-8 text-center text-sm font-black text-slate-400">No candidate detail in this selection.</td></tr>';
                 return;
             }
 
             body.innerHTML = rows.map(item => `
                 <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left">${item.referrerFloor}</td>
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
@@ -3226,6 +3235,7 @@
                     <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
+                    <td class="px-5 py-4 text-left">${item.offeredFloor}</td>
                     <td class="px-5 py-4 text-left">${item.onboardDate}</td>
                     <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
                     <td class="px-5 py-4 text-left">${item.interviewer}</td>
