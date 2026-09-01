@@ -1651,20 +1651,41 @@
             return Array.from(directory.values()).sort((a, b) => a.name.localeCompare(b.name, 'en'));
         }
 
-        function getMemberReferralRows(member, range, offerRangeOverride = undefined) {
+        function getMemberReferralRows(member, range) {
             const staffNo = safeTrim(member.staffNo);
             if (!staffNo) return [];
-            const offerRange = offerRangeOverride === undefined ? getSelectedOfferDateRange() : offerRangeOverride;
 
             return dataS1.filter(row => {
                 if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
                 const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
                 if (!leadDate || !range) return false;
                 if (!(leadDate >= range.start && leadDate <= range.end)) return false;
-                if (!offerRange) return true;
-                const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
-                return isDateWithinOptionalRange(offerDate, offerRange);
+                return true;
             });
+        }
+
+        function getOfferDateFilterStats(leaders) {
+            const offerRange = getSelectedOfferDateRange();
+            const stats = { total: 0, leader: 0, teamMate: 0, otherBrand: 0, beautySpecialist: 0 };
+            if (!offerRange) return null;
+
+            leaders.forEach(leader => {
+                leader.memberStats.forEach(member => {
+                    const memberOfferRows = dataS1.filter(row => {
+                        if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return false;
+                        return isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange);
+                    });
+                    const offerRows = memberOfferRows.filter(isCountedOffer);
+                    const offerCount = offerRows.length;
+                    stats.total += offerCount;
+                    if (member.isLeaderSelf) stats.leader += offerCount;
+                    else stats.teamMate += offerCount;
+                    stats.otherBrand += memberOfferRows.filter(isOtherBrandOffer).length;
+                    stats.beautySpecialist += memberOfferRows.filter(isBeautySpecialistOffer).length;
+                });
+            });
+
+            return stats;
         }
 
         function getFilterValues(source = {}) {
@@ -1874,11 +1895,12 @@
             const totalLead = leaders.reduce((sum, leader) => sum + leader.lead, 0);
             const totalLeadTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.lead || 0), 0);
             const totalLeadTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.lead || 0), 0), 0);
-            const totalOffer = leaders.reduce((sum, leader) => sum + leader.offer, 0);
-            const totalOfferTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.offer || 0), 0);
-            const totalOfferTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.offer || 0), 0), 0);
-            const totalOfferOtherBrand = leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
-            const totalOfferBS = leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
+            const offerDateFilterStats = getOfferDateFilterStats(leaders);
+            const totalOffer = offerDateFilterStats?.total ?? leaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const totalOfferTL = offerDateFilterStats?.leader ?? leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.offer || 0), 0);
+            const totalOfferTM = offerDateFilterStats?.teamMate ?? leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => sum + (member.offer || 0), 0), 0);
+            const totalOfferOtherBrand = offerDateFilterStats?.otherBrand ?? leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
+            const totalOfferBS = offerDateFilterStats?.beautySpecialist ?? leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const totalOnboardTL = leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.onboard || 0), 0);
             const totalOnboardTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.onboard || 0), 0), 0);
@@ -1892,7 +1914,7 @@
             const totalUpcomingOnboardTM = leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.upcomingOnboard || 0), 0), 0);
             const totalUpcomingOnboardBS = leaders.reduce((sum, leader) => sum + (leader.upcomingOnboardBS || 0), 0);
             const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
-            const comparisonOffer = comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const comparisonOffer = offerDateFilterStats ? null : comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
             const comparisonOnboard = comparisonLeaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const comparisonStillActive = comparisonLeaders.reduce((sum, leader) => sum + (leader.stillActive || 0), 0);
             const comparisonUpcoming = comparisonLeaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
@@ -1923,7 +1945,8 @@
 
             const offerNoteLines = [
                 renderTLTMBreakdown(totalOfferTL, totalOfferTM),
-                `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>`
+                `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${formatAchieveRate(totalOffer, leaders.length)} achieve (${formatNumber(totalTarget)} target)</div>`,
+                '<div class="text-[11px] font-black tracking-[0.08em] text-amber-700 text-center">按下 Filter Offer Date，Offer 數將會用 Offer Date 計算</div>'
             ];
             if (totalOfferOtherBrand > 0) {
                 offerNoteLines.push(`<div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">Other Offer = ${formatNumber(totalOfferOtherBrand)}</div>`);
@@ -1934,7 +1957,7 @@
 
             const cards = [
                 { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: renderTLTMBreakdown(totalLeadTL, totalLeadTM), accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD', noteIsHtml: true },
-                { title: 'Offer', value: totalOffer, delta: totalOffer - comparisonOffer, note: offerNoteLines.join(''), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER', noteIsHtml: true },
+                { title: 'Offer', value: totalOffer, delta: comparisonOffer == null ? null : totalOffer - comparisonOffer, note: offerNoteLines.join(''), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER', noteIsHtml: true },
                 {
                     title: 'On Board',
                     value: totalOnboard,
