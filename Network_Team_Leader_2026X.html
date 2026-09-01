@@ -107,15 +107,28 @@
 
         .table-wrap {
             overflow-x: auto;
+            scrollbar-color: rgba(13, 148, 136, 0.9) rgba(203, 213, 225, 0.8);
+            scrollbar-width: auto;
         }
 
         .table-wrap::-webkit-scrollbar {
-            height: 10px;
+            height: 15px;
+        }
+
+        .table-wrap::-webkit-scrollbar-track {
+            background: rgba(203, 213, 225, 0.72);
+            border-radius: 9999px;
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.5);
         }
 
         .table-wrap::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.45);
+            background: rgba(13, 148, 136, 0.88);
+            border: 3px solid rgba(241, 245, 249, 0.9);
             border-radius: 9999px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 118, 110, 1);
         }
 
         .pill-button {
@@ -223,12 +236,12 @@
                     <input id="studyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
                 </div>
                 <div class="min-w-0 space-y-1.5">
-                    <label for="onboardStudyStart" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">On Board Date From</label>
-                    <input id="onboardStudyStart" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
+                    <label for="offerStudyStart" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date From</label>
+                    <input id="offerStudyStart" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
                 </div>
                 <div class="min-w-0 space-y-1.5">
-                    <label for="onboardStudyEnd" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">On Board Date To</label>
-                    <input id="onboardStudyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
+                    <label for="offerStudyEnd" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date To</label>
+                    <input id="offerStudyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
                 </div>
                 <div class="min-w-0 space-y-1.5">
                     <label for="brandFilter" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Brand</label>
@@ -626,7 +639,7 @@
         </section>
 
         <section class="glass-card p-5 md:p-6 mb-8" id="detailSection">
-            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-5">
+            <div class="flex flex-col gap-4 mb-5">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-emerald-500">Candidate Detail</p>
                     <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Leader Candidate Detail</h2>
@@ -676,7 +689,22 @@
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1560px] border-collapse">
+                    <table id="detailTable" class="w-full min-w-[1480px] border-collapse">
+                        <colgroup>
+                            <col style="width: 145px">
+                            <col style="width: 110px">
+                            <col style="width: 125px">
+                            <col style="width: 145px">
+                            <col style="width: 65px">
+                            <col style="width: 55px">
+                            <col style="width: 95px">
+                            <col style="width: 78px">
+                            <col style="width: 78px">
+                            <col style="width: 145px">
+                            <col style="width: 95px">
+                            <col style="width: 110px">
+                            <col style="width: 120px">
+                        </colgroup>
                         <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referrerFloor')" class="inline-flex items-center gap-2"><span>Referrer Floor</span><span id="detailSortIndicator-referrerFloor" class="text-[11px]"></span></button></th>
@@ -1090,9 +1118,9 @@
             return { start, end: endLimit };
         }
 
-        function getSelectedOnboardDateRange() {
-            const start = parseDate(document.getElementById('onboardStudyStart')?.value);
-            const end = parseDate(document.getElementById('onboardStudyEnd')?.value);
+        function getSelectedOfferDateRange() {
+            const start = parseDate(document.getElementById('offerStudyStart')?.value);
+            const end = parseDate(document.getElementById('offerStudyEnd')?.value);
             if (!start && !end) return null;
             const endLimit = end ? new Date(end.getTime()) : null;
             if (endLimit) endLimit.setHours(23, 59, 59, 999);
@@ -1623,19 +1651,19 @@
             return Array.from(directory.values()).sort((a, b) => a.name.localeCompare(b.name, 'en'));
         }
 
-        function getMemberReferralRows(member, range, onboardRangeOverride = undefined) {
+        function getMemberReferralRows(member, range, offerRangeOverride = undefined) {
             const staffNo = safeTrim(member.staffNo);
             if (!staffNo) return [];
-            const onboardRange = onboardRangeOverride === undefined ? getSelectedOnboardDateRange() : onboardRangeOverride;
+            const offerRange = offerRangeOverride === undefined ? getSelectedOfferDateRange() : offerRangeOverride;
 
             return dataS1.filter(row => {
                 if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
                 const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
                 if (!leadDate || !range) return false;
                 if (!(leadDate >= range.start && leadDate <= range.end)) return false;
-                if (!onboardRange) return true;
-                const onboardDate = parseDate(getRecordedOnboardDate(row)) || parseDate(row?.[headersS1[S1_IDX.ONBOARD_DATE]]);
-                return isDateWithinOptionalRange(onboardDate, onboardRange);
+                if (!offerRange) return true;
+                const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
+                return isDateWithinOptionalRange(offerDate, offerRange);
             });
         }
 
@@ -3110,7 +3138,7 @@
 
             body.innerHTML = active.detailRows.map(item => `
                 <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left">${item.referrerFloor}</td>
+                    <td class="px-5 py-4 text-left whitespace-nowrap">${item.referrerFloor}</td>
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
@@ -3119,7 +3147,7 @@
                     <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
-                    <td class="px-5 py-4 text-left">${item.offeredFloor}</td>
+                    <td class="px-5 py-4 text-left whitespace-nowrap">${item.offeredFloor}</td>
                     <td class="px-5 py-4 text-left">${item.onboardDate}</td>
                     <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
                     <td class="px-5 py-4 text-left">${item.interviewer}</td>
@@ -3276,7 +3304,7 @@
 
             body.innerHTML = rows.map(item => `
                 <tr class="text-sm font-bold text-slate-700">
-                    <td class="px-5 py-4 text-left">${item.referrerFloor}</td>
+                    <td class="px-5 py-4 text-left whitespace-nowrap">${item.referrerFloor}</td>
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
@@ -3285,7 +3313,7 @@
                     <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
-                    <td class="px-5 py-4 text-left">${item.offeredFloor}</td>
+                    <td class="px-5 py-4 text-left whitespace-nowrap">${item.offeredFloor}</td>
                     <td class="px-5 py-4 text-left">${item.onboardDate}</td>
                     <td class="px-5 py-4 text-left">${item.onboardStatus}</td>
                     <td class="px-5 py-4 text-left">${item.interviewer}</td>
@@ -3325,13 +3353,13 @@
             const loading = document.getElementById('loadingState');
             if (loading) {
                 const range = getSelectedDateRange();
-                const onboardRange = getSelectedOnboardDateRange();
+                const offerRange = getSelectedOfferDateRange();
                 const fromLabel = range ? formatDateAsDMonY(range.start) : '-';
                 const toLabel = range ? formatDateAsDMonY(new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate())) : '-';
-                const onboardFromLabel = onboardRange?.start ? formatDateAsDMonY(onboardRange.start) : '-';
-                const onboardToLabel = onboardRange?.end ? formatDateAsDMonY(new Date(onboardRange.end.getFullYear(), onboardRange.end.getMonth(), onboardRange.end.getDate())) : '-';
-                const onboardText = onboardRange ? ` On Board Date filter: ${onboardFromLabel} to ${onboardToLabel}.` : '';
-                loading.textContent = `Showing Network Team Leader performance from ${fromLabel} to ${toLabel}.${onboardText}`;
+                const offerFromLabel = offerRange?.start ? formatDateAsDMonY(offerRange.start) : '-';
+                const offerToLabel = offerRange?.end ? formatDateAsDMonY(new Date(offerRange.end.getFullYear(), offerRange.end.getMonth(), offerRange.end.getDate())) : '-';
+                const offerText = offerRange ? ` Offer Date filter: ${offerFromLabel} to ${offerToLabel}.` : '';
+                loading.textContent = `Showing Network Team Leader performance from ${fromLabel} to ${toLabel}.${offerText}`;
             }
 
             if (!keepScroll) return;
@@ -3343,10 +3371,10 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
-            const onboardStudyStart = document.getElementById('onboardStudyStart');
-            const onboardStudyEnd = document.getElementById('onboardStudyEnd');
-            if (onboardStudyStart) onboardStudyStart.value = '';
-            if (onboardStudyEnd) onboardStudyEnd.value = '';
+            const offerStudyStart = document.getElementById('offerStudyStart');
+            const offerStudyEnd = document.getElementById('offerStudyEnd');
+            if (offerStudyStart) offerStudyStart.value = '';
+            if (offerStudyEnd) offerStudyEnd.value = '';
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
@@ -3425,10 +3453,10 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
-            const onboardStudyStart = document.getElementById('onboardStudyStart');
-            const onboardStudyEnd = document.getElementById('onboardStudyEnd');
-            if (onboardStudyStart) onboardStudyStart.value = '';
-            if (onboardStudyEnd) onboardStudyEnd.value = '';
+            const offerStudyStart = document.getElementById('offerStudyStart');
+            const offerStudyEnd = document.getElementById('offerStudyEnd');
+            if (offerStudyStart) offerStudyStart.value = '';
+            if (offerStudyEnd) offerStudyEnd.value = '';
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
@@ -3438,7 +3466,7 @@
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'onboardStudyStart', 'onboardStudyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'leaderOnlyBrandFilter') {
