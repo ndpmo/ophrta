@@ -236,13 +236,7 @@
                     <input id="studyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
                 </div>
                 <div class="min-w-0 space-y-1.5">
-                    <div class="flex min-h-[2rem] items-end justify-between gap-3">
-                        <label for="offerStudyStart" class="text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date From</label>
-                        <label for="offerDateOnlyFilter" class="inline-flex items-center gap-1.5 whitespace-nowrap text-[10px] uppercase tracking-[0.1em] font-black text-emerald-700">
-                            <input id="offerDateOnlyFilter" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                            Filter Offer Date
-                        </label>
-                    </div>
+                    <label for="offerStudyStart" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date From</label>
                     <input id="offerStudyStart" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
                 </div>
                 <div class="min-w-0 space-y-1.5">
@@ -1130,10 +1124,6 @@
             return { start: start || null, end: endLimit };
         }
 
-        function isOfferDateFilterEnabled() {
-            return document.getElementById('offerDateOnlyFilter')?.checked === true;
-        }
-
         function getLeaderOnlyDateRange() {
             const start = parseDate(document.getElementById('leaderOnlyStart')?.value);
             const end = parseDate(document.getElementById('leaderOnlyEnd')?.value);
@@ -1659,11 +1649,9 @@
         }
 
         function getOfferDateFilterStats(leaders) {
-            if (!isOfferDateFilterEnabled()) return null;
-
             const offerRange = getSelectedOfferDateRange();
             const stats = { total: 0, leader: 0, teamMate: 0, otherBrand: 0, beautySpecialist: 0 };
-            if (!offerRange) return stats;
+            if (!offerRange) return null;
 
             leaders.forEach(leader => {
                 leader.memberStats.forEach(member => {
@@ -3360,8 +3348,6 @@
             const offerStudyEnd = document.getElementById('offerStudyEnd');
             if (offerStudyStart) offerStudyStart.value = '';
             if (offerStudyEnd) offerStudyEnd.value = '';
-            const offerDateOnlyFilter = document.getElementById('offerDateOnlyFilter');
-            if (offerDateOnlyFilter) offerDateOnlyFilter.checked = false;
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
@@ -3444,8 +3430,6 @@
             const offerStudyEnd = document.getElementById('offerStudyEnd');
             if (offerStudyStart) offerStudyStart.value = '';
             if (offerStudyEnd) offerStudyEnd.value = '';
-            const offerDateOnlyFilter = document.getElementById('offerDateOnlyFilter');
-            if (offerDateOnlyFilter) offerDateOnlyFilter.checked = false;
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
@@ -3455,7 +3439,7 @@
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'offerDateOnlyFilter', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'leaderOnlyBrandFilter') {
