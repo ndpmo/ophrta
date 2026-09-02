@@ -694,6 +694,12 @@
                             <option value="">All Floor</option>
                         </select>
                     </div>
+                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                        <span class="filter-label ml-1 text-teal-700">Position:</span>
+                        <select id="floorPerfPosition" onchange="calculateFloorPerformance()" class="date-selector-input border-teal-100 outline-none min-w-[190px] bg-white">
+                            <option value="__NON_BS__">All Position (Exclude BS &amp; OS)</option>
+                        </select>
+                    </div>
                     <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm">
                         <span class="filter-label ml-1">Date:</span>
                         <input type="date" id="floorPerfStart" onchange="calculateFloorPerformance()" class="date-selector-input">
@@ -701,6 +707,7 @@
                         <input type="date" id="floorPerfEnd" onchange="calculateFloorPerformance()" class="date-selector-input">
                     </div>
                 </div>
+                <p class="px-2 text-xs font-bold text-slate-500">Other = Offered, passed On Board Date, but No Show / Reject / Withdraw</p>
             </div>
             <div class="cyber-card overflow-hidden">
                 <div class="overflow-x-auto custom-scrollbar text-center">
@@ -710,9 +717,10 @@
                                 <th class="text-left border-r border-teal-100 px-6">Floor</th>
                                 <th class="border-r border-teal-100 text-indigo-700 px-4">Lead</th>
                                 <th class="border-r border-teal-100 text-violet-700 px-4">Pending</th>
-                                <th class="border-r border-teal-100 text-rose-700 px-4">Reject / Withdraw</th>
+                                <th class="w-28 border-r border-teal-100 text-rose-700 px-3 leading-tight">Reject /<br>Withdraw</th>
                                 <th class="border-r border-teal-100 text-amber-700 px-4">Offer</th>
-                                <th class="text-emerald-700 px-4">On Board</th>
+                                <th class="border-r border-teal-100 text-emerald-700 px-4">On Board</th>
+                                <th class="text-slate-600 px-4">Others</th>
                             </tr>
                         </thead>
                         <tbody id="floorPerformanceBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody>
@@ -734,6 +742,7 @@
                                 <th class="px-4 py-3">Lead Date</th>
                                 <th class="px-4 py-3">Offer Date</th>
                                 <th class="px-4 py-3">On Board Date</th>
+                                <th class="px-4 py-3">On Board Status</th>
                                 <th class="px-5 py-3 text-left">Refer By</th>
                             </tr>
                         </thead>
@@ -2795,9 +2804,58 @@
             return getReferralFinalMarker(row) === 'PENDING' && !isExcludedPendingOfferRow(row);
         }
 
+        function hasFloorPerformanceOtherOnboardStatus(row) {
+            const onboardStatus = getS1OnboardStatus(row);
+            return isNoShowOnboardStatus(onboardStatus) || isRejectedOrWithdrawnStatus(onboardStatus);
+        }
+
         function isFloorPerformanceRejectedOrWithdrawn(row) {
-            return isRejectedOrWithdrawnStatus(row?.[headersS1[S1_IDX.STATUS]])
-                || isRejectedOrWithdrawnStatus(getS1OnboardStatus(row));
+            if (hasFloorPerformanceOtherOnboardStatus(row)) return false;
+            return isRejectedOrWithdrawnStatus(row?.[headersS1[S1_IDX.STATUS]]);
+        }
+
+        function isFloorPerformanceOnboard(row) {
+            const status = row?.[headersS1[S1_IDX.STATUS]];
+            if (isNoShowOnboardStatus(status) || hasFloorPerformanceOtherOnboardStatus(row)) return false;
+            return isSearchOnboardRow(row);
+        }
+
+        function populateFloorPerformancePositionOptions() {
+            const select = document.getElementById('floorPerfPosition');
+            if (!select) return;
+
+            const previous = select.value || '__NON_BS__';
+            const floorPerformanceBrands = new Set(['DERMES', 'REENEX', 'ELYZE']);
+            const positions = [...new Set(dataS1
+                .filter(row => isOperationLeadSource(row) && floorPerformanceBrands.has((row[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase()))
+                .map(row => getS1PositionValue(row))
+                .filter(position => position && position !== '-'))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            select.innerHTML = [
+                '<option value="__NON_BS__">All Position (Exclude BS &amp; OS)</option>',
+                '<option value="__ALL__">All Position</option>',
+                ...positions.map(position => `<option value="${position}">${position}</option>`)
+            ].join('');
+            select.value = [...select.options].some(option => option.value === previous) ? previous : '__NON_BS__';
+        }
+
+        function isFloorPerformancePositionIncluded(row) {
+            const selectedPosition = (document.getElementById('floorPerfPosition')?.value || '__NON_BS__').trim();
+            if (selectedPosition === '__ALL__') return true;
+            if (selectedPosition === '__NON_BS__') {
+                const position = getS1PositionValue(row).trim().toUpperCase();
+                return !isBeautySpecialistPosition(row) && !position.startsWith('OS');
+            }
+            return getS1PositionValue(row) === selectedPosition;
+        }
+
+        function isFloorPerformanceOther(row) {
+            const status = row?.[headersS1[S1_IDX.STATUS]];
+            if (isNoShowOnboardStatus(status) || hasFloorPerformanceOtherOnboardStatus(row)) return true;
+            return !isFloorPerformancePending(row)
+                && !isFloorPerformanceRejectedOrWithdrawn(row)
+                && !isSearchOfferRow(row)
+                && !isFloorPerformanceOnboard(row);
         }
 
         function isFloorPerformanceRowInScope(row, floor) {
@@ -2806,6 +2864,7 @@
             const rowFloor = (row[headersS1[S1_IDX.FLOOR]] || '').trim();
             return isOperationLeadSource(row)
                 && isPositionIncluded(row)
+                && isFloorPerformancePositionIncluded(row)
                 && rowFloor === floor
                 && (!selectedBrand || rowBrand === selectedBrand);
         }
@@ -2822,9 +2881,10 @@
                 const isInRange = date => date && date.getTime() >= range.startTs && date.getTime() <= range.endTs;
 
                 if (metric === 'OFFER') return isSearchOfferRow(row) && isInRange(offerDate);
-                if (metric === 'ONBOARD') return isSearchOnboardRow(row) && isInRange(onboardDate);
+                if (metric === 'ONBOARD') return isFloorPerformanceOnboard(row) && isInRange(onboardDate);
                 if (metric === 'PENDING') return isFloorPerformancePending(row) && isInRange(leadDate);
                 if (metric === 'REJECT_WITHDRAW') return isFloorPerformanceRejectedOrWithdrawn(row) && isInRange(leadDate);
+                if (metric === 'OTHER') return isFloorPerformanceOther(row) && isInRange(leadDate);
                 return isInRange(leadDate);
             });
         }
@@ -2836,7 +2896,7 @@
             const body = document.getElementById('floorPerformanceDetailBody');
             if (!area || !title || !meta || !body) return;
 
-            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', REJECT_WITHDRAW: 'Reject / Withdraw' };
+            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
             const rows = getFloorPerformanceMetricRows(floor, metric);
             title.textContent = `${floor} ${labels[metric] || 'Lead'} Details`;
             meta.textContent = `${rows.length} record${rows.length === 1 ? '' : 's'}`;
@@ -2849,9 +2909,10 @@
                         <td class="px-4 py-3 text-slate-700">${row[headersS1[S1_IDX.LEAD_DATE]] || '-'}</td>
                         <td class="px-4 py-3 text-slate-700">${row[headersS1[S1_IDX.OFFER_DATE]] || '-'}</td>
                         <td class="px-4 py-3 text-slate-700">${getS1RecordedOnboardDate(row) || '-'}</td>
+                        <td class="px-4 py-3 text-slate-700">${getS1OnboardStatus(row) || '-'}</td>
                         <td class="px-5 py-3 text-left text-slate-600">${((row[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row[headersS1[S1_IDX.STAFF_NAME]] || '')).trim() || '-'}</td>
                     </tr>`).join('')
-                : '<tr><td colspan="7" class="px-5 py-8 text-center text-slate-400">No matching records in this selection.</td></tr>';
+                : '<tr><td colspan="8" class="px-5 py-8 text-center text-slate-400">No matching records in this selection.</td></tr>';
             area.classList.remove('hidden');
             area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -2884,6 +2945,7 @@
             const brands = ['DERMES', 'REENEX', 'ELYZE'];
             brandSelect.innerHTML = brands.map(brand => `<option value="${brand}">${brand.charAt(0) + brand.slice(1).toLowerCase()}</option>`).join('');
             brandSelect.value = 'DERMES';
+            populateFloorPerformancePositionOptions();
             updateFloorPerformanceFloorOptions();
         }
 
@@ -2894,7 +2956,7 @@
 
             const range = getFloorPerformanceDateRange();
             if (!range) {
-                body.innerHTML = '<tr><td colspan="6" class="py-8 text-slate-400">Please select a date range.</td></tr>';
+                body.innerHTML = '<tr><td colspan="7" class="py-8 text-slate-400">Please select a date range.</td></tr>';
                 return;
             }
 
@@ -2904,10 +2966,10 @@
             const leaderFloors = getNetworkTeamLeaderFloors(selectedBrand);
             const leaderFloorSet = new Set(leaderFloors);
 
-            leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0 }));
+            leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0, others: 0 }));
 
             dataS1.forEach(row => {
-                if (!isOperationLeadSource(row) || !isPositionIncluded(row)) return;
+                if (!isOperationLeadSource(row) || !isPositionIncluded(row) || !isFloorPerformancePositionIncluded(row)) return;
                 const brand = (row[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
                 const floor = (row[headersS1[S1_IDX.FLOOR]] || '').trim();
                 if (!floor || !leaderFloorSet.has(floor) || (selectedBrand && brand !== selectedBrand) || (selectedFloor && floor !== selectedFloor)) return;
@@ -2915,12 +2977,13 @@
                 const leadDate = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                 const offerDate = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
-                const summary = summaries.get(floor) || { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0 };
+                const summary = summaries.get(floor) || { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0, others: 0 };
                 if (leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.lead += 1;
                 if (isSearchOfferRow(row) && offerDate && offerDate.getTime() >= range.startTs && offerDate.getTime() <= range.endTs) summary.offer += 1;
-                if (isSearchOnboardRow(row) && onboardDate && onboardDate.getTime() >= range.startTs && onboardDate.getTime() <= range.endTs) summary.onboard += 1;
+                if (isFloorPerformanceOnboard(row) && onboardDate && onboardDate.getTime() >= range.startTs && onboardDate.getTime() <= range.endTs) summary.onboard += 1;
                 if (isFloorPerformancePending(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.pending += 1;
                 if (isFloorPerformanceRejectedOrWithdrawn(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.rejectWithdraw += 1;
+                if (isFloorPerformanceOther(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.others += 1;
                 summaries.set(floor, summary);
             });
 
@@ -2933,11 +2996,12 @@
                         <td class="text-left border-r border-teal-100 px-6">${item.floor}</td>
                         <td class="border-r border-teal-100 text-indigo-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "LEAD")' class="font-black hover:underline">${item.lead}</button></td>
                         <td class="border-r border-teal-100 text-violet-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "PENDING")' class="font-black hover:underline">${item.pending}</button></td>
-                        <td class="border-r border-teal-100 text-rose-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "REJECT_WITHDRAW")' class="font-black hover:underline">${item.rejectWithdraw}</button></td>
+                        <td class="w-28 border-r border-teal-100 text-rose-700 text-xl px-3"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "REJECT_WITHDRAW")' class="font-black hover:underline">${item.rejectWithdraw}</button></td>
                         <td class="border-r border-teal-100 text-amber-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "OFFER")' class="font-black hover:underline">${item.offer}</button></td>
-                        <td class="text-emerald-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "ONBOARD")' class="font-black hover:underline">${item.onboard}</button></td>
+                        <td class="border-r border-teal-100 text-emerald-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "ONBOARD")' class="font-black hover:underline">${item.onboard}</button></td>
+                        <td class="text-slate-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "OTHER")' class="font-black hover:underline">${item.others}</button></td>
                     </tr>`).join('')
-                : '<tr><td colspan="6" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
+                : '<tr><td colspan="7" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
         }
 
         function setHrDateFilterType(type) {
