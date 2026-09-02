@@ -538,6 +538,7 @@
                         <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-sm text-center">
                             <tr>
                                 <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('brand')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">BRAND<span id="sort-indicator-brand" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('referrerFloor')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">REFERRER FLOOR<span id="sort-indicator-referrerFloor" class="text-xs text-indigo-500"></span></button></th>
                                 <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('position')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Position<span id="sort-indicator-position" class="text-xs text-indigo-500"></span></button></th>
                                 <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('leadDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Lead Date<span id="sort-indicator-leadDate" class="text-xs text-indigo-500"></span></button></th>
                                 <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('offerDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Offer Date<span id="sort-indicator-offerDate" class="text-xs text-indigo-500"></span></button></th>
@@ -676,6 +677,48 @@
             </div>
         </div>
 
+        <!-- Floor Performance -->
+        <div id="floorPerformanceArea" class="mb-16 text-left hidden">
+            <div class="flex flex-col gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Floor Performance <span class="font-cyber text-teal-500 ml-2">BY FLOOR</span></h2>
+                <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left z-10">
+                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                        <span class="filter-label ml-1 text-teal-700">Brand:</span>
+                        <select id="floorPerfBrand" onchange="updateFloorPerformanceFloorOptions()" class="date-selector-input border-teal-100 outline-none min-w-[150px] bg-white">
+                            <option value="">All Brand</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                        <span class="filter-label ml-1 text-teal-700">Floor:</span>
+                        <select id="floorPerfFloor" onchange="calculateFloorPerformance()" class="date-selector-input border-teal-100 outline-none min-w-[150px] bg-white">
+                            <option value="">All Floor</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm">
+                        <span class="filter-label ml-1">Date:</span>
+                        <input type="date" id="floorPerfStart" onchange="calculateFloorPerformance()" class="date-selector-input">
+                        <span class="font-bold text-slate-400 text-xs">至</span>
+                        <input type="date" id="floorPerfEnd" onchange="calculateFloorPerformance()" class="date-selector-input">
+                    </div>
+                </div>
+            </div>
+            <div class="cyber-card overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar text-center">
+                    <table class="w-full border-collapse text-center">
+                        <thead class="bg-teal-50 text-teal-950 border-b-2 border-teal-100 font-black uppercase text-xs md:text-sm">
+                            <tr>
+                                <th class="text-left border-r border-teal-100 px-6">Floor</th>
+                                <th class="border-r border-teal-100 text-indigo-700 px-4">Lead</th>
+                                <th class="border-r border-teal-100 text-amber-700 px-4">Offer</th>
+                                <th class="text-emerald-700 px-4">On Board</th>
+                            </tr>
+                        </thead>
+                        <tbody id="floorPerformanceBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Core Team Performance -->
         <div id="hrPerformanceArea" class="mb-24 text-left hidden">
             <div class="flex flex-col gap-4 mb-6">
@@ -744,7 +787,7 @@
 
     <script>
         // --- ?詨?霈 ---
-        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [];
+        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [], dataNTL = [], headersNTL = [];
         let currentDetailMode = ""; let currentDetailKey = "";
         let currentSharedDetailBaseRows = [];
         let currentSharedDetailRows = [];
@@ -774,6 +817,7 @@
         const CORE_TEAM_GID = '1610056086'; // Core Team ??
         const CORE_TEAM_SHEET_NAME = 'Core Team';
         const SALES_QUICK_SHEET_NAME = 'Sales';
+        const NETWORK_TEAM_SHEET_NAME = 'Network Team Leader';
 
         const SHEET1_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
         const SHEET2_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET2_GID}`;
@@ -781,12 +825,14 @@
         const SHEET4_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET4_GID}`;
         const CORE_TEAM_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${CORE_TEAM_GID}`;
         const SALES_QUICK_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SALES_QUICK_SHEET_NAME)}`;
+        const NETWORK_TEAM_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}`;
         
         const excludedNames = ['jennifer.tokf', 'milk.yungcy', 'abel.wongyw', 'lavina.chan'];
         const excludedCoreTeamNames = new Set(['chris mak', 'chirs mak']);
         
         // 甈???撠銵?(A甈?0, B甈?1, C甈?2...)
         const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 36, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 37, LEAD_DATE: 35, STATUS: 23 };
+        const NTL_IDX = { BRAND: 0, CENTER: 1, THERAPIST: 2, NETWORK_TEAM: 9, LEADER_JUL: 10, LEADER_AUG: 11 };
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         // TA Flow ?交?靘?甈?
         // Lead Date = B,C,D -> CV Date(35) / Offer Date = P,Q,R -> Offer Date(36) / On board Date = T,U,V -> Onboard Date(37)
@@ -1907,7 +1953,7 @@
         }
 
         function updateSharedDetailSortUi() {
-            ['brand', 'position', 'leadDate', 'offerDate', 'onboardDate', 'status', 'onboardStatus', 'rjnj', 'name', 'tail'].forEach(sortKey => {
+            ['brand', 'referrerFloor', 'position', 'leadDate', 'offerDate', 'onboardDate', 'status', 'onboardStatus', 'rjnj', 'name', 'tail'].forEach(sortKey => {
                 const el = document.getElementById(`sort-indicator-${sortKey}`);
                 if (el) el.innerText = getSharedDetailSortIndicator(sortKey);
             });
@@ -1917,6 +1963,8 @@
             switch (sortKey) {
                 case 'brand':
                     return (row[headersS1[S1_IDX.BRAND]] || '').trim();
+                case 'referrerFloor':
+                    return (row[headersS1[S1_IDX.FLOOR]] || '').trim();
                 case 'position':
                     return getS1PositionValue(row);
                 case 'leadDate':
@@ -1985,13 +2033,14 @@
             updateSharedDetailSortUi();
 
             if (!sortedRows.length) {
-                tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-sm font-black text-slate-400">No matched detail under current filters.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="px-6 py-8 text-center text-sm font-black text-slate-400">No matched detail under current filters.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = sortedRows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${row[headersS1[S1_IDX.FLOOR]] || "-"}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
@@ -2696,6 +2745,107 @@
             const names = Array.from(teamMap.keys()).sort((a, b) => a.localeCompare(b, 'zh-HK'));
             sel.innerHTML = '<option value="ALL">ALL</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
         }
+
+        function getFloorPerformanceDateRange() {
+            const start = getLocalDateFromInput(document.getElementById('floorPerfStart')?.value);
+            const end = getLocalDateFromInput(document.getElementById('floorPerfEnd')?.value);
+            if (!start || !end) return null;
+            return { startTs: start.getTime(), endTs: new Date(end.getTime()).setHours(23, 59, 59, 999) };
+        }
+
+        function getNetworkTeamLeaderFloors(brand) {
+            const brandKey = (brand || '').trim().toUpperCase();
+            return [...new Set(dataNTL
+                .filter(row => {
+                    const rowBrand = (row[headersNTL[NTL_IDX.BRAND]] || '').trim().toUpperCase();
+                    const isLeader = (row[headersNTL[NTL_IDX.LEADER_JUL]] || '').trim().toUpperCase() === 'Y'
+                        || (row[headersNTL[NTL_IDX.LEADER_AUG]] || '').trim().toUpperCase() === 'Y';
+                    return isLeader && (!brandKey || rowBrand === brandKey);
+                })
+                .map(row => (row[headersNTL[NTL_IDX.CENTER]] || '').trim())
+                .filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
+        }
+
+        function updateFloorPerformanceFloorOptions() {
+            const brandSelect = document.getElementById('floorPerfBrand');
+            const floorSelect = document.getElementById('floorPerfFloor');
+            if (!brandSelect || !floorSelect) return;
+
+            const previousFloor = floorSelect.value;
+            const selectedBrand = (brandSelect.value || '').trim().toUpperCase();
+            const floors = getNetworkTeamLeaderFloors(selectedBrand);
+
+            floorSelect.innerHTML = '<option value="">All Floor</option>' + floors.map(floor => `<option value="${floor}">${floor}</option>`).join('');
+            if (floors.includes(previousFloor)) floorSelect.value = previousFloor;
+            calculateFloorPerformance();
+        }
+
+        function populateFloorPerformanceFilters() {
+            const brandSelect = document.getElementById('floorPerfBrand');
+            const startInput = document.getElementById('floorPerfStart');
+            const endInput = document.getElementById('floorPerfEnd');
+            if (!brandSelect || !startInput || !endInput) return;
+
+            const today = new Date();
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            startInput.value = formatDateToISO(monthStart);
+            endInput.value = formatDateToISO(today);
+
+            const brands = ['DERMES', 'REENEX', 'ELYZE'];
+            brandSelect.innerHTML = brands.map(brand => `<option value="${brand}">${brand.charAt(0) + brand.slice(1).toLowerCase()}</option>`).join('');
+            brandSelect.value = 'DERMES';
+            updateFloorPerformanceFloorOptions();
+        }
+
+        function calculateFloorPerformance() {
+            const body = document.getElementById('floorPerformanceBody');
+            if (!body) return;
+
+            const range = getFloorPerformanceDateRange();
+            if (!range) {
+                body.innerHTML = '<tr><td colspan="4" class="py-8 text-slate-400">Please select a date range.</td></tr>';
+                return;
+            }
+
+            const selectedBrand = (document.getElementById('floorPerfBrand')?.value || '').trim().toUpperCase();
+            const selectedFloor = (document.getElementById('floorPerfFloor')?.value || '').trim();
+            const summaries = new Map();
+            const leaderFloors = getNetworkTeamLeaderFloors(selectedBrand);
+            const leaderFloorSet = new Set(leaderFloors);
+
+            leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0 }));
+
+            dataS1.forEach(row => {
+                if (!isOperationLeadSource(row) || !isPositionIncluded(row)) return;
+                const brand = (row[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
+                const floor = (row[headersS1[S1_IDX.FLOOR]] || '').trim();
+                if (!floor || !leaderFloorSet.has(floor) || (selectedBrand && brand !== selectedBrand) || (selectedFloor && floor !== selectedFloor)) return;
+
+                const leadDate = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                const offerDate = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                const onboardDate = parseDate(getS1RecordedOnboardDate(row));
+                const summary = summaries.get(floor) || { floor, lead: 0, offer: 0, onboard: 0 };
+                if (leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.lead += 1;
+                if (isSearchOfferRow(row) && offerDate && offerDate.getTime() >= range.startTs && offerDate.getTime() <= range.endTs) summary.offer += 1;
+                if (isSearchOnboardRow(row) && onboardDate && onboardDate.getTime() >= range.startTs && onboardDate.getTime() <= range.endTs) summary.onboard += 1;
+                summaries.set(floor, summary);
+            });
+
+            const rows = [...summaries.values()]
+                .filter(item => !selectedFloor || item.floor === selectedFloor)
+                .sort((a, b) => a.floor.localeCompare(b.floor, 'zh-HK', { numeric: true }));
+            body.innerHTML = rows.length
+                ? rows.map(item => `
+                    <tr class="hover:bg-teal-100 transition font-bold text-center">
+                        <td class="text-left border-r border-teal-100 px-6">${item.floor}</td>
+                        <td class="border-r border-teal-100 text-indigo-700 text-xl px-4">${item.lead}</td>
+                        <td class="border-r border-teal-100 text-amber-700 text-xl px-4">${item.offer}</td>
+                        <td class="text-emerald-700 text-xl px-4">${item.onboard}</td>
+                    </tr>`).join('')
+                : '<tr><td colspan="4" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
+        }
+
         function setHrDateFilterType(type) {
             const input = document.getElementById('hrDateFilterType');
             if (!input) return;
@@ -2891,11 +3041,13 @@
             tbody.innerHTML = rows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${row[headersS1[S1_IDX.FLOOR]] || '-'}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
                     <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
                     <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1OnboardStatus(row) || "-") : (row[headersS1[S1_IDX.STATUS]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-800 text-sm font-black px-4">${getS1OnboardStatus(row) || "-"}</td>
                     <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]] || '-'}</td>
                     <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
                     <td class="text-left text-slate-600 font-medium text-xs px-6">${isHrSourceDetailMode(currentDetailMode) ? ((row[headersS1[6]] || "-") + "").trim() || "-" : (((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim())}</td>
@@ -3277,24 +3429,26 @@
             }
             ensureBatchSourceFilterControl();
             
-            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false, salesQuickL = false;
+            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false, salesQuickL = false, ntlL = false;
             
             // Once all sheets finish loading, render the dashboard
             const checkDone = () => { 
-                if(s1L && s2L && s3L && s4L && s5L && salesQuickL) {
+                if(s1L && s2L && s3L && s4L && s5L && salesQuickL && ntlL) {
                     populateFilters(); 
                     calculateBatchCounts(); 
                     calculateWeeklyOffers(); 
                     calculateWeeklyLeads(); 
-                    calculatePendingOffers(); 
-                    calculateOnboardSummary();
-                    calculateSummaries();
-                    populateCoreTeamFilter();
-                    setHrDateFilterType('LEAD');
-                    calculateHrPerformance();
-                    
-                    document.getElementById('loadingStatus')?.classList.add('hidden');
-                    document.getElementById('hrPerformanceArea')?.classList.remove('hidden');
+            calculatePendingOffers();
+            calculateOnboardSummary();
+            calculateSummaries();
+            populateFloorPerformanceFilters();
+            populateCoreTeamFilter();
+            setHrDateFilterType('LEAD');
+            calculateHrPerformance();
+
+            document.getElementById('loadingStatus')?.classList.add('hidden');
+            document.getElementById('hrPerformanceArea')?.classList.remove('hidden');
+            document.getElementById('floorPerformanceArea')?.classList.remove('hidden');
                 }
             }; // <--- 靽桀儔鈭ㄐ蝻箏仃???
             updateMonthButtons();
@@ -3312,30 +3466,32 @@
             setDefaultReferralDateRange();
 
             try {
-                let t1, t2, t3, t4, t5, tSalesQuick;
+                let t1, t2, t3, t4, t5, tSalesQuick, tNtl;
                 try {
                     // Prefer normal fetch first for http/https contexts
-                    const [r1, r2, r3, r4, r5, rSalesQuick] = await Promise.all([
+                    const [r1, r2, r3, r4, r5, rSalesQuick, rNtl] = await Promise.all([
                         fetch(SHEET1_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET2_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET3_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET4_BASE_URL + `&t=${Date.now()}`),
                         fetch(CORE_TEAM_BASE_URL + `&t=${Date.now()}`),
-                        fetch(SALES_QUICK_BASE_URL + `&t=${Date.now()}`)
+                        fetch(SALES_QUICK_BASE_URL + `&t=${Date.now()}`),
+                        fetch(NETWORK_TEAM_BASE_URL + `&t=${Date.now()}`)
                     ]);
-                    const bad = [r1, r2, r3, r4, r5, rSalesQuick].find(r => !r.ok);
+                    const bad = [r1, r2, r3, r4, r5, rSalesQuick, rNtl].find(r => !r.ok);
                     if (bad) throw new Error(`HTTP ${bad.status}`);
-                    [t1, t2, t3, t4, t5, tSalesQuick] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), rSalesQuick.text()]);
+                    [t1, t2, t3, t4, t5, tSalesQuick, tNtl] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), rSalesQuick.text(), rNtl.text()]);
                 } catch (fetchErr) {
                     // Fall back to JSONP for local file previews where CORS blocks fetch
                     console.warn('Fetch failed, fallback to JSONP:', fetchErr);
-                    [t1, t2, t3, t4, t5, tSalesQuick] = await Promise.all([
+                    [t1, t2, t3, t4, t5, tSalesQuick, tNtl] = await Promise.all([
                         loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
                         loadGvizCsvByJsonp(SHEET2_GID),
                         loadGvizCsvByJsonp(SHEET3_GID),
                         loadGvizCsvByJsonp(SHEET4_GID),
                         loadGvizCsvByJsonp(CORE_TEAM_GID),
-                        loadGvizCsvByJsonpBySheetName(SALES_QUICK_SHEET_NAME, SHEET1_DOC_ID)
+                        loadGvizCsvByJsonpBySheetName(SALES_QUICK_SHEET_NAME, SHEET1_DOC_ID),
+                        loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID)
                     ]);
                 }
 
@@ -3441,6 +3597,16 @@
                         headersSalesQuick = res.meta.fields || [];
                         dataSalesQuick = res.data || [];
                         salesQuickL = true; checkDone();
+                    }
+                });
+
+                Papa.parse(tNtl, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: res => {
+                        headersNTL = res.meta.fields || [];
+                        dataNTL = res.data || [];
+                        ntlL = true; checkDone();
                     }
                 });
 
@@ -3949,3 +4115,4 @@
     </script>
 </body>
 </html>
+
