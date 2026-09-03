@@ -45,8 +45,22 @@
         .text-left { text-align: left !important; }
         .text-center { text-align: center !important; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
+        .custom-scrollbar {
+            scrollbar-width: auto;
+            scrollbar-color: #0f9488 #dbe4ee;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 12px; height: 14px; }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #dbe4ee;
+            border-top: 1px solid #b8c5d4;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #0f9488;
+            border: 3px solid #dbe4ee;
+            border-radius: 8px;
+            min-width: 56px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #0b6f68; }
         .font-cyber { font-family: 'Orbitron', sans-serif; }
 
         .batch-card, .weekly-card, .lead-card, .pending-card { cursor: pointer; transition: all 0.3s; }
@@ -534,23 +548,23 @@
             </div>
             <div class="cyber-card overflow-hidden shadow-2xl">
                 <div class="mobile-table-wrap overflow-x-auto custom-scrollbar text-left">
-                    <table class="w-full border-collapse">
-                        <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-sm text-center">
+                    <table class="w-full min-w-[1080px] table-fixed border-collapse">
+                        <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-xs text-center">
                             <tr>
-                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('brand')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">BRAND<span id="sort-indicator-brand" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('referrerFloor')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">REFERRER FLOOR<span id="sort-indicator-referrerFloor" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('position')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Position<span id="sort-indicator-position" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('leadDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Lead Date<span id="sort-indicator-leadDate" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('offerDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Offer Date<span id="sort-indicator-offerDate" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('onboardDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Date<span id="sort-indicator-onboardDate" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('status')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Status<span id="sort-indicator-status" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('onboardStatus')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Status<span id="sort-indicator-onboardStatus" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-center px-4"><button type="button" onclick="toggleSharedDetailSort('rjnj')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">RJ/NJ<span id="sort-indicator-rjnj" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('name')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Name (N)<span id="sort-indicator-name" class="text-xs text-indigo-500"></span></button></th>
-                                <th class="text-left px-6"><button type="button" onclick="toggleSharedDetailSort('tail')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition"><span id="sharedDetailTailHeaderLabel">REFER BY</span><span id="sort-indicator-tail" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-20 text-left px-3"><button type="button" onclick="toggleSharedDetailSort('brand')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">BRAND<span id="sort-indicator-brand" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-36 text-left px-3"><button type="button" onclick="toggleSharedDetailSort('tail')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition"><span id="sharedDetailTailHeaderLabel">REFER BY</span><span id="sort-indicator-tail" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-36 text-left px-3"><button type="button" onclick="toggleSharedDetailSort('referrerFloor')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">REFERRER FLOOR<span id="sort-indicator-referrerFloor" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-20 text-left px-3"><button type="button" onclick="toggleSharedDetailSort('position')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Position<span id="sort-indicator-position" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-32 text-left px-3"><button type="button" onclick="toggleSharedDetailSort('name')" class="w-full flex items-center justify-start gap-1 hover:text-indigo-600 transition">Name (N)<span id="sort-indicator-name" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-24 px-2"><button type="button" onclick="toggleSharedDetailSort('leadDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Lead Date<span id="sort-indicator-leadDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-24 px-2"><button type="button" onclick="toggleSharedDetailSort('offerDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Offer Date<span id="sort-indicator-offerDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-28 px-2"><button type="button" onclick="toggleSharedDetailSort('onboardDate')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Date<span id="sort-indicator-onboardDate" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-36 px-2"><button type="button" onclick="toggleSharedDetailSort('status')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">Status<span id="sort-indicator-status" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-32 px-2"><button type="button" onclick="toggleSharedDetailSort('onboardStatus')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">On Board Status<span id="sort-indicator-onboardStatus" class="text-xs text-indigo-500"></span></button></th>
+                                <th class="w-16 px-2"><button type="button" onclick="toggleSharedDetailSort('rjnj')" class="w-full flex items-center justify-center gap-1 hover:text-indigo-600 transition">RJ/NJ<span id="sort-indicator-rjnj" class="text-xs text-indigo-500"></span></button></th>
                             </tr>
                         </thead>
-                        <tbody id="sharedDetailTableBody" class="divide-y divide-slate-100 font-bold text-base md:text-lg"></tbody>
+                        <tbody id="sharedDetailTableBody" class="divide-y divide-slate-100 font-bold text-xs md:text-sm"></tbody>
                     </table>
                 </div>
             </div>
@@ -720,6 +734,7 @@
                                 <th class="w-28 border-r border-teal-100 text-rose-700 px-3 leading-tight">Reject /<br>Withdraw</th>
                                 <th class="border-r border-teal-100 text-amber-700 px-4">Offer</th>
                                 <th class="border-r border-teal-100 text-emerald-700 px-4">On Board</th>
+                                <th class="border-r border-teal-100 text-orange-700 px-4 leading-tight">Pending<br>Offer</th>
                                 <th class="text-slate-600 px-4">Others</th>
                             </tr>
                         </thead>
@@ -1809,6 +1824,11 @@
             return (((row?.[headersS1[4]] ?? '') + '').trim()) || '-';
         }
 
+        function getSharedDetailPositionLabel(row) {
+            const position = getS1PositionValue(row);
+            return position.trim().toUpperCase() === 'ESTHETICIAN 1' ? 'E1' : position;
+        }
+
         function isBeautySpecialistPosition(row) {
             const position = getS1PositionValue(row).toUpperCase();
             return position === 'BS' || position === 'BEAUTY SPECIALIST';
@@ -2075,17 +2095,17 @@
 
             tbody.innerHTML = sortedRows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
-                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${row[headersS1[S1_IDX.FLOOR]] || "-"}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
-                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm font-black px-4">${getS1OnboardStatus(row) || "-"}</td>
-                    <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
-                    <td class="text-left text-slate-600 font-medium text-xs px-6">${isHrSourceDetailMode(currentDetailMode) ? ((((row[headersS1[6]] || "") + "").trim()) || "-") : ((((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || "-")}</td>
+                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black px-3">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${isHrSourceDetailMode(currentDetailMode) ? ((((row[headersS1[6]] || "") + "").trim()) || "-") : ((((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || "-")}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 px-3">${row[headersS1[S1_IDX.FLOOR]] || "-"}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 font-black px-3">${getSharedDetailPositionLabel(row)}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-900 font-black px-3">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-900 font-black px-2">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 font-black px-2">${getS1OnboardStatus(row) || "-"}</td>
+                    <td class="border-r border-blue-50 text-indigo-700 uppercase px-2">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
                 </tr>`).join('');
         }
 
@@ -2806,7 +2826,13 @@
         }
 
         function isFloorPerformancePending(row) {
-            return !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !offerDate && !isExcludedPendingOfferRow(row);
+        }
+
+        function isFloorPerformancePendingOffer(row) {
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !!offerDate && !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
         }
 
         function hasFloorPerformanceOtherOnboardStatus(row) {
@@ -2860,7 +2886,8 @@
             return !isFloorPerformancePending(row)
                 && !isFloorPerformanceRejectedOrWithdrawn(row)
                 && !isSearchOfferRow(row)
-                && !isFloorPerformanceOnboard(row);
+                && !isFloorPerformanceOnboard(row)
+                && !isFloorPerformancePendingOffer(row);
         }
 
         function isFloorPerformanceRowInScope(row, floor) {
@@ -2888,6 +2915,7 @@
                 if (metric === 'OFFER') return isSearchOfferRow(row) && isInRange(offerDate);
                 if (metric === 'ONBOARD') return isFloorPerformanceOnboard(row) && isInRange(onboardDate);
                 if (metric === 'PENDING') return isFloorPerformancePending(row) && isInRange(leadDate);
+                if (metric === 'PENDING_OFFER') return isFloorPerformancePendingOffer(row) && isInRange(offerDate);
                 if (metric === 'REJECT_WITHDRAW') return isFloorPerformanceRejectedOrWithdrawn(row) && isInRange(leadDate);
                 if (metric === 'OTHER') return isFloorPerformanceOther(row) && isInRange(leadDate);
                 return isInRange(leadDate);
@@ -2901,7 +2929,7 @@
             const body = document.getElementById('floorPerformanceDetailBody');
             if (!area || !title || !meta || !body) return;
 
-            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
+            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', PENDING_OFFER: 'Pending Offer', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
             const rows = getFloorPerformanceMetricRows(floor, metric);
             title.textContent = `${floor} ${labels[metric] || 'Lead'} Details`;
             meta.textContent = `${rows.length} record${rows.length === 1 ? '' : 's'}`;
@@ -2961,7 +2989,7 @@
 
             const range = getFloorPerformanceDateRange();
             if (!range) {
-                body.innerHTML = '<tr><td colspan="7" class="py-8 text-slate-400">Please select a date range.</td></tr>';
+                body.innerHTML = '<tr><td colspan="8" class="py-8 text-slate-400">Please select a date range.</td></tr>';
                 return;
             }
 
@@ -2971,7 +2999,7 @@
             const leaderFloors = getNetworkTeamLeaderFloors(selectedBrand);
             const leaderFloorSet = new Set(leaderFloors);
 
-            leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0, others: 0 }));
+            leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0, pending: 0, pendingOffer: 0, rejectWithdraw: 0, others: 0 }));
 
             dataS1.forEach(row => {
                 if (!isOperationLeadSource(row) || !isPositionIncluded(row) || !isFloorPerformancePositionIncluded(row)) return;
@@ -2982,11 +3010,12 @@
                 const leadDate = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                 const offerDate = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
-                const summary = summaries.get(floor) || { floor, lead: 0, offer: 0, onboard: 0, pending: 0, rejectWithdraw: 0, others: 0 };
+                const summary = summaries.get(floor) || { floor, lead: 0, offer: 0, onboard: 0, pending: 0, pendingOffer: 0, rejectWithdraw: 0, others: 0 };
                 if (leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.lead += 1;
                 if (isSearchOfferRow(row) && offerDate && offerDate.getTime() >= range.startTs && offerDate.getTime() <= range.endTs) summary.offer += 1;
                 if (isFloorPerformanceOnboard(row) && onboardDate && onboardDate.getTime() >= range.startTs && onboardDate.getTime() <= range.endTs) summary.onboard += 1;
                 if (isFloorPerformancePending(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.pending += 1;
+                if (isFloorPerformancePendingOffer(row) && offerDate && offerDate.getTime() >= range.startTs && offerDate.getTime() <= range.endTs) summary.pendingOffer += 1;
                 if (isFloorPerformanceRejectedOrWithdrawn(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.rejectWithdraw += 1;
                 if (isFloorPerformanceOther(row) && leadDate && leadDate.getTime() >= range.startTs && leadDate.getTime() <= range.endTs) summary.others += 1;
                 summaries.set(floor, summary);
@@ -3004,9 +3033,10 @@
                         <td class="w-28 border-r border-teal-100 text-rose-700 text-xl px-3"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "REJECT_WITHDRAW")' class="font-black hover:underline">${item.rejectWithdraw}</button></td>
                         <td class="border-r border-teal-100 text-amber-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "OFFER")' class="font-black hover:underline">${item.offer}</button></td>
                         <td class="border-r border-teal-100 text-emerald-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "ONBOARD")' class="font-black hover:underline">${item.onboard}</button></td>
+                        <td class="border-r border-teal-100 text-orange-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "PENDING_OFFER")' class="font-black hover:underline">${item.pendingOffer}</button></td>
                         <td class="text-slate-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "OTHER")' class="font-black hover:underline">${item.others}</button></td>
                     </tr>`).join('')
-                : '<tr><td colspan="7" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
+                : '<tr><td colspan="8" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
         }
 
         function setHrDateFilterType(type) {
@@ -3203,17 +3233,17 @@
 
             tbody.innerHTML = rows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
-                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${row[headersS1[S1_IDX.FLOOR]] || '-'}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-700 text-sm px-6">${getS1PositionValue(row)}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
-                    <td class="border-r border-blue-50 text-slate-900 text-sm font-black px-4">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1OnboardStatus(row) || "-") : (row[headersS1[S1_IDX.STATUS]] || "-")}</td>
-                    <td class="border-r border-blue-50 text-slate-800 text-sm font-black px-4">${getS1OnboardStatus(row) || "-"}</td>
-                    <td class="border-r border-blue-50 text-indigo-700 uppercase text-sm px-4">${row[headersS1[S1_IDX.RJNJ]] || '-'}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
-                    <td class="text-left text-slate-600 font-medium text-xs px-6">${isHrSourceDetailMode(currentDetailMode) ? ((row[headersS1[6]] || "-") + "").trim() || "-" : (((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim())}</td>
+                    <td class="text-left border-r border-blue-50 text-indigo-600 font-black px-3">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${isHrSourceDetailMode(currentDetailMode) ? ((row[headersS1[6]] || "-") + "").trim() || "-" : (((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 px-3">${row[headersS1[S1_IDX.FLOOR]] || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-700 font-black px-3">${getSharedDetailPositionLabel(row)}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-900 font-black px-3">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                    <td class="border-r border-blue-50 text-slate-800 px-2">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1RecordedOnboardDate(row) || "-") : (row[headersS1[S1_IDX.ONBOARD_DATE]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-900 font-black px-2">${(currentDetailMode === "ONBOARD" || currentDetailMode === "ONBOARD_HR") ? (getS1OnboardStatus(row) || "-") : (row[headersS1[S1_IDX.STATUS]] || "-")}</td>
+                    <td class="border-r border-blue-50 text-slate-800 font-black px-2">${getS1OnboardStatus(row) || "-"}</td>
+                    <td class="border-r border-blue-50 text-indigo-700 uppercase px-2">${row[headersS1[S1_IDX.RJNJ]] || '-'}</td>
                 </tr>
             `).join('');
 
@@ -4280,4 +4310,3 @@
     </script>
 </body>
 </html>
-
