@@ -530,12 +530,15 @@
         <div id="sharedDetailArea" class="hidden mt-8 mb-24 space-y-6">
             <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 詳細名單</h3>
             <div id="sharedDetailFilterBar" class="cyber-card p-4 md:p-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
                     <select id="sharedDetailFilterBrand" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
                         <option value="">All Brand</option>
                     </select>
-                    <select id="sharedDetailFilterPosition" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
-                        <option value="">All Position</option>
+                    <select id="sharedDetailFilterFloor" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Floor</option>
+                    </select>
+                    <select id="sharedDetailFilterReferrer" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
+                        <option value="">All Referrer</option>
                     </select>
                     <select id="sharedDetailFilterOnboardStatus" onchange="handleSharedDetailFilterChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-blue-50 bg-white font-bold outline-none text-sm">
                         <option value="">All On Board Status</option>
@@ -1820,6 +1823,12 @@
             return ["LEAD_HR", "WEEKLY_HR", "PENDING_HR", "ONBOARD_HR"].includes(mode);
         }
 
+        function getSharedDetailReferrerValue(row) {
+            return isHrSourceDetailMode(currentDetailMode)
+                ? ((((row?.[headersS1[6]] || '') + '').trim()) || '-')
+                : (((((row?.[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row?.[headersS1[S1_IDX.STAFF_NAME]] || '')).trim())) || '-');
+        }
+
         function getS1PositionValue(row) {
             return (((row?.[headersS1[4]] ?? '') + '').trim()) || '-';
         }
@@ -1917,10 +1926,11 @@
 
         function updateSharedDetailFilterOptions(rows) {
             const brandSelect = document.getElementById('sharedDetailFilterBrand');
-            const positionSelect = document.getElementById('sharedDetailFilterPosition');
+            const floorSelect = document.getElementById('sharedDetailFilterFloor');
+            const referrerSelect = document.getElementById('sharedDetailFilterReferrer');
             const onboardStatusSelect = document.getElementById('sharedDetailFilterOnboardStatus');
             const statusSelect = document.getElementById('sharedDetailFilterStatus');
-            if (!brandSelect || !positionSelect || !onboardStatusSelect || !statusSelect) return;
+            if (!brandSelect || !floorSelect || !referrerSelect || !onboardStatusSelect || !statusSelect) return;
 
             const uniqueBrands = [...new Set(rows.map(row => ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
@@ -1930,15 +1940,23 @@
                 const brandValue = ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim();
                 return !brandSelect.value || brandValue === brandSelect.value;
             });
-            const uniquePositions = [...new Set(scopedByBrand.map(row => getS1PositionValue(row)).filter(Boolean))]
+            const uniqueFloors = [...new Set(scopedByBrand.map(row => ((row[headersS1[S1_IDX.FLOOR]] || '') + '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-            setSharedDetailSelectOptions(positionSelect, 'All Position', uniquePositions);
+            setSharedDetailSelectOptions(floorSelect, 'All Floor', uniqueFloors);
 
-            const scopedByPosition = scopedByBrand.filter(row => {
-                const positionValue = getS1PositionValue(row);
-                return !positionSelect.value || positionValue === positionSelect.value;
+            const scopedByFloor = scopedByBrand.filter(row => {
+                const floorValue = ((row[headersS1[S1_IDX.FLOOR]] || '') + '').trim();
+                return !floorSelect.value || floorValue === floorSelect.value;
             });
-            const onboardStatusValues = scopedByPosition.map(row => (getS1OnboardStatus(row) || '-').trim() || '-');
+            const uniqueReferrers = [...new Set(scopedByFloor.map(row => getSharedDetailReferrerValue(row)).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            setSharedDetailSelectOptions(referrerSelect, isHrSourceDetailMode(currentDetailMode) ? 'All CV Received Channel' : 'All Referrer', uniqueReferrers);
+
+            const scopedByReferrer = scopedByFloor.filter(row => {
+                const referrerValue = getSharedDetailReferrerValue(row);
+                return !referrerSelect.value || referrerValue === referrerSelect.value;
+            });
+            const onboardStatusValues = scopedByReferrer.map(row => (getS1OnboardStatus(row) || '-').trim() || '-');
             const uniqueOnboardStatuses = [...new Set(onboardStatusValues)]
                 .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
             const previousOnboardStatus = ((onboardStatusSelect.value || '') + '').trim();
@@ -1952,7 +1970,7 @@
                 onboardStatusSelect.value = previousOnboardStatus;
             }
 
-            const scopedByOnboardStatus = scopedByPosition.filter(row => {
+            const scopedByOnboardStatus = scopedByReferrer.filter(row => {
                 const onboardStatusValue = (getS1OnboardStatus(row) || '-').trim() || '-';
                 return !onboardStatusSelect.value || onboardStatusValue === onboardStatusSelect.value;
             });
@@ -1973,17 +1991,20 @@
 
         function getFilteredSharedDetailRows(rows) {
             const brandValue = ((document.getElementById('sharedDetailFilterBrand')?.value || '') + '').trim();
-            const positionValue = ((document.getElementById('sharedDetailFilterPosition')?.value || '') + '').trim();
+            const floorValue = ((document.getElementById('sharedDetailFilterFloor')?.value || '') + '').trim();
+            const referrerValue = ((document.getElementById('sharedDetailFilterReferrer')?.value || '') + '').trim();
             const onboardStatusValue = ((document.getElementById('sharedDetailFilterOnboardStatus')?.value || '') + '').trim();
             const statusValue = ((document.getElementById('sharedDetailFilterStatus')?.value || '') + '').trim();
 
             return rows.filter(row => {
                 const brand = ((row[headersS1[S1_IDX.BRAND]] || '') + '').trim();
-                const position = getS1PositionValue(row);
+                const floor = ((row[headersS1[S1_IDX.FLOOR]] || '') + '').trim();
+                const referrer = getSharedDetailReferrerValue(row);
                 const onboardStatus = (getS1OnboardStatus(row) || '-').trim() || '-';
                 const status = (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim()) || '-';
                 if (brandValue && brand !== brandValue) return false;
-                if (positionValue && position !== positionValue) return false;
+                if (floorValue && floor !== floorValue) return false;
+                if (referrerValue && referrer !== referrerValue) return false;
                 if (onboardStatusValue && onboardStatus !== onboardStatusValue) return false;
                 if (statusValue && status !== statusValue) return false;
                 return true;
@@ -1997,11 +2018,13 @@
 
         function resetSharedDetailFilters() {
             const brandSelect = document.getElementById('sharedDetailFilterBrand');
-            const positionSelect = document.getElementById('sharedDetailFilterPosition');
+            const floorSelect = document.getElementById('sharedDetailFilterFloor');
+            const referrerSelect = document.getElementById('sharedDetailFilterReferrer');
             const onboardStatusSelect = document.getElementById('sharedDetailFilterOnboardStatus');
             const statusSelect = document.getElementById('sharedDetailFilterStatus');
             if (brandSelect) brandSelect.value = '';
-            if (positionSelect) positionSelect.value = '';
+            if (floorSelect) floorSelect.value = '';
+            if (referrerSelect) referrerSelect.value = '';
             if (onboardStatusSelect) onboardStatusSelect.value = '';
             if (statusSelect) statusSelect.value = '';
             updateSharedDetailFilterOptions(currentSharedDetailBaseRows);
@@ -2040,9 +2063,7 @@
                 case 'name':
                     return (row[headersS1[S1_IDX.NAME]] || '').trim();
                 case 'tail':
-                    return isHrSourceDetailMode(currentDetailMode)
-                        ? (((row[headersS1[6]] || '') + '').trim() || '-')
-                        : ((((row[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row[headersS1[S1_IDX.STAFF_NAME]] || '')).trim()) || '-');
+                    return getSharedDetailReferrerValue(row);
                 default:
                     return '';
             }
@@ -2097,7 +2118,7 @@
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black px-3">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 px-3">${row[headersS1[S1_IDX.FLOOR]] || "-"}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${isHrSourceDetailMode(currentDetailMode) ? ((((row[headersS1[6]] || "") + "").trim()) || "-") : ((((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || "-")}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${getSharedDetailReferrerValue(row)}</td>
                     <td class="text-left border-r border-blue-50 text-slate-900 font-black px-3">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 font-black px-3">${getSharedDetailPositionLabel(row)}</td>
                     <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
@@ -3235,7 +3256,7 @@
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black px-3">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 px-3">${row[headersS1[S1_IDX.FLOOR]] || '-'}</td>
-                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${isHrSourceDetailMode(currentDetailMode) ? ((row[headersS1[6]] || "-") + "").trim() || "-" : (((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()) || '-'}</td>
+                    <td class="text-left border-r border-blue-50 text-slate-600 font-medium px-3 break-words">${getSharedDetailReferrerValue(row)}</td>
                     <td class="text-left border-r border-blue-50 text-slate-900 font-black px-3">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
                     <td class="text-left border-r border-blue-50 text-slate-700 font-black px-3">${getSharedDetailPositionLabel(row)}</td>
                     <td class="border-r border-blue-50 text-slate-800 px-2">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
@@ -3301,7 +3322,8 @@
             const area = document.getElementById('sharedDetailArea'), tbody = document.getElementById('sharedDetailTableBody');
             if(!area || !tbody) return;
             const detailBrandFilter = document.getElementById('sharedDetailFilterBrand');
-            const detailPositionFilter = document.getElementById('sharedDetailFilterPosition');
+            const detailFloorFilter = document.getElementById('sharedDetailFilterFloor');
+            const detailReferrerFilter = document.getElementById('sharedDetailFilterReferrer');
             const detailOnboardStatusFilter = document.getElementById('sharedDetailFilterOnboardStatus');
             const detailStatusFilter = document.getElementById('sharedDetailFilterStatus');
             const tailHeader = document.getElementById('sharedDetailTailHeaderLabel');
@@ -3510,7 +3532,8 @@
                 list = list.filter(row => isPositionIncluded(row));
             }
             if (detailBrandFilter) detailBrandFilter.value = '';
-            if (detailPositionFilter) detailPositionFilter.value = '';
+            if (detailFloorFilter) detailFloorFilter.value = '';
+            if (detailReferrerFilter) detailReferrerFilter.value = '';
             if (detailOnboardStatusFilter) detailOnboardStatusFilter.value = '';
             if (detailStatusFilter) detailStatusFilter.value = '';
             renderSharedDetailTable(list);
