@@ -1586,19 +1586,22 @@
 
         function isExcludedPendingOfferRow(row) {
             const status = (row?.[headersS1[S1_IDX.STATUS]] || "") + "";
-            const statusUpper = status.trim().toUpperCase();
             const onboardStatus = getS1OnboardStatus(row);
-            return statusUpper.includes("ACCEPT")
-                || isRejectedOrWithdrawnStatus(status)
+            return isRejectedOrWithdrawnStatus(status)
                 || isNoShowOnboardStatus(status)
                 || isRejectedOrWithdrawnStatus(onboardStatus)
                 || isNoShowOnboardStatus(onboardStatus);
+        }
+
+        function hasS1OnboardDate(row) {
+            return !!parseDate(getS1RecordedOnboardDate(row));
         }
 
         function isSearchOfferRow(row) {
             const statusUpper = ((row?.[headersS1[S1_IDX.STATUS]] || "") + "").trim().toUpperCase();
             const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
             const onboardStatusUpper = getS1OnboardStatus(row).toUpperCase();
+            if (!hasS1OnboardDate(row)) return false;
             if (isRejectedOrWithdrawnStatus(statusUpper)) return false;
             if (isRejectedOrWithdrawnStatus(onboardStatusUpper)) return false;
             if (isNoShowOnboardStatus(onboardStatusUpper)) return false;
@@ -2160,13 +2163,14 @@
                 const odTs = od ? od.getTime() : null;
                 const st = (row[headersS1[S1_IDX.STATUS]] || "").toUpperCase();
                 const onboardStatus = getS1OnboardStatus(row);
+                const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 if (!(odTs && odTs >= oStartTs && odTs <= oLimitTs && (st.includes("OFFER") || st.includes("ACCEPT")))) return;
+                if (!onboardDate) return;
                 if (isRejectedOrWithdrawnStatus(st)) return;
                 if (isRejectedOrWithdrawnStatus(onboardStatus)) return;
                 if (isNoShowOnboardStatus(onboardStatus)) return;
                 if (useOb && hasObRange) {
-                    const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
-                    const obdTs = obd ? obd.getTime() : null;
+                    const obdTs = onboardDate.getTime();
                     if (!obdTs || obdTs < obSTs || obdTs > obETs) return;
                 }
                 if (isBeautySpecialistPosition(row)) {
@@ -2187,6 +2191,7 @@
                 const odTs = od ? od.getTime() : null;
                 if (!(odTs && odTs >= startTs && odTs <= endLimitTs)) return;
                 if (isExcludedPendingOfferRow(row)) return;
+                if (hasS1OnboardDate(row)) return;
                 counts[normalizeHrLeadBrand(row[headersS1[S1_IDX.BRAND]])]++;
             });
             return counts;
@@ -2382,7 +2387,7 @@
                     if(!(odTs && odTs >= oStartTs && odTs <= oLimitTs)) return false;
                     if (!isSearchOfferRow(row)) return false;
                     if(useOb && hasObRange) { 
-                        const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]); 
+                        const obd = parseDate(getS1RecordedOnboardDate(row)); 
                         const obdTs = obd ? obd.getTime() : null;
                         if(!obdTs || obdTs < obSTs || obdTs > obETs) return false; 
                     }
@@ -2415,7 +2420,7 @@
                             if(!(odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end))) return false;
                             if (!isSearchOfferRow(row)) return false;
                             if(useOb && hasObRange) {
-                                const obd = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                                const obd = parseDate(getS1RecordedOnboardDate(row));
                                 const obdTs = obd ? obd.getTime() : null;
                                 if(!obdTs || obdTs < obSTs || obdTs > obETs) return false;
                             }
@@ -2450,7 +2455,7 @@
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const odTs = od ? od.getTime() : null;
-                    return odTs && odTs >= startTs && odTs <= endLimitTs && !isExcludedPendingOfferRow(row);
+                    return odTs && odTs >= startTs && odTs <= endLimitTs && !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
                 });
                 
                 const elRj = document.getElementById(`pending-rj-${brand}`);
@@ -2469,7 +2474,7 @@
                             if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                             const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                             const odTs = od ? od.getTime() : null;
-                            return odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && !isExcludedPendingOfferRow(row);
+                            return odTs && odTs >= comparisonRange.start.getTime() && odTs <= toEndOfDayTs(comparisonRange.end) && !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
                         }).length;
                     }
                     elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
@@ -2801,7 +2806,7 @@
         }
 
         function isFloorPerformancePending(row) {
-            return getReferralFinalMarker(row) === 'PENDING' && !isExcludedPendingOfferRow(row);
+            return !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
         }
 
         function hasFloorPerformanceOtherOnboardStatus(row) {
@@ -3323,7 +3328,7 @@
                     if (!source.includes("OPERATION")) return false;
                     const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const onbD = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                    const onbD = parseDate(getS1RecordedOnboardDate(row));
                     const dMatch = od && startO && endO && od >= startO && od <= (new Date(endO).setHours(23,59,59));
                     if (!bMatch || !dMatch || !isSearchOfferRow(row)) return false;
                     if (useOb && obS && obE) {
@@ -3337,8 +3342,10 @@
                 list = dataS1.filter(row => {
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    const onbD = parseDate(row[headersS1[S1_IDX.ONBOARD_DATE]]);
+                    const onbD = parseDate(getS1RecordedOnboardDate(row));
+                    const status = (row[headersS1[S1_IDX.STATUS]] || "").toUpperCase();
                     const dMatch = od && startO && endO && od >= startO && od <= (new Date(endO).setHours(23,59,59));
+                    if (!status.includes("OFFER") && !status.includes("ACCEPT")) return false;
                     if (!dMatch || !isSearchOfferRow(row)) return false;
                     if (useOb && obS && obE) {
                         if (!onbD || onbD < obS || onbD > (new Date(obE).setHours(23,59,59))) return false;
@@ -3436,7 +3443,7 @@
                     if (!isHrLeadSource(row)) return false;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return dMatch && !isExcludedPendingOfferRow(row);
+                    return dMatch && !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
                 });
             } else if (mode === "ONBOARD") {
                 const card = document.getElementById(`onboard-${key}`); if(card) card.classList.add('active');
@@ -3465,7 +3472,7 @@
                     const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const dMatch = od && startP && endP && od >= startP && od <= (new Date(endP).setHours(23,59,59));
-                    return bMatch && dMatch && !isExcludedPendingOfferRow(row);
+                    return bMatch && dMatch && !hasS1OnboardDate(row) && !isExcludedPendingOfferRow(row);
                 });
             }
             
