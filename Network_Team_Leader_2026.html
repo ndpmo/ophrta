@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -688,13 +689,13 @@
                 <div class="table-wrap">
                     <table id="detailTable" class="w-full min-w-[1480px] border-collapse">
                         <colgroup>
+                            <col style="width: 65px">
                             <col style="width: 145px">
                             <col style="width: 110px">
                             <col style="width: 125px">
                             <col style="width: 145px">
-                            <col style="width: 65px">
-                            <col style="width: 55px">
                             <col style="width: 95px">
+                            <col style="width: 55px">
                             <col style="width: 78px">
                             <col style="width: 78px">
                             <col style="width: 145px">
@@ -704,13 +705,13 @@
                         </colgroup>
                         <thead class="bg-emerald-50 text-emerald-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('brand')" class="inline-flex items-center gap-2"><span>Brand</span><span id="detailSortIndicator-brand" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referrerFloor')" class="inline-flex items-center gap-2"><span>Referrer Floor</span><span id="detailSortIndicator-referrerFloor" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leaderName')" class="inline-flex items-center gap-2"><span>Leader</span><span id="detailSortIndicator-leaderName" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('memberName')" class="inline-flex items-center gap-2"><span>Team Member</span><span id="detailSortIndicator-memberName" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('candidateName')" class="inline-flex items-center gap-2"><span>Candidate Name</span><span id="detailSortIndicator-candidateName" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('brand')" class="inline-flex items-center gap-2"><span>Brand</span><span id="detailSortIndicator-brand" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('rjnj')" class="inline-flex items-center gap-2"><span>RJ/NJ</span><span id="detailSortIndicator-rjnj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('status')" class="inline-flex items-center gap-2"><span>Status</span><span id="detailSortIndicator-status" class="text-[11px]"></span></button></th>
+                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('rjnj')" class="inline-flex items-center gap-2"><span>RJ/NJ</span><span id="detailSortIndicator-rjnj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leadDateObj')" class="inline-flex items-center gap-2"><span>Lead Date</span><span id="detailSortIndicator-leadDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offerDateObj')" class="inline-flex items-center gap-2"><span>Offer Date</span><span id="detailSortIndicator-offerDateObj" class="text-[11px]"></span></button></th>
                                 <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offeredFloor')" class="inline-flex items-center gap-2"><span>Offered Floor</span><span id="detailSortIndicator-offeredFloor" class="text-[11px]"></span></button></th>
@@ -3291,13 +3292,13 @@
 
             body.innerHTML = rows.map(item => `
                 <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-5 py-4 text-left">${item.brand}</td>
                     <td class="px-5 py-4 text-left whitespace-nowrap">${item.referrerFloor}</td>
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
-                    <td class="px-5 py-4 text-left">${item.brand}</td>
-                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
                     <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
+                    <td class="px-5 py-4 text-left">${item.rjnj}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
                     <td class="px-5 py-4 text-left whitespace-nowrap">${item.offeredFloor}</td>
