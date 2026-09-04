@@ -2374,24 +2374,26 @@
                 const elBs = document.getElementById(`weekly-lead-bs-${brand}`);
                 const elTotal = document.getElementById(`weekly-lead-total-${brand}`);
                 const bsCount = list.filter(row => isBeautySpecialistPosition(row)).length;
+                const displayList = list.filter(row => !isBeautySpecialistPosition(row));
                 
-                if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
-                if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if(elRj) elRj.innerText = `RJ: ${displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
+                if(elNj) elNj.innerText = `NJ: ${displayList.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 if(elBs) elBs.innerText = `BS: ${bsCount}`;
                 if(elTotal) {
                     const comparisonRange = getComparisonDateRange(start, end);
-                    let previousTotal = list.length;
+                    let previousTotal = displayList.length;
                     if (comparisonRange) {
                         previousTotal = dataS1.filter(row => {
                             if (!isOperationLeadSource(row)) return false;
                             if (!isPositionIncluded(row)) return false;
+                            if (isBeautySpecialistPosition(row)) return false;
                             if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                             const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                             const ldTs = ld ? ld.getTime() : null;
                             return ldTs && ldTs >= comparisonRange.start.getTime() && ldTs <= toEndOfDayTs(comparisonRange.end);
                         }).length;
                     }
-                    elTotal.innerHTML = `${list.length}${renderDeltaLabel(list.length, previousTotal)}`;
+                    elTotal.innerHTML = `${displayList.length}${renderDeltaLabel(displayList.length, previousTotal)}`;
                 }
             });
             calculateWeeklyHrSources(startTs, endLimitTs);
@@ -3543,6 +3545,9 @@
                 });
             }
             
+            if (mode === "LEAD") {
+                list = list.filter(row => !isBeautySpecialistPosition(row));
+            }
             if (mode !== "BATCH") {
                 list = list.filter(row => isPositionIncluded(row));
             }
@@ -4358,3 +4363,4 @@
     </script>
 </body>
 </html>
+
