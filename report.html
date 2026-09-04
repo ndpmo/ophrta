@@ -838,7 +838,7 @@
 
     <script>
         // --- ?詨?霈 ---
-        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [], dataNTL = [], headersNTL = [];
+        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [], dataS3 = [], headersS3 = [], dataS4 = [], headersS4 = [], dataCoreTeam = [], headersCoreTeam = [], dataSalesQuick = [], headersSalesQuick = [], dataFloor = [];
         let currentDetailMode = ""; let currentDetailKey = "";
         let currentSharedDetailBaseRows = [];
         let currentSharedDetailRows = [];
@@ -868,7 +868,7 @@
         const CORE_TEAM_GID = '1610056086'; // Core Team ??
         const CORE_TEAM_SHEET_NAME = 'Core Team';
         const SALES_QUICK_SHEET_NAME = 'Sales';
-        const NETWORK_TEAM_SHEET_NAME = 'Network Team Leader';
+        const FLOOR_SHEET_NAME = 'Floor';
 
         const SHEET1_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
         const SHEET2_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET2_GID}`;
@@ -876,14 +876,13 @@
         const SHEET4_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET4_GID}`;
         const CORE_TEAM_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${CORE_TEAM_GID}`;
         const SALES_QUICK_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SALES_QUICK_SHEET_NAME)}`;
-        const NETWORK_TEAM_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}`;
+        const FLOOR_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(FLOOR_SHEET_NAME)}`;
         
         const excludedNames = ['jennifer.tokf', 'milk.yungcy', 'abel.wongyw', 'lavina.chan'];
         const excludedCoreTeamNames = new Set(['chris mak', 'chirs mak']);
         
         // 甈???撠銵?(A甈?0, B甈?1, C甈?2...)
         const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 36, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 37, LEAD_DATE: 35, STATUS: 23 };
-        const NTL_IDX = { BRAND: 0, CENTER: 1, THERAPIST: 2, NETWORK_TEAM: 9, LEADER_JUL: 10, LEADER_AUG: 11 };
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         // TA Flow ?交?靘?甈?
         // Lead Date = B,C,D -> CV Date(35) / Offer Date = P,Q,R -> Offer Date(36) / On board Date = T,U,V -> Onboard Date(37)
@@ -1207,7 +1206,7 @@
                     cleanup();
                     reject(new Error(`Sheet ${sheetName} JSONP failed`));
                 };
-                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${cb}`)}`;
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&headers=1&tqx=${encodeURIComponent(`out:json;responseHandler:${cb}`)}`;
                 document.body.appendChild(script);
             });
         }
@@ -2832,16 +2831,11 @@
             return { startTs: start.getTime(), endTs: new Date(end.getTime()).setHours(23, 59, 59, 999) };
         }
 
-        function getNetworkTeamLeaderFloors(brand) {
+        function getFloorSheetFloors(brand) {
             const brandKey = (brand || '').trim().toUpperCase();
-            return [...new Set(dataNTL
-                .filter(row => {
-                    const rowBrand = (row[headersNTL[NTL_IDX.BRAND]] || '').trim().toUpperCase();
-                    const isLeader = (row[headersNTL[NTL_IDX.LEADER_JUL]] || '').trim().toUpperCase() === 'Y'
-                        || (row[headersNTL[NTL_IDX.LEADER_AUG]] || '').trim().toUpperCase() === 'Y';
-                    return isLeader && (!brandKey || rowBrand === brandKey);
-                })
-                .map(row => (row[headersNTL[NTL_IDX.CENTER]] || '').trim())
+            return [...new Set(dataFloor
+                .filter(row => !brandKey || row.brand === brandKey)
+                .map(row => row.center)
                 .filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
         }
@@ -2978,7 +2972,7 @@
 
             const previousFloor = floorSelect.value;
             const selectedBrand = (brandSelect.value || '').trim().toUpperCase();
-            const floors = getNetworkTeamLeaderFloors(selectedBrand);
+            const floors = getFloorSheetFloors(selectedBrand);
 
             floorSelect.innerHTML = '<option value="">All Floor</option>' + floors.map(floor => `<option value="${floor}">${floor}</option>`).join('');
             if (floors.includes(previousFloor)) floorSelect.value = previousFloor;
@@ -3017,7 +3011,7 @@
             const selectedBrand = (document.getElementById('floorPerfBrand')?.value || '').trim().toUpperCase();
             const selectedFloor = (document.getElementById('floorPerfFloor')?.value || '').trim();
             const summaries = new Map();
-            const leaderFloors = getNetworkTeamLeaderFloors(selectedBrand);
+            const leaderFloors = getFloorSheetFloors(selectedBrand);
             const leaderFloorSet = new Set(leaderFloors);
 
             leaderFloors.forEach(floor => summaries.set(floor, { floor, lead: 0, offer: 0, onboard: 0, pending: 0, pendingOffer: 0, rejectWithdraw: 0, others: 0 }));
@@ -3647,11 +3641,11 @@
             }
             ensureBatchSourceFilterControl();
             
-            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false, salesQuickL = false, ntlL = false;
+            let s1L = false, s2L = false, s3L = false, s4L = false, s5L = false, salesQuickL = false, floorL = false;
             
             // Once all sheets finish loading, render the dashboard
             const checkDone = () => { 
-                if(s1L && s2L && s3L && s4L && s5L && salesQuickL && ntlL) {
+                if(s1L && s2L && s3L && s4L && s5L && salesQuickL && floorL) {
                     populateFilters(); 
                     calculateBatchCounts(); 
                     calculateWeeklyOffers(); 
@@ -3684,32 +3678,32 @@
             setDefaultReferralDateRange();
 
             try {
-                let t1, t2, t3, t4, t5, tSalesQuick, tNtl;
+                let t1, t2, t3, t4, t5, tSalesQuick, tFloor;
                 try {
                     // Prefer normal fetch first for http/https contexts
-                    const [r1, r2, r3, r4, r5, rSalesQuick, rNtl] = await Promise.all([
+                    const [r1, r2, r3, r4, r5, rSalesQuick, rFloor] = await Promise.all([
                         fetch(SHEET1_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET2_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET3_BASE_URL + `&t=${Date.now()}`),
                         fetch(SHEET4_BASE_URL + `&t=${Date.now()}`),
                         fetch(CORE_TEAM_BASE_URL + `&t=${Date.now()}`),
                         fetch(SALES_QUICK_BASE_URL + `&t=${Date.now()}`),
-                        fetch(NETWORK_TEAM_BASE_URL + `&t=${Date.now()}`)
+                        fetch(FLOOR_BASE_URL + `&t=${Date.now()}`)
                     ]);
-                    const bad = [r1, r2, r3, r4, r5, rSalesQuick, rNtl].find(r => !r.ok);
+                    const bad = [r1, r2, r3, r4, r5, rSalesQuick, rFloor].find(r => !r.ok);
                     if (bad) throw new Error(`HTTP ${bad.status}`);
-                    [t1, t2, t3, t4, t5, tSalesQuick, tNtl] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), rSalesQuick.text(), rNtl.text()]);
+                    [t1, t2, t3, t4, t5, tSalesQuick, tFloor] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), rSalesQuick.text(), rFloor.text()]);
                 } catch (fetchErr) {
                     // Fall back to JSONP for local file previews where CORS blocks fetch
                     console.warn('Fetch failed, fallback to JSONP:', fetchErr);
-                    [t1, t2, t3, t4, t5, tSalesQuick, tNtl] = await Promise.all([
+                    [t1, t2, t3, t4, t5, tSalesQuick, tFloor] = await Promise.all([
                         loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
                         loadGvizCsvByJsonp(SHEET2_GID),
                         loadGvizCsvByJsonp(SHEET3_GID),
                         loadGvizCsvByJsonp(SHEET4_GID),
                         loadGvizCsvByJsonp(CORE_TEAM_GID),
                         loadGvizCsvByJsonpBySheetName(SALES_QUICK_SHEET_NAME, SHEET1_DOC_ID),
-                        loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID)
+                        loadGvizCsvByJsonpBySheetName(FLOOR_SHEET_NAME, SHEET1_DOC_ID)
                     ]);
                 }
 
@@ -3818,13 +3812,23 @@
                     }
                 });
 
-                Papa.parse(tNtl, {
+                Papa.parse(tFloor, {
                     header: true,
                     skipEmptyLines: true,
                     complete: res => {
-                        headersNTL = res.meta.fields || [];
-                        dataNTL = res.data || [];
-                        ntlL = true; checkDone();
+                        const fields = res.meta.fields || [];
+                        const brandField = fields[0];
+                        const centerField = fields[1];
+                        let inheritedBrand = '';
+                        dataFloor = (res.data || []).reduce((rows, row) => {
+                            const rawBrand = ((row[brandField] || '') + '').trim();
+                            const center = ((row[centerField] || '') + '').trim();
+                            if (rawBrand && !rawBrand.toUpperCase().includes('TOTAL')) inheritedBrand = rawBrand.toUpperCase();
+                            if (!center || rawBrand.toUpperCase().includes('TOTAL') || !inheritedBrand) return rows;
+                            rows.push({ brand: inheritedBrand, center });
+                            return rows;
+                        }, []);
+                        floorL = true; checkDone();
                     }
                 });
 
