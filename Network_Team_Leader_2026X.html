@@ -758,14 +758,13 @@
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
         const NTL_IDX = {
-            BRAND: 0,
-            CENTER: 1,
+            FLOOR: 0,
+            FLOOR_BY_HUB: 1,
             THERAPIST: 2,
             STAFF_NO: 3,
-            POSITION: 4,
-            NETWORK_TEAM: 9,
-            LEADER_JUL: 10,
-            LEADER_AUG: 11
+            LEADER_FLAG: 4,
+            NETWORK_TEAM: 5,
+            LEADER_FLOOR: 6
         };
 
         let headersS1 = [];
@@ -902,6 +901,14 @@
             const brand = normalizeBrand(value);
             if (brand === 'OTHER') return 'Other';
             return brand.charAt(0) + brand.slice(1).toLowerCase();
+        }
+
+        function getNtlBrandFromFloor(row) {
+            const floorPrefix = getNtlValue(row, NTL_IDX.FLOOR).charAt(0).toUpperCase();
+            if (floorPrefix === 'D') return 'DERMES';
+            if (floorPrefix === 'R') return 'REENEX';
+            if (floorPrefix === 'E') return 'ELYZE';
+            return 'OTHER';
         }
 
         function isSameBrandReferral(member, row) {
@@ -1600,7 +1607,7 @@
                 const key = normalizeKey(leaderName);
                 if (!key) return;
 
-                const leaderFlag = normalizeKey(getNtlValue(row, NTL_IDX.LEADER_JUL)) === 'y' || normalizeKey(getNtlValue(row, NTL_IDX.LEADER_AUG)) === 'y';
+                const leaderFlag = normalizeKey(getNtlValue(row, NTL_IDX.LEADER_FLAG)) === 'y';
                 if (!leaderFlag) return;
 
                 if (!directory.has(key)) {
@@ -1616,8 +1623,8 @@
 
                 const entry = directory.get(key);
                 entry.leaderRows.push(row);
-                entry.brands.add(displayBrand(getNtlValue(row, NTL_IDX.BRAND)));
-                entry.centers.add(getNtlValue(row, NTL_IDX.CENTER));
+                entry.brands.add(displayBrand(getNtlBrandFromFloor(row)));
+                entry.centers.add(getNtlValue(row, NTL_IDX.LEADER_FLOOR) || getNtlValue(row, NTL_IDX.FLOOR));
             });
 
             dataNTL.forEach(row => {
@@ -1625,13 +1632,14 @@
                 const key = normalizeKey(teamOwner);
                 if (!key || !directory.has(key)) return;
 
+                const brandKey = getNtlBrandFromFloor(row);
                 const member = {
-                    brand: displayBrand(getNtlValue(row, NTL_IDX.BRAND)),
-                    brandKey: normalizeBrand(getNtlValue(row, NTL_IDX.BRAND)),
-                    center: getNtlValue(row, NTL_IDX.CENTER),
+                    brand: displayBrand(brandKey),
+                    brandKey,
+                    center: getNtlValue(row, NTL_IDX.FLOOR),
                     therapist: getNtlValue(row, NTL_IDX.THERAPIST),
                     staffNo: getNtlValue(row, NTL_IDX.STAFF_NO),
-                    position: getNtlValue(row, NTL_IDX.POSITION),
+                    position: '',
                     teamOwner
                 };
 
