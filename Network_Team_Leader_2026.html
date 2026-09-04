@@ -287,6 +287,7 @@
                                 <th class="px-4 py-4 text-center">No. of staff referral</th>
                                 <th class="px-4 py-4 text-center">Lead</th>
                                 <th class="px-4 py-4 text-center">Offer</th>
+                                <th class="px-4 py-4 text-center">Pending Offer</th>
                                 <th class="px-4 py-4 text-center">On Board</th>
                                 <th class="px-4 py-4 text-center">Referral %</th>
                                 <th class="px-4 py-4 text-center">Offer Achieve Rate</th>
@@ -331,6 +332,7 @@
                                 <th class="px-4 py-4 text-center">Team Members</th>
                                 <th class="px-4 py-4 text-center">Lead</th>
                                 <th class="px-4 py-4 text-center">Offer</th>
+                                <th class="px-4 py-4 text-center">Pending Offer</th>
                                 <th class="px-4 py-4 text-center">On Board</th>
                                 <th class="px-4 py-4 text-center">Offer Achieve Rate</th>
                                 <th class="px-4 py-4 text-center">On Board Achieve Rate</th>
@@ -934,15 +936,15 @@
         }
 
         function isCountedOffer(row) {
-            return isOffered(row) && !isBeautySpecialistPosition(row) && isCoreBrandOffer(row);
+            return isOffered(row) && hasRecordedOnboardDate(row) && !isBeautySpecialistPosition(row) && isCoreBrandOffer(row);
         }
 
         function isOtherBrandOffer(row) {
-            return isOffered(row) && !isBeautySpecialistPosition(row) && !isCoreBrandOffer(row);
+            return isOffered(row) && hasRecordedOnboardDate(row) && !isBeautySpecialistPosition(row) && !isCoreBrandOffer(row);
         }
 
         function isBeautySpecialistOffer(row) {
-            return isOffered(row) && isBeautySpecialistPosition(row);
+            return isOffered(row) && hasRecordedOnboardDate(row) && isBeautySpecialistPosition(row);
         }
 
         function parseDate(rawValue) {
@@ -1189,6 +1191,24 @@
             return safeTrim(status).toUpperCase().includes('ACCEPT');
         }
 
+        function isExcludedPendingOfferRow(row) {
+            const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
+            const onboardStatus = getOnboardStatus(row);
+            return isRejectedOrWithdrawnStatus(status)
+                || isNoShowOnboardStatus(status)
+                || isRejectedOrWithdrawnStatus(onboardStatus)
+                || isNoShowOnboardStatus(onboardStatus);
+        }
+
+        function hasRecordedOnboardDate(row) {
+            return !!parseDate(getRecordedOnboardDate(row));
+        }
+
+        function isPendingOffer(row) {
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !!offerDate && !hasRecordedOnboardDate(row) && !isExcludedPendingOfferRow(row);
+        }
+
         function isOffered(row) {
             const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
             if (isRejectedOrWithdrawnStatus(status)) return false;
@@ -1226,11 +1246,12 @@
             return recordedDate.getTime() > today.getTime();
         }
 
-        function getStatusChip(status, offered, onboarded, upcomingOnboard = false) {
+        function getStatusChip(status, offered, onboarded, upcomingOnboard = false, pendingOffer = false) {
             const rawStatus = safeTrim(status);
             if (isRejectedOrWithdrawnStatus(status)) return '<span class="status-chip status-reject">Reject / Withdraw</span>';
             if (onboarded) return '<span class="status-chip status-onboard">On Board</span>';
             if (upcomingOnboard) return '<span class="status-chip status-upcoming">Upcoming</span>';
+            if (pendingOffer) return '<span class="status-chip status-pending">Pending Offer</span>';
             if (offered) return '<span class="status-chip status-offer">Offer</span>';
             return `<span class="status-chip status-pending">${escapeHtml(rawStatus || 'Pending')}</span>`;
         }
@@ -1665,7 +1686,7 @@
 
         function getOfferDateFilterStats(leaders) {
             const offerRange = getSelectedOfferDateRange();
-            const stats = { total: 0, leader: 0, teamMate: 0, otherBrand: 0, beautySpecialist: 0 };
+            const stats = { total: 0, leader: 0, teamMate: 0, otherBrand: 0, beautySpecialist: 0, pendingOffer: 0, pendingLeader: 0, pendingTeamMate: 0 };
             if (!offerRange) return null;
 
             leaders.forEach(leader => {
@@ -1675,12 +1696,17 @@
                         return isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange);
                     });
                     const offerRows = memberOfferRows.filter(isCountedOffer);
+                    const pendingOfferRows = memberOfferRows.filter(isPendingOffer);
                     const offerCount = offerRows.length;
+                    const pendingOfferCount = pendingOfferRows.length;
                     stats.total += offerCount;
                     if (member.isLeaderSelf) stats.leader += offerCount;
                     else stats.teamMate += offerCount;
                     stats.otherBrand += memberOfferRows.filter(isOtherBrandOffer).length;
                     stats.beautySpecialist += memberOfferRows.filter(isBeautySpecialistOffer).length;
+                    stats.pendingOffer += pendingOfferCount;
+                    if (member.isLeaderSelf) stats.pendingLeader += pendingOfferCount;
+                    else stats.pendingTeamMate += pendingOfferCount;
                 });
             });
 
@@ -1721,6 +1747,7 @@
                 const memberStats = filteredMembers.map(member => {
                     const rows = getMemberReferralRows(member, range);
                     const offer = rows.filter(isCountedOffer).length;
+                    const pendingOffer = rows.filter(isPendingOffer).length;
                     const offerOtherBrand = rows.filter(isOtherBrandOffer).length;
                     const offerBS = rows.filter(isBeautySpecialistOffer).length;
                     const onboardRows = rows.filter(isOnboard);
@@ -1732,7 +1759,7 @@
                     const upcomingOnboard = upcomingOnboardRows.filter(row => !isBeautySpecialistPosition(row)).length;
                     const upcomingOnboardBS = upcomingOnboardRows.filter(isBeautySpecialistPosition).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, upcomingOnboardBS, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, offer, pendingOffer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, upcomingOnboardBS, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -1763,6 +1790,7 @@
                             interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
                             offered: isOffered(row),
                             countedOffer: isCountedOffer(row),
+                            countedPendingOffer: isPendingOffer(row),
                             otherBrandOffer: isOtherBrandOffer(row),
                             beautySpecialistOffer: isBeautySpecialistOffer(row),
                             onboarded: actualOnboarded,
@@ -1792,6 +1820,7 @@
                     teamMateCount: teamMateStats.length,
                     lead: memberStats.reduce((sum, member) => sum + member.lead, 0),
                     offer: memberStats.reduce((sum, member) => sum + member.offer, 0),
+                    pendingOffer: memberStats.reduce((sum, member) => sum + (member.pendingOffer || 0), 0),
                     offerOtherBrand: memberStats.reduce((sum, member) => sum + (member.offerOtherBrand || 0), 0),
                     offerBS: memberStats.reduce((sum, member) => sum + (member.offerBS || 0), 0),
                     onboard: memberStats.reduce((sum, member) => sum + member.onboard, 0),
@@ -1895,6 +1924,9 @@
             const totalOffer = offerDateFilterStats?.total ?? leaders.reduce((sum, leader) => sum + leader.offer, 0);
             const totalOfferTL = offerDateFilterStats?.leader ?? leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.offer || 0), 0);
             const totalOfferTM = offerDateFilterStats?.teamMate ?? leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.offer || 0), 0), 0);
+            const totalPendingOffer = offerDateFilterStats?.pendingOffer ?? leaders.reduce((sum, leader) => sum + (leader.pendingOffer || 0), 0);
+            const totalPendingOfferTL = offerDateFilterStats?.pendingLeader ?? leaders.reduce((sum, leader) => sum + (leader.leaderSelfStat?.pendingOffer || 0), 0);
+            const totalPendingOfferTM = offerDateFilterStats?.pendingTeamMate ?? leaders.reduce((sum, leader) => sum + (leader.teamMateStats || []).reduce((teamSum, member) => teamSum + (member.pendingOffer || 0), 0), 0);
             const totalOfferOtherBrand = offerDateFilterStats?.otherBrand ?? leaders.reduce((sum, leader) => sum + (leader.offerOtherBrand || 0), 0);
             const totalOfferBS = offerDateFilterStats?.beautySpecialist ?? leaders.reduce((sum, leader) => sum + (leader.offerBS || 0), 0);
             const totalOnboard = leaders.reduce((sum, leader) => sum + leader.onboard, 0);
@@ -1908,6 +1940,7 @@
             const totalUpcomingOnboardBS = leaders.reduce((sum, leader) => sum + (leader.upcomingOnboardBS || 0), 0);
             const comparisonLead = comparisonLeaders.reduce((sum, leader) => sum + leader.lead, 0);
             const comparisonOffer = offerDateFilterStats ? null : comparisonLeaders.reduce((sum, leader) => sum + leader.offer, 0);
+            const comparisonPendingOffer = offerDateFilterStats ? null : comparisonLeaders.reduce((sum, leader) => sum + (leader.pendingOffer || 0), 0);
             const comparisonOnboard = comparisonLeaders.reduce((sum, leader) => sum + leader.onboard, 0);
             const comparisonUpcoming = comparisonLeaders.reduce((sum, leader) => sum + leader.upcomingOnboard, 0);
             const totalTarget = leaders.length * 2;
@@ -1947,9 +1980,16 @@
                 offerNoteLines.push(`<div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 text-center">BS = ${formatNumber(totalOfferBS)}</div>`);
             }
 
+            const pendingOfferNoteLines = [
+                renderTLTMBreakdown(totalPendingOfferTL, totalPendingOfferTM),
+                '<div class="text-[11px] font-black tracking-[0.08em] text-orange-700 text-center">有 Offer Date 但無 On Board Date 會計入 Pending Offer</div>',
+                '<div class="text-[11px] font-black tracking-[0.08em] text-orange-700 text-center">按下 Filter Offer Date，Pending Offer 數將會用 Offer Date 計算</div>'
+            ];
+
             const cards = [
                 { title: 'Lead', value: totalLead, delta: totalLead - comparisonLead, note: renderTLTMBreakdown(totalLeadTL, totalLeadTM), accent: '#1d4ed8', bg: 'rgba(29,78,216,0.12)', mode: 'LEAD', noteIsHtml: true },
                 { title: 'Offer', value: totalOffer, delta: comparisonOffer == null ? null : totalOffer - comparisonOffer, note: offerNoteLines.join(''), accent: 'var(--warning)', bg: 'var(--warning-soft)', mode: 'OFFER', noteIsHtml: true },
+                { title: 'Pending Offer', value: totalPendingOffer, delta: comparisonPendingOffer == null ? null : totalPendingOffer - comparisonPendingOffer, note: pendingOfferNoteLines.join(''), accent: '#d97706', bg: 'rgba(245, 158, 11, 0.14)', mode: 'PENDING_OFFER', noteIsHtml: true },
                 {
                     title: 'On Board',
                     value: totalOnboard,
@@ -2004,7 +2044,7 @@
                 <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-5">
                     ${topCards.map(renderCard).join('')}
                 </div>
-                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
                     ${bottomCards.map(renderCard).join('')}
                 </div>
             `;
@@ -2142,6 +2182,7 @@
                 { key: 'members', label: 'Team Members', align: 'center' },
                 { key: 'lead', label: 'Lead', align: 'center' },
                 { key: 'offer', label: 'Offer', align: 'center' },
+                { key: 'pendingOffer', label: 'Pending Offer', align: 'center' },
                 { key: 'onboard', label: 'On Board', align: 'center' },
                 { key: 'offerAchieveRate', label: 'Offer Achieve Rate', align: 'center' },
                 { key: 'onboardAchieveRate', label: 'On Board Achieve Rate', align: 'center' }
@@ -2256,6 +2297,8 @@
                     return row.lead || 0;
                 case 'offer':
                     return row.offer || 0;
+                case 'pendingOffer':
+                    return row.pendingOffer || 0;
                 case 'onboard':
                     return row.onboard || 0;
                 case 'offerAchieveRate':
@@ -2457,6 +2500,7 @@
                             referralMembers: 0,
                             lead: 0,
                             offer: 0,
+                            pendingOffer: 0,
                             onboard: 0
                         });
                     }
@@ -2467,6 +2511,7 @@
                     if (member.lead > 0) brandEntry.referralMembers += 1;
                     brandEntry.lead += member.lead;
                     brandEntry.offer += member.offer;
+                    brandEntry.pendingOffer += member.pendingOffer || 0;
                     brandEntry.onboard += member.onboard;
 
                     const floorKey = member.center || '-';
@@ -2478,6 +2523,7 @@
                             members: 0,
                             lead: 0,
                             offer: 0,
+                            pendingOffer: 0,
                             onboard: 0
                         });
                     }
@@ -2488,6 +2534,7 @@
                     floorEntry.members += 1;
                     floorEntry.lead += member.lead;
                     floorEntry.offer += member.offer;
+                    floorEntry.pendingOffer += member.pendingOffer || 0;
                     floorEntry.onboard += member.onboard;
                 });
             });
@@ -2516,7 +2563,7 @@
             meta.textContent = `${rows.length} brands under current filters`;
 
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No brand records in this selection.</td></tr>';
                 return;
             }
 
@@ -2526,9 +2573,10 @@
                 total.referralMembers += row.referralMembers || 0;
                 total.lead += row.lead;
                 total.offer += row.offer;
+                total.pendingOffer += row.pendingOffer || 0;
                 total.onboard += row.onboard;
                 return total;
-            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, onboard: 0 });
+            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0 });
             const total = summarizeRows(rows);
             const comparisonTotal = summarizeRows(comparisonRows);
 
@@ -2537,6 +2585,7 @@
                 const referralDelta = (row.referralMembers || 0) - (comparisonRow?.referralMembers || 0);
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
                 const offerDelta = row.offer - (comparisonRow?.offer || 0);
+                const pendingOfferDelta = (row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0);
                 const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
                 return `
                 <tr class="text-sm font-bold text-slate-700">
@@ -2546,6 +2595,7 @@
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'REFERRAL')" class="inline-flex items-baseline justify-center gap-1 font-black text-violet-700 underline-offset-4 hover:underline">${formatNumber(row.referralMembers || 0)} ${renderDeltaLabel(referralDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(row.pendingOffer || 0)} ${renderDeltaLabel(pendingOfferDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.referralMembers || 0, row.members)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
@@ -2559,6 +2609,7 @@
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'REFERRAL')" class="inline-flex items-baseline justify-center gap-1 font-black text-violet-700 underline-offset-4 hover:underline">${formatNumber(total.referralMembers)} ${renderDeltaLabel(total.referralMembers - comparisonTotal.referralMembers, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(total.pendingOffer)} ${renderDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.referralMembers, total.members)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(total.offer, total.leaders.size)}</td>
@@ -2643,7 +2694,7 @@
             }
 
             if (!filteredRows.length) {
-                body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="10" class="px-5 py-8 text-center text-sm font-black text-slate-400">No floor records in this selection.</td></tr>';
                 return;
             }
 
@@ -2665,9 +2716,10 @@
                 total.members += row.members;
                 total.lead += row.lead;
                 total.offer += row.offer;
+                total.pendingOffer += row.pendingOffer || 0;
                 total.onboard += row.onboard;
                 return total;
-            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, onboard: 0 });
+            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0 });
             const total = summarizeRows(filteredRows);
             const comparisonTotal = summarizeRows(filteredComparisonRows);
 
@@ -2675,6 +2727,7 @@
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
                 const offerDelta = row.offer - (comparisonRow?.offer || 0);
+                const pendingOfferDelta = (row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0);
                 const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
                 return `
                 <tr class="text-sm font-bold text-slate-700">
@@ -2684,6 +2737,7 @@
                     <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(row.members)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(row.pendingOffer || 0)} ${renderDeltaLabel(pendingOfferDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
@@ -2696,6 +2750,7 @@
                     <td class="px-4 py-4 text-center data-font">${formatNumber(total.members)}</td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(total.pendingOffer)} ${renderDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.offer, total.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.onboard, total.lead)}</td>
@@ -3182,7 +3237,7 @@
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
                     <td class="px-5 py-4 text-left">${item.brand}</td>
                     <td class="px-5 py-4 text-left">${item.rjnj}</td>
-                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
+                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard, item.countedPendingOffer)}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
                     <td class="px-5 py-4 text-left whitespace-nowrap">${item.offeredFloor}</td>
@@ -3274,6 +3329,9 @@
                 } else if (currentSummaryDetailMode === 'OFFER') {
                     rows = rows.filter(item => item.countedOffer);
                     titleText = withContext('Offer Detail');
+                } else if (currentSummaryDetailMode === 'PENDING_OFFER') {
+                    rows = rows.filter(item => item.countedPendingOffer);
+                    titleText = withContext('Pending Offer Detail');
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
                     rows = rows.filter(item => item.countedOnboard);
                     titleText = withContext('On Board Detail');
@@ -3344,7 +3402,7 @@
                     <td class="px-5 py-4 text-left text-slate-900">${item.leaderName}</td>
                     <td class="px-5 py-4 text-left">${item.memberName}</td>
                     <td class="px-5 py-4 text-left font-black text-slate-900">${item.candidateName}</td>
-                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard)}</td>
+                    <td class="px-5 py-4 text-left">${getStatusChip(item.status, item.offered, item.onboarded, item.upcomingOnboard, item.countedPendingOffer)}</td>
                     <td class="px-5 py-4 text-left">${item.rjnj}</td>
                     <td class="px-5 py-4 text-left">${item.leadDate}</td>
                     <td class="px-5 py-4 text-left">${item.offerDate}</td>
