@@ -2520,6 +2520,18 @@
                 return;
             }
 
+            const summarizeRows = sourceRows => sourceRows.reduce((total, row) => {
+                row.leaders.forEach(leader => total.leaders.add(leader));
+                total.members += row.members;
+                total.referralMembers += row.referralMembers || 0;
+                total.lead += row.lead;
+                total.offer += row.offer;
+                total.onboard += row.onboard;
+                return total;
+            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, onboard: 0 });
+            const total = summarizeRows(rows);
+            const comparisonTotal = summarizeRows(comparisonRows);
+
             body.innerHTML = rows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const referralDelta = (row.referralMembers || 0) - (comparisonRow?.referralMembers || 0);
@@ -2539,7 +2551,19 @@
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.offer, row.leaders.size)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(row.onboard, row.leaders.size)}</td>
                 </tr>
-            `; }).join('');
+            `; }).join('') + `
+                <tr class="border-t-2 border-sky-200 bg-sky-50/90 text-sm font-black text-slate-900">
+                    <td class="px-5 py-4 text-left uppercase">Total</td>
+                    <td class="px-4 py-4 text-center data-font">${formatNumber(total.leaders.size)}</td>
+                    <td class="px-4 py-4 text-center data-font">${formatNumber(total.members)}</td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'REFERRAL')" class="inline-flex items-baseline justify-center gap-1 font-black text-violet-700 underline-offset-4 hover:underline">${formatNumber(total.referralMembers)} ${renderDeltaLabel(total.referralMembers - comparisonTotal.referralMembers, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.referralMembers, total.members)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(total.offer, total.leaders.size)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatAchieveRate(total.onboard, total.leaders.size)}</td>
+                </tr>`;
         }
 
         function updateFloorSectionBrandOptions(rows) {
@@ -2635,6 +2659,18 @@
                 return floorSortDirection === 'asc' ? compared : -compared;
             });
 
+            const summarizeRows = sourceRows => sourceRows.reduce((total, row) => {
+                row.brands.forEach(brand => total.brands.add(brand));
+                row.leaders.forEach(leader => total.leaders.add(leader));
+                total.members += row.members;
+                total.lead += row.lead;
+                total.offer += row.offer;
+                total.onboard += row.onboard;
+                return total;
+            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, onboard: 0 });
+            const total = summarizeRows(filteredRows);
+            const comparisonTotal = summarizeRows(filteredComparisonRows);
+
             body.innerHTML = sortedRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
@@ -2652,7 +2688,18 @@
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
                 </tr>
-            `; }).join('');
+            `; }).join('') + `
+                <tr class="border-t-2 border-violet-200 bg-violet-50/90 text-sm font-black text-slate-900">
+                    <td class="px-5 py-4 text-left uppercase">Total</td>
+                    <td class="px-5 py-4 text-left text-slate-700">${Array.from(total.brands).sort((a, b) => a.localeCompare(b, 'en')).join(', ') || '-'}</td>
+                    <td class="px-4 py-4 text-center data-font">${formatNumber(total.leaders.size)}</td>
+                    <td class="px-4 py-4 text-center data-font">${formatNumber(total.members)}</td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.offer, total.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.onboard, total.lead)}</td>
+                </tr>`;
         }
 
         function renderNetworkTable(leaders, comparisonLeaders = []) {
