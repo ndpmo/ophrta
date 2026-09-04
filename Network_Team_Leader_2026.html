@@ -274,7 +274,12 @@
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">By Brand</p>
                     <h2 class="text-2xl font-black text-slate-900">Brand Breakdown</h2>
                 </div>
-                <p id="brandMeta" class="text-sm font-bold text-slate-500">-</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" onclick="downloadBrandBreakdown()" class="pill-button min-h-0 px-4 py-2 text-xs uppercase tracking-[0.14em] text-sky-700">
+                        DOWNLOAD EXCEL VERSION
+                    </button>
+                    <p id="brandMeta" class="text-sm font-bold text-slate-500">-</p>
+                </div>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -307,11 +312,16 @@
                     <h2 class="text-2xl font-black text-slate-900">Floor Breakdown</h2>
                 </div>
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <label for="floorSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
-                        <select id="floorSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
-                            <option value="">All Brand</option>
-                        </select>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label for="floorSectionBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
+                            <select id="floorSectionBrandFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[150px]">
+                                <option value="">All Brand</option>
+                            </select>
+                        </div>
+                        <button type="button" onclick="downloadFloorBreakdown()" class="pill-button min-h-0 px-4 py-2 text-xs uppercase tracking-[0.14em] text-violet-700">
+                            DOWNLOAD EXCEL VERSION
+                        </button>
                     </div>
                     <p id="floorMeta" class="text-sm font-bold text-slate-500">-</p>
                 </div>
@@ -887,6 +897,54 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function csvEscape(value) {
+            const str = (value ?? '').toString();
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        function downloadCsvFile(filename, lines) {
+            const csvContent = '\uFEFF' + lines.map(row => row.map(csvEscape).join(',')).join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const objectUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = objectUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+        }
+
+        function formatInputDateForExport(value, fallback = '-') {
+            const raw = safeTrim(value);
+            if (!raw) return fallback;
+            const parsed = new Date(`${raw}T00:00:00`);
+            return Number.isNaN(parsed.getTime()) ? raw : formatDateAsDMonY(parsed);
+        }
+
+        function getCurrentStudyFilterEntries(extraEntries = []) {
+            const compareValue = safeTrim(document.getElementById('compareDateFilter')?.value);
+            return [
+                ['Lead Date From', formatInputDateForExport(document.getElementById('studyStart')?.value, '-')],
+                ['Lead Date To', formatInputDateForExport(document.getElementById('studyEnd')?.value, '-')],
+                ['Offer Date From', formatInputDateForExport(document.getElementById('offerStudyStart')?.value, 'All')],
+                ['Offer Date To', formatInputDateForExport(document.getElementById('offerStudyEnd')?.value, 'All')],
+                ['Compare Date', compareValue ? formatInputDateForExport(compareValue, '-') : 'Auto previous study day'],
+                ['Brand Filter', safeTrim(document.getElementById('brandFilter')?.value) || 'All Brand'],
+                ['Centre Filter', safeTrim(document.getElementById('centerFilter')?.value) || 'All Centre'],
+                ['Leader Filter', safeTrim(document.getElementById('leaderFilter')?.value) || 'All Leader']
+            ].concat(extraEntries);
+        }
+
+        function getBreakdownExportFileSuffix() {
+            const start = safeTrim(document.getElementById('studyStart')?.value) || 'all';
+            const end = safeTrim(document.getElementById('studyEnd')?.value) || 'all';
+            return `${start}_to_${end}`;
         }
 
         function normalizeKey(value) {
@@ -2556,6 +2614,269 @@
             return { brandRows, floorRows };
         }
 
+        function summarizeBrandBreakdownRows(sourceRows = []) {
+            return sourceRows.reduce((total, row) => {
+                (row.leaders || new Set()).forEach(leader => total.leaders.add(leader));
+                total.members += Number(row.members) || 0;
+                total.referralMembers += Number(row.referralMembers) || 0;
+                total.lead += Number(row.lead) || 0;
+                total.offer += Number(row.offer) || 0;
+                total.pendingOffer += Number(row.pendingOffer) || 0;
+                total.onboard += Number(row.onboard) || 0;
+                total.stillActive += Number(row.stillActive) || 0;
+                return total;
+            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
+        }
+
+        function summarizeFloorBreakdownRows(sourceRows = []) {
+            return sourceRows.reduce((total, row) => {
+                (row.brands || new Set()).forEach(brand => total.brands.add(brand));
+                (row.leaders || new Set()).forEach(leader => total.leaders.add(leader));
+                total.members += Number(row.members) || 0;
+                total.lead += Number(row.lead) || 0;
+                total.offer += Number(row.offer) || 0;
+                total.pendingOffer += Number(row.pendingOffer) || 0;
+                total.onboard += Number(row.onboard) || 0;
+                total.stillActive += Number(row.stillActive) || 0;
+                return total;
+            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
+        }
+
+        function getFilteredFloorBreakdownRows(rows, comparisonRows = []) {
+            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
+            const filteredRows = floorBrandFilterValue
+                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
+                : rows.slice();
+            const filteredComparisonRows = floorBrandFilterValue
+                ? comparisonRows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
+                : comparisonRows.slice();
+            return { floorBrandFilterValue, filteredRows, filteredComparisonRows };
+        }
+
+        function sortFloorBreakdownRows(rows = []) {
+            return rows.slice().sort((a, b) => {
+                const valueA = getFloorSortValue(a, floorSortKey);
+                const valueB = getFloorSortValue(b, floorSortKey);
+                let compared = 0;
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    compared = valueA - valueB;
+                } else {
+                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
+                }
+                return floorSortDirection === 'asc' ? compared : -compared;
+            });
+        }
+
+        function buildBreakdownExportLines(title, filterEntries, headers, dataRows) {
+            return [[title], [], ['Applied Filters', 'Value']]
+                .concat(filterEntries.map(([label, value]) => [label, value]))
+                .concat([[], headers], dataRows);
+        }
+
+        function downloadBrandBreakdown() {
+            const selectedRange = getSelectedDateRange();
+            if (!selectedRange) return;
+
+            const leaders = getFilteredLeaders();
+            const comparisonRange = getComparisonDateRange(selectedRange);
+            const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
+            const { brandRows } = summarizeBreakdowns(leaders);
+            const { brandRows: comparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
+            const comparisonLookup = buildBreakdownLookup(comparisonBrandRows);
+            const total = summarizeBrandBreakdownRows(brandRows);
+            const comparisonTotal = summarizeBrandBreakdownRows(comparisonBrandRows);
+            const includeStillActive = brandRows.some(row => row.stillActive != null) || comparisonBrandRows.some(row => row.stillActive != null);
+
+            const headers = [
+                'Brand',
+                'Network Teams',
+                'Team Members',
+                'No. of Staff Referral',
+                'Referral Delta',
+                'Lead',
+                'Lead Delta',
+                'Offer',
+                'Offer Delta',
+                'Pending Offer',
+                'Pending Offer Delta',
+                'On Board',
+                'On Board Delta'
+            ];
+            if (includeStillActive) {
+                headers.push('Still Active', 'Still Active Delta');
+            }
+            headers.push('Referral %', 'Offer Achieve Rate', 'On Board Achieve Rate');
+
+            const dataRows = brandRows.map(row => {
+                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
+                const values = [
+                    row.label,
+                    row.leaders.size,
+                    row.members,
+                    row.referralMembers || 0,
+                    formatDeltaLabel((row.referralMembers || 0) - (comparisonRow?.referralMembers || 0)),
+                    row.lead,
+                    formatDeltaLabel(row.lead - (comparisonRow?.lead || 0)),
+                    row.offer,
+                    formatDeltaLabel(row.offer - (comparisonRow?.offer || 0)),
+                    row.pendingOffer || 0,
+                    formatDeltaLabel((row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0)),
+                    row.onboard,
+                    formatDeltaLabel(row.onboard - (comparisonRow?.onboard || 0))
+                ];
+                if (includeStillActive) {
+                    values.push(
+                        row.stillActive || 0,
+                        formatDeltaLabel((row.stillActive || 0) - (comparisonRow?.stillActive || 0))
+                    );
+                }
+                values.push(
+                    formatRate(row.referralMembers || 0, row.members),
+                    formatAchieveRate(row.offer, row.leaders.size),
+                    formatAchieveRate(row.onboard, row.leaders.size)
+                );
+                return values;
+            });
+
+            const totalRow = [
+                'Total',
+                total.leaders.size,
+                total.members,
+                total.referralMembers,
+                formatDeltaLabel(total.referralMembers - comparisonTotal.referralMembers),
+                total.lead,
+                formatDeltaLabel(total.lead - comparisonTotal.lead),
+                total.offer,
+                formatDeltaLabel(total.offer - comparisonTotal.offer),
+                total.pendingOffer,
+                formatDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer),
+                total.onboard,
+                formatDeltaLabel(total.onboard - comparisonTotal.onboard)
+            ];
+            if (includeStillActive) {
+                totalRow.push(
+                    total.stillActive,
+                    formatDeltaLabel(total.stillActive - comparisonTotal.stillActive)
+                );
+            }
+            totalRow.push(
+                formatRate(total.referralMembers, total.members),
+                formatAchieveRate(total.offer, total.leaders.size),
+                formatAchieveRate(total.onboard, total.leaders.size)
+            );
+            dataRows.push(totalRow);
+
+            const lines = buildBreakdownExportLines(
+                'Network Team Leader Brand Breakdown',
+                getCurrentStudyFilterEntries(),
+                headers,
+                dataRows
+            );
+            downloadCsvFile(`network_team_leader_brand_breakdown_${getBreakdownExportFileSuffix()}.csv`, lines);
+        }
+
+        function downloadFloorBreakdown() {
+            const selectedRange = getSelectedDateRange();
+            if (!selectedRange) return;
+
+            const leaders = getFilteredLeaders();
+            const comparisonRange = getComparisonDateRange(selectedRange);
+            const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
+            const { floorRows } = summarizeBreakdowns(leaders);
+            const { floorRows: comparisonFloorRows } = summarizeBreakdowns(comparisonLeaders);
+            const { floorBrandFilterValue, filteredRows, filteredComparisonRows } = getFilteredFloorBreakdownRows(floorRows, comparisonFloorRows);
+            const sortedRows = sortFloorBreakdownRows(filteredRows);
+            const comparisonLookup = buildBreakdownLookup(filteredComparisonRows);
+            const total = summarizeFloorBreakdownRows(filteredRows);
+            const comparisonTotal = summarizeFloorBreakdownRows(filteredComparisonRows);
+            const includeStillActive = filteredRows.some(row => row.stillActive != null) || filteredComparisonRows.some(row => row.stillActive != null);
+
+            const headers = [
+                'Floor / Centre',
+                'Brand Mix',
+                'Network Teams',
+                'Team Members',
+                'Lead',
+                'Lead Delta',
+                'Offer',
+                'Offer Delta',
+                'Pending Offer',
+                'Pending Offer Delta',
+                'On Board',
+                'On Board Delta'
+            ];
+            if (includeStillActive) {
+                headers.push('Still Active', 'Still Active Delta');
+            }
+            headers.push('Offer Achieve Rate', 'On Board Achieve Rate');
+
+            const dataRows = sortedRows.map(row => {
+                const comparisonRow = comparisonLookup.get(safeTrim(row.label));
+                const values = [
+                    row.label,
+                    Array.from(row.brands || []).sort((a, b) => a.localeCompare(b, 'en')).join(', ') || '-',
+                    row.leaders.size,
+                    row.members,
+                    row.lead,
+                    formatDeltaLabel(row.lead - (comparisonRow?.lead || 0)),
+                    row.offer,
+                    formatDeltaLabel(row.offer - (comparisonRow?.offer || 0)),
+                    row.pendingOffer || 0,
+                    formatDeltaLabel((row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0)),
+                    row.onboard,
+                    formatDeltaLabel(row.onboard - (comparisonRow?.onboard || 0))
+                ];
+                if (includeStillActive) {
+                    values.push(
+                        row.stillActive || 0,
+                        formatDeltaLabel((row.stillActive || 0) - (comparisonRow?.stillActive || 0))
+                    );
+                }
+                values.push(
+                    formatRate(row.offer, row.lead),
+                    formatRate(row.onboard, row.lead)
+                );
+                return values;
+            });
+
+            const totalRow = [
+                'Total',
+                Array.from(total.brands).sort((a, b) => a.localeCompare(b, 'en')).join(', ') || '-',
+                total.leaders.size,
+                total.members,
+                total.lead,
+                formatDeltaLabel(total.lead - comparisonTotal.lead),
+                total.offer,
+                formatDeltaLabel(total.offer - comparisonTotal.offer),
+                total.pendingOffer,
+                formatDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer),
+                total.onboard,
+                formatDeltaLabel(total.onboard - comparisonTotal.onboard)
+            ];
+            if (includeStillActive) {
+                totalRow.push(
+                    total.stillActive,
+                    formatDeltaLabel(total.stillActive - comparisonTotal.stillActive)
+                );
+            }
+            totalRow.push(
+                formatRate(total.offer, total.lead),
+                formatRate(total.onboard, total.lead)
+            );
+            dataRows.push(totalRow);
+
+            const lines = buildBreakdownExportLines(
+                'Network Team Leader Floor Breakdown',
+                getCurrentStudyFilterEntries([
+                    ['Floor Section Brand', floorBrandFilterValue || 'All Brand'],
+                    ['Floor Sort', `${floorSortKey} (${floorSortDirection})`]
+                ]),
+                headers,
+                dataRows
+            );
+            downloadCsvFile(`network_team_leader_floor_breakdown_${getBreakdownExportFileSuffix()}.csv`, lines);
+        }
+
         function renderBrandTable(rows, comparisonRows = []) {
             const body = document.getElementById('brandTableBody');
             const meta = document.getElementById('brandMeta');
@@ -2567,18 +2888,8 @@
                 return;
             }
 
-            const summarizeRows = sourceRows => sourceRows.reduce((total, row) => {
-                row.leaders.forEach(leader => total.leaders.add(leader));
-                total.members += row.members;
-                total.referralMembers += row.referralMembers || 0;
-                total.lead += row.lead;
-                total.offer += row.offer;
-                total.pendingOffer += row.pendingOffer || 0;
-                total.onboard += row.onboard;
-                return total;
-            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0 });
-            const total = summarizeRows(rows);
-            const comparisonTotal = summarizeRows(comparisonRows);
+            const total = summarizeBrandBreakdownRows(rows);
+            const comparisonTotal = summarizeBrandBreakdownRows(comparisonRows);
 
             body.innerHTML = rows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
@@ -2680,13 +2991,7 @@
             const indicator = document.getElementById('floorSortIndicator');
             updateFloorSectionBrandOptions(rows);
             renderFloorTableHeader();
-            const floorBrandFilterValue = safeTrim(document.getElementById('floorSectionBrandFilter')?.value);
-            const filteredRows = floorBrandFilterValue
-                ? rows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
-                : rows.slice();
-            const filteredComparisonRows = floorBrandFilterValue
-                ? comparisonRows.filter(row => Array.from(row.brands || []).includes(floorBrandFilterValue))
-                : comparisonRows.slice();
+            const { filteredRows, filteredComparisonRows } = getFilteredFloorBreakdownRows(rows, comparisonRows);
             const comparisonLookup = buildBreakdownLookup(filteredComparisonRows);
             meta.textContent = `${filteredRows.length} floors under current filters`;
             if (indicator) {
@@ -2698,30 +3003,9 @@
                 return;
             }
 
-            const sortedRows = filteredRows.slice().sort((a, b) => {
-                const valueA = getFloorSortValue(a, floorSortKey);
-                const valueB = getFloorSortValue(b, floorSortKey);
-                let compared = 0;
-                if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    compared = valueA - valueB;
-                } else {
-                    compared = valueA.toString().localeCompare(valueB.toString(), 'en');
-                }
-                return floorSortDirection === 'asc' ? compared : -compared;
-            });
-
-            const summarizeRows = sourceRows => sourceRows.reduce((total, row) => {
-                row.brands.forEach(brand => total.brands.add(brand));
-                row.leaders.forEach(leader => total.leaders.add(leader));
-                total.members += row.members;
-                total.lead += row.lead;
-                total.offer += row.offer;
-                total.pendingOffer += row.pendingOffer || 0;
-                total.onboard += row.onboard;
-                return total;
-            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0 });
-            const total = summarizeRows(filteredRows);
-            const comparisonTotal = summarizeRows(filteredComparisonRows);
+            const sortedRows = sortFloorBreakdownRows(filteredRows);
+            const total = summarizeFloorBreakdownRows(filteredRows);
+            const comparisonTotal = summarizeFloorBreakdownRows(filteredComparisonRows);
 
             body.innerHTML = sortedRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
