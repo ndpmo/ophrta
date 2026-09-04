@@ -2907,12 +2907,14 @@
 
         function isFloorPerformanceRowInScope(row, floor) {
             const selectedBrand = (document.getElementById('floorPerfBrand')?.value || '').trim().toUpperCase();
+            const selectedFloor = (document.getElementById('floorPerfFloor')?.value || '').trim();
             const rowBrand = (row[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
             const rowFloor = (row[headersS1[S1_IDX.FLOOR]] || '').trim();
             return isOperationLeadSource(row)
                 && isPositionIncluded(row)
                 && isFloorPerformancePositionIncluded(row)
-                && rowFloor === floor
+                && (!floor || rowFloor === floor)
+                && (!selectedFloor || rowFloor === selectedFloor)
                 && (!selectedBrand || rowBrand === selectedBrand);
         }
 
@@ -2946,7 +2948,7 @@
 
             const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', PENDING_OFFER: 'Pending Offer', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
             const rows = getFloorPerformanceMetricRows(floor, metric);
-            title.textContent = `${floor} ${labels[metric] || 'Lead'} Details`;
+            title.textContent = `${floor || 'Grand Total'} ${labels[metric] || 'Lead'} Details`;
             meta.textContent = `${rows.length} record${rows.length === 1 ? '' : 's'}`;
             body.innerHTML = rows.length
                 ? rows.map(row => `
@@ -3039,6 +3041,15 @@
             const rows = [...summaries.values()]
                 .filter(item => !selectedFloor || item.floor === selectedFloor)
                 .sort((a, b) => a.floor.localeCompare(b.floor, 'zh-HK', { numeric: true }));
+            const grandTotal = rows.reduce((total, item) => ({
+                lead: total.lead + item.lead,
+                pending: total.pending + item.pending,
+                rejectWithdraw: total.rejectWithdraw + item.rejectWithdraw,
+                offer: total.offer + item.offer,
+                onboard: total.onboard + item.onboard,
+                pendingOffer: total.pendingOffer + item.pendingOffer,
+                others: total.others + item.others
+            }), { lead: 0, pending: 0, rejectWithdraw: 0, offer: 0, onboard: 0, pendingOffer: 0, others: 0 });
             body.innerHTML = rows.length
                 ? rows.map(item => `
                     <tr class="hover:bg-teal-100 transition font-bold text-center">
@@ -3050,7 +3061,17 @@
                         <td class="border-r border-teal-100 text-emerald-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "ONBOARD")' class="font-black hover:underline">${item.onboard}</button></td>
                         <td class="border-r border-teal-100 text-orange-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "PENDING_OFFER")' class="font-black hover:underline">${item.pendingOffer}</button></td>
                         <td class="text-slate-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail(${JSON.stringify(item.floor)}, "OTHER")' class="font-black hover:underline">${item.others}</button></td>
-                    </tr>`).join('')
+                    </tr>`).join('') + `
+                    <tr class="border-t-2 border-teal-300 bg-teal-100/80 font-black text-center">
+                        <td class="text-left border-r border-teal-200 px-6 uppercase text-teal-950">Grand Total</td>
+                        <td class="border-r border-teal-200 text-indigo-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "LEAD")' class="font-black hover:underline">${grandTotal.lead}</button></td>
+                        <td class="border-r border-teal-200 text-violet-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "PENDING")' class="font-black hover:underline">${grandTotal.pending}</button></td>
+                        <td class="w-28 border-r border-teal-200 text-rose-700 text-xl px-3"><button type="button" onclick='showFloorPerformanceDetail("", "REJECT_WITHDRAW")' class="font-black hover:underline">${grandTotal.rejectWithdraw}</button></td>
+                        <td class="border-r border-teal-200 text-amber-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "OFFER")' class="font-black hover:underline">${grandTotal.offer}</button></td>
+                        <td class="border-r border-teal-200 text-emerald-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "ONBOARD")' class="font-black hover:underline">${grandTotal.onboard}</button></td>
+                        <td class="border-r border-teal-200 text-orange-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "PENDING_OFFER")' class="font-black hover:underline">${grandTotal.pendingOffer}</button></td>
+                        <td class="text-slate-700 text-xl px-4"><button type="button" onclick='showFloorPerformanceDetail("", "OTHER")' class="font-black hover:underline">${grandTotal.others}</button></td>
+                    </tr>`
                 : '<tr><td colspan="8" class="py-8 text-slate-400">No floor records in this selection.</td></tr>';
         }
 
@@ -4337,4 +4358,3 @@
     </script>
 </body>
 </html>
-
