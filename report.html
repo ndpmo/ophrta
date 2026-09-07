@@ -866,7 +866,7 @@
                     <label class="text-xs font-black text-slate-600">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Floor</option></select></label>
                     <label class="text-xs font-black text-slate-600">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Status</option></select></label>
                     <label class="text-xs font-black text-slate-600">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All On Board Status</option></select></label>
-                    <label class="text-xs font-black text-slate-600">Withdrawal / Rejection Reason<select id="exportWithdrawalRejectionReason" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Withdrawal / Rejection Reasons</option></select></label>
+                    <label class="text-xs font-black text-slate-600">Withdrawal / Rejection Reason <span class="text-slate-400 normal-case">(可多選)</span><span class="relative block mt-2"><button type="button" id="exportWithdrawalRejectionReasonButton" onclick="toggleExportWithdrawalRejectionReasonMenu(event)" class="date-selector-input w-full text-left flex items-center justify-between gap-2"><span id="exportWithdrawalRejectionReasonLabel">All Withdrawal / Rejection Reasons</span><span class="text-slate-500 text-lg leading-none">⌄</span></button><span id="exportWithdrawalRejectionReasonMenu" class="hidden absolute z-30 left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-indigo-200 bg-white p-2 shadow-xl normal-case"></span></span></label>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <button type="button" onclick="applyExportDetailsFilters()" class="px-5 py-3 rounded-xl bg-indigo-600 text-white font-black text-sm hover:bg-indigo-700">Filter</button>
@@ -1258,7 +1258,7 @@
         let exportDetailsPage = 0;
         let exportDetailsFiltersConfirmed = false;
         const exportDetailsPageSize = 50;
-        const exportDetailsColumns = ['Brand', 'Floor', 'Candidate', 'Position', 'Source', 'RJ / NJ', 'Lead Date', 'Offer Date', 'On Board Date', 'Status', 'On Board Status', 'Referrer Staff ID', 'Refer By'];
+        const exportDetailsColumns = ['Brand', 'Floor', 'Candidate', 'Position', 'Source', 'RJ / NJ', 'Lead Date', 'Offer Date', 'On Board Date', 'Status', 'On Board Status', 'Details Information', 'Referrer Staff ID', 'Refer By'];
         function exportDetailsText(value) {
             return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
         }
@@ -1269,12 +1269,50 @@
             return (field === 'brand' ? value.toUpperCase() : value) || '(Blank)';
         }
         function setExportDetailsOptions(id, label, values) {
+            if (id === 'exportWithdrawalRejectionReason') {
+                const previous = exportDetailsSelectedValues(id);
+                const unique = [...new Set(values)].sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
+                const menu = document.getElementById('exportWithdrawalRejectionReasonMenu');
+                menu.innerHTML = unique.map((value, index) => `<label class="flex items-start gap-2 rounded-lg px-2 py-2 text-sm font-semibold text-slate-700 hover:bg-indigo-50 cursor-pointer"><input type="checkbox" value="${exportDetailsText(value)}" ${previous.includes(value) ? 'checked' : ''} onchange="updateExportWithdrawalRejectionReasonSelection()" class="mt-0.5 h-4 w-4 accent-indigo-600"><span>${exportDetailsText(value)}</span></label>`).join('') || `<span class="block px-2 py-2 text-sm text-slate-400">No reasons available</span>`;
+                updateExportWithdrawalRejectionReasonLabel();
+                return;
+            }
             const select = document.getElementById(id);
-            const previous = select.value;
+            const previous = select.multiple
+                ? Array.from(select.selectedOptions).map(option => option.value).filter(Boolean)
+                : [select.value].filter(Boolean);
             const unique = [...new Set(values)].sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
             select.innerHTML = `<option value="">${label}</option>` + unique.map(value => `<option value="${exportDetailsText(value)}">${exportDetailsText(value)}</option>`).join('');
-            select.value = unique.includes(previous) ? previous : '';
+            if (select.multiple) {
+                Array.from(select.options).forEach(option => { option.selected = previous.includes(option.value); });
+            } else {
+                select.value = unique.includes(previous[0]) ? previous[0] : '';
+            }
         }
+        function exportDetailsSelectedValues(id) {
+            if (id === 'exportWithdrawalRejectionReason') {
+                return Array.from(document.querySelectorAll('#exportWithdrawalRejectionReasonMenu input:checked')).map(input => input.value);
+            }
+            return Array.from(document.getElementById(id)?.selectedOptions || []).map(option => option.value).filter(Boolean);
+        }
+        function updateExportWithdrawalRejectionReasonLabel() {
+            const selected = exportDetailsSelectedValues('exportWithdrawalRejectionReason');
+            const label = document.getElementById('exportWithdrawalRejectionReasonLabel');
+            if (label) label.textContent = selected.length ? `${selected.length} reason${selected.length === 1 ? '' : 's'} selected` : 'All Withdrawal / Rejection Reasons';
+        }
+        function updateExportWithdrawalRejectionReasonSelection() {
+            updateExportWithdrawalRejectionReasonLabel();
+            clearExportDetailsResults();
+        }
+        function toggleExportWithdrawalRejectionReasonMenu(event) {
+            event.stopPropagation();
+            document.getElementById('exportWithdrawalRejectionReasonMenu').classList.toggle('hidden');
+        }
+        document.addEventListener('click', event => {
+            const menu = document.getElementById('exportWithdrawalRejectionReasonMenu');
+            const button = document.getElementById('exportWithdrawalRejectionReasonButton');
+            if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) menu.classList.add('hidden');
+        });
         function updateExportDetailsFloors() {
             const brand = reportInput('exportBrand');
             setExportDetailsOptions('exportFloor', 'All Floor', dataS1.filter(row => !brand || exportDetailsValue(row, 'brand') === brand).map(row => exportDetailsValue(row, 'floor')));
@@ -1313,10 +1351,11 @@
                 range.startTs = range.start ? getLocalDateFromInput(range.start).getTime() : -Infinity;
                 range.endTs = range.end ? getLocalDateFromInput(range.end).setHours(23, 59, 59, 999) : Infinity;
             });
-            const selections = [['brand', 'exportBrand'], ['floor', 'exportFloor'], ['status', 'exportStatus'], ['onboardStatus', 'exportOnboardStatus'], ['withdrawalRejectionReason', 'exportWithdrawalRejectionReason']].map(([field, id]) => [field, reportInput(id)]);
+            const selections = [['brand', 'exportBrand'], ['floor', 'exportFloor'], ['status', 'exportStatus'], ['onboardStatus', 'exportOnboardStatus']].map(([field, id]) => [field, reportInput(id)]);
+            selections.push(['withdrawalRejectionReason', exportDetailsSelectedValues('exportWithdrawalRejectionReason')]);
             // Independent of the dashboard's date, source and position controls.
             exportDetailsRows = dataS1.filter(row => {
-                if (selections.some(([field, value]) => value && exportDetailsValue(row, field) !== value)) return false;
+                if (selections.some(([field, value]) => Array.isArray(value) ? value.length && !value.includes(exportDetailsValue(row, field)) : value && exportDetailsValue(row, field) !== value)) return false;
                 return ranges.every(range => {
                     if (!range.start && !range.end) return true;
                     const date = parseDate(row[headersS1[range.index]]);
@@ -1336,7 +1375,7 @@
         }
         function exportDetailsCells(row) {
             const field = index => String(row[headersS1[index]] ?? '').trim();
-            return [field(S1_IDX.BRAND), field(S1_IDX.FLOOR), field(S1_IDX.NAME), getS1PositionValue(row), field(5), field(S1_IDX.RJNJ), field(S1_IDX.LEAD_DATE), field(S1_IDX.OFFER_DATE), getS1RecordedOnboardDate(row), field(S1_IDX.STATUS), getS1OnboardStatus(row), field(S1_IDX.STAFF_ID), field(S1_IDX.STAFF_NAME)];
+            return [field(S1_IDX.BRAND), field(S1_IDX.FLOOR), field(S1_IDX.NAME), getS1PositionValue(row), field(5), field(S1_IDX.RJNJ), field(S1_IDX.LEAD_DATE), field(S1_IDX.OFFER_DATE), getS1RecordedOnboardDate(row), field(S1_IDX.STATUS), getS1OnboardStatus(row), field(S1_IDX.WITHDRAWAL_REJECTION_REASON), field(S1_IDX.STAFF_ID), field(S1_IDX.STAFF_NAME)];
         }
         function renderExportDetails() {
             const start = exportDetailsPage * exportDetailsPageSize;
@@ -1352,7 +1391,10 @@
             renderExportDetails();
         }
         function resetExportDetailsFilters() {
-            ['exportLeadStart', 'exportLeadEnd', 'exportOfferStart', 'exportOfferEnd', 'exportBrand', 'exportFloor', 'exportStatus', 'exportOnboardStatus', 'exportWithdrawalRejectionReason'].forEach(id => { document.getElementById(id).value = ''; });
+            ['exportLeadStart', 'exportLeadEnd', 'exportOfferStart', 'exportOfferEnd', 'exportBrand', 'exportFloor', 'exportStatus', 'exportOnboardStatus'].forEach(id => { document.getElementById(id).value = ''; });
+            document.querySelectorAll('#exportWithdrawalRejectionReasonMenu input:checked').forEach(input => { input.checked = false; });
+            updateExportWithdrawalRejectionReasonLabel();
+            document.getElementById('exportWithdrawalRejectionReasonMenu').classList.add('hidden');
             updateExportDetailsFloors();
             document.getElementById('exportDetailsError').classList.add('hidden');
             clearExportDetailsResults();
