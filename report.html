@@ -355,6 +355,10 @@
         </div>
 
         <!-- Lead 蝯梯?? -->
+        <div class="flex flex-wrap items-center gap-3 mb-5">
+            <button type="button" onclick="downloadBrandLevel()" class="px-5 py-3 rounded-xl bg-violet-600 text-white font-black text-sm shadow-sm hover:bg-violet-700">Brand Level Download</button>
+            <span class="text-xs font-bold text-slate-500">CSV：篩選日期及各項數據</span>
+        </div>
         <div id="weeklyLeadArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4 mb-6">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase text-left">LEAD 統計 <span class="font-cyber text-violet-500 ml-2">MTD LEADS</span></h2>
@@ -703,7 +707,10 @@
         <!-- Floor Performance -->
         <div id="floorPerformanceArea" class="mb-16 text-left hidden">
             <div class="flex flex-col gap-4 mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Floor Performance <span class="font-cyber text-teal-500 ml-2">BY FLOOR</span></h2>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Floor Performance <span class="font-cyber text-teal-500 ml-2">BY FLOOR</span></h2>
+                    <button type="button" onclick="downloadFloorPerformance()" class="px-5 py-3 rounded-xl bg-teal-600 text-white font-black text-sm shadow-sm hover:bg-teal-700">Floor Download</button>
+                </div>
                 <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left z-10">
                     <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
                         <span class="filter-label ml-1 text-teal-700">Brand:</span>
@@ -840,6 +847,45 @@
         <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl">Enter Staff ID to Start_</div>
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2"><p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p></div>
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left"><span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
+        <section id="downloadDetailsArea" class="hidden mb-16 mt-12 text-left">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase mb-5">Download Details <span class="text-indigo-500">Independent Filters</span></h2>
+            <div class="cyber-card p-5 md:p-6 space-y-5">
+                <p class="text-sm font-bold text-slate-500">獨立篩選所有已載入嘅明細（包括 HR / Operations 及所有 Position）。Date Range 按 Lead Date；留空代表不限。填寫多個條件時，明細須同時符合全部條件。</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-xl p-3">
+                        <legend class="px-1 text-xs font-black text-indigo-700">Date Range Filter (Lead Date)</legend>
+                        <div class="flex items-center gap-2"><input type="date" id="exportLeadStart" aria-label="Details Lead Date From" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"><span class="text-xs text-slate-400">至</span><input type="date" id="exportLeadEnd" aria-label="Details Lead Date To" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"></div>
+                    </fieldset>
+                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-xl p-3">
+                        <legend class="px-1 text-xs font-black text-indigo-700">Offer Date Range</legend>
+                        <div class="flex items-center gap-2"><input type="date" id="exportOfferStart" aria-label="Details Offer Date From" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"><span class="text-xs text-slate-400">至</span><input type="date" id="exportOfferEnd" aria-label="Details Offer Date To" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"></div>
+                    </fieldset>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+                    <label class="text-xs font-black text-slate-600">Brand<select id="exportBrand" onchange="updateExportDetailsFloors(); clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Brand</option></select></label>
+                    <label class="text-xs font-black text-slate-600">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Floor</option></select></label>
+                    <label class="text-xs font-black text-slate-600">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Status</option></select></label>
+                    <label class="text-xs font-black text-slate-600">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All On Board Status</option></select></label>
+                    <label class="text-xs font-black text-slate-600">Withdrawal / Rejection Reason<select id="exportWithdrawalRejectionReason" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Withdrawal / Rejection Reasons</option></select></label>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" onclick="applyExportDetailsFilters()" class="px-5 py-3 rounded-xl bg-indigo-600 text-white font-black text-sm hover:bg-indigo-700">Filter</button>
+                    <button type="button" onclick="resetExportDetailsFilters()" class="px-5 py-3 rounded-xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200">Reset</button>
+                    <button type="button" id="exportDetailsDownload" onclick="downloadExportDetails()" class="px-5 py-3 rounded-xl bg-teal-600 text-white font-black text-sm hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed">Download Details (CSV)</button>
+                </div>
+                <p id="exportDetailsError" role="alert" class="hidden text-sm font-bold text-rose-600"></p>
+                <div id="exportDetailsList" class="hidden">
+                <div class="overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
+                    <table class="w-full min-w-[1600px] border-collapse text-left"><thead class="bg-indigo-50 text-xs text-indigo-900 uppercase"><tr id="exportDetailsHead"></tr></thead><tbody id="exportDetailsBody" class="divide-y divide-slate-100 text-sm"></tbody></table>
+                </div>
+                <div class="flex flex-wrap items-center justify-end gap-3 text-sm font-bold text-slate-500">
+                    <button type="button" id="exportDetailsPrev" onclick="changeExportDetailsPage(-1)" class="px-3 py-2 rounded-lg bg-slate-100 disabled:opacity-40">Previous</button>
+                    <button type="button" id="exportDetailsNext" onclick="changeExportDetailsPage(1)" class="px-3 py-2 rounded-lg bg-slate-100 disabled:opacity-40">Next</button>
+                </div>
+                </div>
+                <p class="text-xs text-slate-400">下載全部符合條件嘅明細，格式為 Excel 可開啟嘅 UTF-8 CSV。</p>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -888,7 +934,7 @@
         const excludedCoreTeamNames = new Set(['chris mak', 'chirs mak']);
         
         // 甈???撠銵?(A甈?0, B甈?1, C甈?2...)
-        const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 36, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 37, LEAD_DATE: 35, STATUS: 23 };
+        const S1_IDX = { BRAND: 0, FLOOR: 11, OFFER_DATE: 36, RJNJ: 12, NAME: 13, STAFF_ID: 9, STAFF_NAME: 10, ONBOARD_DATE: 37, LEAD_DATE: 35, STATUS: 23, WITHDRAWAL_REJECTION_REASON: 26 };
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         // TA Flow ?交?靘?甈?
         // Lead Date = B,C,D -> CV Date(35) / Offer Date = P,Q,R -> Offer Date(36) / On board Date = T,U,V -> Onboard Date(37)
@@ -1132,6 +1178,210 @@
             if (leadHeader) row[leadHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.LEAD, row[leadHeader]);
             if (offerHeader) row[offerHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.OFFER, row[offerHeader]);
             if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
+        }
+        function downloadReportCsv(filename, rows) {
+            const csv = '\uFEFF' + rows.map(row => row.map(value => {
+                // Keep spreadsheet formulas inert while preserving numeric counts.
+                const safe = typeof value === 'string' && /^[\s]*[=+@-]/.test(value) ? "'" + value : value;
+                return csvEscape(safe);
+            }).join(',')).join('\r\n');
+            const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        function reportDownloadReady() {
+            if (!document.getElementById('loadingStatus')?.classList.contains('hidden')) {
+                alert('數據載入中，請稍後再下載。');
+                return false;
+            }
+            return true;
+        }
+        function reportInput(id) {
+            return document.getElementById(id)?.value || '';
+        }
+        function reportPositionSelection() {
+            return !positionFilterInitialized || selectedPositions.length === availablePositions.length
+                ? 'All Position' : selectedPositions.join('; ') || 'No Position';
+        }
+        function reportDateRangeValid(startId, endId) {
+            const start = reportInput(startId), end = reportInput(endId);
+            if (!start || !end || start > end) {
+                alert('請先選擇有效嘅開始及結束日期。');
+                return false;
+            }
+            return true;
+        }
+        function downloadBrandLevel() {
+            if (!reportDownloadReady()) return;
+            const sections = [
+                { item: 'Lead', prefix: 'weekly-lead', hr: 'weekly-lead-hr', start: 'leadStart', end: 'leadEnd', date: 'Lead Date (AC)', compare: 'compareDate' },
+                { item: 'Offer', prefix: 'weekly', hr: 'weekly-offer-hr', start: 'offerStart', end: 'offerEnd', date: 'Offer Date', compare: 'offerCompareDate' },
+                { item: 'Pending Offer', prefix: 'pending', hr: 'pending-hr', start: 'pendingStart', end: 'pendingEnd', date: 'Offer Date', compare: 'compareDate' },
+                { item: 'On Board', prefix: 'onboard', hr: 'onboard-hr', start: 'onboardStart', end: 'onboardEnd', date: 'On Board Date', compare: 'compareDate' }
+            ];
+            if (!sections.every(s => reportDateRangeValid(s.start, s.end))) return;
+            const useOb = document.getElementById('useObFilter')?.checked;
+            if (useOb && !reportDateRangeValid('obOfferStart', 'obOfferEnd')) return;
+            const rows = [
+                ['Report', 'Brand Level'], ['Downloaded At', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'],
+                ['Position Filter', reportPositionSelection()],
+                ['Note', '數據跟隨畫面；Total 不包括 BS，BS 另列。HR SOURCES 為獨立來源。'], [],
+                ['Item', 'Source', 'Brand', 'Breakdown', 'Count', 'Date Filter', 'Filter Start', 'Filter End', 'Compare Date', 'Change vs Compare', 'On Board Filter Applied', 'On Board Start', 'On Board End']
+            ];
+            sections.forEach(s => {
+                const add = (id, source, brand, breakdown) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const copy = el.cloneNode(true);
+                    copy.querySelectorAll('.count-delta').forEach(node => node.remove());
+                    const count = Number(copy.textContent.replace(/^(RJ|NJ|BS):\s*/i, '').replace(/,/g, '').trim());
+                    const delta = el.querySelector('.count-delta')?.textContent.replace(/[(),\s]/g, '');
+                    const obApplied = s.item === 'Offer' && useOb;
+                    const comparison = getComparisonDateRange(getLocalDateFromInput(reportInput(s.start)), getLocalDateFromInput(reportInput(s.end)));
+                    rows.push([s.item, source, brand, breakdown, count, s.date, reportInput(s.start), reportInput(s.end), comparison ? formatDateToISO(comparison.end) : 'Not applied', delta ? Number(delta) : '', obApplied ? 'Yes' : 'No', obApplied ? reportInput('obOfferStart') : '', obApplied ? reportInput('obOfferEnd') : '']);
+                };
+                ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
+                    ['total', 'rj', 'nj', 'bs'].forEach(part => add(`${s.prefix}-${part}-${brand}`, 'Operations', brand, part === 'total' ? 'Total' : part.toUpperCase()));
+                });
+                add(`${s.hr}-total`, 'HR SOURCES', 'All Brand', 'Total');
+                ['DERMES', 'REENEX', 'ELYZE', 'OTHER'].forEach(brand => add(`${s.hr}-${brand}`, 'HR SOURCES', brand, 'Total'));
+                add(`${s.hr}-BS`, 'HR SOURCES', 'All Brand', 'BS');
+            });
+            downloadReportCsv(`Brand_Level_${reportInput('leadStart')}_${reportInput('leadEnd')}.csv`, rows);
+        }
+        let exportDetailsRows = [];
+        let exportDetailsPage = 0;
+        let exportDetailsFiltersConfirmed = false;
+        const exportDetailsPageSize = 50;
+        const exportDetailsColumns = ['Brand', 'Floor', 'Candidate', 'Position', 'Source', 'RJ / NJ', 'Lead Date', 'Offer Date', 'On Board Date', 'Status', 'On Board Status', 'Referrer Staff ID', 'Refer By'];
+        function exportDetailsText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+        }
+        function exportDetailsValue(row, field) {
+            if (field === 'onboardStatus') return getS1OnboardStatus(row) || '(Blank)';
+            const index = { brand: S1_IDX.BRAND, floor: S1_IDX.FLOOR, status: S1_IDX.STATUS, withdrawalRejectionReason: S1_IDX.WITHDRAWAL_REJECTION_REASON }[field];
+            const value = String(row[headersS1[index]] ?? '').trim();
+            return (field === 'brand' ? value.toUpperCase() : value) || '(Blank)';
+        }
+        function setExportDetailsOptions(id, label, values) {
+            const select = document.getElementById(id);
+            const previous = select.value;
+            const unique = [...new Set(values)].sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
+            select.innerHTML = `<option value="">${label}</option>` + unique.map(value => `<option value="${exportDetailsText(value)}">${exportDetailsText(value)}</option>`).join('');
+            select.value = unique.includes(previous) ? previous : '';
+        }
+        function updateExportDetailsFloors() {
+            const brand = reportInput('exportBrand');
+            setExportDetailsOptions('exportFloor', 'All Floor', dataS1.filter(row => !brand || exportDetailsValue(row, 'brand') === brand).map(row => exportDetailsValue(row, 'floor')));
+        }
+        function initializeExportDetails() {
+            setExportDetailsOptions('exportBrand', 'All Brand', dataS1.map(row => exportDetailsValue(row, 'brand')));
+            setExportDetailsOptions('exportStatus', 'All Status', dataS1.map(row => exportDetailsValue(row, 'status')));
+            setExportDetailsOptions('exportOnboardStatus', 'All On Board Status', dataS1.map(row => exportDetailsValue(row, 'onboardStatus')));
+            setExportDetailsOptions('exportWithdrawalRejectionReason', 'All Withdrawal / Rejection Reasons', dataS1.map(row => exportDetailsValue(row, 'withdrawalRejectionReason')));
+            updateExportDetailsFloors();
+            document.getElementById('exportDetailsHead').innerHTML = exportDetailsColumns.map(label => `<th class="px-3 py-3 whitespace-nowrap">${label}</th>`).join('');
+            document.getElementById('downloadDetailsArea').classList.remove('hidden');
+            clearExportDetailsResults();
+        }
+        function clearExportDetailsResults() {
+            exportDetailsFiltersConfirmed = false;
+            exportDetailsRows = [];
+            exportDetailsPage = 0;
+            document.getElementById('exportDetailsList').classList.add('hidden');
+            document.getElementById('exportDetailsDownload').disabled = true;
+        }
+        function applyExportDetailsFilters() {
+            const ranges = [
+                { label: 'Lead Date', start: reportInput('exportLeadStart'), end: reportInput('exportLeadEnd'), index: S1_IDX.LEAD_DATE },
+                { label: 'Offer Date', start: reportInput('exportOfferStart'), end: reportInput('exportOfferEnd'), index: S1_IDX.OFFER_DATE }
+            ];
+            const invalid = ranges.find(range => range.start && range.end && range.start > range.end);
+            const error = document.getElementById('exportDetailsError');
+            error.textContent = invalid ? `${invalid.label}：開始日期唔可以遲過結束日期。` : '';
+            error.classList.toggle('hidden', !invalid);
+            if (invalid) {
+                clearExportDetailsResults();
+                return false;
+            }
+            ranges.forEach(range => {
+                range.startTs = range.start ? getLocalDateFromInput(range.start).getTime() : -Infinity;
+                range.endTs = range.end ? getLocalDateFromInput(range.end).setHours(23, 59, 59, 999) : Infinity;
+            });
+            const selections = [['brand', 'exportBrand'], ['floor', 'exportFloor'], ['status', 'exportStatus'], ['onboardStatus', 'exportOnboardStatus'], ['withdrawalRejectionReason', 'exportWithdrawalRejectionReason']].map(([field, id]) => [field, reportInput(id)]);
+            // Independent of the dashboard's date, source and position controls.
+            exportDetailsRows = dataS1.filter(row => {
+                if (selections.some(([field, value]) => value && exportDetailsValue(row, field) !== value)) return false;
+                return ranges.every(range => {
+                    if (!range.start && !range.end) return true;
+                    const date = parseDate(row[headersS1[range.index]]);
+                    return date && date.getTime() >= range.startTs && date.getTime() <= range.endTs;
+                });
+            }).sort((a, b) => {
+                const dateA = parseDate(a[headersS1[S1_IDX.LEAD_DATE]])?.getTime() || 0;
+                const dateB = parseDate(b[headersS1[S1_IDX.LEAD_DATE]])?.getTime() || 0;
+                return dateB - dateA || String(a[headersS1[S1_IDX.NAME]] || '').localeCompare(String(b[headersS1[S1_IDX.NAME]] || ''), 'zh-HK');
+            });
+            exportDetailsPage = 0;
+            exportDetailsFiltersConfirmed = true;
+            document.getElementById('exportDetailsList').classList.remove('hidden');
+            document.getElementById('exportDetailsDownload').disabled = !exportDetailsRows.length;
+            renderExportDetails();
+            return true;
+        }
+        function exportDetailsCells(row) {
+            const field = index => String(row[headersS1[index]] ?? '').trim();
+            return [field(S1_IDX.BRAND), field(S1_IDX.FLOOR), field(S1_IDX.NAME), getS1PositionValue(row), field(5), field(S1_IDX.RJNJ), field(S1_IDX.LEAD_DATE), field(S1_IDX.OFFER_DATE), getS1RecordedOnboardDate(row), field(S1_IDX.STATUS), getS1OnboardStatus(row), field(S1_IDX.STAFF_ID), field(S1_IDX.STAFF_NAME)];
+        }
+        function renderExportDetails() {
+            const start = exportDetailsPage * exportDetailsPageSize;
+            const rows = exportDetailsRows.slice(start, start + exportDetailsPageSize);
+            document.getElementById('exportDetailsBody').innerHTML = rows.length
+                ? rows.map(row => `<tr class="hover:bg-indigo-50">${exportDetailsCells(row).map(cell => `<td class="px-3 py-3 whitespace-nowrap">${exportDetailsText(cell || '-')}</td>`).join('')}</tr>`).join('')
+                : `<tr><td colspan="${exportDetailsColumns.length}" class="px-3 py-8 text-center text-slate-400">No matching records</td></tr>`;
+            document.getElementById('exportDetailsPrev').disabled = exportDetailsPage === 0;
+            document.getElementById('exportDetailsNext').disabled = start + exportDetailsPageSize >= exportDetailsRows.length;
+        }
+        function changeExportDetailsPage(delta) {
+            exportDetailsPage = Math.max(0, Math.min(Math.max(0, Math.ceil(exportDetailsRows.length / exportDetailsPageSize) - 1), exportDetailsPage + delta));
+            renderExportDetails();
+        }
+        function resetExportDetailsFilters() {
+            ['exportLeadStart', 'exportLeadEnd', 'exportOfferStart', 'exportOfferEnd', 'exportBrand', 'exportFloor', 'exportStatus', 'exportOnboardStatus', 'exportWithdrawalRejectionReason'].forEach(id => { document.getElementById(id).value = ''; });
+            updateExportDetailsFloors();
+            document.getElementById('exportDetailsError').classList.add('hidden');
+            clearExportDetailsResults();
+        }
+        function downloadExportDetails() {
+            if (!exportDetailsFiltersConfirmed || !exportDetailsRows.length) return;
+            downloadReportCsv(`Details_${formatDateToISO(new Date())}.csv`, [exportDetailsColumns, ...exportDetailsRows.map(exportDetailsCells)]);
+        }
+        function downloadFloorPerformance() {
+            if (!reportDownloadReady() || !reportDateRangeValid('floorPerfStart', 'floorPerfEnd')) return;
+            const table = document.getElementById('floorPerformanceBody')?.closest('table');
+            if (!table) return;
+            const selectedLabel = id => document.getElementById(id)?.selectedOptions[0]?.textContent.trim() || '';
+            const rows = [
+                ['Report', 'Floor Performance'], ['Downloaded At', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'],
+                ['Filter Start', reportInput('floorPerfStart')], ['Filter End', reportInput('floorPerfEnd')],
+                ['Brand Filter', selectedLabel('floorPerfBrand')], ['Floor Filter', selectedLabel('floorPerfFloor')],
+                ['Position Filter', selectedLabel('floorPerfPosition')], ['Global Position Filter', reportPositionSelection()],
+                ['Date Basis', 'Lead / Pending / Reject / Withdraw / Other: Lead Date; Offer / Pending Offer: Offer Date; On Board: On Board Date'],
+                ['Other', 'Offered, passed On Board Date, but No Show / Reject / Withdraw'], [],
+                Array.from(table.querySelectorAll('thead th'), cell => cell.innerText.replace(/\s+/g, ' ').trim())
+            ];
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                rows.push(Array.from(tr.cells, (cell, index) => {
+                    const value = cell.textContent.trim();
+                    return index > 0 && /^\d[\d,]*$/.test(value) ? Number(value.replace(/,/g, '')) : value;
+                }));
+            });
+            downloadReportCsv(`Floor_${reportInput('floorPerfStart')}_${reportInput('floorPerfEnd')}.csv`, rows);
         }
         function csvEscape(v) {
             const s = (v ?? "").toString();
@@ -1559,6 +1809,7 @@
         }
 
         function isBatchSourceIncluded(row) {
+            if (isExcludedPendingOfferRow(row)) return false;
             if (selectedBatchSource === "HR") return isHrLeadSource(row);
             if (selectedBatchSource === "OPERATION") return isOperationLeadSource(row);
             return isBatchLeadSource(row);
@@ -2921,6 +3172,7 @@
             return isOperationLeadSource(row)
                 && isPositionIncluded(row)
                 && isFloorPerformancePositionIncluded(row)
+                && getFloorSheetFloors(selectedBrand).includes(rowFloor)
                 && (!floor || rowFloor === floor)
                 && (!selectedFloor || rowFloor === selectedFloor)
                 && (!selectedBrand || rowBrand === selectedBrand);
@@ -3001,7 +3253,7 @@
             endInput.value = formatDateToISO(today);
 
             const brands = ['DERMES', 'REENEX', 'ELYZE'];
-            brandSelect.innerHTML = brands.map(brand => `<option value="${brand}">${brand.charAt(0) + brand.slice(1).toLowerCase()}</option>`).join('');
+            brandSelect.innerHTML = '<option value="">All Brand</option>' + brands.map(brand => `<option value="${brand}">${brand.charAt(0) + brand.slice(1).toLowerCase()}</option>`).join('');
             brandSelect.value = 'DERMES';
             populateFloorPerformancePositionOptions();
             updateFloorPerformanceFloorOptions();
@@ -3743,6 +3995,7 @@
                     headersS1 = res.meta.fields;
                     dataS1 = res.data.filter(row => !excludedNames.includes((row[headersS1[S1_IDX.STAFF_NAME]]||"").trim().toLowerCase()));
                     dataS1.forEach(hydrateS1DateFields);
+                    initializeExportDetails();
                     const ah1Time = headersS1[33] || "Staff number";
                     const updateEl = document.getElementById('lastUpdateDisplay');
                     if (updateEl) updateEl.innerText = `同步：${ah1Time}`;
