@@ -669,6 +669,13 @@
                                     <option value="">All Floor</option>
                                 </select>
                             </div>
+                            <div class="flex items-center gap-2">
+                                <label for="detailPositionFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Position</label>
+                                <select id="detailPositionFilter" class="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none min-w-[210px]">
+                                    <option value="__EXCLUDE_BS__">All Position (Exclude BS)</option>
+                                    <option value="">All Position</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                             <div class="flex items-center gap-2">
@@ -1321,12 +1328,14 @@
         function updateDetailFilterOptions(rows) {
             const brandSelect = document.getElementById('detailBrandFilter');
             const floorSelect = document.getElementById('detailFloorFilter');
+            const positionSelect = document.getElementById('detailPositionFilter');
             const statusSelect = document.getElementById('detailStatusFilter');
             const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
-            if (!brandSelect || !floorSelect || !statusSelect || !onboardStatusSelect) return;
+            if (!brandSelect || !floorSelect || !positionSelect || !statusSelect || !onboardStatusSelect) return;
 
             const previousBrand = safeTrim(brandSelect.value);
             const previousFloor = safeTrim(floorSelect.value);
+            const previousPosition = positionSelect.value === '' ? '' : safeTrim(positionSelect.value);
             const previousStatus = safeTrim(statusSelect.value);
             const previousOnboardStatus = safeTrim(onboardStatusSelect.value);
 
@@ -1343,7 +1352,19 @@
                 .join('');
             if (previousFloor && floorOptions.includes(previousFloor)) floorSelect.value = previousFloor;
 
-            const scopedRowsForStatus = scopedRows.filter(row => !floorSelect.value || safeTrim(row.center) === floorSelect.value);
+            const scopedRowsForPosition = scopedRows.filter(row => !floorSelect.value || safeTrim(row.center) === floorSelect.value);
+            const positionOptions = getUniqueSorted(scopedRowsForPosition.map(row => safeTrim(row.position)).filter(Boolean));
+            positionSelect.innerHTML = [
+                '<option value="__EXCLUDE_BS__">All Position (Exclude BS)</option>',
+                '<option value="">All Position</option>'
+            ].concat(positionOptions.map(option => `<option value="${option}">${option}</option>`)).join('');
+            if (previousPosition === '__EXCLUDE_BS__' || positionOptions.includes(previousPosition)) positionSelect.value = previousPosition;
+
+            const scopedRowsForStatus = scopedRowsForPosition.filter(row => {
+                if (!positionSelect.value) return true;
+                if (positionSelect.value === '__EXCLUDE_BS__') return !isBeautySpecialistDetailPosition(row.position);
+                return safeTrim(row.position) === positionSelect.value;
+            });
             const statusOptions = getUniqueSorted(scopedRowsForStatus.map(row => safeTrim(row.status)).filter(Boolean));
             statusSelect.innerHTML = ['<option value="">All Status</option>']
                 .concat(statusOptions.map(option => `<option value="${option}">${option}</option>`))
@@ -1369,6 +1390,11 @@
             return normalizeKey(item?.memberName) === item?.leaderKey ? 'LEADER' : 'TEAMMATE';
         }
 
+        function isBeautySpecialistDetailPosition(position) {
+            const normalizedPosition = safeTrim(position).toUpperCase();
+            return normalizedPosition === 'BS' || normalizedPosition === 'BEAUTY SPECIALIST';
+        }
+
         function updateDetailSortIndicators() {
             ['referrerFloor', 'leaderName', 'memberName', 'candidateName', 'brand', 'rjnj', 'status', 'leadDateObj', 'offerDateObj', 'offeredFloor', 'onboardDateObj', 'onboardStatus', 'interviewer']
                 .forEach(key => {
@@ -1391,11 +1417,13 @@
         function resetDetailFilters() {
             const brandSelect = document.getElementById('detailBrandFilter');
             const floorSelect = document.getElementById('detailFloorFilter');
+            const positionSelect = document.getElementById('detailPositionFilter');
             const statusSelect = document.getElementById('detailStatusFilter');
             const onboardStatusSelect = document.getElementById('detailOnboardStatusFilter');
             const referralSelect = document.getElementById('detailReferralFilter');
             if (brandSelect) brandSelect.value = '';
             if (floorSelect) floorSelect.value = '';
+            if (positionSelect) positionSelect.value = '__EXCLUDE_BS__';
             if (statusSelect) statusSelect.value = '';
             if (onboardStatusSelect) onboardStatusSelect.value = '';
             if (referralSelect) referralSelect.value = '';
@@ -1836,6 +1864,7 @@
                             memberBrandKey: member.brandKey || '',
                             memberCenter: member.center || '-',
                             brand: displayBrand(getS1Value(row, S1_IDX.BRAND)),
+                            position: getS1PositionValue(row),
                             center: member.center || '-',
                             rjnj: getS1Value(row, S1_IDX.RJNJ) || '-',
                             candidateName: getS1Value(row, S1_IDX.NAME) || '-',
@@ -3641,12 +3670,18 @@
 
             const detailBrandFilterValue = safeTrim(document.getElementById('detailBrandFilter')?.value);
             const detailFloorFilterValue = safeTrim(document.getElementById('detailFloorFilter')?.value);
+            const detailPositionFilterElement = document.getElementById('detailPositionFilter');
+            const detailPositionFilterValue = detailPositionFilterElement?.value === ''
+                ? ''
+                : safeTrim(detailPositionFilterElement?.value) || '__EXCLUDE_BS__';
             const detailStatusFilterValue = safeTrim(document.getElementById('detailStatusFilter')?.value);
             const detailOnboardStatusFilterValue = safeTrim(document.getElementById('detailOnboardStatusFilter')?.value);
             const detailReferralFilterValue = safeTrim(document.getElementById('detailReferralFilter')?.value);
             rows = rows.filter(item => {
                 if (detailBrandFilterValue && safeTrim(item.brand) !== detailBrandFilterValue) return false;
                 if (detailFloorFilterValue && safeTrim(item.center) !== detailFloorFilterValue) return false;
+                if (detailPositionFilterValue === '__EXCLUDE_BS__' && isBeautySpecialistDetailPosition(item.position)) return false;
+                if (detailPositionFilterValue !== '__EXCLUDE_BS__' && detailPositionFilterValue && safeTrim(item.position) !== detailPositionFilterValue) return false;
                 if (detailStatusFilterValue && safeTrim(item.status) !== detailStatusFilterValue) return false;
                 if (detailOnboardStatusFilterValue && safeTrim(item.onboardStatus) !== detailOnboardStatusFilterValue) return false;
                 if (detailReferralFilterValue && getDetailReferralRole(item) !== detailReferralFilterValue) return false;
@@ -3789,6 +3824,8 @@
             if (detailBrandFilter) detailBrandFilter.value = '';
             const detailFloorFilter = document.getElementById('detailFloorFilter');
             if (detailFloorFilter) detailFloorFilter.value = '';
+            const detailPositionFilter = document.getElementById('detailPositionFilter');
+            if (detailPositionFilter) detailPositionFilter.value = '__EXCLUDE_BS__';
             const detailStatusFilter = document.getElementById('detailStatusFilter');
             if (detailStatusFilter) detailStatusFilter.value = '';
             const detailOnboardStatusFilter = document.getElementById('detailOnboardStatusFilter');
@@ -3843,7 +3880,7 @@
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'leaderOnlyBrandFilter') {
