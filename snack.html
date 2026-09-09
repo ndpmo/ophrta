@@ -1,0 +1,122 @@
+
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>零食錢資格清單</title>
+  <style>
+    :root { --ink:#172533; --muted:#687685; --line:#dfe6ec; --paper:#f5f8fb; --panel:#fff; --blue:#163f63; --aqua:#00a5a0; --green:#128461; --red:#ba3c4c; --gold:#a56a00; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.45 "Segoe UI","Microsoft JhengHei",Arial,sans-serif; }
+    header { padding:30px clamp(18px,4vw,54px) 27px; color:#fff; background:linear-gradient(115deg,#113450,#1f5b75 58%,#00a5a0); }
+    h1 { font-size:clamp(25px,3.4vw,38px); margin:0 0 5px; letter-spacing:.02em; }
+    header p { margin:0; color:#dbeef3; font-size:16px; }
+    main { max-width:1500px; margin:0 auto; padding:24px clamp(16px,3vw,42px) 46px; }
+    .load-card, .controls, .card, .panel, .notice { background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:0 3px 14px #19344a0a; }
+    .load-card { display:flex; flex-wrap:wrap; align-items:center; gap:16px; padding:18px 20px; margin-bottom:18px; }
+    .load-card strong { font-size:16px; }
+    .load-card small { color:var(--muted); display:block; }
+    input[type=file] { max-width:100%; color:var(--muted); }
+    .status { margin-left:auto; color:var(--muted); font-size:14px; }
+    .controls { display:grid; grid-template-columns:1.1fr 1fr 1.7fr 1.2fr auto; gap:12px; padding:15px; margin-bottom:18px; }
+    label { display:grid; gap:5px; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.03em; }
+    select,input[type=month],input[type=search] { min-height:40px; border:1px solid #c9d5df; border-radius:8px; padding:7px 10px; color:var(--ink); background:#fff; font:15px inherit; }
+    button { min-height:40px; align-self:end; border:0; border-radius:8px; padding:8px 15px; background:var(--blue); color:#fff; cursor:pointer; font:600 14px inherit; }
+    button:hover { background:#0d2d47; }
+    .summary { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)); gap:14px; margin-bottom:18px; }
+    .card { padding:17px 19px; border-top:4px solid var(--aqua); }
+    .card:nth-child(2) { border-color:var(--green); }.card:nth-child(3) { border-color:var(--gold); }.card:nth-child(4) { border-color:var(--blue); }
+    .metric { display:block; margin-top:5px; font-size:29px; font-weight:750; line-height:1.05; }
+    .metric-label { color:var(--muted); font-weight:650; font-size:13px; }
+    .grid { display:grid; grid-template-columns:minmax(310px,.9fr) minmax(0,2.1fr); gap:18px; align-items:start; }
+    .panel { overflow:hidden; }
+    .panel h2 { margin:0; padding:16px 18px; border-bottom:1px solid var(--line); font-size:17px; }
+    .table-wrap { overflow:auto; max-height:65vh; }
+    table { width:100%; border-collapse:collapse; white-space:nowrap; }
+    th { position:sticky; top:0; background:#f4f8fa; z-index:1; text-align:left; color:#536373; font-size:12px; letter-spacing:.02em; }
+    th,td { padding:10px 12px; border-bottom:1px solid #edf1f4; vertical-align:top; }
+    tbody tr:hover { background:#f0fbfa; }
+    .amount { font-weight:750; color:var(--green); }.no-amount { color:var(--muted); }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-weight:700; font-size:12px; }.yes { color:#087554; background:#e1f6ee; }.no { color:#a82d40; background:#fde8eb; }.warn { color:#865800; background:#fff4d8; }.neutral { color:#546575; background:#eef2f5; }
+    .reasons { white-space:normal; max-width:250px; color:#9b3040; font-size:13px; }.ok { color:#087554; }
+    .notice { padding:22px; color:var(--muted); text-align:center; }.notice h2 { color:var(--ink); margin:0 0 7px; }.hidden { display:none!important; }
+    .method { margin-top:18px; color:#556675; font-size:13px; }.method summary { cursor:pointer; font-weight:700; }.method ul { padding-left:22px; }
+    @media(max-width:900px) { .controls{grid-template-columns:repeat(2,1fr)} .grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)} .status{margin-left:0;width:100%} }
+    @media(max-width:520px) { .controls{grid-template-columns:1fr}.summary{grid-template-columns:1fr} main{padding:14px 12px 30px} }
+  </style>
+</head>
+<body>
+  <header><h1>零食錢資格清單</h1><p>按品牌及 On Sales Floor 核對符合資格的同事</p></header>
+  <main>
+    <section class="load-card">
+      <div><strong>載入 Foodpanda.xlsx</strong><small>所有資料只會在此瀏覽器內處理，不會上傳。</small></div>
+      <input id="fileInput" type="file" accept=".xlsx,.xls" aria-label="選擇 Foodpanda Excel 檔案">
+      <span class="status" id="status">請選擇已提供的 Foodpanda.xlsx</span>
+    </section>
+    <section id="app" class="hidden">
+      <section class="controls">
+        <label>零食錢月份<input id="month" type="month"></label>
+        <label>品牌<select id="brand"><option value="">全部品牌</option></select></label>
+        <label>On Sales Floor<select id="floor"><option value="">全部 Floor</option></select></label>
+        <label>資格<select id="eligibility"><option value="all">全部候選同事</option><option value="yes">只顯示符合資格</option><option value="no">只顯示未符合資格</option></select></label>
+        <button id="download">下載目前清單 CSV</button>
+      </section>
+      <section class="summary">
+        <article class="card"><span class="metric-label">候選同事</span><strong class="metric" id="candidateCount">0</strong></article>
+        <article class="card"><span class="metric-label">符合資格人數</span><strong class="metric" id="eligibleCount">0</strong></article>
+        <article class="card"><span class="metric-label">零食錢總額</span><strong class="metric" id="totalAmount">$0</strong></article>
+        <article class="card"><span class="metric-label">未符合資格</span><strong class="metric" id="ineligibleCount">0</strong></article>
+      </section>
+      <section class="grid">
+        <article class="panel"><h2>按品牌 / Floor</h2><div class="table-wrap"><table><thead><tr><th>品牌</th><th>On Sales Floor</th><th>ACC</th><th>合資格</th><th>金額</th></tr></thead><tbody id="groupBody"></tbody></table></div></article>
+        <article class="panel"><h2>同事明細</h2><div class="table-wrap"><table><thead><tr><th>Staff ID</th><th>姓名</th><th>品牌</th><th>On Sales Floor</th><th>ACC</th><th>金額</th><th>試用期</th><th>Resign Last Day</th><th>請假日</th><th>結果 / 原因</th></tr></thead><tbody id="detailBody"></tbody></table></div></article>
+      </section>
+      <details class="method"><summary>計算規則及資料欄位</summary><ul><li>Dermes、Reenex、Elyze、Evvus、Vigene 的 On Sales Floor 同事：$90；Operations Support 的 OA：$80。</li><li>cic sheet 內的同事無條件 $90，不受試用期、Resign Last Day 及請假日限制；Floor 使用該 sheet 的 Floor for Foodpanda。</li><li>其他同事必須在 Job movement 有「Probation Confirmed」記錄，並且當月請假少於 14 日。</li><li>Resign Record 的 Last Employment Date 在零食錢月份最後一天或之前，該月不會有零食錢；例如 9 月提出離職、10 月才是最後工作日，仍會有 9 月零食錢。</li><li>請假日以 Leave 的 Start Date 屬於所選月份、Cancelled 不為 Yes、狀態為 Pending 或 Approved 的 Duration 合計；Regular Day Off 不計入。</li><li>ACC 以 Tableu 的 Center 對應 Acc 的 Organization Level 3 Code。未能對應會顯示「未對應」。</li><li>個別資料缺失會列為未符合資格，方便跟進。</li></ul></details>
+    </section>
+    <section class="notice" id="empty"><h2>等待載入資料</h2><div>選擇 Foodpanda.xlsx 後，系統會按 Staff ID 合併 Staff List、Tableu、Resign Record、Leave、Job movement 及 Acc。</div></section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+  (() => {
+    const $ = id => document.getElementById(id); let records = [];
+    const norm = v => { const s=String(v??'').trim(); return /^\d+(\.0+)?$/.test(s) ? String(Number(s)) : s; };
+    const clean = v => String(v??'').trim();
+    const date = v => { if (v instanceof Date && !isNaN(v)) return v; if (typeof v==='number') return new Date(Math.round((v-25569)*86400*1000)); const s=clean(v); if(!s)return null; let d=new Date(s); if(!isNaN(d))return d; const m=s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/); return m ? new Date(+m[3],+m[2]-1,+m[1]) : null; };
+    const iso = d => d ? d.toISOString().slice(0,10) : '';
+    const headerIndex = row => Object.fromEntries(row.map((v,i)=>[clean(v).replace(/\s+/g,' ').toLowerCase(),i]));
+    const get = (r,h,n) => r[h[n.toLowerCase()]];
+    const rows = (book, name) => { const sheet=book.SheetNames.find(x=>x.trim().toLowerCase()===name.toLowerCase()); if(!sheet) throw new Error(`找不到工作表：${name}`); return XLSX.utils.sheet_to_json(book.Sheets[sheet],{header:1,defval:'',raw:false}); };
+    const optionalRows = (book, name) => { const sheet=book.SheetNames.find(x=>x.trim().toLowerCase()===name.toLowerCase()); return sheet ? XLSX.utils.sheet_to_json(book.Sheets[sheet],{header:1,defval:'',raw:false}) : null; };
+    const unique = a => [...new Set(a.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    const isTruthy = v => /^(yes|y|true)$/i.test(clean(v));
+    function build(book) {
+      const staffRows=rows(book,'Staff List'), resignRows=rows(book,'Resign Record'), tableauRows=rows(book,'Tableu'), leaveRows=rows(book,'Leave'), moveRows=rows(book,'Job movement'), accRows=rows(book,'Acc'), cicRows=optionalRows(book,'cic');
+      const [sh,rh,th,lh,mh,ah]=[staffRows,resignRows,tableauRows,leaveRows,moveRows,accRows].map(x=>headerIndex(x[0]));
+      const staff=new Map(); staffRows.slice(1).forEach(r=>{const id=norm(get(r,sh,'Employee No')); if(id) staff.set(id,{id,name:clean(get(r,sh,'Employee Name')),company:clean(get(r,sh,'Organization Level 1 Description')),org2:clean(get(r,sh,'Organization Level 2 Description')),org3:clean(get(r,sh,'Organization Level 3 Code')),positionCode:clean(get(r,sh,'Job Position Code')),position:clean(get(r,sh,'Job Position Description'))});});
+      const sales=new Map(); tableauRows.slice(1).forEach(r=>{const id=norm(get(r,th,'Therapist Staff No')); const rawBrand=clean(get(r,th,'Brand')).toLowerCase(); const brand=rawBrand==='gratus.dc'?'evvus':rawBrand; if(id && !sales.has(id)) sales.set(id,{brand,floor:clean(get(r,th,'Center'))});});
+      const resign=new Map(); resignRows.slice(1).forEach(r=>{const id=norm(get(r,rh,'Staff No.')); const d=date(get(r,rh,'Last Employment Date')); if(id&&d&&(!resign.has(id)||d>resign.get(id))) resign.set(id,d);});
+      const confirmed=new Map(); moveRows.slice(1).forEach(r=>{const id=norm(get(r,mh,'Employee No')); const reason=clean(get(r,mh,'Job Reason Description')); const d=date(get(r,mh,'Effective Date')); if(id&&/^Probation Confirmed/i.test(reason)&&d&&(!confirmed.has(id)||d>confirmed.get(id))) confirmed.set(id,d);});
+      const leaves=new Map(); leaveRows.slice(1).forEach(r=>{ const id=norm(get(r,lh,'Employee No.')); const reason=clean(get(r,lh,'Leave Reason Group')); const d=date(get(r,lh,'Start Date')); const dur=Number(get(r,lh,'Duration'))||0; const valid=id&&d&&!isTruthy(get(r,lh,'Cancelled'))&&/^(pending|approved)$/i.test(clean(get(r,lh,'Status')))&&!/^Regular Day Off$/i.test(reason); if(valid){ const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; if(!leaves.has(id))leaves.set(id,{}); leaves.get(id)[key]=(leaves.get(id)[key]||0)+dur; } });
+      const acc=new Map(); accRows.slice(1).forEach(r=>{const floor=clean(get(r,ah,'Organization Level 3 Code')); if(floor)acc.set(floor,clean(get(r,ah,'Foodpanda Code')));});
+      const cic=new Map(); if(cicRows&&cicRows.length){ const ch=headerIndex(cicRows[0]); cicRows.slice(1).forEach(r=>{const id=norm(get(r,ch,'Non On-sale CIC Staff ID')); if(id)cic.set(id,{name:clean(get(r,ch,'Name')),floor:clean(get(r,ch,'Floor for Foodpanda')),position:clean(get(r,ch,'Position'))});}); }
+      const candidates=new Set([...sales.keys(), ...cic.keys(), ...[...staff.values()].filter(p=>/operations support/i.test(p.org2)&&/^OA$/i.test(p.positionCode)).map(p=>p.id)]);
+      records=[...candidates].map(id=>{ const cicPerson=cic.get(id); const person=staff.get(id)||{id,name:cicPerson?.name||'未能於 Staff List 找到',company:'',org2:'',org3:'',positionCode:'',position:cicPerson?.position||''}; const on=sales.get(id); const osOA=/operations support/i.test(person.org2)&&/^OA$/i.test(person.positionCode); const brand=cicPerson?'cic':(on?on.brand:(osOA?'os':'')); const floor=cicPerson?(cicPerson.floor||'CIC / 未有 Floor'):(on?on.floor:(person.org3||'OS / 未有 Tableu Floor')); const rate=cicPerson?90:(['dermes','reenex','elyze','evvus','vigene'].includes(brand)?90:(osOA?80:0)); return {...person,brand,floor,acc:(on||cicPerson)?(acc.get(floor)||'未對應'):'—',rate,isCic:!!cicPerson,probation:confirmed.get(id)||null,resign:resign.get(id)||null,leaves:leaves.get(id)||{}}; });
+      const allMonths=unique([...leaves.values()].flatMap(x=>Object.keys(x))); $('month').value=allMonths.at(-1)||new Date().toISOString().slice(0,7); populate(); render();
+    }
+    function populate(){ const selectedBrand=$('brand').value, selectedFloor=$('floor').value; $('brand').innerHTML='<option value="">全部品牌</option>'+unique(records.map(r=>r.brand)).map(x=>`<option ${x===selectedBrand?'selected':''} value="${esc(x)}">${esc(labelBrand(x))}</option>`).join(''); $('floor').innerHTML='<option value="">全部 Floor</option>'+unique(records.map(r=>r.floor)).map(x=>`<option ${x===selectedFloor?'selected':''} value="${esc(x)}">${esc(x)}</option>`).join(''); }
+    function labelBrand(b){return b==='os'?'OS (OA)':b==='cic'?'CIC':b?b[0].toUpperCase()+b.slice(1):'未分類';}
+    function outcome(r){ const month=$('month').value; const leave=r.leaves[month]||0, reasons=[]; const [year,mon]=month.split('-').map(Number); const monthEnd=month?new Date(year,mon,0):null; if(r.isCic)return {leave,reasons,eligible:true}; if(!r.rate) reasons.push('不屬合資格品牌／OS OA'); if(!r.probation) reasons.push('未有 Probation Confirmed'); if(r.resign&&monthEnd&&r.resign<=monthEnd) reasons.push('Last Working Day 在本月或之前'); if(leave>=14) reasons.push(`請假 ${leave} 日（不少於 14）`); return {leave,reasons,eligible:reasons.length===0}; }
+    function filtered(){ const b=$('brand').value, f=$('floor').value, e=$('eligibility').value; return records.map(r=>({...r,...outcome(r)})).filter(r=>(!b||r.brand===b)&&(!f||r.floor===f)&&(e==='all'||(e==='yes')===r.eligible)).sort((a,b)=>a.brand.localeCompare(b.brand)||a.floor.localeCompare(b.floor)||a.name.localeCompare(b.name)); }
+    function esc(v){return clean(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+    function render(){ const list=filtered(), eligible=list.filter(r=>r.eligible), total=eligible.reduce((n,r)=>n+r.rate,0); $('candidateCount').textContent=list.length; $('eligibleCount').textContent=eligible.length; $('totalAmount').textContent='$'+total.toLocaleString(); $('ineligibleCount').textContent=list.length-eligible.length;
+      const groups=new Map(); list.forEach(r=>{const key=[r.brand,r.floor,r.acc].join('\u0001'); if(!groups.has(key))groups.set(key,{...r,count:0,amount:0}); const g=groups.get(key); if(r.eligible){g.count++;g.amount+=r.rate;}}); $('groupBody').innerHTML=[...groups.values()].sort((a,b)=>a.brand.localeCompare(b.brand)||a.floor.localeCompare(b.floor)).map(g=>`<tr><td>${esc(labelBrand(g.brand))}</td><td>${esc(g.floor)}</td><td>${esc(g.acc)}</td><td>${g.count}</td><td class="amount">$${g.amount}</td></tr>`).join('')||'<tr><td colspan="5">沒有符合篩選的資料</td></tr>';
+      $('detailBody').innerHTML=list.map(r=>`<tr><td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(labelBrand(r.brand))}</td><td>${esc(r.floor)}</td><td>${esc(r.acc)}</td><td class="${r.eligible?'amount':'no-amount'}">${r.eligible?'$'+r.rate:'—'}</td><td><span class="pill ${r.probation?'yes':'no'}">${r.probation?iso(r.probation):'未確認'}</span></td><td><span class="pill ${r.resign?'no':'yes'}">${r.resign?iso(r.resign):'沒有'}</span></td><td><span class="pill ${r.leave>=14?'no':r.leave?'warn':'neutral'}">${r.leave}</span></td><td class="reasons ${r.eligible?'ok':''}">${r.eligible?(r.isCic?'CIC 無條件 $90':'符合資格'):esc(r.reasons.join('；'))}</td></tr>`).join('')||'<tr><td colspan="10">沒有符合篩選的資料</td></tr>';
+    }
+    function download(){ const heads=['Staff ID','Name','Brand','On Sales Floor','ACC','Amount','Probation Confirmed','Resign Last Day','Leave Days','Eligible','Reason']; const data=filtered().map(r=>[r.id,r.name,labelBrand(r.brand),r.floor,r.acc,r.eligible?r.rate:0,r.probation?iso(r.probation):'',r.resign?iso(r.resign):'',r.leave,r.eligible?'Yes':'No',r.reasons.join('; ')]); const csv='\ufeff'+[heads,...data].map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=`Snack_Allowance_${$('month').value||'list'}.csv`; a.click(); URL.revokeObjectURL(a.href); }
+    $('fileInput').addEventListener('change',async e=>{const file=e.target.files[0]; if(!file)return; try { if(!window.XLSX)throw new Error('Excel 讀取套件未能載入，請確認網絡後重試。'); $('status').textContent='正在合併資料…'; const book=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true}); build(book); $('app').classList.remove('hidden'); $('empty').classList.add('hidden'); $('status').textContent=`已載入：${file.name}（${records.length} 位候選同事）`; } catch(err){ console.error(err); $('status').textContent='未能讀取：'+err.message; }});
+    ['month','brand','floor','eligibility'].forEach(id=>$(id).addEventListener('change',()=>{if(id==='brand'||id==='floor')populate(); render();})); $('download').addEventListener('click',download);
+  })();
+  </script>
+</body>
+</html>
