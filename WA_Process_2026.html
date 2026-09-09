@@ -279,7 +279,7 @@
 
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 flex-1">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5 flex-1">
                     <div class="space-y-2">
                         <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
                         <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
@@ -287,6 +287,14 @@
                     <div class="space-y-2">
                         <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
                         <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="offerDateStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date From</label>
+                        <input id="offerDateStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="offerDateEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date To</label>
+                        <input id="offerDateEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
                     </div>
                     <div class="space-y-2">
                         <label for="detailSourceFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Details Source</label>
@@ -305,7 +313,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
 
@@ -319,7 +327,7 @@
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1240px] border-collapse">
+                    <table class="w-full min-w-[1360px] border-collapse">
                         <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
                                 <th class="px-5 py-4 text-left">Brand</th>
@@ -328,6 +336,7 @@
                                 <th class="px-4 py-4 text-left">Lead Date</th>
                                 <th class="px-4 py-4 text-left">Offer Date</th>
                                 <th class="px-4 py-4 text-left">On Board Date</th>
+                                <th class="px-4 py-4 text-left">Last Employment Day</th>
                                 <th class="px-4 py-4 text-left">Status</th>
                                 <th class="px-4 py-4 text-left">On Board Status</th>
                                 <th class="px-4 py-4 text-left">AD / CIC</th>
@@ -358,7 +367,8 @@
             RJNJ: 12,
             LEAD_DATE: 35,
             OFFER_DATE: 36,
-            ONBOARD_DATE: 37
+            ONBOARD_DATE: 37,
+            LAST_EMPLOYMENT_DAY: 52
         };
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
@@ -371,6 +381,7 @@
             LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
             OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
             ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
+            STILL_ACTIVE: { title: 'Still Active Details', accent: '#0891b2', soft: 'rgba(6, 182, 212, 0.12)' },
             PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
             REJECT_WITHDRAW: { title: 'Reject / Withdraw Details', accent: '#dc2626', soft: 'rgba(248, 113, 113, 0.12)' }
         };
@@ -574,6 +585,10 @@
             return cleanText(row?.__rawOnboardDate ?? row?.[headersS1[S1_IDX.ONBOARD_DATE]], '');
         }
 
+        function getLastEmploymentDay(row) {
+            return cleanText(row?.[headersS1[S1_IDX.LAST_EMPLOYMENT_DAY]], '');
+        }
+
         function getCicOwner(row) {
             return cleanText(row?.[headersS1[S1_IDX.CIC]], '');
         }
@@ -591,6 +606,15 @@
             return { start, end: endLimit };
         }
 
+        function getOfferDateRange() {
+            const start = parseDate(document.getElementById('offerDateStart')?.value);
+            const end = parseDate(document.getElementById('offerDateEnd')?.value);
+            if (!start && !end) return null;
+
+            if (end) end.setHours(23, 59, 59, 999);
+            return { start, end };
+        }
+
         function isTargetPosition(row) {
             return cleanText(row?.[headersS1[S1_IDX.POSITION]], '').toUpperCase() === TARGET_POSITION;
         }
@@ -599,6 +623,14 @@
             const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
             if (!leadDate) return false;
             return leadDate >= range.start && leadDate <= range.end;
+        }
+
+        function isInOfferDateRange(row, range) {
+            if (!range) return true;
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !!offerDate
+                && (!range.start || offerDate >= range.start)
+                && (!range.end || offerDate <= range.end);
         }
 
         function isRejectedOrWithdrawn(value) {
@@ -624,6 +656,15 @@
 
         function isOnboardRow(row) {
             return getOnboardStatus(row).toUpperCase().includes('ONBOARD');
+        }
+
+        function hasLastEmploymentDay(row) {
+            const value = getLastEmploymentDay(row).trim().toUpperCase();
+            return !!value && value !== '-' && value !== 'N/A' && value !== '#N/A';
+        }
+
+        function isStillActiveRow(row) {
+            return isOnboardRow(row) && !hasLastEmploymentDay(row);
         }
 
         function getPendingBucket(row) {
@@ -657,6 +698,11 @@
             return dataS1.filter(row => isTargetPosition(row) && isInLeadRange(row, range));
         }
 
+        function getOfferFilteredRows(rows) {
+            const offerRange = getOfferDateRange();
+            return rows.filter(row => isInOfferDateRange(row, offerRange));
+        }
+
         function buildCounts(rows, predicate) {
             const matched = predicate ? rows.filter(predicate) : rows.slice();
             return {
@@ -676,7 +722,8 @@
                 rows: matched,
                 total: matched.length,
                 offer: matched.filter(isOfferRow).length,
-                onboard: matched.filter(isOnboardRow).length
+                onboard: matched.filter(isOnboardRow).length,
+                stillActive: matched.filter(isStillActiveRow).length
             };
         }
 
@@ -805,6 +852,20 @@
                         ['AD / CIC', summary.onboard.ad]
                     ],
                     extra: summary.onboard.other > 0 ? `Other source = ${summary.onboard.other}` : ''
+                },
+                {
+                    key: 'STILL_ACTIVE',
+                    title: 'Still Active',
+                    value: summary.stillActive.total,
+                    note: 'Onboard and no Last employment day',
+                    accent: '#0891b2',
+                    bg: 'rgba(6, 182, 212, 0.12)',
+                    lines: [
+                        ['HR', summary.stillActive.hr],
+                        ['OP', summary.stillActive.op],
+                        ['AD / CIC', summary.stillActive.ad]
+                    ],
+                    extra: summary.stillActive.other > 0 ? `Other source = ${summary.stillActive.other}` : ''
                 }
             ];
 
@@ -843,7 +904,7 @@
                         </div>
                     </div>
                     <p class="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Click card to show matched lead details below</p>
-                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div class="mt-5 grid gap-3 sm:grid-cols-3">
                         <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
                             <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Offer</p>
                             <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.offer)}</p>
@@ -851,6 +912,10 @@
                         <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
                             <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">On Board</p>
                             <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.onboard)}</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/80 bg-white/72 px-4 py-4 shadow-sm">
+                            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Still Active</p>
+                            <p class="mt-3 text-3xl leading-none font-black data-font text-slate-900">${formatNumber(card.stillActive)}</p>
                         </div>
                     </div>
                 </div>
@@ -870,7 +935,8 @@
                 PENDING: summary.pending.rows,
                 REJECT_WITHDRAW: summary.rejectWithdraw.rows,
                 OFFER: summary.offer.rows,
-                ONBOARD: summary.onboard.rows
+                ONBOARD: summary.onboard.rows,
+                STILL_ACTIVE: summary.stillActive.rows
             };
             const activeSpecialist = activeSpecialistKey
                 ? summary.specialists.find(card => card.key === activeSpecialistKey)
@@ -888,7 +954,7 @@
             const body = document.getElementById('detailTableBody');
             if (!rows.length) {
                 const emptyLabel = activeSpecialist ? `${activeSpecialist.owner.toLowerCase()} matched lead` : detailTitle.toLowerCase();
-                body.innerHTML = `<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="12" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
                 return;
             }
 
@@ -900,6 +966,7 @@
                     <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])}</td>
                     <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getRecordedOnboardDate(row))}</td>
+                    <td class="px-4 py-4 text-left">${cleanText(getLastEmploymentDay(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getStatus(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getOnboardStatus(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getCicOwner(row))}</td>
@@ -918,15 +985,18 @@
 
         function renderDashboard() {
             const rows = getFilteredRows();
+            const offerRows = getOfferFilteredRows(rows);
             const summary = {
                 lead: buildCounts(rows),
                 pending: getPendingCounts(rows),
                 rejectWithdraw: getRejectWithdrawCounts(rows),
-                offer: buildCounts(rows, isOfferRow),
+                offer: buildCounts(offerRows, isOfferRow),
                 onboard: buildCounts(rows, isOnboardRow),
+                stillActive: buildCounts(rows, isStillActiveRow),
                 specialists: SPECIALIST_CONFIG.map(config => ({
                     ...config,
-                    ...getSpecialistCounts(rows, config.owner)
+                    ...getSpecialistCounts(rows, config.owner),
+                    offer: offerRows.filter(row => getCicOwner(row).toUpperCase() === config.owner.toUpperCase() && isOfferRow(row)).length
                 }))
             };
             renderSummaryCards(summary);
@@ -957,6 +1027,8 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            document.getElementById('offerDateStart').value = '';
+            document.getElementById('offerDateEnd').value = '';
             document.getElementById('detailSourceFilter').value = 'ALL';
             activeStage = 'LEAD';
             activeSpecialistKey = '';
@@ -966,6 +1038,8 @@
         async function init() {
             document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
             document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
+            document.getElementById('offerDateStart')?.addEventListener('change', renderDashboard);
+            document.getElementById('offerDateEnd')?.addEventListener('change', renderDashboard);
             document.getElementById('detailSourceFilter')?.addEventListener('change', renderDashboard);
 
             try {
