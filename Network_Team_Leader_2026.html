@@ -1850,9 +1850,23 @@
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
 
+                // The summary cards switch to Offer Date when that filter is filled in.
+                // Include those rows in the drill-down pool too, even if their Lead Date is outside
+                // the Lead Date range; otherwise the card total and its detail list disagree.
+                const offerDateRange = getSelectedOfferDateRange();
                 const detailRows = [];
                 memberStats.forEach(member => {
-                    member.rows.forEach(row => {
+                    const detailRowMap = new Map(member.rows.map(row => [getRowIdentity(row), row]));
+                    if (offerDateRange) {
+                        dataS1.forEach(row => {
+                            if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return;
+                            const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
+                            if (isDateWithinOptionalRange(offerDate, offerDateRange)) {
+                                detailRowMap.set(getRowIdentity(row), row);
+                            }
+                        });
+                    }
+                    detailRowMap.forEach(row => {
                         const actualOnboarded = isOnboard(row);
                         const sameBrand = isSameBrandReferral(member, row);
                         detailRows.push({
@@ -1889,6 +1903,8 @@
                             upcomingOnboard: isUpcomingOnboard(row),
                             countedUpcomingOnboard: isUpcomingOnboard(row) && !isBeautySpecialistPosition(row),
                             beautySpecialistUpcomingOnboard: isUpcomingOnboard(row) && isBeautySpecialistPosition(row),
+                            isLeadDateMatch: isDateWithinRange(parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]), range),
+                            isOfferDateMatch: isDateWithinOptionalRange(parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]), offerDateRange),
                             leadDateObj: parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]) || new Date(0),
                             offerDateObj: parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]) || new Date(0),
                             onboardDateObj: parseDate(getRecordedOnboardDate(row)) || new Date(0)
@@ -3631,6 +3647,9 @@
 
             if (currentDetailScope === 'SUMMARY') {
                 rows = leaders.flatMap(leader => leader.detailRows);
+                const useOfferDateForDetail = !!getSelectedOfferDateRange()
+                    && (currentSummaryDetailMode === 'OFFER' || currentSummaryDetailMode === 'PENDING_OFFER');
+                rows = rows.filter(item => useOfferDateForDetail ? item.isOfferDateMatch : item.isLeadDateMatch);
                 if (summaryBrandLabel) {
                     rows = rows.filter(item => safeTrim(item.memberBrand) === summaryBrandLabel);
                 }
