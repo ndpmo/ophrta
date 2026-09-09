@@ -8,6 +8,7 @@
     <title>HR &amp; Operations Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@400;700&display=swap');
         
@@ -107,6 +108,18 @@
             font-size: 0.75rem;
             color: #475569;
             cursor: pointer;
+        }
+
+        .export-details-panel {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #dbe3ef;
+            border-radius: 1rem;
+            box-shadow: 0 16px 34px -30px rgba(15, 23, 42, 0.48);
+        }
+
+        .export-details-date-field {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         .filter-label {
@@ -704,7 +717,7 @@
             <div class="flex flex-col gap-4 mb-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Floor Performance <span class="font-cyber text-teal-500 ml-2">BY FLOOR</span></h2>
-                    <button type="button" onclick="downloadFloorPerformance()" class="px-5 py-3 rounded-xl bg-teal-600 text-white font-black text-sm shadow-sm hover:bg-teal-700">Floor Download</button>
+                    <button type="button" onclick="downloadFloorPerformance()" class="px-5 py-3 rounded-xl bg-teal-600 text-white font-bold text-sm shadow-sm hover:bg-teal-700">Download Excel</button>
                 </div>
                 <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left z-10">
                     <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
@@ -842,30 +855,30 @@
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2"><p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p></div>
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left"><span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
         <section id="downloadDetailsArea" class="hidden mb-12 mt-8 md:mt-10 text-left">
-            <h2 class="text-lg md:text-xl font-black text-slate-900 border-l-8 border-indigo-600 pl-3 tracking-[0.08em] uppercase mb-4">Download Details <span class="text-indigo-500">Independent Filters</span></h2>
-            <div class="cyber-card p-4 md:p-5 space-y-4">
-                <p class="text-sm md:text-base leading-6 font-semibold text-slate-500">獨立篩選所有已載入明細，包括 HR、Operations 及所有 Position。Lead Date 與 Offer Date 可分開設定；留空即不限，多個條件會同時套用。</p>
+            <h2 class="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl md:text-2xl font-bold text-slate-900 border-l-4 border-indigo-600 pl-3 tracking-tight mb-4">Download Details <span class="text-sm md:text-base font-semibold text-slate-500">Independent filters</span></h2>
+            <div class="export-details-panel p-4 md:p-5 space-y-4">
+                <p class="text-sm md:text-[15px] leading-6 font-medium text-slate-600">獨立篩選所有已載入明細，包括 HR、Operations 及所有 Position。Lead Date 與 Offer Date 可分開設定；留空即不限，多個條件會同時套用。</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5">
-                        <legend class="px-1 text-[11px] font-black tracking-wide text-indigo-700">Lead Date Range</legend>
+                    <fieldset class="export-details-date-field min-w-0 rounded-xl p-3.5">
+                        <legend class="px-1 text-xs font-bold text-slate-700">Lead Date Range</legend>
                         <div class="flex items-center gap-2"><input type="date" id="exportLeadStart" aria-label="Details Lead Date From" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"><span class="text-xs text-slate-400">至</span><input type="date" id="exportLeadEnd" aria-label="Details Lead Date To" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"></div>
                     </fieldset>
-                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5">
-                        <legend class="px-1 text-[11px] font-black tracking-wide text-indigo-700">Offer Date Range</legend>
+                    <fieldset class="export-details-date-field min-w-0 rounded-xl p-3.5">
+                        <legend class="px-1 text-xs font-bold text-slate-700">Offer Date Range</legend>
                         <div class="flex items-center gap-2"><input type="date" id="exportOfferStart" aria-label="Details Offer Date From" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"><span class="text-xs text-slate-400">至</span><input type="date" id="exportOfferEnd" aria-label="Details Offer Date To" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"></div>
                     </fieldset>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Brand<select id="exportBrand" onchange="updateExportDetailsFloors(); clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Brand</option></select></label>
-                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Floor</option></select></label>
-                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Status</option></select></label>
-                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All On Board Status</option></select></label>
-                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Withdrawal / Rejection Reason <span class="text-slate-400 normal-case tracking-normal">(可多選)</span><span class="relative block mt-1.5"><button type="button" id="exportWithdrawalRejectionReasonButton" onclick="toggleExportWithdrawalRejectionReasonMenu(event)" class="date-selector-input h-10 w-full text-left text-sm normal-case tracking-normal flex items-center justify-between gap-2"><span id="exportWithdrawalRejectionReasonLabel">All Withdrawal / Rejection Reasons</span><span class="text-slate-500 text-lg leading-none">⌄</span></button><span id="exportWithdrawalRejectionReasonMenu" class="hidden absolute z-30 left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-indigo-200 bg-white p-2 shadow-xl normal-case"></span></span></label>
+                    <label class="text-xs font-bold text-slate-700">Brand<select id="exportBrand" onchange="updateExportDetailsFloors(); clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All Brand</option></select></label>
+                    <label class="text-xs font-bold text-slate-700">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All Floor</option></select></label>
+                    <label class="text-xs font-bold text-slate-700">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All Status</option></select></label>
+                    <label class="text-xs font-bold text-slate-700">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All On Board Status</option></select></label>
+                    <label class="text-xs font-bold text-slate-700">Withdrawal / Rejection Reason <span class="text-slate-400 font-medium">(可多選)</span><span class="relative block mt-1.5"><button type="button" id="exportWithdrawalRejectionReasonButton" onclick="toggleExportWithdrawalRejectionReasonMenu(event)" class="date-selector-input h-10 w-full text-left text-sm flex items-center justify-between gap-2"><span id="exportWithdrawalRejectionReasonLabel">All Withdrawal / Rejection Reasons</span><span class="text-slate-500 text-lg leading-none">⌄</span></button><span id="exportWithdrawalRejectionReasonMenu" class="hidden absolute z-30 left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-indigo-200 bg-white p-2 shadow-xl normal-case"></span></span></label>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" onclick="applyExportDetailsFilters()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-black text-sm hover:bg-indigo-700">Filter</button>
-                    <button type="button" onclick="resetExportDetailsFilters()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200">Reset</button>
-                    <button type="button" id="exportDetailsDownload" onclick="downloadExportDetails()" class="px-4 py-2.5 rounded-xl bg-teal-600 text-white font-black text-sm hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed">Download CSV</button>
+                    <button type="button" onclick="applyExportDetailsFilters()" class="px-4 py-2.5 rounded-lg bg-indigo-600 text-white font-bold text-sm shadow-sm hover:bg-indigo-700">Filter Results</button>
+                    <button type="button" onclick="resetExportDetailsFilters()" class="px-4 py-2.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200">Clear Filters</button>
+                    <button type="button" id="exportDetailsDownload" onclick="downloadExportDetails()" class="px-4 py-2.5 rounded-lg bg-teal-600 text-white font-bold text-sm shadow-sm hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed">Download CSV</button>
                 </div>
                 <p id="exportDetailsError" role="alert" class="hidden text-sm font-bold text-rose-600"></p>
                 <div id="exportDetailsList" class="hidden">
@@ -1188,6 +1201,122 @@
             link.remove();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
+        function exportHtmlText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+        }
+        function floorPerformanceColumnLabel(label) {
+            const normalized = String(label || '').replace(/\s+/g, ' ').trim().toUpperCase();
+            const labels = {
+                'FLOOR': 'Floor',
+                'LEAD': 'Lead',
+                'PENDING': 'Pending',
+                'REJECT / WITHDRAW': 'Reject / Withdraw',
+                'OFFER': 'Offer',
+                'ON BOARD': 'On board',
+                'PENDING OFFER': 'Pending offer',
+                'OTHERS': 'Other'
+            };
+            return labels[normalized] || String(label || '').replace(/\b\w/g, character => character.toUpperCase()).replace(/\b[A-Z]{2,}\b/g, word => word.charAt(0) + word.slice(1).toLowerCase());
+        }
+        function spreadsheetColumnName(index) {
+            let name = '';
+            let value = index;
+            while (value > 0) {
+                const remainder = (value - 1) % 26;
+                name = String.fromCharCode(65 + remainder) + name;
+                value = Math.floor((value - 1) / 26);
+            }
+            return name;
+        }
+        async function downloadFloorPerformanceExcel(filename, metadata, headers, rows) {
+            if (!window.ExcelJS) {
+                alert('Excel export library is still loading. Please try again in a moment.');
+                return;
+            }
+            const columnWidths = [22, 12, 12, 18, 12, 14, 17, 12];
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'HR & Operations Dashboard';
+            workbook.created = new Date();
+            const sheet = workbook.addWorksheet('Floor Performance', { views: [{ state: 'frozen', ySplit: 11 }] });
+            const lastColumn = spreadsheetColumnName(headers.length);
+            const thinBorder = { style: 'thin', color: { argb: 'FFD8E1EB' } };
+            sheet.mergeCells(`A1:${lastColumn}1`);
+            const titleCell = sheet.getCell('A1');
+            titleCell.value = 'Floor Performance';
+            titleCell.font = { name: 'Aptos', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+            titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
+            titleCell.alignment = { horizontal: 'left', vertical: 'middle' };
+            sheet.getRow(1).height = 30;
+
+            let currentRow = 2;
+            metadata.forEach(([label, value]) => {
+                sheet.getCell(`A${currentRow}`).value = label;
+                sheet.getCell(`A${currentRow}`).font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF115E59' } };
+                sheet.getCell(`A${currentRow}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDFA' } };
+                sheet.getCell(`A${currentRow}`).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+                sheet.mergeCells(`B${currentRow}:${lastColumn}${currentRow}`);
+                const valueCell = sheet.getCell(`B${currentRow}`);
+                valueCell.value = value || 'All';
+                valueCell.font = { name: 'Aptos', size: 10, color: { argb: 'FF334155' } };
+                valueCell.alignment = { vertical: 'middle', wrapText: currentRow >= 8 };
+                valueCell.border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+                sheet.getRow(currentRow).height = currentRow >= 8 ? 30 : 20;
+                currentRow += 1;
+            });
+
+            currentRow += 1;
+            const headerRow = currentRow;
+            const styledHeaders = headers.map(floorPerformanceColumnLabel);
+            sheet.getRow(headerRow).values = styledHeaders;
+            sheet.getRow(headerRow).height = 24;
+            sheet.getRow(headerRow).eachCell(cell => {
+                cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF134E4A' } };
+                cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                cell.border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+            });
+
+            rows.forEach((row, index) => {
+                const dataRow = sheet.addRow(row);
+                const isTotal = index === rows.length - 1;
+                const floorGroup = String(row[0] || '').trim().match(/^([A-Z])\b/)?.[1] || '';
+                const previousFloorGroup = index ? (String(rows[index - 1][0] || '').trim().match(/^([A-Z])\b/)?.[1] || '') : floorGroup;
+                const isGroupStart = index > 0 && floorGroup && floorGroup !== previousFloorGroup;
+                dataRow.height = 21;
+                dataRow.eachCell((cell, columnNumber) => {
+                    cell.font = { name: 'Aptos', size: 10, bold: isTotal };
+                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    cell.border = {
+                        top: isGroupStart ? { style: 'medium', color: { argb: 'FF0F766E' } } : thinBorder,
+                        bottom: thinBorder,
+                        left: thinBorder,
+                        right: thinBorder
+                    };
+                    if (columnNumber > 1 && typeof cell.value === 'number') cell.numFmt = '#,##0';
+                    if (isTotal) {
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECFDF5' } };
+                        cell.border = { top: { style: 'medium', color: { argb: 'FF0F766E' } }, bottom: thinBorder };
+                    } else if (index % 2 === 1) {
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                    }
+                });
+            });
+
+            sheet.columns = columnWidths.slice(0, headers.length).map(width => ({ width }));
+            sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow + rows.length, column: headers.length } };
+            sheet.views = [{ state: 'frozen', ySplit: headerRow, xSplit: 1 }];
+            sheet.pageSetup = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const url = URL.createObjectURL(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
         function reportDownloadReady() {
             if (!document.getElementById('loadingStatus')?.classList.contains('hidden')) {
                 alert('數據載入中，請稍後再下載。');
@@ -1402,22 +1531,25 @@
             const table = document.getElementById('floorPerformanceBody')?.closest('table');
             if (!table) return;
             const selectedLabel = id => document.getElementById(id)?.selectedOptions[0]?.textContent.trim() || '';
-            const rows = [
-                ['Report', 'Floor Performance'], ['Downloaded At', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'],
-                ['Filter Start', reportInput('floorPerfStart')], ['Filter End', reportInput('floorPerfEnd')],
-                ['Brand Filter', selectedLabel('floorPerfBrand')], ['Floor Filter', selectedLabel('floorPerfFloor')],
-                ['Position Filter', selectedLabel('floorPerfPosition')], ['Global Position Filter', reportPositionSelection()],
-                ['Date Basis', 'Lead / Pending / Reject / Withdraw / Other: Lead Date; Offer / Pending Offer: Offer Date; On Board: On Board Date'],
-                ['Other', 'Offered, passed On Board Date, but No Show / Reject / Withdraw'], [],
-                Array.from(table.querySelectorAll('thead th'), cell => cell.innerText.replace(/\s+/g, ' ').trim())
+            const metadata = [
+                ['Generated', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'],
+                ['Reporting period', `${reportInput('floorPerfStart')} to ${reportInput('floorPerfEnd')}`],
+                ['Brand', selectedLabel('floorPerfBrand')],
+                ['Floor', selectedLabel('floorPerfFloor')],
+                ['Position', selectedLabel('floorPerfPosition')],
+                ['Global position filter', reportPositionSelection()],
+                ['Date basis', 'Lead, Pending, Reject / Withdraw and Other use Lead Date. Offer and Pending Offer use Offer Date. On board uses On board Date.'],
+                ['Other', 'Offer records past the On board Date that are No Show, Rejected or Withdrawn.']
             ];
+            const headers = Array.from(table.querySelectorAll('thead th'), cell => cell.innerText.replace(/\s+/g, ' ').trim());
+            const rows = [];
             table.querySelectorAll('tbody tr').forEach(tr => {
                 rows.push(Array.from(tr.cells, (cell, index) => {
                     const value = cell.textContent.trim();
                     return index > 0 && /^\d[\d,]*$/.test(value) ? Number(value.replace(/,/g, '')) : value;
                 }));
             });
-            downloadReportCsv(`Floor_${reportInput('floorPerfStart')}_${reportInput('floorPerfEnd')}.csv`, rows);
+            downloadFloorPerformanceExcel(`Floor_Performance_${reportInput('floorPerfStart')}_${reportInput('floorPerfEnd')}.xlsx`, metadata, headers, rows);
         }
         function csvEscape(v) {
             const s = (v ?? "").toString();
