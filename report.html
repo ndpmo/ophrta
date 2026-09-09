@@ -266,11 +266,6 @@
                 margin-bottom: 4rem;
             }
 
-            #initialPrompt {
-                padding-top: 4rem;
-                padding-bottom: 4rem;
-                font-size: 1.25rem;
-            }
         }
     </style>
 </head>
@@ -844,34 +839,33 @@
         </div>
 
         <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4"><svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span></div>
-        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl">Enter Staff ID to Start_</div>
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2"><p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p></div>
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left"><span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
-        <section id="downloadDetailsArea" class="hidden mb-16 mt-12 text-left">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase mb-5">Download Details <span class="text-indigo-500">Independent Filters</span></h2>
-            <div class="cyber-card p-5 md:p-6 space-y-5">
-                <p class="text-sm font-bold text-slate-500">獨立篩選所有已載入嘅明細（包括 HR / Operations 及所有 Position）。Date Range 按 Lead Date；留空代表不限。填寫多個條件時，明細須同時符合全部條件。</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-xl p-3">
-                        <legend class="px-1 text-xs font-black text-indigo-700">Date Range Filter (Lead Date)</legend>
-                        <div class="flex items-center gap-2"><input type="date" id="exportLeadStart" aria-label="Details Lead Date From" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"><span class="text-xs text-slate-400">至</span><input type="date" id="exportLeadEnd" aria-label="Details Lead Date To" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"></div>
+        <section id="downloadDetailsArea" class="hidden mb-12 mt-8 md:mt-10 text-left">
+            <h2 class="text-lg md:text-xl font-black text-slate-900 border-l-8 border-indigo-600 pl-3 tracking-[0.08em] uppercase mb-4">Download Details <span class="text-indigo-500">Independent Filters</span></h2>
+            <div class="cyber-card p-4 md:p-5 space-y-4">
+                <p class="text-sm md:text-base leading-6 font-semibold text-slate-500">獨立篩選所有已載入明細，包括 HR、Operations 及所有 Position。Lead Date 與 Offer Date 可分開設定；留空即不限，多個條件會同時套用。</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5">
+                        <legend class="px-1 text-[11px] font-black tracking-wide text-indigo-700">Lead Date Range</legend>
+                        <div class="flex items-center gap-2"><input type="date" id="exportLeadStart" aria-label="Details Lead Date From" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"><span class="text-xs text-slate-400">至</span><input type="date" id="exportLeadEnd" aria-label="Details Lead Date To" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"></div>
                     </fieldset>
-                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-xl p-3">
-                        <legend class="px-1 text-xs font-black text-indigo-700">Offer Date Range</legend>
-                        <div class="flex items-center gap-2"><input type="date" id="exportOfferStart" aria-label="Details Offer Date From" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"><span class="text-xs text-slate-400">至</span><input type="date" id="exportOfferEnd" aria-label="Details Offer Date To" onchange="clearExportDetailsResults()" class="date-selector-input w-full min-w-0"></div>
+                    <fieldset class="min-w-0 bg-indigo-50/60 border border-indigo-100 rounded-2xl p-3.5">
+                        <legend class="px-1 text-[11px] font-black tracking-wide text-indigo-700">Offer Date Range</legend>
+                        <div class="flex items-center gap-2"><input type="date" id="exportOfferStart" aria-label="Details Offer Date From" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"><span class="text-xs text-slate-400">至</span><input type="date" id="exportOfferEnd" aria-label="Details Offer Date To" onchange="clearExportDetailsResults()" class="date-selector-input h-10 w-full min-w-0 text-sm"></div>
                     </fieldset>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-                    <label class="text-xs font-black text-slate-600">Brand<select id="exportBrand" onchange="updateExportDetailsFloors(); clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Brand</option></select></label>
-                    <label class="text-xs font-black text-slate-600">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Floor</option></select></label>
-                    <label class="text-xs font-black text-slate-600">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All Status</option></select></label>
-                    <label class="text-xs font-black text-slate-600">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block w-full mt-2"><option value="">All On Board Status</option></select></label>
-                    <label class="text-xs font-black text-slate-600">Withdrawal / Rejection Reason <span class="text-slate-400 normal-case">(可多選)</span><span class="relative block mt-2"><button type="button" id="exportWithdrawalRejectionReasonButton" onclick="toggleExportWithdrawalRejectionReasonMenu(event)" class="date-selector-input w-full text-left flex items-center justify-between gap-2"><span id="exportWithdrawalRejectionReasonLabel">All Withdrawal / Rejection Reasons</span><span class="text-slate-500 text-lg leading-none">⌄</span></button><span id="exportWithdrawalRejectionReasonMenu" class="hidden absolute z-30 left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-indigo-200 bg-white p-2 shadow-xl normal-case"></span></span></label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Brand<select id="exportBrand" onchange="updateExportDetailsFloors(); clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Brand</option></select></label>
+                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Floor<select id="exportFloor" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Floor</option></select></label>
+                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Status<select id="exportStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All Status</option></select></label>
+                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">On Board Status<select id="exportOnboardStatus" onchange="clearExportDetailsResults()" class="date-selector-input block h-10 w-full mt-1.5 text-sm normal-case tracking-normal"><option value="">All On Board Status</option></select></label>
+                    <label class="text-[11px] font-black uppercase tracking-wide text-slate-600">Withdrawal / Rejection Reason <span class="text-slate-400 normal-case tracking-normal">(可多選)</span><span class="relative block mt-1.5"><button type="button" id="exportWithdrawalRejectionReasonButton" onclick="toggleExportWithdrawalRejectionReasonMenu(event)" class="date-selector-input h-10 w-full text-left text-sm normal-case tracking-normal flex items-center justify-between gap-2"><span id="exportWithdrawalRejectionReasonLabel">All Withdrawal / Rejection Reasons</span><span class="text-slate-500 text-lg leading-none">⌄</span></button><span id="exportWithdrawalRejectionReasonMenu" class="hidden absolute z-30 left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-indigo-200 bg-white p-2 shadow-xl normal-case"></span></span></label>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" onclick="applyExportDetailsFilters()" class="px-5 py-3 rounded-xl bg-indigo-600 text-white font-black text-sm hover:bg-indigo-700">Filter</button>
-                    <button type="button" onclick="resetExportDetailsFilters()" class="px-5 py-3 rounded-xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200">Reset</button>
-                    <button type="button" id="exportDetailsDownload" onclick="downloadExportDetails()" class="px-5 py-3 rounded-xl bg-teal-600 text-white font-black text-sm hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed">Download Details (CSV)</button>
+                    <button type="button" onclick="applyExportDetailsFilters()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-black text-sm hover:bg-indigo-700">Filter</button>
+                    <button type="button" onclick="resetExportDetailsFilters()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200">Reset</button>
+                    <button type="button" id="exportDetailsDownload" onclick="downloadExportDetails()" class="px-4 py-2.5 rounded-xl bg-teal-600 text-white font-black text-sm hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed">Download CSV</button>
                 </div>
                 <p id="exportDetailsError" role="alert" class="hidden text-sm font-bold text-rose-600"></p>
                 <div id="exportDetailsList" class="hidden">
@@ -883,7 +877,7 @@
                     <button type="button" id="exportDetailsNext" onclick="changeExportDetailsPage(1)" class="px-3 py-2 rounded-lg bg-slate-100 disabled:opacity-40">Next</button>
                 </div>
                 </div>
-                <p class="text-xs text-slate-400">下載全部符合條件嘅明細，格式為 Excel 可開啟嘅 UTF-8 CSV。</p>
+                <p class="text-[11px] leading-5 text-slate-400">下載全部符合條件嘅明細；檔案為 Excel 可直接開啟嘅 UTF-8 CSV。</p>
             </div>
         </section>
     </div>
