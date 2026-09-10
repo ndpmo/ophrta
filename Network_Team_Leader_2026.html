@@ -342,7 +342,7 @@
                     </table>
                 </div>
             </div>
-            <p class="mt-4 text-sm font-bold text-slate-500">On Sales Rate = On Sales HC / Target. Future Fulfill Rate = (On Sales HC + Undertraining + Upcoming On Board) / Target. Gap = On Sales HC + Undertraining + Upcoming On Board − Target.</p>
+            <p class="mt-4 text-sm font-bold text-slate-500">On Sales Rate = On Sales HC / Target.<br>Future Fulfill Rate = (On Sales HC + Undertraining + Upcoming On Board)<br>Target. Gap = On Sales HC + Undertraining + Upcoming On Board − Target.</p>
             <div id="brandSummaryDetails" class="hidden mt-6 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -1122,8 +1122,12 @@
         }
 
         function isBeautySpecialistPosition(row) {
-            const position = safeTrim(getS1PositionValue(row)).toUpperCase();
-            return position === 'BS' || position === 'BEAUTY SPECIALIST';
+            return isBeautySpecialistText(getS1PositionValue(row));
+        }
+
+        function isBeautySpecialistText(position) {
+            const normalizedPosition = safeTrim(position).toUpperCase();
+            return /(^|[^A-Z])BS([^A-Z]|$)/.test(normalizedPosition) || normalizedPosition.includes('BEAUTY SPECIALIST');
         }
 
         function isCoreBrandOffer(row) {
@@ -1531,8 +1535,7 @@
         }
 
         function isBeautySpecialistDetailPosition(position) {
-            const normalizedPosition = safeTrim(position).toUpperCase();
-            return normalizedPosition === 'BS' || normalizedPosition === 'BEAUTY SPECIALIST';
+            return isBeautySpecialistText(position);
         }
 
         function updateDetailSortIndicators() {
@@ -2844,7 +2847,7 @@
             const seen = new Set();
             dataS1.forEach(row => {
                 const brand = normalizeBrand(getS1Value(row, S1_IDX.BRAND));
-                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !isUpcomingOnboard(row) || !isUpcomingSourceMatch(row)) return;
+                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row) || !isUpcomingSourceMatch(row)) return;
                 const key = `${brand}|${getRowIdentity(row)}`;
                 if (seen.has(key)) return;
                 seen.add(key);
@@ -2966,7 +2969,8 @@
             dataOnSales.forEach(row => {
                 const staffId = getOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
                 const target = Number(getOnSalesValue(row, ON_SALES_IDX.TARGET).replace(/,/g, '')) || 0;
-                if (staffId && target !== 0) staffIds.add(staffId);
+                const position = getOnSalesValue(row, ON_SALES_IDX.POSITION);
+                if (staffId && target !== 0 && !isBeautySpecialistText(position)) staffIds.add(staffId);
             });
             return staffIds;
         }
@@ -2986,7 +2990,8 @@
             dataUndertraining.forEach(row => {
                 const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
                 const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
-                if (staffIdsByBrand.has(brand) && staffId && !onSalesStaffIds.has(staffId)) {
+                const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
+                if (staffIdsByBrand.has(brand) && staffId && !onSalesStaffIds.has(staffId) && !isBeautySpecialistText(position)) {
                     staffIdsByBrand.get(brand).add(staffId);
                 }
             });
@@ -3017,7 +3022,8 @@
             dataUndertraining.forEach(row => {
                 const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
                 const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
-                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !staffId || qualifiedOnSalesIds.has(staffId) || byStaffId.has(staffId)) return;
+                const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
+                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !staffId || qualifiedOnSalesIds.has(staffId) || isBeautySpecialistText(position) || byStaffId.has(staffId)) return;
                 byStaffId.set(staffId, {
                     brand,
                     staffId,
