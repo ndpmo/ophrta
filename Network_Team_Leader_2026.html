@@ -31,6 +31,8 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
             background:
                 radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30%),
                 radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 24%),
@@ -54,9 +56,9 @@
         .glass-card {
             background: var(--paper);
             border: 1px solid rgba(255, 255, 255, 0.78);
-            box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.28);
+            box-shadow: 0 22px 54px -34px rgba(15, 23, 42, 0.3);
             backdrop-filter: blur(16px);
-            border-radius: 1.5rem;
+            border-radius: 1.75rem;
         }
 
         .title-tech {
@@ -99,7 +101,7 @@
         }
 
         .table-shell {
-            border-radius: 1.5rem;
+            border-radius: 1.25rem;
             overflow: hidden;
             border: 1px solid rgba(226, 232, 240, 0.9);
             background: rgba(255, 255, 255, 0.76);
@@ -132,6 +134,29 @@
             background: rgba(15, 118, 110, 1);
         }
 
+        .table-shell thead th {
+            font-size: 0.76rem;
+            line-height: 1.25;
+            letter-spacing: 0.055em;
+        }
+
+        .table-shell tbody td {
+            line-height: 1.4;
+        }
+
+        .table-shell tbody tr {
+            transition: background-color 0.18s ease;
+        }
+
+        .table-shell tbody tr:hover {
+            background: rgba(248, 250, 252, 0.9);
+        }
+
+        input, select {
+            font-size: 0.94rem;
+            line-height: 1.25;
+        }
+
         .pill-button {
             display: inline-flex;
             align-items: center;
@@ -144,6 +169,14 @@
             font-weight: 800;
             box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.28);
             transition: transform 0.2s ease;
+        }
+
+        .pill-button:focus-visible,
+        button:focus-visible,
+        select:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.24);
+            outline-offset: 2px;
         }
 
         .pill-button:hover {
@@ -298,8 +331,10 @@
                                 <th class="px-5 py-4 text-left">Brand</th>
                                 <th class="px-4 py-4 text-center">Full HC Target</th>
                                 <th class="px-4 py-4 text-center">On Sales HC</th>
+                                <th class="px-4 py-4 text-center">On Sales Rate</th>
                                 <th class="px-4 py-4 text-center">Undertraining</th>
                                 <th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] tracking-normal normal-case text-amber-700/70">(Filter Offer)</span></th>
+                                <th class="px-4 py-4 text-center">Future Fulfill Rate</th>
                                 <th class="px-4 py-4 text-center">Gap</th>
                             </tr>
                         </thead>
@@ -307,7 +342,7 @@
                     </table>
                 </div>
             </div>
-            <p class="mt-4 text-sm font-bold text-slate-500">Gap = On Sales HC + Undertraining + Upcoming On Board − Target. Brackets show the Offer total in the current filter range.</p>
+            <p class="mt-4 text-sm font-bold text-slate-500">On Sales Rate = On Sales HC / Target. Future Fulfill Rate = (On Sales HC + Undertraining + Upcoming On Board) / Target. Gap = On Sales HC + Undertraining + Upcoming On Board − Target.</p>
             <div id="brandSummaryDetails" class="hidden mt-6 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -901,6 +936,15 @@
         function formatRate(part, total) {
             if (!total) return '0%';
             return `${Math.round((part / total) * 100)}%`;
+        }
+
+        function formatOneDecimalRate(part, total) {
+            const numerator = Number(part) || 0;
+            const denominator = Number(total) || 0;
+            if (!denominator) return '—';
+            const percentage = (numerator / denominator) * 100;
+            const rounded = Math.round((percentage + Number.EPSILON) * 10) / 10;
+            return `${rounded.toFixed(1)}%`;
         }
 
         function formatAchieveRate(value, networkTeamCount) {
@@ -2786,6 +2830,15 @@
             return counts;
         }
 
+        function applyOfferDateFilterToBrandRows(brandRows, leaders) {
+            if (!getSelectedOfferDateRange()) return brandRows;
+            const offerCounts = getBrandOfferSummaryCounts(leaders, brandRows);
+            return brandRows.map(row => ({
+                ...row,
+                offer: offerCounts.get(normalizeBrand(row.label)) || 0
+            }));
+        }
+
         function getUpcomingOnboardSummaryRows(selectedBrand = '') {
             const rows = [];
             const seen = new Set();
@@ -3080,6 +3133,8 @@
                 const offer = counts.get(brand) || 0;
                 const upcomingOnboard = upcomingOnboardCounts.get(brand) || 0;
                 const totalTarget = Number(brandTargets.get(brand)) || 0;
+                const onSalesRate = formatOneDecimalRate(onSalesHc, totalTarget);
+                const futureFulfillRate = formatOneDecimalRate(onSalesHc + undertraining + upcomingOnboard, totalTarget);
                 const gap = onSalesHc + undertraining + upcomingOnboard - totalTarget;
                 const gapClass = gap >= 0 ? 'text-emerald-700' : 'text-rose-700';
                 return `
@@ -3087,8 +3142,10 @@
                         <td class="px-5 py-5 text-left font-black text-slate-900">${displayBrand(brand)}</td>
                         <td class="px-4 py-5 text-center data-font text-lg text-slate-700">${totalTarget ? formatNumber(totalTarget) : '—'}</td>
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'ON_SALES')" class="font-black text-slate-900 underline-offset-4 hover:text-sky-700 hover:underline" title="Show On Sales HC details">${formatNumber(onSalesHc)}</button></td>
+                        <td class="px-4 py-5 text-center data-font text-lg font-black text-sky-700">${onSalesRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UNDERTRAINING')" class="font-black text-violet-700 underline-offset-4 hover:underline" title="Show Undertraining details">${formatNumber(undertraining)}</button></td>
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UPCOMING')" class="font-black text-amber-700 underline-offset-4 hover:underline" title="Show Upcoming On Board candidate details">${formatNumber(upcomingOnboard)}</button> <button type="button" onclick="focusBrandDetail(${JSON.stringify(displayBrand(brand))}, 'OFFER')" class="font-black text-slate-400 underline-offset-4 hover:text-slate-700 hover:underline" title="Show Filter Offer candidate details">(${formatNumber(offer)})</button></td>
+                        <td class="px-4 py-5 text-center data-font text-lg font-black text-emerald-700">${futureFulfillRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black ${gapClass}">${totalTarget ? formatNumber(gap) : '—'}</td>
                     </tr>`;
             }).join('');
@@ -3163,7 +3220,8 @@
             const { brandRows } = summarizeBreakdowns(leaders);
             const { brandRows: comparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
             const comparisonLookup = buildBreakdownLookup(comparisonBrandRows);
-            const total = summarizeBrandBreakdownRows(brandRows);
+            const displayBrandRows = applyOfferDateFilterToBrandRows(brandRows, leaders);
+            const total = summarizeBrandBreakdownRows(displayBrandRows);
             const comparisonTotal = summarizeBrandBreakdownRows(comparisonBrandRows);
             const includeStillActive = brandRows.some(row => row.stillActive != null) || comparisonBrandRows.some(row => row.stillActive != null);
 
@@ -3187,7 +3245,7 @@
             }
             headers.push('Referral %');
 
-            const dataRows = brandRows.map(row => {
+            const dataRows = displayBrandRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const values = [
                     row.label,
@@ -4199,7 +4257,7 @@
             }
             renderSummaryCards(leaders, comparisonLeaders);
             renderBrandOfferSummary(leaders, brandRows);
-            renderBrandTable(brandRows, comparisonBrandRows);
+            renderBrandTable(applyOfferDateFilterToBrandRows(brandRows, leaders), comparisonBrandRows);
             renderFloorTable(floorRows, comparisonFloorRows);
             renderLeaderOnlyTable(leaders);
             renderNetworkTable(leaders, comparisonLeaders);
