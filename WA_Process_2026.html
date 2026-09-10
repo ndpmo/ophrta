@@ -313,7 +313,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
 
@@ -380,6 +380,8 @@
             OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
             ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
             PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
+            PENDING_OFFER: { title: 'Pending Offer Details', accent: '#d97706', soft: 'rgba(245, 158, 11, 0.12)' },
+            UPCOMING_ONBOARD: { title: 'Upcoming On Board Details', accent: '#7c3aed', soft: 'rgba(139, 92, 246, 0.12)' },
             REJECT_WITHDRAW: { title: 'Reject / Withdraw Details', accent: '#dc2626', soft: 'rgba(248, 113, 113, 0.12)' }
         };
         const DETAIL_FILTER_LABELS = {
@@ -651,6 +653,30 @@
             return getOnboardStatus(row).toUpperCase().includes('ONBOARD');
         }
 
+        function hasRecordedOnboardDate(row) {
+            return !!parseDate(getRecordedOnboardDate(row));
+        }
+
+        function isPendingOfferRow(row) {
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            const status = getStatus(row);
+            const onboardStatus = getOnboardStatus(row);
+            return !!offerDate
+                && !hasRecordedOnboardDate(row)
+                && !isRejectedOrWithdrawn(status)
+                && !isNoShow(status)
+                && !isRejectedOrWithdrawn(onboardStatus)
+                && !isNoShow(onboardStatus);
+        }
+
+        function isUpcomingOnboardRow(row) {
+            const status = getStatus(row).toUpperCase();
+            const onboardDate = parseDate(getRecordedOnboardDate(row));
+            const todayEnd = new Date();
+            todayEnd.setHours(23, 59, 59, 999);
+            return status.includes('ACCEPT') && !!onboardDate && onboardDate > todayEnd;
+        }
+
         function getPendingBucket(row) {
             const statusUpper = getStatus(row).toUpperCase();
             if (statusUpper.includes('PENDING CCD REPLY')) return 'PENDING CCD REPLY';
@@ -823,6 +849,34 @@
                     extra: summary.offer.other > 0 ? `Other source = ${summary.offer.other}` : ''
                 },
                 {
+                    key: 'PENDING_OFFER',
+                    title: 'Pending Offer',
+                    value: summary.pendingOffer.total,
+                    note: 'Offer Date recorded, without On Board Date',
+                    accent: '#d97706',
+                    bg: 'rgba(245, 158, 11, 0.12)',
+                    lines: [
+                        ['HR', summary.pendingOffer.hr],
+                        ['OP', summary.pendingOffer.op],
+                        ['AD / CIC', summary.pendingOffer.ad]
+                    ],
+                    extra: summary.pendingOffer.other > 0 ? `Other source = ${summary.pendingOffer.other}` : ''
+                },
+                {
+                    key: 'UPCOMING_ONBOARD',
+                    title: 'Upcoming On Board',
+                    value: summary.upcomingOnboard.total,
+                    note: 'Accept with a future On Board Date',
+                    accent: '#7c3aed',
+                    bg: 'rgba(139, 92, 246, 0.12)',
+                    lines: [
+                        ['HR', summary.upcomingOnboard.hr],
+                        ['OP', summary.upcomingOnboard.op],
+                        ['AD / CIC', summary.upcomingOnboard.ad]
+                    ],
+                    extra: summary.upcomingOnboard.other > 0 ? `Other source = ${summary.upcomingOnboard.other}` : ''
+                },
+                {
                     key: 'ONBOARD',
                     title: 'On Board',
                     value: summary.onboard.total,
@@ -838,6 +892,8 @@
                 },
             ];
 
+            const cardOrder = ['LEAD', 'OFFER', 'ONBOARD', 'UPCOMING_ONBOARD', 'PENDING', 'REJECT_WITHDRAW', 'PENDING_OFFER'];
+            cards.sort((a, b) => cardOrder.indexOf(a.key) - cardOrder.indexOf(b.key));
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
                 <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${!activeSpecialistKey && activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
                     <p class="summary-card-title uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
@@ -900,6 +956,8 @@
                 PENDING: summary.pending.rows,
                 REJECT_WITHDRAW: summary.rejectWithdraw.rows,
                 OFFER: summary.offer.rows,
+                PENDING_OFFER: summary.pendingOffer.rows,
+                UPCOMING_ONBOARD: summary.upcomingOnboard.rows,
                 ONBOARD: summary.onboard.rows
             };
             const activeSpecialist = activeSpecialistKey
@@ -949,11 +1007,14 @@
         function renderDashboard() {
             const rows = getFilteredRows();
             const offerRows = getOfferFilteredRows(rows);
+            const upcomingOnboardRows = dataS1.filter(row => isTargetPosition(row) && isUpcomingOnboardRow(row));
             const summary = {
                 lead: buildCounts(rows),
                 pending: getPendingCounts(rows),
                 rejectWithdraw: getRejectWithdrawCounts(rows),
                 offer: buildCounts(offerRows, isOfferRow),
+                pendingOffer: buildCounts(offerRows, isPendingOfferRow),
+                upcomingOnboard: buildCounts(upcomingOnboardRows),
                 onboard: buildCounts(rows, isOnboardRow),
                 specialists: SPECIALIST_CONFIG.map(config => ({
                     ...config,
