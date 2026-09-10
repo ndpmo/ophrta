@@ -7,6 +7,7 @@
     <title>Network Team Leader Study 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
 
@@ -269,10 +270,15 @@
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="glass-card p-6 md:p-8 mb-8">
-            <div class="mb-5">
-                <p class="text-sm font-black text-amber-600">Brand workforce & offer</p>
-                <h2 class="text-3xl font-black text-slate-900">Brand Summary</h2>
-                <p class="mt-2 text-sm font-bold text-slate-500">Click On Sales HC or Undertraining for staff details; click Upcoming On Board or Filter Offer for Candidate Detail.</p>
+            <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p class="text-sm font-black text-amber-600">Brand workforce & offer</p>
+                    <h2 class="text-3xl font-black text-slate-900">Brand Summary</h2>
+                    <p class="mt-2 text-sm font-bold text-slate-500">Click On Sales HC or Undertraining for staff details; click Upcoming On Board or Filter Offer for Candidate Detail.</p>
+                </div>
+                <button type="button" onclick="downloadBrandSummaryWorkbook()" class="pill-button min-h-0 px-4 py-2 text-sm text-amber-700">
+                    Download 4 Lists
+                </button>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -1368,10 +1374,7 @@
 
         function isUpcomingOnboard(row) {
             const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
-            if (isRejectedOrWithdrawnStatus(status) || !isAcceptedStatus(status)) return false;
-
-            const onboardStatus = getOnboardStatus(row).toUpperCase();
-            if (isNoShowOnboardStatus(onboardStatus) || onboardStatus.includes('ONBOARD')) return false;
+            if (!isAcceptedStatus(status)) return false;
 
             const recordedDate = parseDate(getRecordedOnboardDate(row));
             if (!recordedDate) return false;
@@ -1936,6 +1939,11 @@
                             }
                         });
                     }
+                    // Upcoming On Board is intentionally independent of Lead Date and Offer Date filters.
+                    dataS1.forEach(row => {
+                        if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return;
+                        if (isUpcomingOnboard(row)) detailRowMap.set(getRowIdentity(row), row);
+                    });
                     detailRowMap.forEach(row => {
                         const actualOnboarded = isOnboard(row);
                         const sameBrand = isSameBrandReferral(member, row);
@@ -1971,7 +1979,7 @@
                             beautySpecialistOnboard: actualOnboarded && sameBrand && isBeautySpecialistPosition(row),
                             nonSameBrandOnboarded: actualOnboarded && !sameBrand,
                             upcomingOnboard: isUpcomingOnboard(row),
-                            countedUpcomingOnboard: isUpcomingOnboard(row) && !isBeautySpecialistPosition(row),
+                            countedUpcomingOnboard: isUpcomingOnboard(row),
                             beautySpecialistUpcomingOnboard: isUpcomingOnboard(row) && isBeautySpecialistPosition(row),
                             isLeadDateMatch: isDateWithinRange(parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]), range),
                             isOfferDateMatch: isDateWithinOptionalRange(parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]), offerDateRange),
@@ -2755,33 +2763,122 @@
             return counts;
         }
 
-        function getBrandUpcomingOnboardSummaryCounts(leaders) {
-            const counts = new Map(NETWORK_TEAM_BRANDS.map(brand => [brand, 0]));
-            const offerRange = getSelectedOfferDateRange();
-
-            if (!offerRange) {
-                leaders.forEach(leader => {
-                    leader.memberStats.forEach(member => {
-                        if (counts.has(member.brandKey)) {
-                            counts.set(member.brandKey, counts.get(member.brandKey) + (Number(member.upcomingOnboard) || 0));
-                        }
-                    });
-                });
-                return counts;
-            }
-
+        function getUpcomingOnboardSummaryRows(leaders = getFilteredLeaders(), selectedBrand = '') {
+            const rows = [];
+            const seen = new Set();
             leaders.forEach(leader => {
                 leader.memberStats.forEach(member => {
-                    if (!counts.has(member.brandKey)) return;
-                    const upcomingOnboards = dataS1.filter(row =>
-                        getS1Value(row, S1_IDX.STAFF_ID) === safeTrim(member.staffNo) &&
-                        isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) &&
-                        isUpcomingOnboard(row)
-                    ).length;
-                    counts.set(member.brandKey, counts.get(member.brandKey) + upcomingOnboards);
+                    if (selectedBrand && member.brandKey !== selectedBrand) return;
+                    const staffId = safeTrim(member.staffNo);
+                    if (!staffId) return;
+                    dataS1.forEach(row => {
+                        if (getS1Value(row, S1_IDX.STAFF_ID) !== staffId || !isUpcomingOnboard(row)) return;
+                        const key = `${member.brandKey}|${getRowIdentity(row)}`;
+                        if (seen.has(key)) return;
+                        seen.add(key);
+                        rows.push({
+                            brand: member.brandKey,
+                            staffId,
+                            referrerName: member.therapist || '-',
+                            floor: member.center || '-',
+                            candidateName: getS1Value(row, S1_IDX.NAME) || '-',
+                            position: getS1PositionValue(row),
+                            offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
+                            onboardDate: getRecordedOnboardDate(row) || '-',
+                            status: getS1Value(row, S1_IDX.STATUS) || '-'
+                        });
+                    });
                 });
             });
+            return rows;
+        }
+
+        function getBrandUpcomingOnboardSummaryCounts(leaders) {
+            const counts = new Map(NETWORK_TEAM_BRANDS.map(brand => [brand, 0]));
+            getUpcomingOnboardSummaryRows(leaders).forEach(row => counts.set(row.brand, counts.get(row.brand) + 1));
             return counts;
+        }
+
+        function downloadUpcomingOnboardList() {
+            const rows = getUpcomingOnboardSummaryRows();
+            const headers = ['Brand', 'Referrer Staff ID', 'Referrer Name', 'Floor', 'Candidate Name', 'Position', 'Status', 'Offer Date', 'On Board Date'];
+            const dataRows = rows.map(row => [
+                displayBrand(row.brand),
+                row.staffId,
+                row.referrerName,
+                row.floor,
+                row.candidateName,
+                row.position,
+                row.status,
+                row.offerDate,
+                row.onboardDate
+            ]);
+            const lines = buildBreakdownExportLines(
+                'Network Team Leader Upcoming On Board List',
+                getCurrentStudyFilterEntries([
+                    ['Upcoming On Board rule', 'Status = ACCEPT and On Board Date is in the future'],
+                    ['Lead Date filter', 'Ignored for this list'],
+                    ['Offer Date filter', 'Ignored for this list']
+                ]),
+                headers,
+                dataRows
+            );
+            downloadCsvFile(`network_team_leader_upcoming_on_board_${formatDateToISO(new Date())}.csv`, lines);
+        }
+
+        async function downloadBrandSummaryWorkbook() {
+            if (!window.ExcelJS) {
+                window.alert('Excel download is still loading. Please try again in a moment.');
+                return;
+            }
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'Network Team Leader Study';
+            workbook.created = new Date();
+            const addSheet = (name, headers, rows, color) => {
+                const sheet = workbook.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 1 }] });
+                const headerRow = sheet.addRow(headers);
+                headerRow.eachCell(cell => {
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                });
+                rows.forEach(row => sheet.addRow(row));
+                sheet.columns.forEach((column, index) => {
+                    const maxLength = Math.max(headers[index].length, ...rows.map(row => String(row[index] ?? '').length), 10);
+                    column.width = Math.min(Math.max(maxLength + 2, 12), 28);
+                });
+                if (rows.length) sheet.autoFilter = { from: 'A1', to: { row: rows.length + 1, column: headers.length } };
+                sheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) return;
+                    row.eachCell(cell => {
+                        cell.alignment = { vertical: 'middle' };
+                        cell.border = { bottom: { style: 'hair', color: { argb: 'FFE2E8F0' } } };
+                    });
+                });
+            };
+
+            const staffHeaders = ['Brand', 'Floor', 'Staff ID', 'Name', 'Position'];
+            const onSalesRows = getOnSalesSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position]);
+            const undertrainingRows = getUndertrainingSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position]);
+            const upcomingRows = getUpcomingOnboardSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.referrerName, row.candidateName, row.position, row.status, row.offerDate, row.onboardDate]);
+            const filterOfferRows = NETWORK_TEAM_BRANDS.flatMap(brand => getBrandSummaryCandidateRows(brand, 'OFFER').map(row => [displayBrand(brand), row.floor, row.staffId, row.name, row.position, row.offerDate, row.onboardDate]));
+
+            addSheet('On Sales HC', staffHeaders, onSalesRows, 'FF0F766E');
+            addSheet('Undertraining', staffHeaders, undertrainingRows, 'FF7C3AED');
+            addSheet('Upcoming On Board', ['Brand', 'Referrer Floor', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Status', 'Offer Date', 'On Board Date'], upcomingRows, 'FFD97706');
+            addSheet('Filter Offer', ['Brand', 'Referrer Floor', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Offer Date', 'On Board Date'], filterOfferRows, 'FFC25A00');
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `network_team_leader_brand_summary_${formatDateToISO(new Date())}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
         }
 
         function getOnSalesValue(row, index) {
@@ -2826,6 +2923,42 @@
             return new Map(Array.from(staffIdsByBrand, ([brand, staffIds]) => [brand, staffIds.size]));
         }
 
+        function getOnSalesSummaryRows(selectedBrand = '') {
+            const qualifiedOnSalesIds = getQualifiedOnSalesStaffIds();
+            const byStaffId = new Map();
+            dataOnSales.forEach(row => {
+                const brand = normalizeBrand(getOnSalesValue(row, ON_SALES_IDX.BRAND));
+                const staffId = getOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
+                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !qualifiedOnSalesIds.has(staffId) || byStaffId.has(staffId)) return;
+                byStaffId.set(staffId, {
+                    brand,
+                    staffId,
+                    name: getOnSalesValue(row, ON_SALES_IDX.NAME) || '-',
+                    floor: getOnSalesValue(row, ON_SALES_IDX.FLOOR) || '-',
+                    position: getOnSalesValue(row, ON_SALES_IDX.POSITION) || '-'
+                });
+            });
+            return Array.from(byStaffId.values());
+        }
+
+        function getUndertrainingSummaryRows(selectedBrand = '') {
+            const qualifiedOnSalesIds = getQualifiedOnSalesStaffIds();
+            const byStaffId = new Map();
+            dataUndertraining.forEach(row => {
+                const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
+                const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
+                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !staffId || qualifiedOnSalesIds.has(staffId) || byStaffId.has(staffId)) return;
+                byStaffId.set(staffId, {
+                    brand,
+                    staffId,
+                    name: getUndertrainingValue(row, UNDERTRAINING_IDX.NAME) || '-',
+                    floor: getUndertrainingValue(row, UNDERTRAINING_IDX.FLOOR) || '-',
+                    position: getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION) || '-'
+                });
+            });
+            return Array.from(byStaffId.values());
+        }
+
         function getBrandSummaryCandidateRows(brand, type) {
             const offerRange = getSelectedOfferDateRange();
             const rows = [];
@@ -2863,41 +2996,14 @@
             const body = document.getElementById('brandSummaryDetailsBody');
             if (!panel || !title || !head || !body) return;
 
-            const qualifiedOnSalesIds = getQualifiedOnSalesStaffIds();
             let rows = [];
             let metricLabel = '';
             if (type === 'ON_SALES') {
                 metricLabel = 'On Sales HC';
-                const byStaffId = new Map();
-                dataOnSales.forEach(row => {
-                    const staffId = getOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
-                    if (normalizeBrand(getOnSalesValue(row, ON_SALES_IDX.BRAND)) !== brand || !qualifiedOnSalesIds.has(staffId) || byStaffId.has(staffId)) return;
-                    byStaffId.set(staffId, {
-                        staffId,
-                        name: getOnSalesValue(row, ON_SALES_IDX.NAME) || '-',
-                        floor: getOnSalesValue(row, ON_SALES_IDX.FLOOR) || '-',
-                        position: getOnSalesValue(row, ON_SALES_IDX.POSITION) || '-',
-                        offerDate: '-',
-                        onboardDate: '-'
-                    });
-                });
-                rows = Array.from(byStaffId.values());
+                rows = getOnSalesSummaryRows(brand);
             } else if (type === 'UNDERTRAINING') {
                 metricLabel = 'Undertraining';
-                const byStaffId = new Map();
-                dataUndertraining.forEach(row => {
-                    const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
-                    if (normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND)) !== brand || !staffId || qualifiedOnSalesIds.has(staffId) || byStaffId.has(staffId)) return;
-                    byStaffId.set(staffId, {
-                        staffId,
-                        name: getUndertrainingValue(row, UNDERTRAINING_IDX.NAME) || '-',
-                        floor: getUndertrainingValue(row, UNDERTRAINING_IDX.FLOOR) || '-',
-                        position: getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION) || '-',
-                        offerDate: '-',
-                        onboardDate: '-'
-                    });
-                });
-                rows = Array.from(byStaffId.values());
+                rows = getUndertrainingSummaryRows(brand);
             }
 
             title.textContent = `${displayBrand(brand)} · ${metricLabel} (${formatNumber(rows.length)})`;
@@ -3926,7 +4032,8 @@
                 rows = leaders.flatMap(leader => leader.detailRows);
                 const useOfferDateForDetail = !!getSelectedOfferDateRange()
                     && (currentSummaryDetailMode === 'OFFER' || currentSummaryDetailMode === 'PENDING_OFFER');
-                rows = rows.filter(item => useOfferDateForDetail ? item.isOfferDateMatch : item.isLeadDateMatch);
+                const isDateIndependentUpcoming = currentSummaryDetailMode === 'UPCOMING';
+                rows = rows.filter(item => isDateIndependentUpcoming || (useOfferDateForDetail ? item.isOfferDateMatch : item.isLeadDateMatch));
                 if (summaryBrandLabel) {
                     rows = rows.filter(item => safeTrim(item.memberBrand) === summaryBrandLabel);
                 }
@@ -3976,8 +4083,10 @@
             rows = rows.filter(item => {
                 if (detailBrandFilterValue && safeTrim(item.brand) !== detailBrandFilterValue) return false;
                 if (detailFloorFilterValue && safeTrim(item.center) !== detailFloorFilterValue) return false;
-                if (detailPositionFilterValue === '__EXCLUDE_BS__' && isBeautySpecialistDetailPosition(item.position)) return false;
-                if (detailPositionFilterValue !== '__EXCLUDE_BS__' && detailPositionFilterValue && safeTrim(item.position) !== detailPositionFilterValue) return false;
+                if (currentSummaryDetailMode !== 'UPCOMING') {
+                    if (detailPositionFilterValue === '__EXCLUDE_BS__' && isBeautySpecialistDetailPosition(item.position)) return false;
+                    if (detailPositionFilterValue !== '__EXCLUDE_BS__' && detailPositionFilterValue && safeTrim(item.position) !== detailPositionFilterValue) return false;
+                }
                 if (detailStatusFilterValue && safeTrim(item.status) !== detailStatusFilterValue) return false;
                 if (detailOnboardStatusFilterValue && safeTrim(item.onboardStatus) !== detailOnboardStatusFilterValue) return false;
                 if (detailReferralFilterValue && getDetailReferralRole(item) !== detailReferralFilterValue) return false;
