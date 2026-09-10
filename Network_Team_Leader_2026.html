@@ -4191,8 +4191,8 @@
             document.getElementById('studyEnd').value = formatDateToISO(today);
             const offerStudyStart = document.getElementById('offerStudyStart');
             const offerStudyEnd = document.getElementById('offerStudyEnd');
-            if (offerStudyStart) offerStudyStart.value = '';
-            if (offerStudyEnd) offerStudyEnd.value = '';
+            if (offerStudyStart) offerStudyStart.value = formatDateToISO(monthStart);
+            if (offerStudyEnd) offerStudyEnd.value = formatDateToISO(today);
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
@@ -4284,8 +4284,8 @@
             document.getElementById('studyEnd').value = formatDateToISO(today);
             const offerStudyStart = document.getElementById('offerStudyStart');
             const offerStudyEnd = document.getElementById('offerStudyEnd');
-            if (offerStudyStart) offerStudyStart.value = '';
-            if (offerStudyEnd) offerStudyEnd.value = '';
+            if (offerStudyStart) offerStudyStart.value = formatDateToISO(monthStart);
+            if (offerStudyEnd) offerStudyEnd.value = formatDateToISO(today);
             const leaderOnlyStart = document.getElementById('leaderOnlyStart');
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
