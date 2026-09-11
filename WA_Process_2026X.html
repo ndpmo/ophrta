@@ -279,7 +279,7 @@
 
         <section class="glass-card p-5 md:p-6 mb-8">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 flex-1">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5 flex-1">
                     <div class="space-y-2">
                         <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
                         <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
@@ -287,6 +287,14 @@
                     <div class="space-y-2">
                         <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
                         <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="offerDateStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date From</label>
+                        <input id="offerDateStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="offerDateEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date To</label>
+                        <input id="offerDateEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
                     </div>
                     <div class="space-y-2">
                         <label for="detailSourceFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Details Source</label>
@@ -305,7 +313,7 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
 
@@ -315,7 +323,10 @@
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
                     <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Lead Details</h2>
                 </div>
-                <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+                    <button type="button" onclick="downloadCurrentDetails()" class="pill-button border-sky-200 bg-sky-50 text-sky-700 hover:-translate-y-0.5 transition">Download Details</button>
+                </div>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -372,6 +383,8 @@
         const STAGE_CONFIG = {
             LEAD: { title: 'Lead Details', accent: 'var(--lead)', soft: 'var(--lead-soft)' },
             OFFER: { title: 'Offer Details', accent: 'var(--offer)', soft: 'var(--offer-soft)' },
+            PENDING_OFFER: { title: 'Pending Offer Details', accent: '#d97706', soft: 'rgba(245, 158, 11, 0.12)' },
+            UPCOMING_ONBOARD: { title: 'Upcoming On Board Details', accent: '#7c3aed', soft: 'rgba(139, 92, 246, 0.12)' },
             ONBOARD: { title: 'On Board Details', accent: 'var(--onboard)', soft: 'var(--onboard-soft)' },
             STILL_ACTIVE: { title: 'Still Active Details', accent: '#0891b2', soft: 'rgba(6, 182, 212, 0.12)' },
             PENDING: { title: 'Pending Details', accent: 'var(--pending)', soft: 'var(--pending-soft)' },
@@ -388,6 +401,7 @@
         let dataS1 = [];
         let activeStage = 'LEAD';
         let activeSpecialistKey = '';
+        let currentDetailRows = [];
 
         function formatDateToISO(date) {
             const y = date.getFullYear();
@@ -598,6 +612,15 @@
             return { start, end: endLimit };
         }
 
+        function getOfferDateRange() {
+            const start = parseDate(document.getElementById('offerDateStart')?.value);
+            const end = parseDate(document.getElementById('offerDateEnd')?.value);
+            if (!start && !end) return null;
+
+            if (end) end.setHours(23, 59, 59, 999);
+            return { start, end };
+        }
+
         function isTargetPosition(row) {
             return cleanText(row?.[headersS1[S1_IDX.POSITION]], '').toUpperCase() === TARGET_POSITION;
         }
@@ -606,6 +629,14 @@
             const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
             if (!leadDate) return false;
             return leadDate >= range.start && leadDate <= range.end;
+        }
+
+        function isInOfferDateRange(row, range) {
+            if (!range) return true;
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            return !!offerDate
+                && (!range.start || offerDate >= range.start)
+                && (!range.end || offerDate <= range.end);
         }
 
         function isRejectedOrWithdrawn(value) {
@@ -631,6 +662,27 @@
 
         function isOnboardRow(row) {
             return getOnboardStatus(row).toUpperCase().includes('ONBOARD');
+        }
+
+        function hasRecordedOnboardDate(row) {
+            return !!parseDate(getRecordedOnboardDate(row));
+        }
+
+        function isPendingOfferRow(row) {
+            const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+            const status = getStatus(row);
+            const onboardStatus = getOnboardStatus(row);
+            return !!offerDate && !hasRecordedOnboardDate(row)
+                && !isRejectedOrWithdrawn(status) && !isNoShow(status)
+                && !isRejectedOrWithdrawn(onboardStatus) && !isNoShow(onboardStatus);
+        }
+
+        function isUpcomingOnboardRow(row) {
+            const status = getStatus(row).toUpperCase();
+            const onboardDate = parseDate(getRecordedOnboardDate(row));
+            const todayEnd = new Date();
+            todayEnd.setHours(23, 59, 59, 999);
+            return status.includes('ACCEPT') && !!onboardDate && onboardDate > todayEnd;
         }
 
         function hasLastEmploymentDay(row) {
@@ -671,6 +723,11 @@
             const range = getRange();
             if (!range) return [];
             return dataS1.filter(row => isTargetPosition(row) && isInLeadRange(row, range));
+        }
+
+        function getOfferFilteredRows(rows) {
+            const offerRange = getOfferDateRange();
+            return rows.filter(row => isInOfferDateRange(row, offerRange));
         }
 
         function buildCounts(rows, predicate) {
@@ -810,6 +867,26 @@
                     extra: summary.offer.other > 0 ? `Other source = ${summary.offer.other}` : ''
                 },
                 {
+                    key: 'PENDING_OFFER',
+                    title: 'Pending Offer',
+                    value: summary.pendingOffer.total,
+                    note: 'Offer Date recorded, without On Board Date',
+                    accent: '#d97706',
+                    bg: 'rgba(245, 158, 11, 0.12)',
+                    lines: [['HR', summary.pendingOffer.hr], ['OP', summary.pendingOffer.op], ['AD / CIC', summary.pendingOffer.ad]],
+                    extra: summary.pendingOffer.other > 0 ? `Other source = ${summary.pendingOffer.other}` : ''
+                },
+                {
+                    key: 'UPCOMING_ONBOARD',
+                    title: 'Upcoming On Board',
+                    value: summary.upcomingOnboard.total,
+                    note: 'Accept with a future On Board Date',
+                    accent: '#7c3aed',
+                    bg: 'rgba(139, 92, 246, 0.12)',
+                    lines: [['HR', summary.upcomingOnboard.hr], ['OP', summary.upcomingOnboard.op], ['AD / CIC', summary.upcomingOnboard.ad]],
+                    extra: summary.upcomingOnboard.other > 0 ? `Other source = ${summary.upcomingOnboard.other}` : ''
+                },
+                {
                     key: 'ONBOARD',
                     title: 'On Board',
                     value: summary.onboard.total,
@@ -838,6 +915,9 @@
                     extra: summary.stillActive.other > 0 ? `Other source = ${summary.stillActive.other}` : ''
                 }
             ];
+
+            const cardOrder = ['LEAD', 'OFFER', 'ONBOARD', 'UPCOMING_ONBOARD', 'PENDING', 'REJECT_WITHDRAW', 'PENDING_OFFER', 'STILL_ACTIVE'];
+            cards.sort((a, b) => cardOrder.indexOf(a.key) - cardOrder.indexOf(b.key));
 
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
                 <div class="glass-card summary-card summary-card-shell p-5 md:p-6 ${!activeSpecialistKey && activeStage === card.key ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};" onclick="setActiveStage('${card.key}')">
@@ -905,6 +985,8 @@
                 PENDING: summary.pending.rows,
                 REJECT_WITHDRAW: summary.rejectWithdraw.rows,
                 OFFER: summary.offer.rows,
+                PENDING_OFFER: summary.pendingOffer.rows,
+                UPCOMING_ONBOARD: summary.upcomingOnboard.rows,
                 ONBOARD: summary.onboard.rows,
                 STILL_ACTIVE: summary.stillActive.rows
             };
@@ -913,6 +995,7 @@
                 : null;
             const baseRows = activeSpecialist ? activeSpecialist.rows : (stageRows[activeStage] || []);
             const rows = getSourceFilteredRows(baseRows);
+            currentDetailRows = rows;
             const detailTitle = activeSpecialist
                 ? `${activeSpecialist.owner} Matched Lead Details`
                 : STAGE_CONFIG[activeStage].title;
@@ -955,16 +1038,21 @@
 
         function renderDashboard() {
             const rows = getFilteredRows();
+            const offerRows = getOfferFilteredRows(rows);
+            const upcomingOnboardRows = dataS1.filter(row => isTargetPosition(row) && isUpcomingOnboardRow(row));
             const summary = {
                 lead: buildCounts(rows),
                 pending: getPendingCounts(rows),
                 rejectWithdraw: getRejectWithdrawCounts(rows),
-                offer: buildCounts(rows, isOfferRow),
+                offer: buildCounts(offerRows, isOfferRow),
+                pendingOffer: buildCounts(offerRows, isPendingOfferRow),
+                upcomingOnboard: buildCounts(upcomingOnboardRows),
                 onboard: buildCounts(rows, isOnboardRow),
                 stillActive: buildCounts(rows, isStillActiveRow),
                 specialists: SPECIALIST_CONFIG.map(config => ({
                     ...config,
-                    ...getSpecialistCounts(rows, config.owner)
+                    ...getSpecialistCounts(rows, config.owner),
+                    offer: offerRows.filter(row => getCicOwner(row).toUpperCase() === config.owner.toUpperCase() && isOfferRow(row)).length
                 }))
             };
             renderSummaryCards(summary);
@@ -975,6 +1063,33 @@
 
         function scrollToDetailView() {
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function downloadCurrentDetails() {
+            const columns = [
+                ['Brand', row => cleanText(row?.[headersS1[S1_IDX.BRAND]])],
+                ['Source', getSourceType],
+                ['Position', row => cleanText(row?.[headersS1[S1_IDX.POSITION]])],
+                ['Lead Date', row => cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])],
+                ['Offer Date', row => cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])],
+                ['On Board Date', row => cleanText(getRecordedOnboardDate(row))],
+                ['Last Employment Day', row => cleanText(getLastEmploymentDay(row))],
+                ['Status', row => cleanText(getStatus(row))],
+                ['On Board Status', row => cleanText(getOnboardStatus(row))],
+                ['AD / CIC', row => cleanText(getCicOwner(row))],
+                ['RJ/NJ', row => cleanText(row?.[headersS1[S1_IDX.RJNJ]])],
+                ['Name', row => cleanText(row?.[headersS1[S1_IDX.NAME]])]
+            ];
+            const csv = [columns.map(([label]) => csvEscape(label)).join(','), ...currentDetailRows.map(row => columns.map(([, getValue]) => csvEscape(getValue(row))).join(','))].join('\r\n');
+            const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const safeTitle = (document.getElementById('detailTitle')?.textContent || 'details').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+            link.href = URL.createObjectURL(blob);
+            link.download = `WA_Process_${safeTitle || 'details'}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(link.href);
         }
 
         function setActiveStage(stage) {
@@ -995,6 +1110,8 @@
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
             document.getElementById('studyStart').value = formatDateToISO(monthStart);
             document.getElementById('studyEnd').value = formatDateToISO(today);
+            document.getElementById('offerDateStart').value = '';
+            document.getElementById('offerDateEnd').value = '';
             document.getElementById('detailSourceFilter').value = 'ALL';
             activeStage = 'LEAD';
             activeSpecialistKey = '';
@@ -1004,6 +1121,8 @@
         async function init() {
             document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
             document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
+            document.getElementById('offerDateStart')?.addEventListener('change', renderDashboard);
+            document.getElementById('offerDateEnd')?.addEventListener('change', renderDashboard);
             document.getElementById('detailSourceFilter')?.addEventListener('change', renderDashboard);
 
             try {
