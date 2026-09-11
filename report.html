@@ -956,7 +956,8 @@
         const SHEET4_GID = '1807698538'; // ?啣? Sheet 4 (Commitment) ??GID
         const CORE_TEAM_GID = '1610056086'; // Core Team ??
         const CORE_TEAM_SHEET_NAME = 'Core Team';
-        const SALES_QUICK_SHEET_NAME = 'Sales';
+        // Referral-linked staff filters use the live On Sales roster.
+        const SALES_QUICK_SHEET_NAME = 'On Sales';
         const FLOOR_SHEET_NAME = 'Floor';
         const TARGET_SHEET_NAME = 'Target';
         const ON_SALES_SHEET_NAME = 'On Sales';
@@ -2187,8 +2188,7 @@
 
             const fields = headersSalesQuick || [];
             const normalized = (v) => ((v || "") + "").toLowerCase().replace(/\s+/g, '');
-            // Sales sheet structure:
-            // C = Brand, D = Center, H = Therapist Name, I = Therapist Staff ID
+            // The selected roster contains Brand, Center, Therapist Name and Therapist Staff ID.
             const SALES_IDX = { BRAND: 2, CENTER: 3, THERAPIST_NAME: 7, THERAPIST_STAFF_ID: 8 };
             const brandField =
                 fields.find(h => normalized(h) === 'brand') ||
@@ -5109,3 +5109,4 @@
     </script>
 </body>
 </html>
+
