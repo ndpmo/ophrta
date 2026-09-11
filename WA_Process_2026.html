@@ -323,7 +323,10 @@
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
                     <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Lead Details</h2>
                 </div>
-                <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
+                    <button type="button" onclick="downloadCurrentDetails()" class="pill-button border-sky-200 bg-sky-50 text-sky-700 hover:-translate-y-0.5 transition">Download Details</button>
+                </div>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -395,6 +398,7 @@
         let dataS1 = [];
         let activeStage = 'LEAD';
         let activeSpecialistKey = '';
+        let currentDetailRows = [];
 
         function formatDateToISO(date) {
             const y = date.getFullYear();
@@ -965,6 +969,7 @@
                 : null;
             const baseRows = activeSpecialist ? activeSpecialist.rows : (stageRows[activeStage] || []);
             const rows = getSourceFilteredRows(baseRows);
+            currentDetailRows = rows;
             const detailTitle = activeSpecialist
                 ? `${activeSpecialist.owner} Matched Lead Details`
                 : STAGE_CONFIG[activeStage].title;
@@ -1030,6 +1035,32 @@
 
         function scrollToDetailView() {
             document.getElementById('detailSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function downloadCurrentDetails() {
+            const columns = [
+                ['Brand', row => cleanText(row?.[headersS1[S1_IDX.BRAND]])],
+                ['Source', getSourceType],
+                ['Position', row => cleanText(row?.[headersS1[S1_IDX.POSITION]])],
+                ['Lead Date', row => cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])],
+                ['Offer Date', row => cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])],
+                ['On Board Date', row => cleanText(getRecordedOnboardDate(row))],
+                ['Status', row => cleanText(getStatus(row))],
+                ['On Board Status', row => cleanText(getOnboardStatus(row))],
+                ['AD / CIC', row => cleanText(getCicOwner(row))],
+                ['RJ/NJ', row => cleanText(row?.[headersS1[S1_IDX.RJNJ]])],
+                ['Name', row => cleanText(row?.[headersS1[S1_IDX.NAME]])]
+            ];
+            const csv = [columns.map(([label]) => csvEscape(label)).join(','), ...currentDetailRows.map(row => columns.map(([, getValue]) => csvEscape(getValue(row))).join(','))].join('\r\n');
+            const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const safeTitle = (document.getElementById('detailTitle')?.textContent || 'details').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+            link.href = URL.createObjectURL(blob);
+            link.download = `WA_Process_${safeTitle || 'details'}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(link.href);
         }
 
         function setActiveStage(stage) {
