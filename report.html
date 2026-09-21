@@ -716,31 +716,29 @@
         <!-- Floor Performance -->
         <div id="floorPerformanceArea" class="mb-16 text-left hidden">
             <section id="reportBrandSummary" class="mb-7 rounded-3xl border border-white/80 bg-white/90 p-5 shadow-xl shadow-slate-200/50 md:p-7">
-                <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div>
+                <div class="mb-5">
+                    <div class="max-w-3xl">
                         <p class="text-sm font-black text-amber-600">Brand workforce &amp; offer</p>
                         <h3 class="mt-1 text-2xl font-black text-slate-900 md:text-3xl">Brand Summary</h3>
-                        <p class="mt-2 text-sm font-bold text-slate-500">Upcoming On Board includes every accepted candidate whose On Board Date is after today, excluding Withdraw, Reject and No Show. The bracketed MTD figure follows the Offer Date filter.</p>
+                        <p class="mt-2 text-sm font-bold leading-6 text-slate-500">Upcoming On Board includes every accepted candidate whose On Board Date is after today, excluding Withdraw, Reject and No Show. The bracketed MTD figure follows the Offer Date filter.</p>
                     </div>
-                    <div class="flex flex-wrap items-end gap-3">
-                        <label class="min-w-[190px] text-sm font-black text-slate-600">Upcoming Offer Source
-                            <select id="reportUpcomingSourceFilter" onchange="renderReportBrandSummary()" class="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-bold text-slate-600 outline-none focus:border-amber-400">
+                    <div class="mt-5 grid gap-3 rounded-2xl border border-amber-100 bg-gradient-to-r from-amber-50/80 to-white p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-[minmax(190px,1.15fr)_minmax(160px,1fr)_minmax(160px,1fr)_auto] xl:items-end">
+                        <label class="block min-w-0 text-xs font-black uppercase tracking-wide text-slate-600">Upcoming Offer Source
+                            <select id="reportUpcomingSourceFilter" onchange="renderReportBrandSummary()" class="mt-1.5 block h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold normal-case tracking-normal text-slate-700 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100">
                                 <option value="">All Sources</option>
                                 <option value="OP">Only OP referral</option>
                                 <option value="HR">Only HR referral</option>
                             </select>
                         </label>
-                        <label class="text-sm font-black text-slate-600">Offer Date Filter
-                            <span class="mt-1 flex items-center gap-2">
-                                <input type="date" id="reportBrandOfferStart" onchange="renderReportBrandSummary()" class="w-[145px] rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-bold text-slate-600 outline-none focus:border-amber-400">
-                                <span class="text-slate-400">to</span>
-                                <input type="date" id="reportBrandOfferEnd" onchange="renderReportBrandSummary()" class="w-[145px] rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-bold text-slate-600 outline-none focus:border-amber-400">
-                            </span>
+                        <label class="block min-w-0 text-xs font-black uppercase tracking-wide text-slate-600">Offer Date From
+                            <input type="date" id="reportBrandOfferStart" onchange="renderReportBrandSummary()" class="mt-1.5 block h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold normal-case tracking-normal text-slate-700 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100">
                         </label>
-                        <button type="button" onclick="downloadReportBrandSummaryWorkbook()" class="rounded-xl px-4 py-2.5 text-sm font-black text-amber-700 transition hover:bg-amber-50">Download Complete Lists</button>
+                        <label class="block min-w-0 text-xs font-black uppercase tracking-wide text-slate-600">Offer Date To
+                            <input type="date" id="reportBrandOfferEnd" onchange="renderReportBrandSummary()" class="mt-1.5 block h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold normal-case tracking-normal text-slate-700 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100">
+                        </label>
+                        <button type="button" onclick="downloadReportBrandSummaryWorkbook()" class="h-11 rounded-xl bg-amber-500 px-5 text-sm font-black text-white shadow-md shadow-amber-200 transition hover:-translate-y-0.5 hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200 sm:col-span-2 xl:col-span-1">Download Complete Lists</button>
                     </div>
-                </div>
-                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                </div>                <div class="overflow-x-auto rounded-2xl border border-slate-200">
                     <table class="min-w-[920px] w-full border-collapse">
                         <thead class="bg-amber-50 text-sm font-black text-amber-950"><tr><th class="px-5 py-4 text-left">Brand</th><th class="px-4 py-4 text-center">Full HC Target</th><th class="px-4 py-4 text-center">On Sales HC</th><th class="px-4 py-4 text-center">On Sales Rate</th><th class="px-4 py-4 text-center">Undertraining</th><th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] font-bold normal-case text-amber-700/70">(MTD by Offer Date)</span></th><th class="px-4 py-4 text-center">Future Fulfill Rate</th><th class="px-4 py-4 text-center">Gap</th></tr></thead>
                         <tbody id="reportBrandSummaryBody" class="divide-y divide-slate-100 bg-white text-center"></tbody>
