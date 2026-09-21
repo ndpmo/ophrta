@@ -616,7 +616,7 @@
                         </select>
                     </label>
                     <button type="button" onclick="downloadBrandSummaryWorkbook()" class="pill-button min-h-0 px-4 py-2 text-sm text-amber-700">
-                        Download 5 Lists
+                        Download Complete Lists
                     </button>
                 </div>
             </div>
@@ -3364,6 +3364,14 @@
             return new Map(NETWORK_TEAM_BRANDS.map(brand => [brand, getBrandFilterOfferSummaryRows(brand, leaders).length]));
         }
 
+        function parseUpcomingOfferDate(rawValue) {
+            const value = safeTrim(rawValue);
+            if (!value) return null;
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return parseDate(rawValue);
+        }
+
         function getBrandFilterOfferSummaryRows(brand, leaders = getFilteredLeaders()) {
             const normalizedBrand = normalizeBrand(brand);
             const offerRange = getSelectedOfferDateRange();
@@ -3376,7 +3384,7 @@
             dataS1.forEach(row => {
                 if (normalizeBrand(getS1Value(row, S1_IDX.BRAND)) !== normalizedBrand) return;
                 if (!isUpcomingSourceMatch(row)) return;
-                if (!isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
+                if (!isDateWithinOptionalRange(parseUpcomingOfferDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
                 const key = getRowIdentity(row);
                 if (seen.has(key)) return;
                 seen.add(key);
@@ -3389,8 +3397,12 @@
                     floor: getS1Value(row, S1_IDX.OFFER_PLACE) || '-',
                     position: getS1PositionValue(row),
                     source: getS1Value(row, S1_IDX.SOURCE) || '-',
+                    status: getS1Value(row, S1_IDX.STATUS) || '-',
+                    onboardStatus: getOnboardStatus(row) || '-',
+                    leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
                     offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
-                    onboardDate: getRecordedOnboardDate(row) || '-'
+                    onboardDate: getRecordedOnboardDate(row) || '-',
+                    interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-'
                 });
             });
             return rows;
@@ -3421,9 +3433,13 @@
                     floor: getS1Value(row, S1_IDX.OFFER_PLACE) || '-',
                     candidateName: getS1Value(row, S1_IDX.NAME) || '-',
                     position: getS1PositionValue(row),
+                    source: getS1Value(row, S1_IDX.SOURCE) || '-',
+                    status: getS1Value(row, S1_IDX.STATUS) || '-',
+                    onboardStatus: getOnboardStatus(row) || '-',
+                    leadDate: getS1Value(row, S1_IDX.LEAD_DATE) || '-',
                     offerDate: getS1Value(row, S1_IDX.OFFER_DATE) || '-',
                     onboardDate: getRecordedOnboardDate(row) || '-',
-                    status: getS1Value(row, S1_IDX.STATUS) || '-'
+                    interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-'
                 });
             });
             return rows;
@@ -3497,15 +3513,16 @@
             const staffHeaders = ['Brand', 'Floor', 'Staff ID', 'Name', 'Position'];
             const onSalesRows = getOnSalesSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position]);
             const undertrainingRows = getUndertrainingSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position]);
-            const upcomingRows = getUpcomingOnboardSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.referrerName, row.candidateName, row.position, row.status, row.offerDate, row.onboardDate]);
-            const filterOfferRows = NETWORK_TEAM_BRANDS.flatMap(brand => getBrandFilterOfferSummaryRows(brand).map(row => [displayBrand(brand), row.floor, row.referrerStaffId, row.referrerName, row.name, row.position, row.source, row.offerDate, row.onboardDate]));
+            const upcomingRows = getUpcomingOnboardSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.referrerName, row.candidateName, row.position, row.source, row.status, row.onboardStatus, row.leadDate, row.offerDate, row.onboardDate, row.interviewer]);
+            const filterOfferRows = NETWORK_TEAM_BRANDS.flatMap(brand => getBrandFilterOfferSummaryRows(brand).map(row => [displayBrand(brand), row.floor, row.staffId, row.referrerStaffId, row.referrerName, row.name, row.position, row.source, row.status, row.onboardStatus, row.leadDate, row.offerDate, row.onboardDate, row.interviewer]));
             const resignRows = getResignSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.lastEmploymentDate]);
             const filteredOutRows = getBrandSummaryFilteredOutRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position, row.list, row.reason, row.status, row.terminationDate, row.target]);
 
+            addSheet('Download Info', ['Item', 'Value'], getCurrentStudyFilterEntries([['Downloaded At', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'], ['Upcoming rule', 'ACCEPT + future On Board Date; exclude Withdraw, Reject and No Show']]), 'FF334155');
             addSheet('On Sales HC', staffHeaders, onSalesRows, 'FF0F766E');
             addSheet('Undertraining', staffHeaders, undertrainingRows, 'FF7C3AED');
-            addSheet('Upcoming On Board', ['Brand', 'Offer Floor', 'Candidate Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Status', 'Offer Date', 'On Board Date'], upcomingRows, 'FFD97706');
-            addSheet('Filter Offer', ['Brand', 'Referrer Floor', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Source', 'Offer Date', 'On Board Date'], filterOfferRows, 'FFC25A00');
+            addSheet('Upcoming On Board', ['Brand', 'Offer Floor', 'Candidate Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Source', 'Status', 'On Board Status', 'Lead Date', 'Offer Date', 'On Board Date', 'Interview By'], upcomingRows, 'FFD97706');
+            addSheet('Filter Offer', ['Brand', 'Offer Floor', 'Candidate Staff ID', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Source', 'Status', 'On Board Status', 'Lead Date', 'Offer Date', 'On Board Date', 'Interview By'], filterOfferRows, 'FFC25A00');
             addSheet('Resign HC', ['Brand', 'Floor', 'Staff ID', 'Name', 'Last Employment Date'], resignRows, 'FFBE123C');
             addSheet('Filtered Out', ['Brand', 'Floor', 'Staff ID', 'Name', 'Position', 'List', 'Filter Reason', 'Undertraining Status (AG)', 'Termination Date (K)', 'Sales Target'], filteredOutRows, 'FF64748B');
 
@@ -3765,7 +3782,7 @@
             const body = document.getElementById('brandOfferSummary');
             if (!body) return;
 
-            const counts = getBrandOfferSummaryCounts(leaders, brandRows);
+            const filterOfferCounts = getBrandFilterOfferSummaryCounts(leaders);
             const upcomingOnboardCounts = getBrandUpcomingOnboardSummaryCounts();
             const onSalesStaffIds = getQualifiedOnSalesStaffIds();
             const headcounts = getBrandOnSalesHeadcounts(onSalesStaffIds);
@@ -3773,7 +3790,7 @@
             body.innerHTML = NETWORK_TEAM_BRANDS.map(brand => {
                 const onSalesHc = headcounts.get(brand) || 0;
                 const undertraining = undertrainingHeadcounts.get(brand) || 0;
-                const offer = counts.get(brand) || 0;
+                const upcomingOfferFiltered = filterOfferCounts.get(brand) || 0;
                 const upcomingOnboard = upcomingOnboardCounts.get(brand) || 0;
                 const totalTarget = Number(brandTargets.get(brand)) || 0;
                 const onSalesRate = formatOneDecimalRate(onSalesHc, totalTarget);
@@ -3788,7 +3805,7 @@
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'ON_SALES')" class="font-black text-slate-900 underline-offset-4 hover:text-sky-700 hover:underline" title="Show On Sales HC details">${formatNumber(onSalesHc)}</button></td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black text-sky-700">${onSalesRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UNDERTRAINING')" class="font-black text-violet-700 underline-offset-4 hover:underline" title="Show Undertraining details">${formatNumber(undertraining)}</button></td>
-                        <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UPCOMING')" class="font-black text-amber-700 underline-offset-4 hover:underline" title="Show Upcoming On Board candidate details">${formatNumber(upcomingOnboard)}</button> <button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'FILTER_OFFER')" class="font-black text-slate-400 underline-offset-4 hover:text-slate-700 hover:underline" title="Show MTD Upcoming On Board details filtered by Offer Date">(${formatNumber(offer)})</button></td>
+                        <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UPCOMING')" class="font-black text-amber-700 underline-offset-4 hover:underline" title="Show Upcoming On Board candidate details">${formatNumber(upcomingOnboard)}</button> <button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'FILTER_OFFER')" class="font-black text-slate-400 underline-offset-4 hover:text-slate-700 hover:underline" title="Show MTD Upcoming On Board details filtered by Offer Date">(${formatNumber(upcomingOfferFiltered)})</button></td>
                         <td class="resign-summary-cell px-3 py-5 text-center data-font text-lg font-black text-rose-700">${formatNumber(resign)}</td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black text-emerald-700">${futureFulfillRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black ${gapClass}">${totalTarget ? formatNumber(gap) : '—'}</td>

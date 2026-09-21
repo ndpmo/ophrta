@@ -737,7 +737,7 @@
                                 <input type="date" id="reportBrandOfferEnd" onchange="renderReportBrandSummary()" class="w-[145px] rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-bold text-slate-600 outline-none focus:border-amber-400">
                             </span>
                         </label>
-                        <button type="button" onclick="downloadReportBrandSummaryWorkbook()" class="rounded-xl px-4 py-2.5 text-sm font-black text-amber-700 transition hover:bg-amber-50">Download 4 Lists</button>
+                        <button type="button" onclick="downloadReportBrandSummaryWorkbook()" class="rounded-xl px-4 py-2.5 text-sm font-black text-amber-700 transition hover:bg-amber-50">Download Complete Lists</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto rounded-2xl border border-slate-200">
@@ -3562,6 +3562,14 @@
             return source === 'OP' || source === 'OPS' || source.includes('OPERATION');
         }
 
+        function parseReportUpcomingOfferDate(rawValue) {
+            const value = String(rawValue || '').trim();
+            if (!value) return null;
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return parseDate(value);
+        }
+
         function getReportBrandUpcomingCounts() {
             const allByBrand = new Map(REPORT_SUMMARY_BRANDS.map(brand => [brand, new Set()]));
             const filterOfferByBrand = new Map(REPORT_SUMMARY_BRANDS.map(brand => [brand, new Set()]));
@@ -3573,7 +3581,7 @@
             dataS1.forEach(row => {
                 const brand = String(row?.[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
                 const status = String(row?.[headersS1[S1_IDX.STATUS]] || '').trim().toUpperCase();
-                const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+                const offerDate = parseReportUpcomingOfferDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const identity = `${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
@@ -3630,7 +3638,7 @@
                 const key = `${brand}|${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
                 if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !status.includes('ACCEPT') || isExcludedPendingOfferRow(row) || !onboardDate || onboardDate <= todayEnd || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
                 seen.add(key);
-                rows.push([brand, String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), row?.[headersS1[S1_IDX.STATUS]] || '']);
+                rows.push([brand, String(row?.[headersS1[18]] || '').trim(), String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), String(row?.[headersS1[S1_IDX.STAFF_ID]] || '').trim(), String(row?.[headersS1[S1_IDX.STAFF_NAME]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.STATUS]] || '', getS1OnboardStatus(row), row?.[headersS1[S1_IDX.LEAD_DATE]] || '', row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), String(row?.[headersS1[25]] || '').trim(), String(row?.[headersS1[S1_IDX.WITHDRAWAL_REJECTION_REASON]] || '').trim()]);
                 return rows;
             }, []);
         }
@@ -3645,14 +3653,14 @@
             todayEnd.setHours(23, 59, 59, 999);
             return dataS1.reduce((rows, row) => {
                 const brand = String(row?.[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
-                const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+                const offerDate = parseReportUpcomingOfferDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const key = `${brand}|${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
                 const status = String(row?.[headersS1[S1_IDX.STATUS]] || '').trim().toUpperCase();
                 if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !status.includes('ACCEPT') || isExcludedPendingOfferRow(row) || !onboardDate || onboardDate <= todayEnd || !offerDate || offerDate < start || offerDate > endTs || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
                 seen.add(key);
-                rows.push([brand, String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), row?.[headersS1[S1_IDX.STATUS]] || '']);
+                rows.push([brand, String(row?.[headersS1[18]] || '').trim(), String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), String(row?.[headersS1[S1_IDX.STAFF_ID]] || '').trim(), String(row?.[headersS1[S1_IDX.STAFF_NAME]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.STATUS]] || '', getS1OnboardStatus(row), row?.[headersS1[S1_IDX.LEAD_DATE]] || '', row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), String(row?.[headersS1[25]] || '').trim(), String(row?.[headersS1[S1_IDX.WITHDRAWAL_REJECTION_REASON]] || '').trim()]);
                 return rows;
             }, []);
         }
@@ -3715,7 +3723,8 @@
                 sheet.autoFilter = { from: 'A1', to: { row: Math.max(1, rows.length + 1), column: headers.length } };
             };
             const staffHeaders = ['Brand', 'Floor', 'Staff ID', 'Name', 'Position'];
-            const candidateHeaders = ['Brand', 'Candidate Staff ID', 'Candidate Name', 'Position', 'Source', 'Offer Date', 'On Board Date', 'Status'];
+            const candidateHeaders = ['Brand', 'Offer Floor', 'Candidate Staff ID', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Source', 'Status', 'On Board Status', 'Lead Date', 'Offer Date', 'On Board Date', 'Interview By', 'Details Information'];
+            addSheet('Download Info', ['Item', 'Value'], [['Downloaded At', new Date().toLocaleString('en-GB', { timeZone: 'Asia/Hong_Kong' }) + ' (Hong Kong)'], ['Upcoming Source', document.getElementById('reportUpcomingSourceFilter')?.selectedOptions[0]?.textContent || 'All Sources'], ['Offer Date From', reportInput('reportBrandOfferStart')], ['Offer Date To', reportInput('reportBrandOfferEnd')], ['Upcoming rule', 'ACCEPT + future On Board Date; exclude Withdraw, Reject and No Show']], 'FF334155');
             addSheet('On Sales HC', staffHeaders, getReportOnSalesList(), 'FF0F766E');
             addSheet('Undertraining', staffHeaders, getReportUndertrainingList(), 'FF7C3AED');
             addSheet('Upcoming On Board', candidateHeaders, getReportUpcomingList(), 'FFD97706');
