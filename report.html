@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -803,10 +801,21 @@
                     <p id="floorPerformanceDetailTitle" class="font-black text-slate-900"></p>
                     <p id="floorPerformanceDetailMeta" class="text-sm font-bold text-slate-500"></p>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 border-b border-teal-100 bg-white/70 px-5 py-4">
+                    <label class="text-xs font-bold text-slate-700">Floor<select id="floorDetailFilterFloor" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All Floor</option></select></label>
+                    <label class="text-xs font-bold text-slate-700">Lead Date From<input type="date" id="floorDetailLeadStart" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"></label>
+                    <label class="text-xs font-bold text-slate-700">Lead Date To<input type="date" id="floorDetailLeadEnd" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"></label>
+                    <label class="text-xs font-bold text-slate-700">Offer Date From<input type="date" id="floorDetailOfferStart" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"></label>
+                    <label class="text-xs font-bold text-slate-700">Offer Date To<input type="date" id="floorDetailOfferEnd" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"></label>
+                    <label class="text-xs font-bold text-slate-700">Status<select id="floorDetailFilterStatus" onchange="applyFloorPerformanceDetailFilters()" class="date-selector-input block h-10 w-full mt-1.5 text-sm"><option value="">All Status</option></select></label>
+                    <button type="button" onclick="resetFloorPerformanceDetailFilters()" class="self-end h-10 px-4 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs">Reset Filters</button>
+                </div>
                 <div class="overflow-x-auto custom-scrollbar">
-                    <table class="min-w-[900px] w-full border-collapse text-center">
+                    <table class="min-w-[1120px] w-full border-collapse text-center">
                         <thead class="bg-white text-slate-600 text-xs uppercase tracking-wide font-black">
                             <tr>
+                                <th class="px-4 py-3 text-left">Refer By Floor</th>
+                                <th class="px-5 py-3 text-left">Refer By</th>
                                 <th class="px-5 py-3 text-left">Candidate</th>
                                 <th class="px-4 py-3 text-left">Position</th>
                                 <th class="px-4 py-3">Status</th>
@@ -814,7 +823,6 @@
                                 <th class="px-4 py-3">Offer Date</th>
                                 <th class="px-4 py-3">On Board Date</th>
                                 <th class="px-4 py-3">On Board Status</th>
-                                <th class="px-5 py-3 text-left">Refer By</th>
                             </tr>
                         </thead>
                         <tbody id="floorPerformanceDetailBody" class="divide-y divide-slate-100 text-sm font-bold"></tbody>
@@ -947,6 +955,7 @@
         let currentReferralDetailRows = [];
         let currentReferralDetailSummaryFilter = 'all';
         let referralDetailSort = { key: 'leadDate', direction: 'desc' };
+        let currentFloorPerformanceDetailRows = [];
         let positionFilterInitialized = false;
 
         // ??暺身摰?啗岫蝞”靘?
@@ -3412,20 +3421,64 @@
             });
         }
 
-        function showFloorPerformanceDetail(floor, metric) {
-            const area = document.getElementById('floorPerformanceDetailArea');
-            const title = document.getElementById('floorPerformanceDetailTitle');
-            const meta = document.getElementById('floorPerformanceDetailMeta');
-            const body = document.getElementById('floorPerformanceDetailBody');
-            if (!area || !title || !meta || !body) return;
+        function getFloorPerformanceReferrerFloor(row) {
+            const staffId = ((row?.[headersS1[S1_IDX.STAFF_ID]] || '') + '').trim();
+            const onSalesRow = dataOnSales.find(item => ((item?.[headersOnSales[ON_SALES_IDX.STAFF_ID]] || '') + '').trim() === staffId);
+            const onSalesFloor = ((onSalesRow?.[headersOnSales[ON_SALES_IDX.FLOOR]] || '') + '').trim();
+            if (onSalesFloor) return onSalesFloor;
+            const teamRow = dataS2.find(item => ((item?.[headersS2[S2_IDX.STAFF_ID]] || '') + '').trim() === staffId);
+            const teamFloor = ((teamRow?.[headersS2[S2_IDX.FLOOR]] || '') + '').trim();
+            if (teamFloor) return teamFloor;
+            const salesRow = findReferralLinkedSalesRowByStaffId(staffId);
+            return getSalesQuickFilterFloor(salesRow) || '-';
+        }
 
-            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', PENDING_OFFER: 'Pending Offer', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
-            const rows = getFloorPerformanceMetricRows(floor, metric);
-            title.textContent = `${floor || 'Grand Total'} ${labels[metric] || 'Lead'} Details`;
+        function setFloorPerformanceDetailOptions(rows) {
+            const floorSelect = document.getElementById('floorDetailFilterFloor');
+            const statusSelect = document.getElementById('floorDetailFilterStatus');
+            if (!floorSelect || !statusSelect) return;
+            const previousFloor = floorSelect.value;
+            const previousStatus = statusSelect.value;
+            const floors = [...new Set(rows.map(getFloorPerformanceReferrerFloor).filter(value => value && value !== '-'))]
+                .sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
+            const statuses = [...new Set(rows.map(row => ((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim() || '-'))]
+                .sort((a, b) => a.localeCompare(b, 'zh-HK', { numeric: true }));
+            floorSelect.innerHTML = '<option value="">All Floor</option>' + floors.map(value => `<option value="${value}">${value}</option>`).join('');
+            statusSelect.innerHTML = '<option value="">All Status</option>' + statuses.map(value => `<option value="${value}">${value}</option>`).join('');
+            if (floors.includes(previousFloor)) floorSelect.value = previousFloor;
+            if (statuses.includes(previousStatus)) statusSelect.value = previousStatus;
+        }
+
+        function isFloorPerformanceDetailDateMatch(row, startId, endId, dateIndex) {
+            const start = getLocalDateFromInput(document.getElementById(startId)?.value);
+            const end = getLocalDateFromInput(document.getElementById(endId)?.value);
+            if (!start && !end) return true;
+            const date = parseDate(row[headersS1[dateIndex]]);
+            if (!date) return false;
+            const timestamp = date.getTime();
+            return timestamp >= (start ? start.getTime() : -Infinity)
+                && timestamp <= (end ? new Date(end.getTime()).setHours(23, 59, 59, 999) : Infinity);
+        }
+
+        function renderFloorPerformanceDetailRows() {
+            const body = document.getElementById('floorPerformanceDetailBody');
+            const meta = document.getElementById('floorPerformanceDetailMeta');
+            if (!body || !meta) return;
+            const floor = (document.getElementById('floorDetailFilterFloor')?.value || '').trim();
+            const status = (document.getElementById('floorDetailFilterStatus')?.value || '').trim();
+            const rows = currentFloorPerformanceDetailRows.filter(row => {
+                if (floor && getFloorPerformanceReferrerFloor(row) !== floor) return false;
+                if (status && (((row[headersS1[S1_IDX.STATUS]] || '-') + '').trim() || '-') !== status) return false;
+                if (!isFloorPerformanceDetailDateMatch(row, 'floorDetailLeadStart', 'floorDetailLeadEnd', S1_IDX.LEAD_DATE)) return false;
+                if (!isFloorPerformanceDetailDateMatch(row, 'floorDetailOfferStart', 'floorDetailOfferEnd', S1_IDX.OFFER_DATE)) return false;
+                return true;
+            });
             meta.textContent = `${rows.length} record${rows.length === 1 ? '' : 's'}`;
             body.innerHTML = rows.length
                 ? rows.map(row => `
                     <tr class="hover:bg-teal-50 transition">
+                        <td class="px-4 py-3 text-left text-slate-700">${getFloorPerformanceReferrerFloor(row)}</td>
+                        <td class="px-5 py-3 text-left text-slate-600">${((row[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row[headersS1[S1_IDX.STAFF_NAME]] || '')).trim() || '-'}</td>
                         <td class="px-5 py-3 text-left font-black text-slate-900">${row[headersS1[S1_IDX.NAME]] || '-'}</td>
                         <td class="px-4 py-3 text-left text-slate-700">${getS1PositionValue(row)}</td>
                         <td class="px-4 py-3 text-slate-700">${row[headersS1[S1_IDX.STATUS]] || '-'}</td>
@@ -3433,9 +3486,32 @@
                         <td class="px-4 py-3 text-slate-700">${row[headersS1[S1_IDX.OFFER_DATE]] || '-'}</td>
                         <td class="px-4 py-3 text-slate-700">${getS1RecordedOnboardDate(row) || '-'}</td>
                         <td class="px-4 py-3 text-slate-700">${getS1OnboardStatus(row) || '-'}</td>
-                        <td class="px-5 py-3 text-left text-slate-600">${((row[headersS1[S1_IDX.STAFF_ID]] || '') + ' ' + (row[headersS1[S1_IDX.STAFF_NAME]] || '')).trim() || '-'}</td>
                     </tr>`).join('')
-                : '<tr><td colspan="8" class="px-5 py-8 text-center text-slate-400">No matching records in this selection.</td></tr>';
+                : '<tr><td colspan="9" class="px-5 py-8 text-center text-slate-400">No matching records in this selection.</td></tr>';
+        }
+
+        function applyFloorPerformanceDetailFilters() {
+            renderFloorPerformanceDetailRows();
+        }
+
+        function resetFloorPerformanceDetailFilters() {
+            ['floorDetailFilterFloor', 'floorDetailLeadStart', 'floorDetailLeadEnd', 'floorDetailOfferStart', 'floorDetailOfferEnd', 'floorDetailFilterStatus'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            renderFloorPerformanceDetailRows();
+        }
+
+        function showFloorPerformanceDetail(floor, metric) {
+            const area = document.getElementById('floorPerformanceDetailArea');
+            const title = document.getElementById('floorPerformanceDetailTitle');
+            if (!area || !title) return;
+            const labels = { LEAD: 'Lead', OFFER: 'Offer', ONBOARD: 'On Board', PENDING: 'Pending', PENDING_OFFER: 'Pending Offer', REJECT_WITHDRAW: 'Reject / Withdraw', OTHER: 'Others' };
+            currentFloorPerformanceDetailRows = getFloorPerformanceMetricRows(floor, metric);
+            title.textContent = `${floor || 'Grand Total'} ${labels[metric] || 'Lead'} Details`;
+            resetFloorPerformanceDetailFilters();
+            setFloorPerformanceDetailOptions(currentFloorPerformanceDetailRows);
+            renderFloorPerformanceDetailRows();
             area.classList.remove('hidden');
             area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
