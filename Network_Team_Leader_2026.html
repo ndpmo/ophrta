@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -5119,7 +5121,8 @@
                         currentDetailScope = 'SUMMARY';
                         currentSummaryDetailMode = 'LEAD';
                     }
-                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter' && id !== 'leaderOnlyBrandFilter' && id !== 'leaderOnlyFloorFilter' && id !== 'leaderOnlyStart' && id !== 'leaderOnlyEnd' && id !== 'leaderOnlyOfferStart' && id !== 'leaderOnlyOfferEnd' && id !== 'leaderOnlyOnboardStart' && id !== 'leaderOnlyOnboardEnd') {
+                    const isDetailFilter = id.startsWith('detail');
+                    if (!isDetailFilter && id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter' && id !== 'leaderOnlyBrandFilter' && id !== 'leaderOnlyFloorFilter' && id !== 'leaderOnlyStart' && id !== 'leaderOnlyEnd' && id !== 'leaderOnlyOfferStart' && id !== 'leaderOnlyOfferEnd' && id !== 'leaderOnlyOnboardStart' && id !== 'leaderOnlyOnboardEnd') {
                         selectedLeaderKey = '';
                     }
                     renderDashboard(false);
