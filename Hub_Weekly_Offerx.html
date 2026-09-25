@@ -27,14 +27,3 @@ async function init(){try{[JT,C,OS,UT]=await Promise.all([load('J Target'),load(
 C=C.filter(r=>['DERMES','ELYZE','REENEX'].includes(u(V(r)[0])));
 const options='<option value="ALL">All Brands</option>'+[...new Set(targets().map(r=>r.brand))].map(x=>'<option>'+esc(x)+'</option>').join('');brandSummaryBrand.innerHTML=options;brand.innerHTML=options;brandSummaryBrand.value='ALL';brand.value='Dermes';const W=weeks(),ci=Math.max(0,weekIndex(new Date())),a=iso(W[ci].start),b=iso(W[ci].end);brandOfferStart.value=a;brandOfferEnd.value=b;hubOfferStart.value=a;hubOfferEnd.value=b;renderBrands();render()}catch(e){rows.innerHTML=`<tr><td colspan="13" class="loading">Unable to load: ${esc(e.message)}</td></tr>`}}brandSummaryFilter.onclick=renderBrands;brandSummaryBrand.onchange=renderBrands;filter.onclick=render;brand.onchange=render;download.onclick=downloadPlan;downloadOffers.onclick=downloadOfferList;downloadExcluded.onclick=downloadExcludedList;init();
 </script>
-
-
-
-
-
-
-
-
-
-
-
