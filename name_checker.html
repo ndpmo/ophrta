@@ -43,7 +43,7 @@
       <div>
         <p class="text-xs font-black uppercase tracking-[.25em] text-indigo-600">HR &amp; Operations</p>
         <h1 class="mt-2 text-3xl font-black tracking-tight md:text-5xl">Candidate <span class="font-cyber text-2xl text-indigo-600 md:text-3xl">NAME CHECKER</span></h1>
-        <p class="mt-3 max-w-2xl font-bold text-slate-500">輸入 Candidate 姓名、部分關鍵字或相似串法，查核 Operations 有冇提交紀錄。</p>
+        <p class="mt-3 max-w-2xl font-bold text-slate-500">輸入 Candidate 姓名、部分關鍵字或相似串法，同時查核 Operations 及 HR 有冇提交紀錄。</p>
       </div>
       <button id="syncButton" type="button" class="glass rounded-2xl border-l-4 border-indigo-500 px-5 py-4 text-left font-black text-indigo-900" disabled>
         <span id="syncText">等待解鎖</span>
@@ -53,8 +53,8 @@
     <section class="mb-10">
       <article class="glass max-w-4xl rounded-3xl p-6 md:p-7">
         <div class="flex items-start justify-between gap-4">
-          <div><p class="text-xs font-black uppercase tracking-[.2em] text-sky-600">Operations Check</p><h2 class="mt-2 text-xl font-black">有冇提交過呢個人名？</h2></div>
-          <span class="rounded-xl bg-sky-50 px-3 py-2 text-xs font-black text-sky-700">OPERATION</span>
+          <div><p class="text-xs font-black uppercase tracking-[.2em] text-sky-600">Candidate Source Check</p><h2 class="mt-2 text-xl font-black">Operations／HR 有冇提交過呢個人名？</h2></div>
+          <div class="flex gap-2"><span class="rounded-xl bg-sky-50 px-3 py-2 text-xs font-black text-sky-700">OPERATION</span><span class="rounded-xl bg-fuchsia-50 px-3 py-2 text-xs font-black text-fuchsia-700">HR</span></div>
         </div>
         <form id="opForm" class="mt-6 flex flex-col gap-3 sm:flex-row">
           <input id="opName" type="text" required placeholder="輸入姓名、部分關鍵字或相似串法" class="min-w-0 flex-1 rounded-xl border-2 border-sky-100 px-4 py-3 font-bold outline-none focus:border-sky-500">
@@ -114,7 +114,7 @@
     const SHEET_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
     const SHEET_GID = '1328974285';
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
-    const IDX = { BRAND:0, POSITION:4, SOURCE:5, STAFF_ID:9, STAFF_NAME:10, FLOOR:11, RJNJ:12, NAME:13, STATUS:23, RAW_ONBOARD_DATE:22, ONBOARD_STATUS:27, LEAD_DATE:35, ONBOARD_DATE:37 };
+    const IDX = { BRAND:0, POSITION:4, SOURCE:5, CV_CHANNEL:6, STAFF_ID:9, STAFF_NAME:10, FLOOR:11, RJNJ:12, NAME:13, STATUS:23, RAW_ONBOARD_DATE:22, ONBOARD_STATUS:27, LEAD_DATE:35, ONBOARD_DATE:37 };
     const DATE_PARTS = { LEAD:[1,2,3], ONBOARD:[19,20,21] };
     const PASSWORD_HASH = 'd34dacab617774670ea0920fa25a9bfcbb157a0d3c786ea7bece9f90fc10f7f9';
     let headers = [], rows = [], selectedMonths = [], availableMonths = [], selectedSource = 'ALL';
@@ -185,9 +185,18 @@
         .slice(0,50)
         .map(item=>item.row);
     }
-    function submittedBy(row){ const name=field(row,IDX.STAFF_NAME), staffId=field(row,IDX.STAFF_ID); return name ? `${name}${staffId?`（Staff ID: ${staffId}）`:''}` : (staffId||'-'); }
+    function submittedBy(row){
+      if(sourceType(row)==='HR') return field(row,IDX.CV_CHANNEL)||'HR';
+      const name=field(row,IDX.STAFF_NAME), staffId=field(row,IDX.STAFF_ID);
+      return name ? `${name}${staffId?`（Staff ID: ${staffId}）`:''}` : (staffId||'-');
+    }
     function recordHtml(row){
-      return `<div class="result-row grid gap-2 py-3 text-sm sm:grid-cols-2"><p><span class="font-black text-slate-500">Candidate：</span><span class="font-black">${escapeHtml(field(row,IDX.NAME)||'-')}</span></p><p><span class="font-black text-slate-500">Operation Source：</span>${escapeHtml(field(row,IDX.SOURCE)||'-')}</p><p class="rounded-xl bg-sky-50 px-3 py-2 sm:col-span-2"><span class="font-black text-slate-500">由邊個人提交：</span><span class="text-base font-black text-sky-700">${escapeHtml(submittedBy(row))}</span></p><p><span class="font-black text-slate-500">幾時提交：</span><span class="font-black text-sky-700">${formatDate(leadDate(row))}</span></p><p><span class="font-black text-slate-500">Brand / Centre：</span>${escapeHtml(field(row,IDX.BRAND)||'-')} / ${escapeHtml(field(row,IDX.FLOOR)||'-')}</p><p><span class="font-black text-slate-500">Status：</span>${escapeHtml(field(row,IDX.STATUS)||'-')}</p><p><span class="font-black text-slate-500">On Board Date：</span>${formatDate(onboardDate(row))}</p></div>`;
+      const isHr=sourceType(row)==='HR';
+      const wrapClass=isHr?'my-3 rounded-2xl border border-fuchsia-200 bg-fuchsia-50 px-4':'result-row';
+      const sourceClass=isHr?'text-fuchsia-700':'text-sky-700';
+      const highlightClass=isHr?'bg-fuchsia-100':'bg-sky-50';
+      const byLabel=isHr?'HR CV Received Channel':'由邊個人提交';
+      return `<div class="${wrapClass} grid gap-2 py-3 text-sm sm:grid-cols-2"><p><span class="font-black text-slate-500">Candidate：</span><span class="font-black">${escapeHtml(field(row,IDX.NAME)||'-')}</span></p><p><span class="font-black text-slate-500">Source：</span><span class="font-black ${sourceClass}">${escapeHtml(field(row,IDX.SOURCE)||'-')}</span></p><p class="rounded-xl ${highlightClass} px-3 py-2 sm:col-span-2"><span class="font-black text-slate-500">${byLabel}：</span><span class="text-base font-black ${sourceClass}">${escapeHtml(submittedBy(row))}</span></p><p><span class="font-black text-slate-500">幾時提交：</span><span class="font-black ${sourceClass}">${formatDate(leadDate(row))}</span></p><p><span class="font-black text-slate-500">Brand / Centre：</span>${escapeHtml(field(row,IDX.BRAND)||'-')} / ${escapeHtml(field(row,IDX.FLOOR)||'-')}</p><p><span class="font-black text-slate-500">Status：</span>${escapeHtml(field(row,IDX.STATUS)||'-')}</p><p><span class="font-black text-slate-500">On Board Date：</span>${formatDate(onboardDate(row))}</p></div>`;
     }
     function renderCheck(targetId,title,matches,tone){
       const target=document.getElementById(targetId); target.classList.remove('hidden');
@@ -195,7 +204,7 @@
       const colors=found ? (tone==='danger'?'border-rose-300 bg-rose-50 text-rose-800':'border-emerald-300 bg-emerald-50 text-emerald-800') : 'border-slate-200 bg-slate-50 text-slate-700';
       target.innerHTML=`<div class="rounded-2xl border p-4 ${colors}"><p class="font-black">${found?'找到 '+matches.length+' 個相符紀錄':'沒有相符紀錄'} · ${escapeHtml(title)}</p></div>${found?`<div class="mt-3 rounded-2xl border border-slate-200 bg-white px-4">${matches.map(recordHtml).join('')}</div>`:''}`;
     }
-    function checkOperations(event){ event.preventDefault(); const name=document.getElementById('opName').value; renderCheck('opResult',`搜尋：${name}`,matchRows(name,'OPERATION'),'success'); }
+    function checkOperations(event){ event.preventDefault(); const name=document.getElementById('opName').value; const matches=matchRows(name).filter(row=>['OPERATION','HR'].includes(sourceType(row))); renderCheck('opResult',`搜尋：${name}`,matches,'success'); }
 
     function renderHrLeadRange(event){
       event.preventDefault();
