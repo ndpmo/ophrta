@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Name Checker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;800&display=swap');
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: 'Noto Sans TC', sans-serif; color: #0f172a; background: radial-gradient(circle at top left,#eeeafe,#eaf3ff 55%,#f8fafc); background-attachment: fixed; }
+    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1; background-image: radial-gradient(#6366f122 1px,transparent 1px); background-size: 32px 32px; }
+    body.locked { overflow: hidden; }
+    body.locked #app { visibility: hidden; }
+    .font-cyber { font-family: 'Orbitron', sans-serif; }
+    .glass { background: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.85); box-shadow: 0 18px 60px -28px rgba(79,70,229,.38); backdrop-filter: blur(18px); }
+    .month-btn { min-width: 3.2rem; border-radius: 999px; padding: .65rem 1rem; font-weight: 900; font-size: .78rem; transition: .2s; }
+    .month-btn.active { color: white; background: linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow: 0 8px 18px -8px #4f46e5; }
+    .month-btn.inactive { color: #64748b; background: white; border: 1px solid #e2e8f0; }
+    #gate { position: fixed; inset: 0; z-index: 999; display: grid; place-items: center; padding: 1.5rem; background: linear-gradient(145deg,#eef2ff,#f8fafc 58%,#ede9fe); }
+    #gate.hidden { display: none; }
+    .result-row + .result-row { border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body class="locked">
+  <div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <form id="loginForm" class="glass w-full max-w-md rounded-3xl p-8" autocomplete="off">
+      <p class="text-xs font-black uppercase tracking-[.22em] text-indigo-600">Restricted Access</p>
+      <h1 id="gateTitle" class="mt-2 text-2xl font-black">Candidate Name Checker</h1>
+      <p class="mt-2 text-sm font-bold text-slate-500">請輸入密碼繼續</p>
+      <label for="password" class="mt-6 mb-2 block text-sm font-black">密碼</label>
+      <input id="password" type="password" inputmode="numeric" required placeholder="輸入密碼" class="w-full rounded-xl border-2 border-indigo-100 px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100">
+      <p id="loginError" class="mt-2 min-h-5 text-sm font-bold text-rose-600" aria-live="polite"></p>
+      <button class="mt-3 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3.5 font-black text-white">進入網站</button>
+    </form>
+  </div>
+
+  <main id="app" class="mx-auto max-w-7xl px-4 py-8 md:px-7 md:py-12">
+    <header class="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[.25em] text-indigo-600">HR &amp; Operations</p>
+        <h1 class="mt-2 text-3xl font-black tracking-tight md:text-5xl">Candidate <span class="font-cyber text-2xl text-indigo-600 md:text-3xl">NAME CHECKER</span></h1>
+        <p class="mt-3 max-w-2xl font-bold text-slate-500">輸入 Candidate 姓名、部分關鍵字或相似串法，查核 Operations 有冇提交紀錄。</p>
+      </div>
+      <button id="syncButton" type="button" class="glass rounded-2xl border-l-4 border-indigo-500 px-5 py-4 text-left font-black text-indigo-900" disabled>
+        <span id="syncText">等待解鎖</span>
+      </button>
+    </header>
+
+    <section class="mb-10">
+      <article class="glass max-w-4xl rounded-3xl p-6 md:p-7">
+        <div class="flex items-start justify-between gap-4">
+          <div><p class="text-xs font-black uppercase tracking-[.2em] text-sky-600">Operations Check</p><h2 class="mt-2 text-xl font-black">有冇提交過呢個人名？</h2></div>
+          <span class="rounded-xl bg-sky-50 px-3 py-2 text-xs font-black text-sky-700">OPERATION</span>
+        </div>
+        <form id="opForm" class="mt-6 flex flex-col gap-3 sm:flex-row">
+          <input id="opName" type="text" required placeholder="輸入姓名、部分關鍵字或相似串法" class="min-w-0 flex-1 rounded-xl border-2 border-sky-100 px-4 py-3 font-bold outline-none focus:border-sky-500">
+          <button class="rounded-xl bg-sky-600 px-6 py-3 font-black text-white disabled:opacity-40" disabled>查核</button>
+        </form>
+        <div id="opResult" class="mt-5 hidden"></div>
+      </article>
+    </section>
+
+    <section class="glass mb-10 rounded-3xl p-6 md:p-7">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div>
+          <p class="text-xs font-black uppercase tracking-[.2em] text-violet-600">HR Leads by Date Range</p>
+          <h2 class="mt-2 text-xl font-black">指定時段 HR 有冇收到 Lead？</h2>
+          <p class="mt-2 text-sm font-bold text-slate-500">按 Lead Date 查閱 Source = HR 的 Candidate 紀錄。</p>
+        </div>
+        <form id="hrLeadForm" class="grid w-full gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end xl:max-w-3xl">
+          <label class="text-xs font-black uppercase tracking-wider text-slate-500">由
+            <input id="hrLeadStart" type="date" required class="mt-1 block w-full rounded-xl border-2 border-violet-100 bg-white px-4 py-3 font-bold text-slate-800 outline-none focus:border-violet-500">
+          </label>
+          <span class="hidden pb-3 text-sm font-black text-slate-400 sm:block">至</span>
+          <label class="text-xs font-black uppercase tracking-wider text-slate-500">至
+            <input id="hrLeadEnd" type="date" required class="mt-1 block w-full rounded-xl border-2 border-violet-100 bg-white px-4 py-3 font-bold text-slate-800 outline-none focus:border-violet-500">
+          </label>
+          <button class="rounded-xl bg-violet-600 px-6 py-3 font-black text-white disabled:opacity-40" disabled>查閱</button>
+        </form>
+      </div>
+      <div id="hrLeadResult" class="mt-6 hidden"></div>
+    </section>
+
+    <section id="batchArea" class="mb-10">
+      <div class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <h2 class="border-l-8 border-indigo-500 pl-4 text-xl font-black md:text-2xl">入職批次追蹤 <span class="font-cyber ml-2 text-lg text-indigo-500 md:text-xl">ON BOARD BATCHES</span></h2>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div id="monthSelector" class="glass flex max-w-full gap-2 overflow-x-auto rounded-2xl p-2"></div>
+          <label class="glass rounded-2xl p-3 text-xs font-black uppercase tracking-wider text-slate-500">Source
+            <select id="sourceFilter" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-black text-slate-700">
+              <option value="ALL">All Sources</option><option value="OPERATION">OP Sources</option><option value="HR">HR Sources</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div id="batchContainer" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="glass col-span-full rounded-3xl p-10 text-center font-bold text-slate-400">解鎖後載入資料…</div>
+      </div>
+    </section>
+
+    <div id="batchDetail" class="hidden glass mb-12 rounded-3xl p-5 md:p-7">
+      <div class="mb-4 flex items-center justify-between gap-4"><h3 id="batchDetailTitle" class="text-lg font-black"></h3><button id="closeDetail" class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-600">關閉</button></div>
+      <div class="overflow-x-auto"><table class="w-full min-w-[1080px] text-left text-sm"><thead class="bg-indigo-50 text-xs uppercase text-indigo-900"><tr><th class="px-4 py-3">Candidate</th><th class="px-4 py-3">Operation Source</th><th class="px-4 py-3">由邊個人提交</th><th class="px-4 py-3">幾時提交</th><th class="px-4 py-3">Brand</th><th class="px-4 py-3">Centre</th><th class="px-4 py-3">Position</th><th class="px-4 py-3">Status</th></tr></thead><tbody id="batchDetailBody"></tbody></table></div>
+    </div>
+
+    <div id="loading" class="fixed bottom-5 right-5 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white shadow-xl">同步資料中…</div>
+  </main>
+
+  <script>
+    const SHEET_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
+    const SHEET_GID = '1328974285';
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+    const IDX = { BRAND:0, POSITION:4, SOURCE:5, STAFF_ID:9, STAFF_NAME:10, FLOOR:11, RJNJ:12, NAME:13, STATUS:23, RAW_ONBOARD_DATE:22, ONBOARD_STATUS:27, LEAD_DATE:35, ONBOARD_DATE:37 };
+    const DATE_PARTS = { LEAD:[1,2,3], ONBOARD:[19,20,21] };
+    const PASSWORD_HASH = 'd34dacab617774670ea0920fa25a9bfcbb157a0d3c786ea7bece9f90fc10f7f9';
+    let headers = [], rows = [], selectedMonths = [], availableMonths = [], selectedSource = 'ALL';
+
+    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const field = (row,index) => String(row?.[headers[index]] ?? '').trim();
+    const sourceType = row => { const source=field(row,IDX.SOURCE).toUpperCase(); return source.includes('OPERATION') ? 'OPERATION' : source==='HR' ? 'HR' : 'OTHER'; };
+    const normalizeName = value => String(value||'').normalize('NFKC').trim().toLocaleLowerCase('en').replace(/[\s·・._,'’`\-()（）/\\]+/g,'');
+    const isRejected = value => /REJECT|WITHDRAW|NO\s*SHOW/i.test(String(value||''));
+    const isBS = row => /(^|[^A-Z])BS([^A-Z]|$)|BEAUTY SPECIALIST/.test(field(row,IDX.POSITION).toUpperCase());
+    const brandGroup = row => ['DERMES','REENEX','ELYZE'].includes(field(row,IDX.BRAND).toUpperCase()) ? field(row,IDX.BRAND).toUpperCase() : 'OTHER';
+
+    function parseDate(value) {
+      const text=String(value||'').trim(); if(!text||text==='-') return null;
+      const months=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+      const parts=text.split(/[\s/-]+/);
+      if(parts.length===3){
+        const a=parseInt(parts[0],10), b=parseInt(parts[1],10), c=parseInt(parts[2],10);
+        if(a>=1000&&b&&c) return new Date(a,b-1,c);
+        const monthWord=months.indexOf(parts[1].toLowerCase().slice(0,3));
+        if(a&&monthWord>=0&&c) return new Date(c,monthWord,a);
+        if(a&&b>=1&&b<=12&&c) return new Date(c,b-1,a);
+      }
+      const timestamp=Date.parse(text); return Number.isNaN(timestamp)?null:new Date(timestamp);
+    }
+    function dateFromParts(row,indexes,fallbackIndex){
+      const values=indexes.map(i=>field(row,i)).filter(v=>v&&v!=='-');
+      if(values.length===3){ const parsed=parseDate(values.join(' ')); if(parsed) return parsed; const reversed=parseDate([...values].reverse().join(' ')); if(reversed) return reversed; }
+      if(values.length===1){ const parsed=parseDate(values[0]); if(parsed) return parsed; }
+      return parseDate(field(row,fallbackIndex));
+    }
+    const onboardDate = row => dateFromParts(row,DATE_PARTS.ONBOARD,IDX.ONBOARD_DATE) || parseDate(field(row,IDX.RAW_ONBOARD_DATE));
+    const leadDate = row => dateFromParts(row,DATE_PARTS.LEAD,IDX.LEAD_DATE);
+    const formatDate = date => date ? new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'}).format(date) : '-';
+    const localDateKey = date => date ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}` : '';
+
+    function editDistance(left,right){
+      const a=[...left], b=[...right], row=Array.from({length:b.length+1},(_,index)=>index);
+      for(let i=1;i<=a.length;i++){ let previous=row[0]; row[0]=i; for(let j=1;j<=b.length;j++){ const saved=row[j]; row[j]=Math.min(row[j]+1,row[j-1]+1,previous+(a[i-1]===b[j-1]?0:1)); previous=saved; } }
+      return row[b.length];
+    }
+    function nameMatchScore(candidate,query){
+      if(!candidate||!query) return 0;
+      if(candidate===query) return 1;
+      if(candidate.startsWith(query)) return .96;
+      if(candidate.includes(query)) return .92;
+      if(query.length<3) return 0;
+      const candidateWords=String(candidate).split(/\s+/).filter(Boolean);
+      const queryWords=String(query).split(/\s+/).filter(Boolean);
+      const compactCandidate=normalizeName(candidate), compactQuery=normalizeName(query);
+      const targets=[compactCandidate,...candidateWords.map(normalizeName)].filter(Boolean);
+      let best=0;
+      for(const target of targets){
+        if(target.includes(compactQuery)) best=Math.max(best,.9);
+        const similarity=1-(editDistance(target,compactQuery)/Math.max(target.length,compactQuery.length));
+        best=Math.max(best,similarity);
+      }
+      if(queryWords.length>1){ const matched=queryWords.filter(word=>targets.some(target=>target.includes(normalizeName(word)))).length; best=Math.max(best,matched/queryWords.length*.9); }
+      return best;
+    }
+    function matchRows(name,scope='ALL'){
+      const query=String(name||'').normalize('NFKC').trim(); if(!normalizeName(query)) return [];
+      return rows
+        .filter(row=>scope==='ALL'||sourceType(row)===scope)
+        .map(row=>({row,score:nameMatchScore(field(row,IDX.NAME),query)}))
+        .filter(item=>item.score>=.64)
+        .sort((a,b)=>b.score-a.score||field(a.row,IDX.NAME).localeCompare(field(b.row,IDX.NAME),'zh-HK'))
+        .slice(0,50)
+        .map(item=>item.row);
+    }
+    function submittedBy(row){ const name=field(row,IDX.STAFF_NAME), staffId=field(row,IDX.STAFF_ID); return name ? `${name}${staffId?`（Staff ID: ${staffId}）`:''}` : (staffId||'-'); }
+    function recordHtml(row){
+      return `<div class="result-row grid gap-2 py-3 text-sm sm:grid-cols-2"><p><span class="font-black text-slate-500">Candidate：</span><span class="font-black">${escapeHtml(field(row,IDX.NAME)||'-')}</span></p><p><span class="font-black text-slate-500">Operation Source：</span>${escapeHtml(field(row,IDX.SOURCE)||'-')}</p><p class="rounded-xl bg-sky-50 px-3 py-2 sm:col-span-2"><span class="font-black text-slate-500">由邊個人提交：</span><span class="text-base font-black text-sky-700">${escapeHtml(submittedBy(row))}</span></p><p><span class="font-black text-slate-500">幾時提交：</span><span class="font-black text-sky-700">${formatDate(leadDate(row))}</span></p><p><span class="font-black text-slate-500">Brand / Centre：</span>${escapeHtml(field(row,IDX.BRAND)||'-')} / ${escapeHtml(field(row,IDX.FLOOR)||'-')}</p><p><span class="font-black text-slate-500">Status：</span>${escapeHtml(field(row,IDX.STATUS)||'-')}</p><p><span class="font-black text-slate-500">On Board Date：</span>${formatDate(onboardDate(row))}</p></div>`;
+    }
+    function renderCheck(targetId,title,matches,tone){
+      const target=document.getElementById(targetId); target.classList.remove('hidden');
+      const found=matches.length>0;
+      const colors=found ? (tone==='danger'?'border-rose-300 bg-rose-50 text-rose-800':'border-emerald-300 bg-emerald-50 text-emerald-800') : 'border-slate-200 bg-slate-50 text-slate-700';
+      target.innerHTML=`<div class="rounded-2xl border p-4 ${colors}"><p class="font-black">${found?'找到 '+matches.length+' 個相符紀錄':'沒有相符紀錄'} · ${escapeHtml(title)}</p></div>${found?`<div class="mt-3 rounded-2xl border border-slate-200 bg-white px-4">${matches.map(recordHtml).join('')}</div>`:''}`;
+    }
+    function checkOperations(event){ event.preventDefault(); const name=document.getElementById('opName').value; renderCheck('opResult',`搜尋：${name}`,matchRows(name,'OPERATION'),'success'); }
+
+    function renderHrLeadRange(event){
+      event.preventDefault();
+      const startValue=document.getElementById('hrLeadStart').value, endValue=document.getElementById('hrLeadEnd').value;
+      const start=parseDate(startValue), end=parseDate(endValue), target=document.getElementById('hrLeadResult');
+      target.classList.remove('hidden');
+      if(!start||!end||start>end){ target.innerHTML='<div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 font-black text-rose-700">日期範圍不正確，開始日期不可遲過結束日期。</div>'; return; }
+      end.setHours(23,59,59,999);
+      const matches=rows.filter(row=>{ const date=leadDate(row); return sourceType(row)==='HR'&&date&&date>=start&&date<=end; }).sort((a,b)=>leadDate(b)-leadDate(a)||field(a,IDX.NAME).localeCompare(field(b,IDX.NAME),'zh-HK'));
+      const brandCounts={DERMES:0,REENEX:0,ELYZE:0,OTHER:0}; matches.forEach(row=>brandCounts[brandGroup(row)]++);
+      const summary=`<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><div class="rounded-2xl border border-violet-200 bg-violet-50 p-4"><p class="text-xs font-black uppercase tracking-wider text-violet-600">HR Leads</p><p class="mt-1 text-3xl font-black text-violet-700">${matches.length}</p></div>${['DERMES','REENEX','ELYZE','OTHER'].map(brand=>`<div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-xs font-black uppercase tracking-wider text-slate-500">${brand}</p><p class="mt-1 text-2xl font-black text-slate-800">${brandCounts[brand]}</p></div>`).join('')}</div>`;
+      if(!matches.length){ target.innerHTML=summary+'<div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 font-bold text-slate-600">所選日期範圍沒有 HR Lead 紀錄。</div>'; return; }
+      const details=matches.map(row=>`<tr class="border-t border-slate-100"><td class="px-4 py-3 font-black text-slate-900">${escapeHtml(field(row,IDX.NAME)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.BRAND)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.FLOOR)||'-')}</td><td class="px-4 py-3 font-bold text-violet-700">${formatDate(leadDate(row))}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.STATUS)||'-')}</td></tr>`).join('');
+      target.innerHTML=summary+`<div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white"><table class="w-full min-w-[720px] text-left text-sm"><thead class="bg-violet-50 text-xs uppercase text-violet-900"><tr><th class="px-4 py-3">Candidate</th><th class="px-4 py-3">Brand</th><th class="px-4 py-3">Centre</th><th class="px-4 py-3">Lead Date</th><th class="px-4 py-3">Status</th></tr></thead><tbody>${details}</tbody></table></div>`;
+    }
+
+    function setupMonths(){
+      const today=new Date(); const start=today.getMonth()+1;
+      availableMonths=Array.from({length:5},(_,i)=>((start-1+i)%12)+1); selectedMonths=[start]; renderMonths();
+      document.getElementById('hrLeadStart').value=localDateKey(new Date(today.getFullYear(),today.getMonth(),1));
+      document.getElementById('hrLeadEnd').value=localDateKey(today);
+    }
+    function renderMonths(){
+      document.getElementById('monthSelector').innerHTML=availableMonths.map(month=>`<button type="button" data-month="${month}" class="month-btn ${selectedMonths.includes(month)?'active':'inactive'}">${month}月</button>`).join('');
+    }
+    function getBatchRows(){
+      const today=new Date(); today.setHours(0,0,0,0);
+      return rows.filter(row=>{ const source=sourceType(row); if(!['OPERATION','HR'].includes(source)) return false; if(selectedSource!=='ALL'&&source!==selectedSource) return false; if(isRejected(field(row,IDX.STATUS))||isRejected(field(row,IDX.ONBOARD_STATUS))) return false; const date=onboardDate(row); return date&&date>=today&&selectedMonths.includes(date.getMonth()+1); });
+    }
+    function renderBatches(){
+      const grouped=new Map();
+      getBatchRows().forEach(row=>{ const date=onboardDate(row); const key=localDateKey(date); if(!grouped.has(key)) grouped.set(key,{date,rows:[]}); grouped.get(key).rows.push(row); });
+      const list=[...grouped.values()].sort((a,b)=>a.date-b.date); const container=document.getElementById('batchContainer');
+      if(!list.length){ container.innerHTML='<div class="glass col-span-full rounded-3xl p-10 text-center font-bold text-slate-400">所選月份沒有未來 On Board Batch。</div>'; return; }
+      const borders=['border-emerald-500','border-indigo-500','border-rose-500','border-amber-500'];
+      container.innerHTML=list.map((group,index)=>{ const counts={DERMES:0,REENEX:0,ELYZE:0,OTHER:0,BS:0,RJ:0,NJ:0}; group.rows.forEach(row=>{ if(isBS(row)) counts.BS++; else counts[brandGroup(row)]++; const type=field(row,IDX.RJNJ).toUpperCase(); if(type==='RJ'||type==='NJ') counts[type]++; }); return `<button type="button" data-date="${localDateKey(group.date)}" class="glass rounded-3xl border-b-8 ${borders[index%borders.length]} p-6 text-left transition hover:-translate-y-1"><p class="text-xs font-black uppercase tracking-widest text-slate-500">On Board Date</p><p class="mt-1 text-lg font-black">${formatDate(group.date)}</p><p class="mt-4 text-4xl font-black text-indigo-600">${group.rows.length}</p><p class="mt-1 text-xs font-black text-slate-400">RJ ${counts.RJ} · NJ ${counts.NJ}</p><div class="mt-3 grid grid-cols-2 gap-1 text-xs font-black text-slate-600"><span>Dermes ${counts.DERMES}</span><span>Reenex ${counts.REENEX}</span><span>Elyze ${counts.ELYZE}</span><span>Other ${counts.OTHER}</span><span>BS ${counts.BS}</span></div></button>`; }).join('');
+    }
+    function showBatchDetail(dateKey){
+      const matches=getBatchRows().filter(row=>localDateKey(onboardDate(row))===dateKey); const selectedDate=matches.length?onboardDate(matches[0]):parseDate(dateKey); document.getElementById('batchDetailTitle').textContent=`${formatDate(selectedDate)} · ${matches.length} Candidates`;
+      document.getElementById('batchDetailBody').innerHTML=matches.map(row=>`<tr class="border-t border-slate-100"><td class="px-4 py-3 font-black">${escapeHtml(field(row,IDX.NAME)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.SOURCE)||'-')}</td><td class="px-4 py-3 font-black text-sky-700">${escapeHtml(submittedBy(row))}</td><td class="px-4 py-3 font-bold text-sky-700">${formatDate(leadDate(row))}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.BRAND)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.FLOOR)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.POSITION)||'-')}</td><td class="px-4 py-3">${escapeHtml(field(row,IDX.STATUS)||'-')}</td></tr>`).join('');
+      document.getElementById('batchDetail').classList.remove('hidden'); document.getElementById('batchDetail').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    function loadByJsonp(){
+      return new Promise((resolve,reject)=>{ const callback='candidateChecker_'+Date.now(); const script=document.createElement('script'); const timer=setTimeout(()=>{cleanup();reject(new Error('同步逾時'));},15000); function cleanup(){clearTimeout(timer);delete window[callback];script.remove();} window[callback]=response=>{try{ const cols=(response.table.cols||[]).map(col=>col.label||col.id||''); const lines=[cols,...(response.table.rows||[]).map(item=>(item.c||[]).map(cell=>cell?.f??cell?.v??''))]; resolve(Papa.unparse(lines)); }finally{cleanup();} }; script.onerror=()=>{cleanup();reject(new Error('未能連接 Google Sheet'));}; script.src=`https://docs.google.com/spreadsheets/d/${SHEET_DOC_ID}/gviz/tq?tqx=responseHandler:${callback}&gid=${SHEET_GID}&t=${Date.now()}`; document.head.appendChild(script); });
+    }
+    async function loadData(){
+      document.getElementById('loading').classList.remove('hidden'); document.getElementById('syncText').textContent='同步資料中…';
+      try{ let csv; try{ const response=await fetch(SHEET_URL+`&t=${Date.now()}`); if(!response.ok) throw new Error(); csv=await response.text(); }catch(error){ csv=await loadByJsonp(); }
+        const parsed=Papa.parse(csv,{header:true,skipEmptyLines:true}); headers=parsed.meta.fields||[]; rows=parsed.data||[]; renderBatches();
+        document.querySelectorAll('#opForm button,#hrLeadForm button').forEach(button=>button.disabled=false); document.getElementById('syncText').textContent=`已同步 ${rows.length} 個紀錄`; document.getElementById('syncButton').disabled=false;
+      }catch(error){ document.getElementById('syncText').textContent='同步失敗，按此重試'; document.getElementById('syncButton').disabled=false; document.getElementById('batchContainer').innerHTML=`<div class="glass col-span-full rounded-3xl p-10 text-center font-bold text-rose-600">${escapeHtml(error.message||'資料同步失敗')}</div>`; }
+      finally{ document.getElementById('loading').classList.add('hidden'); }
+    }
+    async function hashPassword(value){ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)); return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join(''); }
+    async function login(event){ event.preventDefault(); const input=document.getElementById('password'); if(await hashPassword(input.value)!==PASSWORD_HASH){ document.getElementById('loginError').textContent='密碼不正確，請再試。'; input.value=''; input.focus(); return; } document.getElementById('gate').classList.add('hidden'); document.body.classList.remove('locked'); setupMonths(); loadData(); }
+
+    document.getElementById('loginForm').addEventListener('submit',login);
+    document.getElementById('opForm').addEventListener('submit',checkOperations);
+    document.getElementById('hrLeadForm').addEventListener('submit',renderHrLeadRange);
+    document.getElementById('syncButton').addEventListener('click',loadData);
+    document.getElementById('sourceFilter').addEventListener('change',event=>{ selectedSource=event.target.value; renderBatches(); document.getElementById('batchDetail').classList.add('hidden'); });
+    document.getElementById('monthSelector').addEventListener('click',event=>{ const button=event.target.closest('[data-month]'); if(!button)return; const month=Number(button.dataset.month); if(selectedMonths.includes(month)){ if(selectedMonths.length>1) selectedMonths=selectedMonths.filter(item=>item!==month); }else selectedMonths.push(month); renderMonths(); renderBatches(); });
+    document.getElementById('batchContainer').addEventListener('click',event=>{ const card=event.target.closest('[data-date]'); if(card) showBatchDetail(card.dataset.date); });
+    document.getElementById('closeDetail').addEventListener('click',()=>document.getElementById('batchDetail').classList.add('hidden'));
+    window.addEventListener('load',()=>document.getElementById('password').focus());
+  </script>
+</body>
+</html>
