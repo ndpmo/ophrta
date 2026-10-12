@@ -1455,7 +1455,7 @@
         }
 
         function getNtlBrandFromFloor(row) {
-            const floorPrefix = getNtlValue(row, NTL_IDX.FLOOR).charAt(0).toUpperCase();
+            const floorPrefix = (getNtlValue(row, NTL_IDX.FLOOR) || getNtlValue(row, NTL_IDX.LEADER_FLOOR)).charAt(0).toUpperCase();
             if (floorPrefix === 'D') return 'DERMES';
             if (floorPrefix === 'R') return 'REENEX';
             if (floorPrefix === 'E') return 'ELYZE';
@@ -2279,6 +2279,34 @@
                 if (!teamMembersByLeader.get(key).has(dedupeKey)) {
                     teamMembersByLeader.get(key).set(dedupeKey, member);
                 }
+            });
+
+            // A leader must always count as a member of their own network team.
+            // Google Sheets can briefly return a mixed cache snapshot where the
+            // leader flag (column E) is already populated but the team-owner
+            // cells (columns F/G) are still blank. Without this fallback, that
+            // leader is present in the directory but is dropped from every
+            // dashboard count because the team has no mapped members.
+            directory.forEach(entry => {
+                entry.leaderRows.forEach(row => {
+                    const brandKey = getNtlBrandFromFloor(row);
+                    if (!isNetworkTeamBrand(brandKey)) return;
+
+                    const member = {
+                        brand: displayBrand(brandKey),
+                        brandKey,
+                        center: getNtlValue(row, NTL_IDX.FLOOR) || getNtlValue(row, NTL_IDX.LEADER_FLOOR),
+                        therapist: getNtlValue(row, NTL_IDX.THERAPIST) || entry.name,
+                        staffNo: getNtlValue(row, NTL_IDX.STAFF_NO),
+                        position: '',
+                        teamOwner: entry.name
+                    };
+                    const dedupeKey = `${normalizeKey(member.staffNo) || normalizeKey(member.therapist)}|${normalizeKey(member.center)}`;
+                    if (!teamMembersByLeader.has(entry.key)) teamMembersByLeader.set(entry.key, new Map());
+                    if (!teamMembersByLeader.get(entry.key).has(dedupeKey)) {
+                        teamMembersByLeader.get(entry.key).set(dedupeKey, member);
+                    }
+                });
             });
 
             directory.forEach(entry => {
