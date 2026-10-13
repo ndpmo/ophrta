@@ -1328,9 +1328,31 @@
             setSelectedBrands([]);
         }
 
+        function getActiveJoinDateRange() {
+            const dates = dataActive
+                .map(row => parseDate(row?.[ACTIVE_IDX.JOIN_DATE]))
+                .filter(date => date instanceof Date && !isNaN(date));
+            if (!dates.length) return null;
+
+            return {
+                earliest: new Date(Math.min(...dates.map(date => date.getTime()))),
+                latest: new Date(Math.max(...dates.map(date => date.getTime())))
+            };
+        }
+
         function setDefaultFilters() {
-            document.getElementById('studyStart').value = '2026-01-01';
-            document.getElementById('studyEnd').value = formatDateToISO(TODAY);
+            const joinDateRange = getActiveJoinDateRange();
+            const startInput = document.getElementById('studyStart');
+            const endInput = document.getElementById('studyEnd');
+            const earliest = joinDateRange?.earliest || new Date(2026, 0, 1);
+            const latest = joinDateRange?.latest || TODAY;
+
+            startInput.value = formatDateToISO(earliest);
+            endInput.value = formatDateToISO(latest);
+            startInput.min = formatDateToISO(earliest);
+            startInput.max = formatDateToISO(latest);
+            endInput.min = formatDateToISO(earliest);
+            endInput.max = formatDateToISO(latest);
             document.getElementById('sameBrandFilter').value = 'Y';
         }
 
