@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -71,6 +72,7 @@
         .summary-card {
             position: relative;
             overflow: hidden;
+            min-height: 9.25rem;
         }
 
         .summary-card::before {
@@ -180,9 +182,9 @@
     </style>
 </head>
 <body>
-    <div class="max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
-        <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
-            <div class="space-y-4">
+    <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-7">
+        <header class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+            <div class="space-y-3">
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700">
                         <span>&larr;</span>
@@ -193,37 +195,37 @@
                     <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-emerald-700">By Join Date</span>
                 </div>
                 <div>
-                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+                    <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
                         Fibonacci <span class="title-tech text-teal-600 text-2xl md:text-3xl uppercase">2026</span>
                     </h1>
-                    <p class="mt-3 max-w-3xl text-sm md:text-base font-bold text-slate-600">
+                    <p class="mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-600">
                         Review 2026 active new joiners from <span class="text-slate-900">Active NJ</span>, check how many are by brand,
                         and use each new joiner's <span class="text-slate-900">Staff ID</span> to trace whether they referred candidates who reached
                         lead, offer, and onboard stage.
                     </p>
                 </div>
             </div>
-            <div class="glass-card px-5 py-4 min-w-[260px]">
+            <div class="glass-card px-5 py-4 min-w-[250px]">
                 <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
                 <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading live data...</p>
                 <p class="mt-2 text-xs font-bold text-slate-500">Sheet1 + Active NJ</p>
             </div>
         </header>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="space-y-2">
+        <section class="glass-card p-5 mb-6">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <div class="space-y-1.5">
                     <label for="studyStart" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Join Date From</label>
-                    <input id="studyStart" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    <input id="studyStart" type="date" class="h-12 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-1.5">
                     <label for="studyEnd" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Join Date To</label>
-                    <input id="studyEnd" type="date" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    <input id="studyEnd" type="date" class="h-12 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-1.5">
                     <label class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
                     <details id="brandFilter" class="relative">
-                        <summary id="brandFilterSummary" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none flex items-center justify-between cursor-pointer">
+                        <summary id="brandFilterSummary" class="flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                             <span id="brandFilterSummaryText">Loading brand...</span>
                             <span class="text-slate-400 text-sm">&#9662;</span>
                         </summary>
@@ -237,40 +239,52 @@
                         </div>
                     </details>
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-1.5">
                     <label for="sameBrandFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Referral Same Brand</label>
-                    <select id="sameBrandFilter" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    <select id="sameBrandFilter" class="h-12 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                         <option value="ALL">All</option>
                         <option value="Y" selected>Y</option>
                         <option value="N">N</option>
                     </select>
                 </div>
+                <div class="space-y-1.5">
+                    <label for="batchFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Batch</label>
+                    <select id="batchFilter" onchange="renderDashboard()" class="h-12 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
+                        <option value="ALL">All Batch</option>
+                    </select>
+                </div>
             </div>
-            <div class="mt-5 flex flex-wrap gap-3">
+            <div class="mt-4 flex flex-wrap gap-2">
                 <button type="button" onclick="resetFilters()" class="pill-button text-slate-700">Reset</button>
                 <button type="button" onclick="renderDashboard()" class="pill-button bg-teal-600 text-white border-transparent">Refresh Study</button>
             </div>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mb-8" id="summaryCards"></section>
+        <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6 mb-6" id="summaryCards"></section>
 
-        <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+        <section class="glass-card p-5 mb-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-teal-500">By Brand</p>
                     <h2 class="text-2xl font-black text-slate-900">Active NJ Breakdown</h2>
                 </div>
                 <div class="flex flex-col sm:flex-row sm:items-end gap-3">
-                    <div class="min-w-[180px]">
+                    <div class="min-w-[150px]">
+                        <label for="batchBreakdownFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Batch</label>
+                        <select id="batchBreakdownFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
+                            <option value="ALL">All Batch</option>
+                        </select>
+                    </div>
+                    <div class="min-w-[160px]">
                         <label for="brandBreakdownFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Brand</label>
-                        <select id="brandBreakdownFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                        <select id="brandBreakdownFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                             <option value="ALL">All Brand</option>
                         </select>
                     </div>
                     <p id="brandMeta" class="text-sm font-bold text-slate-500 sm:pb-3">-</p>
                 </div>
             </div>
-            <div id="brandTopCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5"></div>
+            <div id="brandTopCards" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4"></div>
             <div class="table-shell">
                 <div class="table-wrap">
                     <table class="w-full min-w-[1040px] border-collapse">
@@ -293,55 +307,72 @@
             </div>
         </section>
 
-        <section id="detailSection" class="glass-card p-5 md:p-6 mb-8">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
-                <div>
+        <section id="detailSection" class="glass-card p-5 mb-6">
+            <div class="flex flex-col md:flex-row md:items-start gap-5 mb-5">
+                <div class="md:w-[190px] md:shrink-0 md:pt-4">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Candidate Detail</p>
-                    <h2 class="text-2xl font-black text-slate-900">Active NJ Referral Detail</h2>
+                    <h2 class="mt-1 text-xl font-black leading-tight text-slate-900">Active NJ Referral Detail</h2>
+                    <p id="detailMeta" class="mt-3 rounded-xl bg-sky-50 px-3 py-2 text-[11px] font-bold leading-4 text-slate-600">-</p>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-end gap-3">
-                    <div class="min-w-[180px]">
-                        <label for="detailBrandFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Brand</label>
-                        <select id="detailBrandFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                <div class="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="min-w-0">
+                        <label for="detailStaffIdFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Staff ID</label>
+                        <input id="detailStaffIdFilter" type="search" inputmode="numeric" oninput="renderDashboard()" placeholder="Staff ID..." class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="detailNameFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Employee Name</label>
+                        <input id="detailNameFilter" type="search" oninput="renderDashboard()" placeholder="Employee name..." class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="detailBatchFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Batch</label>
+                        <select id="detailBatchFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                            <option value="ALL">All Batch</option>
+                        </select>
+                    </div>
+                    <div class="min-w-0">
+                        <label for="detailBrandFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Brand</label>
+                        <select id="detailBrandFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
                             <option value="ALL">All Brand</option>
                         </select>
                     </div>
-                    <div class="min-w-[220px]">
-                        <label for="detailCenterFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Centre / Floor</label>
-                        <select id="detailCenterFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    <div class="min-w-0">
+                        <label for="detailCenterFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Centre / Floor</label>
+                        <select id="detailCenterFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
                             <option value="ALL">All Centre / Floor</option>
                         </select>
                     </div>
-                    <div class="min-w-[180px]">
-                        <label for="detailReferralFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Referral</label>
-                        <select id="detailReferralFilter" onchange="renderDashboard()" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 font-bold outline-none">
+                    <div class="min-w-0">
+                        <label for="detailReferralFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Referral</label>
+                        <select id="detailReferralFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
                             <option value="ALL">All Referral</option>
                             <option value="HAS">Has Referral</option>
                             <option value="NO">No Referral</option>
                         </select>
                     </div>
-                    <p id="detailMeta" class="text-sm font-bold text-slate-500 sm:pb-3">-</p>
                 </div>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[1640px] border-collapse">
-                        <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
+                    <table class="w-full table-fixed border-collapse text-[11px] leading-tight">
+                        <colgroup>
+                            <col style="width:6%"><col style="width:10%"><col style="width:6%"><col style="width:10%"><col style="width:10%"><col style="width:7%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:7%"><col style="width:8%"><col style="width:6%"><col style="width:6%"><col style="width:6%">
+                        </colgroup>
+                        <thead class="bg-sky-50 text-sky-950 text-[10px] uppercase tracking-[0.08em] font-black">
                             <tr>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('staffId')">Staff ID<span id="detailSortIndicator-staffId" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('employeeName')">Employee Name<span id="detailSortIndicator-employeeName" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('brand')">Brand<span id="detailSortIndicator-brand" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('center')">Centre / Floor<span id="detailSortIndicator-center" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('position')">Position<span id="detailSortIndicator-position" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('joinDateObj')">Join Date<span id="detailSortIndicator-joinDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('referralCount')">Referral<span id="detailSortIndicator-referralCount" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('leadCount')">Lead Count<span id="detailSortIndicator-leadCount" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('offerCount')">Offer Count<span id="detailSortIndicator-offerCount" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('onboardCount')">On Board Count<span id="detailSortIndicator-onboardCount" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('upcomingOnboardCount')">Upcoming On Board Count<span id="detailSortIndicator-upcomingOnboardCount" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestLeadDateObj')">Latest Lead Date<span id="detailSortIndicator-latestLeadDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestOfferDateObj')">Latest Offer Date<span id="detailSortIndicator-latestOfferDateObj" class="text-[11px]"></span></button></th>
-                                <th class="px-5 py-4 text-left"><button type="button" onclick="toggleDetailSort('latestOnboardDateObj')">Latest On Board Date<span id="detailSortIndicator-latestOnboardDateObj" class="text-[11px]"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('staffId')">Staff ID<span id="detailSortIndicator-staffId"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('employeeName')">Employee Name<span id="detailSortIndicator-employeeName"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('brand')">Brand<span id="detailSortIndicator-brand"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('center')">Centre / Floor<span id="detailSortIndicator-center"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('position')">Position<span id="detailSortIndicator-position"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('joinDateObj')">Join Date<span id="detailSortIndicator-joinDateObj"></span></button></th>
+                                <th class="px-2 py-3 text-center"><button type="button" onclick="toggleDetailSort('referralCount')">Referral<span id="detailSortIndicator-referralCount"></span></button></th>
+                                <th class="px-2 py-3 text-center"><button type="button" onclick="toggleDetailSort('leadCount')">Lead Count<span id="detailSortIndicator-leadCount"></span></button></th>
+                                <th class="px-2 py-3 text-center"><button type="button" onclick="toggleDetailSort('offerCount')">Offer Count<span id="detailSortIndicator-offerCount"></span></button></th>
+                                <th class="px-2 py-3 text-center"><button type="button" onclick="toggleDetailSort('onboardCount')">On Board Count<span id="detailSortIndicator-onboardCount"></span></button></th>
+                                <th class="px-2 py-3 text-center"><button type="button" onclick="toggleDetailSort('upcomingOnboardCount')">Upcoming On Board Count<span id="detailSortIndicator-upcomingOnboardCount"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('latestLeadDateObj')">Latest Lead Date<span id="detailSortIndicator-latestLeadDateObj"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('latestOfferDateObj')">Latest Offer Date<span id="detailSortIndicator-latestOfferDateObj"></span></button></th>
+                                <th class="px-2 py-3 text-left"><button type="button" onclick="toggleDetailSort('latestOnboardDateObj')">Latest On Board Date<span id="detailSortIndicator-latestOnboardDateObj"></span></button></th>
                             </tr>
                         </thead>
                         <tbody id="detailTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
@@ -810,12 +841,17 @@
             return safeTrim(row?.[ACTIVE_IDX.POSITION]) || '-';
         }
 
+        function getActiveBatch(row) {
+            return safeTrim(row?.[headersActive[9]]) || 'No Batch';
+        }
+
         function buildCandidateRecord(activeRow) {
             const staffId = safeTrim(activeRow?.[ACTIVE_IDX.STAFF_ID]);
             const joinDate = parseDate(activeRow?.[ACTIVE_IDX.JOIN_DATE]);
             const brand = getActiveBrand(activeRow);
             const center = getActiveCenter(activeRow);
             const position = getActivePosition(activeRow);
+            const batch = getActiveBatch(activeRow);
             const summary = summarizeReferralPerformance(staffId, brand);
 
             return {
@@ -825,6 +861,7 @@
                 brand,
                 center,
                 position,
+                batch,
                 joinDate,
                 joinDateLabel: joinDate ? formatDateAsDMonY(joinDate) : '-',
                 referralRows: summary.referralRows,
@@ -926,11 +963,13 @@
 
         function getBaseRows() {
             const selectedBrands = getSelectedBrands();
+            const batchFilter = getSelectValue('batchFilter');
 
             return dataActive
                 .map(buildCandidateRecord)
                 .filter(record => {
                     if (selectedBrands.length && !selectedBrands.includes(record.brand)) return false;
+                    if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
                     return true;
                 });
         }
@@ -988,26 +1027,27 @@
                 .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
             const centerOptions = [...new Set(rows.map(record => record.center).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+            const batchOptions = [...new Set(rows.map(record => record.batch).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+            setSelectOptions('batchBreakdownFilter', batchOptions, getSelectValue('batchBreakdownFilter'), 'All Batch');
+            setSelectOptions('detailBatchFilter', batchOptions, getSelectValue('detailBatchFilter'), 'All Batch');
             setSelectOptions('brandBreakdownFilter', brandOptions, getSelectValue('brandBreakdownFilter'), 'All Brand');
             setSelectOptions('detailBrandFilter', brandOptions, getSelectValue('detailBrandFilter'), 'All Brand');
             setSelectOptions('detailCenterFilter', centerOptions, getSelectValue('detailCenterFilter'), 'All Centre / Floor');
         }
 
         function getBrandTableRows(rows) {
-            const brandFilter = getSelectValue('brandBreakdownFilter');
-            const brandRows = buildBrandSummary(rows);
-            if (brandFilter !== 'ALL') {
-                return brandRows.filter(entry => entry.brand === brandFilter);
-            }
-            return brandRows;
+            return buildBrandSummary(getBrandSectionRows(rows));
         }
 
         function getBrandSectionRows(rows) {
             const brandFilter = getSelectValue('brandBreakdownFilter');
-            if (brandFilter !== 'ALL') {
-                return rows.filter(record => record.brand === brandFilter);
-            }
-            return rows;
+            const batchFilter = getSelectValue('batchBreakdownFilter');
+            return rows.filter(record => {
+                if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
+                if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
+                return true;
+            });
         }
 
         function getTopPerformer(rows, key) {
@@ -1063,7 +1103,7 @@
                     <button
                         type="button"
                         ${top ? `onclick="openReferralCandidateDetail('${top.staffId}', '${mode}')"` : 'disabled'}
-                        class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6 text-left ${top ? 'hover:-translate-y-1 transition-transform cursor-pointer' : 'cursor-default'}"
+                        class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 text-left ${top ? 'hover:-translate-y-1 transition-transform cursor-pointer' : 'cursor-default'}"
                     >
                         <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.label}</p>
                         <p class="mt-3 text-xl md:text-2xl font-black ${card.text}">${top ? top.employeeName : '-'}</p>
@@ -1074,10 +1114,16 @@
         }
 
         function getDetailRows(rows) {
+            const staffIdFilter = normalizeTextKey(document.getElementById('detailStaffIdFilter')?.value);
+            const nameFilter = normalizeTextKey(document.getElementById('detailNameFilter')?.value);
+            const batchFilter = getSelectValue('detailBatchFilter');
             const brandFilter = getSelectValue('detailBrandFilter');
             const centerFilter = getSelectValue('detailCenterFilter');
             const referralFilter = getSelectValue('detailReferralFilter');
             return rows.filter(record => {
+                if (staffIdFilter && !normalizeTextKey(record.staffId).includes(staffIdFilter)) return false;
+                if (nameFilter && !normalizeTextKey(record.employeeName).includes(nameFilter)) return false;
+                if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
                 if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
                 if (centerFilter !== 'ALL' && record.center !== centerFilter) return false;
                 if (referralFilter === 'HAS' && record.referralCount <= 0) return false;
@@ -1109,7 +1155,7 @@
             ];
 
             document.getElementById('summaryCards').innerHTML = cards.map(card => `
-                <button type="button" onclick="openSummaryDetail('${card.key}')" class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 md:p-6 text-left w-full hover:-translate-y-1 transition-transform">
+                <button type="button" onclick="openSummaryDetail('${card.key}')" class="glass-card summary-card ${card.accent} ${card.bg} border-l-4 p-5 text-left w-full hover:-translate-y-1 transition-transform">
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.label}</p>
                     <p class="mt-3 text-4xl font-black data-font ${card.text}">${formatNumber(card.value)}</p>
                     <p class="mt-3 text-xs font-black uppercase tracking-[0.18em] text-slate-500">${card.note}</p>
@@ -1175,20 +1221,20 @@
             document.getElementById('detailMeta').innerText = `${formatNumber(sorted.length)} active new joiners / ${formatNumber(totalReferralRows)} referred candidates under current filters`;
             document.getElementById('detailTableBody').innerHTML = sorted.map(record => `
                 <tr>
-                    <td class="px-5 py-4 font-black text-slate-900">${record.staffId || '-'}</td>
-                    <td class="px-5 py-4 font-black text-slate-900">${record.employeeName}</td>
-                    <td class="px-5 py-4 font-black text-indigo-700">${record.brand}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.center}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.position}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.joinDateLabel}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${record.referralCount > 0 ? renderDetailMetricButton(record.staffId, 'all', record.referralCount, 'referral') : 'N'}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'lead', record.leadCount, 'lead')}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'offer', record.offerCount, 'offer')}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'onboard', record.onboardCount, 'on board')}</td>
-                    <td class="px-5 py-4 text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'upcomingOnboard', record.upcomingOnboardCount, 'upcoming on board')}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.latestLeadDateLabel}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.latestOfferDateLabel}</td>
-                    <td class="px-5 py-4 text-slate-700">${record.latestOnboardDateLabel}</td>
+                    <td class="break-words px-2 py-3 font-black text-slate-900">${record.staffId || '-'}</td>
+                    <td class="break-words px-2 py-3 font-black text-slate-900">${record.employeeName}</td>
+                    <td class="break-words px-2 py-3 font-black text-indigo-700">${record.brand}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.center}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.position}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.joinDateLabel}</td>
+                    <td class="px-2 py-3 text-center text-slate-900 font-black data-font">${record.referralCount > 0 ? renderDetailMetricButton(record.staffId, 'all', record.referralCount, 'referral') : 'N'}</td>
+                    <td class="px-2 py-3 text-center text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'lead', record.leadCount, 'lead')}</td>
+                    <td class="px-2 py-3 text-center text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'offer', record.offerCount, 'offer')}</td>
+                    <td class="px-2 py-3 text-center text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'onboard', record.onboardCount, 'on board')}</td>
+                    <td class="px-2 py-3 text-center text-slate-900 font-black data-font">${renderDetailMetricButton(record.staffId, 'upcomingOnboard', record.upcomingOnboardCount, 'upcoming on board')}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.latestLeadDateLabel}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.latestOfferDateLabel}</td>
+                    <td class="break-words px-2 py-3 text-slate-700">${record.latestOnboardDateLabel}</td>
                 </tr>
             `).join('');
 
@@ -1258,6 +1304,12 @@
             setSelectedBrands(nextSelected.length ? nextSelected : defaultSelected);
         }
 
+        function populateBatchFilter() {
+            const options = [...new Set(dataActive.map(getActiveBatch).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+            setSelectOptions('batchFilter', options, getSelectValue('batchFilter'), 'All Batch');
+        }
+
         function applyDefaultBrandFilter(event) {
             if (event) event.preventDefault();
             const options = [...document.querySelectorAll('.brand-filter-option')].map(input => safeTrim(input.value));
@@ -1285,7 +1337,12 @@
         function resetFilters() {
             setDefaultFilters();
             applyDefaultBrandFilter();
+            document.getElementById('batchFilter').value = 'ALL';
+            document.getElementById('batchBreakdownFilter').value = 'ALL';
             document.getElementById('brandBreakdownFilter').value = 'ALL';
+            document.getElementById('detailStaffIdFilter').value = '';
+            document.getElementById('detailNameFilter').value = '';
+            document.getElementById('detailBatchFilter').value = 'ALL';
             document.getElementById('detailBrandFilter').value = 'ALL';
             document.getElementById('detailCenterFilter').value = 'ALL';
             document.getElementById('detailReferralFilter').value = 'ALL';
@@ -1336,6 +1393,7 @@
                 dataActive = activeParsed.data || [];
 
                 populateBrandFilter();
+                populateBatchFilter();
                 setDefaultFilters();
                 document.getElementById('lastUpdate').innerText = `Sheet1 + Active NJ loaded on ${formatDateAsDMonY(TODAY)}`;
                 document.getElementById('loadingState').classList.add('hidden');
