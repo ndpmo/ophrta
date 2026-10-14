@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -822,6 +823,7 @@
                 <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">On sales pipeline</span>
                 <span class="rounded-full bg-violet-100 px-3 py-1.5 text-violet-800">Onboarding pipeline</span>
                 <span class="rounded-full bg-rose-100 px-3 py-1.5 text-rose-800">Capacity gap</span>
+                <button id="downloadLeaderOnlyButton" type="button" onclick="downloadLeaderOnlyTable()" class="pill-button ml-auto min-h-0 px-5 py-2 text-xs font-black uppercase tracking-[0.14em] text-sky-700" title="Download the currently filtered Network Team Total table as CSV">DOWNLOAD</button>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -3207,6 +3209,48 @@
             const className = rawGap < 0 ? 'text-rose-600' : rawGap > 0 ? 'text-emerald-600' : 'text-slate-700';
             const label = rawGap > 0 ? `+${formatNumber(rawGap)}` : formatNumber(rawGap);
             return `<span class="font-black ${className}">${label}</span>`;
+        }
+
+
+        // Export the rendered selection so filters, sorting and added columns stay in sync.
+        function downloadLeaderOnlyTable() {
+            const table = document.getElementById('leaderOnlyTable');
+            const body = document.getElementById('leaderOnlyTableBody');
+            const dataRows = Array.from(body?.querySelectorAll('tr.clickable-row') || []);
+            if (!table || !dataRows.length) {
+                window.alert('No network team leader records to download under the current filters.');
+                return;
+            }
+            const cellText = cell => {
+                const clone = cell.cloneNode(true);
+                clone.querySelectorAll('span').forEach(span => {
+                    if (/^[↕↑↓]$/.test(span.textContent.trim())) span.remove();
+                });
+                const value = clone.textContent.replace(/\s+/g, ' ').trim();
+                return /^[=+@-]/.test(value) && !/^[+-]?\d[\d,.]*$/.test(value) ? "'" + value : value;
+            };
+            const headers = Array.from(table.querySelectorAll('thead tr:first-child th')).map(cellText);
+            const rows = [...dataRows, ...body.querySelectorAll('tr.leader-only-total')].map(row => {
+                const values = [];
+                Array.from(row.cells).forEach(cell => {
+                    values.push(cellText(cell));
+                    for (let i = 1; i < cell.colSpan; i++) values.push('');
+                });
+                return values;
+            });
+            const filterValue = id => document.getElementById(id)?.value || 'All dates';
+            const lines = [
+                ['Network Team Total'],
+                ['Lead Date From', filterValue('leaderOnlyStart'), 'Lead Date To', filterValue('leaderOnlyEnd')],
+                ['Offer Date From', filterValue('leaderOnlyOfferStart'), 'Offer Date To', filterValue('leaderOnlyOfferEnd')],
+                ['On Board Date From', filterValue('leaderOnlyOnboardStart'), 'On Board Date To', filterValue('leaderOnlyOnboardEnd')],
+                ['Brand', document.getElementById('leaderOnlyBrandFilter')?.value || 'All Brand'],
+                ['Floor', Array.from(leaderOnlySelectedFloors).join('; ') || 'All Floor'],
+                ['Resign Date From', filterValue('resignDateFrom')],
+                ['Network Team Leaders', dataRows.length],
+                [], headers, ...rows
+            ];
+            downloadCsvFile(`network_team_total_${formatDateToISO(new Date())}.csv`, lines);
         }
 
         function renderLeaderOnlyTable(leaders) {
