@@ -936,6 +936,11 @@
             #panel-teams .pro-scroll-hint { display:none; }
         }
 
+
+        /* Show every network-team row in the page rather than a nested scroller. */
+        #panel-teams .table-wrap:has(#leaderOnlyTable) { max-height:none; height:auto; overflow-y:visible; }
+        #panel-teams #leaderOnlyTable tbody tr.leader-only-total td { position:static !important; bottom:auto; }
+
     </style>
 </head>
 <body>
