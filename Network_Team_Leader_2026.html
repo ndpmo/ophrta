@@ -877,6 +877,8 @@
         #panel-teams .table-wrap:has(#leaderOnlyTable) { max-height:none; height:auto; overflow-y:visible; }
         #panel-teams #leaderOnlyTable tbody tr.leader-only-total td { position:static !important; bottom:auto; }
 
+        .member-metric-button { min-width:36px; min-height:32px; border-radius:5px; color:inherit; font:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#b6c7dc; }
+        .member-metric-button:hover { background:#e8f0fb; color:#174e89; }
     </style>
 </head>
 <body>
@@ -4699,6 +4701,18 @@
             `; }).join('');
         }
 
+let memberMetricSelection=null;
+function renderMemberMetricButton(leaderKey,member,mode,value) {
+    return '<button type="button" class="member-metric-button" data-leader="'+escapeHtml(leaderKey)+'" data-member="'+escapeHtml(member.therapist||'')+'" data-center="'+escapeHtml(member.center||'')+'" data-mode="'+mode+'" onclick="focusMemberMetric(this.dataset.leader,this.dataset.member,this.dataset.center,this.dataset.mode)" title="Open matching candidate details">'+formatNumber(value)+'</button>';
+}
+function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
+    selectedLeaderKey=leaderKey;
+    memberMetricSelection={leaderKey,memberName,memberCenter,mode};
+    currentDetailScope='MEMBER';currentSummaryDetailMode=mode;
+    ['detailBrandFilter','detailFloorFilter','detailPositionFilter','detailStatusFilter','detailOnboardStatusFilter','detailReferralFilter'].forEach(id=>{const field=document.getElementById(id);if(field)field.value='';});
+    proSetTab('candidates');renderDashboard(false);
+    document.getElementById('detailSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
         function renderLeaderPerformance(leaders) {
             const section = document.getElementById('leaderPerformanceSection');
             const title = document.getElementById('leaderPerformanceTitle');
@@ -4708,7 +4722,7 @@
             const teamMateBody = document.getElementById('teamMatePerformanceBody');
             if (!section || !title || !meta || !cards || !teamMateMeta || !teamMateBody) return;
 
-            if (!leaders.length || currentDetailScope !== 'LEADER') {
+            if (!leaders.length || !['LEADER','MEMBER'].includes(currentDetailScope)) {
                 section.classList.add('hidden');
                 title.textContent = 'Network Team Performance';
                 meta.textContent = '-';
@@ -4718,6 +4732,7 @@
                 return;
             }
 
+            if(currentDetailScope==='MEMBER'&&memberMetricSelection)selectedLeaderKey=memberMetricSelection.leaderKey;
             const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
             selectedLeaderKey = active.key;
             section.classList.remove('hidden');
@@ -4788,10 +4803,10 @@
                     <td class="px-5 py-4 text-left">${member.position || '-'}</td>
                     <td class="px-5 py-4 text-left">${member.brand || '-'}</td>
                     <td class="px-5 py-4 text-left">${member.center || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.lead)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.offer)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.onboard)}</td>
-                    <td class="px-4 py-4 text-center data-font text-slate-900">${formatNumber(member.upcomingOnboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${renderMemberMetricButton(active.key,member,'LEAD',member.lead)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${renderMemberMetricButton(active.key,member,'OFFER',member.offer)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${renderMemberMetricButton(active.key,member,'ONBOARD',member.onboard)}</td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900">${renderMemberMetricButton(active.key,member,'UPCOMING',member.upcomingOnboard)}</td>
                 </tr>
             `).join('');
         }
@@ -5222,6 +5237,16 @@
                     titleText = withContext('Lead Detail');
                 }
                 metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(leaders.length)} network teams`;
+            } else if(currentDetailScope==='MEMBER' && memberMetricSelection) {
+                const selection=memberMetricSelection;
+                const active=leaders.find(leader=>leader.key===selection.leaderKey);
+                rows=(active?.detailRows||[]).filter(item=>normalizeKey(item.memberName)===normalizeKey(selection.memberName)&&safeTrim(item.memberCenter)===safeTrim(selection.memberCenter)&&item.isLeadDateMatch);
+                if(selection.mode==='OFFER')rows=rows.filter(item=>item.countedOffer);
+                if(selection.mode==='ONBOARD')rows=rows.filter(item=>item.countedOnboard);
+                if(selection.mode==='UPCOMING')rows=rows.filter(item=>item.countedUpcomingOnboard&&!isBeautySpecialistDetailPosition(item.position));
+                const metric={LEAD:'Lead',OFFER:'Offer',ONBOARD:'On Board',UPCOMING:'Upcoming On Board'}[selection.mode];
+                titleText=selection.memberName+' · '+metric+' Candidate Details';
+                metaText=formatNumber(rows.length)+' candidates / '+(active?.name||'')+' / '+selection.memberCenter;
             } else {
                 const active = leaders.find(leader => leader.key === selectedLeaderKey) || leaders[0];
                 selectedLeaderKey = active.key;
