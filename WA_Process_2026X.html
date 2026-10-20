@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -246,6 +247,35 @@
                 justify-content: center;
             }
         }
+
+        /* Keep detail controls proportional at desktop and mobile widths. */
+        .detail-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+        .detail-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:12px; }
+        #detailMeta { font-size:12px; }
+        #detailTitle { font-size:22px; line-height:1.25; }
+        .detail-filters { display:grid; grid-template-columns: minmax(145px,1fr) minmax(150px,1fr) minmax(150px,1fr) minmax(185px,1.3fr) auto; align-items:end; gap:12px; padding:16px; margin-bottom:18px; border:1px solid #e2e8f0; border-radius:16px; background:#f8fafc; }
+        .detail-filters > div { min-width:0; }
+        .detail-filters input, .detail-filters select { height:42px; min-width:0; font-size:13px; }
+        .detail-filters label { margin-bottom:6px; font-size:11px; }
+        #detailSection .pill-button { display:inline-flex; align-items:center; justify-content:center; height:42px; padding:0 16px; font-size:13px; white-space:nowrap; }
+        #detailSection table { min-width:1260px; }
+        #detailSection th { padding:14px 12px; font-size:10px; letter-spacing:.1em; line-height:1.5; }
+        #detailSection td { padding:14px 12px; font-size:13px; line-height:1.5; }
+        #detailSection td:nth-child(4), #detailSection td:nth-child(5), #detailSection td:nth-child(6), #detailSection td:nth-child(7), #detailSection td:nth-child(8) { white-space:nowrap; }
+        #detailSection th:nth-child(8) { min-width:130px; }
+        #detailSection td:last-child { min-width:140px; }
+        @media (max-width:900px) {
+            .detail-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .detail-filters button { justify-self:start; }
+            .detail-heading { align-items:flex-start; }
+        }
+        @media (max-width:600px) {
+            .detail-heading { flex-direction:column; gap:12px; }
+            .detail-actions { width:100%; justify-content:space-between; }
+            #detailMeta { flex-basis:100%; }
+            .detail-filters { padding:12px; gap:12px 10px; }
+            #detailTitle { font-size:20px; }
+        }
     </style>
 </head>
 <body>
@@ -318,16 +348,24 @@
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8" id="specialistCards"></section>
 
         <section id="detailSection" class="glass-card p-5 md:p-6 mb-8">
-            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
+            <div class="detail-heading">
                 <div>
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">Detail View</p>
                     <h2 id="detailTitle" class="text-2xl font-black text-slate-900">Lead Details</h2>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="detail-actions">
                     <p id="detailMeta" class="text-sm font-bold text-slate-500">-</p>
                     <button type="button" onclick="downloadCurrentDetails()" class="pill-button border-sky-200 bg-sky-50 text-sky-700 hover:-translate-y-0.5 transition">Download Details</button>
                 </div>
             </div>
+                <div class="detail-filters">
+                    <div class="space-y-1"><label for="detailDateField" class="block text-xs font-black text-slate-500">Filter Date</label>
+                        <select id="detailDateField" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold outline-none"><option value="LEAD_DATE">Lead Date</option><option value="OFFER_DATE">Offer Date</option><option value="ONBOARD_DATE">On Board Date</option></select></div>
+                    <div class="space-y-1"><label for="detailDateFrom" class="block text-xs font-black text-slate-500">Date From</label><input id="detailDateFrom" type="date" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold outline-none"></div>
+                    <div class="space-y-1"><label for="detailDateTo" class="block text-xs font-black text-slate-500">Date To</label><input id="detailDateTo" type="date" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold outline-none"></div>
+                    <div class="space-y-1"><label for="detailOfferStatus" class="block text-xs font-black text-slate-500">Offer Status</label><select id="detailOfferStatus" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold outline-none"><option value="ALL">All Offer Status</option></select></div>
+                    <button type="button" onclick="resetDetailFilters()" class="pill-button text-sm text-slate-700">Reset Details</button>
+                </div>
             <div class="table-shell">
                 <div class="table-wrap">
                     <table class="w-full min-w-[1360px] border-collapse">
@@ -339,6 +377,7 @@
                                 <th class="px-4 py-4 text-left">Lead Date</th>
                                 <th class="px-4 py-4 text-left">Offer Date</th>
                                 <th class="px-4 py-4 text-left">On Board Date</th>
+                                <th class="px-4 py-4 text-left">Staff ID</th>
                                 <th class="px-4 py-4 text-left">Last Employment Day</th>
                                 <th class="px-4 py-4 text-left">Status</th>
                                 <th class="px-4 py-4 text-left">On Board Status</th>
@@ -371,7 +410,8 @@
             LEAD_DATE: 35,
             OFFER_DATE: 36,
             ONBOARD_DATE: 37,
-            LAST_EMPLOYMENT_DAY: 52
+            LAST_EMPLOYMENT_DAY: 52,
+            STAFF_ID: 33
         };
         const S1_RAW_IDX = { ONBOARD_DATE: 22, ONBOARD_STATUS: 27 };
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
@@ -589,6 +629,45 @@
 
         function getRecordedOnboardDate(row) {
             return cleanText(row?.__rawOnboardDate ?? row?.[headersS1[S1_IDX.ONBOARD_DATE]], '');
+        }
+
+        function getStaffId(row) {
+            return isOnboardRow(row) ? cleanText(row?.[headersS1[S1_IDX.STAFF_ID]]) : '-';
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+        }
+
+        function populateDetailOfferStatuses() {
+            const select = document.getElementById('detailOfferStatus');
+            const previous = select.value;
+            const statuses = [...new Set(dataS1.filter(isTargetPosition).map(getStatus))].sort((a,b) => a.localeCompare(b));
+            select.innerHTML = '<option value="ALL">All Offer Status</option>' + statuses.map(status =>
+                '<option value="' + escapeHtml(status || '__BLANK__') + '">' + escapeHtml(status || '(Blank)') + '</option>').join('');
+            select.value = [...select.options].some(option => option.value === previous) ? previous : 'ALL';
+        }
+
+        function getDetailFilteredRows(rows) {
+            const field = document.getElementById('detailDateField').value;
+            const start = parseDate(document.getElementById('detailDateFrom').value);
+            const end = parseDate(document.getElementById('detailDateTo').value);
+            if (end) end.setHours(23, 59, 59, 999);
+            const status = document.getElementById('detailOfferStatus').value;
+            return getSourceFilteredRows(rows).filter(row => {
+                if (status !== 'ALL' && getStatus(row) !== (status === '__BLANK__' ? '' : status)) return false;
+                if (!start && !end) return true;
+                const date = parseDate(field === 'ONBOARD_DATE' ? getRecordedOnboardDate(row) : row?.[headersS1[S1_IDX[field]]]);
+                return !!date && (!start || date >= start) && (!end || date <= end);
+            });
+        }
+
+        function resetDetailFilters(render = true) {
+            document.getElementById('detailDateField').value = 'LEAD_DATE';
+            document.getElementById('detailDateFrom').value = '';
+            document.getElementById('detailDateTo').value = '';
+            document.getElementById('detailOfferStatus').value = 'ALL';
+            if (render) renderDashboard();
         }
 
         function getLastEmploymentDay(row) {
@@ -994,7 +1073,7 @@
                 ? summary.specialists.find(card => card.key === activeSpecialistKey)
                 : null;
             const baseRows = activeSpecialist ? activeSpecialist.rows : (stageRows[activeStage] || []);
-            const rows = getSourceFilteredRows(baseRows);
+            const rows = getDetailFilteredRows(baseRows);
             currentDetailRows = rows;
             const detailTitle = activeSpecialist
                 ? `${activeSpecialist.owner} Matched Lead Details`
@@ -1007,7 +1086,7 @@
             const body = document.getElementById('detailTableBody');
             if (!rows.length) {
                 const emptyLabel = activeSpecialist ? `${activeSpecialist.owner.toLowerCase()} matched lead` : detailTitle.toLowerCase();
-                body.innerHTML = `<tr><td colspan="12" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="13" class="px-5 py-8 text-center text-sm font-black text-slate-400">No ${emptyLabel} rows in this selection.</td></tr>`;
                 return;
             }
 
@@ -1019,6 +1098,7 @@
                     <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])}</td>
                     <td class="px-4 py-4 text-left">${cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getRecordedOnboardDate(row))}</td>
+                    <td class="px-4 py-4 text-left">${escapeHtml(getStaffId(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getLastEmploymentDay(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getStatus(row))}</td>
                     <td class="px-4 py-4 text-left">${cleanText(getOnboardStatus(row))}</td>
@@ -1073,6 +1153,7 @@
                 ['Lead Date', row => cleanText(row?.[headersS1[S1_IDX.LEAD_DATE]])],
                 ['Offer Date', row => cleanText(row?.[headersS1[S1_IDX.OFFER_DATE]])],
                 ['On Board Date', row => cleanText(getRecordedOnboardDate(row))],
+                ['Staff ID', getStaffId],
                 ['Last Employment Day', row => cleanText(getLastEmploymentDay(row))],
                 ['Status', row => cleanText(getStatus(row))],
                 ['On Board Status', row => cleanText(getOnboardStatus(row))],
@@ -1113,12 +1194,16 @@
             document.getElementById('offerDateStart').value = '';
             document.getElementById('offerDateEnd').value = '';
             document.getElementById('detailSourceFilter').value = 'ALL';
+            resetDetailFilters(false);
             activeStage = 'LEAD';
             activeSpecialistKey = '';
             renderDashboard();
         }
 
         async function init() {
+            ['detailDateField', 'detailDateFrom', 'detailDateTo', 'detailOfferStatus'].forEach(id => {
+                document.getElementById(id).addEventListener('change', renderDashboard);
+            });
             document.getElementById('studyStart')?.addEventListener('change', renderDashboard);
             document.getElementById('studyEnd')?.addEventListener('change', renderDashboard);
             document.getElementById('offerDateStart')?.addEventListener('change', renderDashboard);
@@ -1141,6 +1226,7 @@
                             hydrateS1DateFields(row);
                             return row;
                         });
+                        populateDetailOfferStatuses();
                         document.getElementById('lastUpdate').textContent = `Sheet 1 + OS-CRA loaded on ${formatDateAsDMonY(today)}`;
                         renderDashboard();
                     },
