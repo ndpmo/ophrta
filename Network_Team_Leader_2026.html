@@ -4293,6 +4293,7 @@
             }
             headers.push('Referral %');
 
+            headers.push('Resign');
             const dataRows = displayBrandRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const values = [
@@ -4317,6 +4318,7 @@
                     );
                 }
                 values.push(formatRate(row.referralMembers || 0, row.members));
+                values.push(countBreakdownResignScopes([{floor:'',brands:[row.label]}]));
                 return values;
             });
 
@@ -4342,6 +4344,7 @@
                 );
             }
             totalRow.push(formatRate(total.referralMembers, total.members));
+            totalRow.push(countBreakdownResignScopes(displayBrandRows.map(row=>({floor:'',brands:[row.label]}))));
             dataRows.push(totalRow);
 
             const lines = buildBreakdownExportLines(
@@ -4388,6 +4391,7 @@
             }
             headers.push('Offer Achieve Rate', 'On Board Achieve Rate');
 
+            headers.push('Resign');
             const dataRows = sortedRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
                 const values = [
@@ -4414,6 +4418,7 @@
                     formatRate(row.offer, row.lead),
                     formatRate(row.onboard, row.lead)
                 );
+                values.push(countBreakdownResignScopes([{floor:row.label,brands:Array.from(row.brands||[])}]));
                 return values;
             });
 
@@ -4441,6 +4446,7 @@
                 formatRate(total.offer, total.lead),
                 formatRate(total.onboard, total.lead)
             );
+            totalRow.push(countBreakdownResignScopes(filteredRows.map(row=>({floor:row.label,brands:Array.from(row.brands||[])}))));
             dataRows.push(totalRow);
 
             const lines = buildBreakdownExportLines(
@@ -5593,9 +5599,25 @@ function getResignSummaryRows(){
 }
 function getResignCount(brand='',floor=''){const ids=getResignStaffIds(),seen=new Set(),brandKey=safeTrim(brand)?normalizeBrand(brand):'',floorKey=safeTrim(floor).toUpperCase();dataOnSales.forEach(row=>{const id=resignStaffKey(getOnSalesValue(row,ON_SALES_IDX.STAFF_ID)),rowBrand=normalizeBrand(getOnSalesValue(row,ON_SALES_IDX.BRAND)),rowFloor=safeTrim(getOnSalesValue(row,ON_SALES_IDX.FLOOR)).toUpperCase();if(!NETWORK_TEAM_BRANDS.includes(rowBrand)||!ids.has(id)||!isResignEligiblePosition(getOnSalesValue(row,ON_SALES_IDX.POSITION))||(brandKey&&rowBrand!==brandKey)||(floorKey&&rowFloor!==floorKey))return;seen.add(id)});return seen.size}
 function getResignCountForNetworkTeam(teamName=''){const ids=getResignStaffIds(),teamKey=normalizeKey(teamName),seen=new Set();if(!teamKey)return 0;dataNTL.forEach(row=>{if(normalizeKey(getNtlValue(row,NTL_IDX.NETWORK_TEAM))!==teamKey)return;const id=resignStaffKey(getNtlValue(row,NTL_IDX.STAFF_NO));if(!ids.has(id))return;const onSales=dataOnSales.find(item=>resignStaffKey(getOnSalesValue(item,ON_SALES_IDX.STAFF_ID))===id);if(onSales&&isResignEligiblePosition(getOnSalesValue(onSales,ON_SALES_IDX.POSITION)))seen.add(id)});return seen.size}
+function countBreakdownResignScopes(scopes) {
+    const ids=getResignStaffIds(),seen=new Set();
+    dataOnSales.forEach(row=>{
+        const id=resignStaffKey(getOnSalesValue(row,ON_SALES_IDX.STAFF_ID));
+        const brand=normalizeBrand(getOnSalesValue(row,ON_SALES_IDX.BRAND));
+        const floor=safeTrim(getOnSalesValue(row,ON_SALES_IDX.FLOOR));
+        if(!id||!ids.has(id)||!NETWORK_TEAM_BRANDS.includes(brand)||!isResignEligiblePosition(getOnSalesValue(row,ON_SALES_IDX.POSITION)))return;
+        if(scopes.some(scope=>(!scope.floor||scope.floor===floor)&&scope.brands.some(value=>normalizeBrand(value)===brand)))seen.add(id);
+    });
+    return seen.size;
+}
+function getBreakdownResignCount(bodyId, selectedRow=null) {
+    const rows=selectedRow?[selectedRow]:Array.from(document.getElementById(bodyId)?.querySelectorAll('tr')||[]).filter(row=>safeTrim(row.cells[0]?.textContent).toUpperCase()!=='TOTAL');
+    const scopes=rows.filter(row=>row.cells.length>1).map(row=>bodyId==='floorTableBody'?{floor:safeTrim(row.cells[0]?.textContent),brands:safeTrim(row.cells[1]?.textContent).split(',').map(safeTrim)}:{floor:'',brands:[safeTrim(row.cells[0]?.textContent)]});
+    return countBreakdownResignScopes(scopes);
+}
 function insertResignColumn(bodyId,where,getValue,totalValue){const body=document.getElementById(bodyId),table=body?.closest('table');if(!table)return;const head=table.querySelector('thead tr');let resignIndex=Array.from(head?.children||[]).findIndex(cell=>cell.hasAttribute('data-resign-column'));if(resignIndex<0){const targetIndex=Array.from(head?.children||[]).findIndex(cell=>safeTrim(cell.textContent)===where);const th=document.createElement('th');th.dataset.resignColumn='1';th.className='border-x-2 border-rose-200 bg-rose-50/70 px-4 py-4 text-center text-rose-700';th.textContent='Resign';head.insertBefore(th,targetIndex>=0?head.children[targetIndex]:null);resignIndex=targetIndex>=0?targetIndex:head.children.length-1}Array.from(body.querySelectorAll('tr')).forEach(row=>{if(row.querySelector('[data-resign-cell]'))return;const td=document.createElement('td');td.dataset.resignCell='1';td.className='border-x-2 border-rose-100 bg-rose-50/30 px-4 py-4 text-center data-font font-black text-rose-700';td.textContent=formatNumber(getValue(row));row.insertBefore(td,row.children[resignIndex]||null)});const totalRow=body.querySelector('tr:last-child');if(totalRow&&safeTrim(totalRow.firstElementChild?.textContent).toUpperCase()==='TOTAL'){const cell=totalRow.querySelector('[data-resign-cell]');if(cell)cell.textContent=formatNumber(totalValue())}}
 function removeFloorAchieveColumns(){const body=document.getElementById('floorTableBody'),table=body?.closest('table'),head=table?.querySelector('thead tr');if(!body||!head)return;const indexes=['On Board Achieve Rate','Offer Achieve Rate'].map(label=>Array.from(head.children).findIndex(cell=>safeTrim(cell.textContent).startsWith(label))).filter(index=>index>=0).sort((a,b)=>b-a);if(indexes.length){indexes.forEach(index=>{head.children[index].remove();Array.from(body.querySelectorAll('tr')).forEach(row=>row.children[index]?.remove())});return}Array.from(body.querySelectorAll('tr')).forEach(row=>{row.lastElementChild?.remove();row.lastElementChild?.remove()})}
-const renderDashboardWithResign=renderDashboard;renderDashboard=function(...args){const result=renderDashboardWithResign.apply(this,args);removeFloorAchieveColumns();insertResignColumn('brandTableBody','Referral %',row=>getResignCount(row.children[0]?.textContent,''),()=>getResignCount());insertResignColumn('floorTableBody','',row=>getResignCount('',row.children[0]?.textContent),()=>getResignCount(safeTrim(document.getElementById('floorSectionBrandFilter')?.value),''));insertResignColumn('leaderOnlyTableBody','Actual Gap',row=>getResignCountForNetworkTeam(row.children[1]?.textContent),()=>Array.from(document.getElementById('leaderOnlyTableBody')?.querySelectorAll('tr')||[]).slice(0,-1).reduce((sum,row)=>sum+Number(row.querySelector('[data-resign-cell]')?.textContent||0),0));return result};
+const renderDashboardWithResign=renderDashboard;renderDashboard=function(...args){const result=renderDashboardWithResign.apply(this,args);removeFloorAchieveColumns();insertResignColumn('brandTableBody','Referral %',row=>getBreakdownResignCount('brandTableBody',row),()=>getBreakdownResignCount('brandTableBody'));insertResignColumn('floorTableBody','',row=>getBreakdownResignCount('floorTableBody',row),()=>getBreakdownResignCount('floorTableBody'));insertResignColumn('leaderOnlyTableBody','Actual Gap',row=>getResignCountForNetworkTeam(row.children[1]?.textContent),()=>Array.from(document.getElementById('leaderOnlyTableBody')?.querySelectorAll('tr')||[]).slice(0,-1).reduce((sum,row)=>sum+Number(row.querySelector('[data-resign-cell]')?.textContent||0),0));return result};
 </script>
 <script>
 // Presentation layer: preserve all existing data predicates and export handlers.
