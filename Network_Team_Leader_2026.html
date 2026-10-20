@@ -2369,6 +2369,7 @@
                 // Include those rows in the drill-down pool too, even if their Lead Date is outside
                 // the Lead Date range; otherwise the card total and its detail list disagree.
                 const offerDateRange = getSelectedOfferDateRange();
+                const comparisonOfferRange = getBrandBreakdownComparisonOfferRange();
                 const detailRows = [];
                 memberStats.forEach(member => {
                     const detailRowMap = new Map(member.rows.map(row => [getRowIdentity(row), row]));
@@ -2376,7 +2377,7 @@
                         dataS1.forEach(row => {
                             if (!isReferredByMember(row, member)) return;
                             const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
-                            if (isDateWithinOptionalRange(offerDate, offerDateRange)) {
+                            if (isDateWithinOptionalRange(offerDate, offerDateRange) || (comparisonOfferRange && isDateWithinOptionalRange(offerDate, comparisonOfferRange))) {
                                 detailRowMap.set(getRowIdentity(row), row);
                             }
                         });
@@ -3458,13 +3459,26 @@
             return rows;
         }
 
-        function applyOfferDateFilterToBrandRows(brandRows, leaders) {
-            if (!getSelectedOfferDateRange()) return brandRows;
-            const offerCounts = getBrandOfferSummaryCounts(leaders, brandRows);
-            return brandRows.map(row => ({
-                ...row,
-                offer: offerCounts.get(normalizeBrand(row.label)) || 0
+        // Brand Breakdown offers follow the same network referral population as its drill-down.
+        // The workforce Upcoming On Board summary keeps its independent calculation above.
+        function getBrandBreakdownComparisonOfferRange() {
+            const range = getSelectedOfferDateRange();
+            if (!range) return null;
+            const anchor = range.end || getSelectedDateRange()?.end || new Date();
+            const end = cloneDate(getManualComparisonDate() || getPreviousComparisonDate(anchor));
+            end.setHours(23, 59, 59, 999);
+            return { start: range.start, end };
+        }
+
+        function applyOfferDateFilterToBrandRows(brandRows, leaders, offerRange = getSelectedOfferDateRange()) {
+            if (!offerRange) return brandRows;
+            const counts = new Map();
+            leaders.forEach(leader => leader.detailRows.forEach(item => {
+                if (!item.countedOffer || !isDateWithinOptionalRange(parseDate(item.offerDate), offerRange)) return;
+                const brand = normalizeBrand(item.memberBrand);
+                counts.set(brand, (counts.get(brand) || 0) + 1);
             }));
+            return brandRows.map(row => ({ ...row, offer: counts.get(normalizeBrand(row.label)) || 0 }));
         }
 
         function getUpcomingOnboardSummaryRows(selectedBrand = '') {
@@ -3930,7 +3944,8 @@
             const comparisonRange = getComparisonDateRange(selectedRange);
             const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
             const { brandRows } = summarizeBreakdowns(leaders);
-            const { brandRows: comparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
+            const { brandRows: rawComparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
+            const comparisonBrandRows = applyOfferDateFilterToBrandRows(rawComparisonBrandRows, comparisonLeaders, getBrandBreakdownComparisonOfferRange());
             const comparisonLookup = buildBreakdownLookup(comparisonBrandRows);
             const displayBrandRows = applyOfferDateFilterToBrandRows(brandRows, leaders);
             const total = summarizeBrandBreakdownRows(displayBrandRows);
@@ -4974,7 +4989,7 @@
             }
             renderSummaryCards(leaders, comparisonLeaders);
             renderBrandOfferSummary(leaders, brandRows);
-            renderBrandTable(applyOfferDateFilterToBrandRows(brandRows, leaders), comparisonBrandRows);
+            renderBrandTable(applyOfferDateFilterToBrandRows(brandRows, leaders), applyOfferDateFilterToBrandRows(comparisonBrandRows, comparisonLeaders, getBrandBreakdownComparisonOfferRange()));
             renderFloorTable(floorRows, comparisonFloorRows);
             renderLeaderOnlyTable(leaders);
             renderNetworkTable(leaders, comparisonLeaders);
