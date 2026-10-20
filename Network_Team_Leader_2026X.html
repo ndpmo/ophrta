@@ -4,8 +4,8 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Network Team Leader Study 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Network Team Leader | Performance 2026 X</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -544,74 +544,432 @@
                 font-size: 0.75rem;
             }
         }
+        :root { --ink:#182b45; --muted:#64748b; --paper:#fff; --brand:#174ea6; --brand-soft:#eef4ff; --warning:#996717; --warning-soft:#fff8e8; --success:#087f69; --violet:#52637f; --rose:#c23e58; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; background:#f3f5f8; background-image:none; color:#182b45; font-family:Arial,'Noto Sans TC',sans-serif; font-size:14px; line-height:1.5; }
+        body::before { display:none; }
+        button,input,select,summary { -webkit-tap-highlight-color:transparent; }
+        button { font-family:inherit; }
+        button:focus-visible,a:focus-visible,summary:focus-visible { outline:3px solid #93b6ef; outline-offset:3px; }
+        .pro-app { max-width:1480px; padding:28px 36px 24px; margin:auto; }
+        .pro-header { display:flex; justify-content:space-between; align-items:center; gap:28px; margin-bottom:24px; }
+        .pro-back { display:inline-block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:18px; text-decoration:none; }
+        .pro-back:hover { color:#174ea6; }
+        .pro-title-row { display:flex; align-items:center; gap:16px; }
+        .pro-monogram { display:grid; place-items:center; width:52px; height:52px; border-radius:12px; background:#16365f; color:#fff; font-size:19px; font-weight:700; letter-spacing:-.05em; flex-shrink:0; }
+        .pro-eyebrow { display:block; font-size:10px; color:#698098; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+        .pro-header h1 { margin:3px 0; font-size:29px; font-weight:700; line-height:1.25; letter-spacing:-.035em; }
+        .pro-subtitle { font-size:13px; color:#708095; }
+        .pro-source { text-align:right; max-width:320px; padding-top:26px; font-size:11px; color:#66778e; }
+        .pro-live { display:inline-flex; align-items:center; gap:7px; color:#246d58; font-weight:700; margin-bottom:6px; }
+        .pro-live > span { width:6px; height:6px; border-radius:50%; background:#27846a; }
+        .pro-source-time { margin-top:5px; color:#8b97a7; }
+        .glass-card { background:#fff; border:1px solid #e0e6ee; box-shadow:0 2px 4px #182b4503; backdrop-filter:none; border-radius:12px; }
+        .pro-app > section,.pro-panel > section { margin-bottom:20px; }
+        .pro-filter { padding:18px 22px !important; }
+        .pro-filter-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+        #proRangeLabel { font-size:13px; font-weight:600; margin-top:3px; }
+        .pro-filter-actions { display:flex; gap:8px; }
+        .pro-filter-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1.4fr; gap:14px; }
+        .pro-filter label,.pro-advanced label { display:block; margin-bottom:6px; color:#5a6c83; font-size:11px; font-weight:600; }
+        .pro-filter input,.pro-filter select { display:block; height:39px; width:100%; min-width:0; border:1px solid #d8e0eb; border-radius:6px; padding:0 10px; color:#243b59; background:#fff; font-size:12px; font-weight:500; outline:none; }
+        input:focus,select:focus { border-color:#507db5 !important; box-shadow:0 0 0 3px #eaf0fa; }
+        .pro-advanced { margin-top:14px; padding-top:12px; border-top:1px solid #edf0f5; }
+        .pro-advanced summary { color:#365676; cursor:pointer; font-size:11px; font-weight:600; }
+        .pro-advanced summary span { margin-left:12px; color:#7f8ea0; font-weight:400; }
+        .pro-advanced-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1.4fr; gap:14px; align-items:end; padding-top:14px; }
+        .pro-filter-help { font-size:11px; color:#7f8da0; line-height:1.6; }
+        .pro-optional { font-weight:400; color:#9aa5b4; }
+        .pill-button { border:1px solid #d9e2ed; border-radius:6px; background:#fff; box-shadow:none; min-height:34px; padding:7px 12px; font-size:11px; line-height:1.4; font-weight:600; letter-spacing:0 !important; text-transform:none !important; color:#365676; white-space:nowrap; }
+        .pill-button:hover { background:#f1f5fb; transform:none; }
+        .pill-button.pro-primary { background:#174778; border-color:#174778; color:#fff; }
+        .pill-button.pro-primary:hover { background:#10345b; }
+        .pro-tabs { display:flex; gap:24px; overflow-x:auto; padding:0 4px; border-bottom:1px solid #d9e1eb; margin:24px 0 22px; scrollbar-width:thin; }
+        .pro-tabs button { color:#718096; font-size:12px; font-weight:600; padding:0 0 13px; border-bottom:2px solid transparent; background:transparent; border-radius:0; white-space:nowrap; }
+        .pro-tabs button[aria-selected="true"] { border-color:#174778; color:#174778; }
+        .pro-tabs button:hover { color:#174778; }
+        .pro-panel[hidden] { display:none !important; }
+        .pro-panel { scroll-margin-top:20px; }
+        #summaryCards { display:block; }
+        .pro-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+        .pro-kpi { border:1px solid #dfe6ee; background:#fff; border-radius:10px; padding:18px 20px 14px; box-shadow:0 2px 4px #182b4503; text-align:left; }
+        .pro-kpi:hover { transform:none; box-shadow:0 0 0 1px #acbfd8; }
+        .pro-kpi.active { border-color:#507db5; background:#fbfcff; }
+        .pro-kpi-top { display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:12px; font-weight:600; color:#586c86; }
+        .pro-basis { font-size:9px; font-weight:400; color:#8a98ab; }
+        .pro-kpi-value { font-size:38px; font-weight:600; color:#18385f; display:flex; align-items:baseline; gap:12px; line-height:1.3; margin:12px 0 14px; letter-spacing:-.04em; }
+        .pro-kpi-value > span { font-size:11px; letter-spacing:0; }
+        .pro-kpi-bottom { display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid #eef1f5; min-height:28px; }
+        .pro-kpi-bottom > div { display:flex; gap:14px; margin:0; font-size:10px; letter-spacing:0; font-weight:500; color:#7c8a9d; }
+        .pro-card-arrow { color:#91a3b8; font-size:14px; }
+        .pro-secondary { margin-top:12px; border:1px solid #e0e6ee; border-radius:8px; background:#f9fbfd; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .pro-secondary button { display:flex; gap:12px; align-items:center; text-align:left; padding:13px 18px; border-right:1px solid #e4e9f1; font-size:11px; color:#5b6e85; }
+        .pro-secondary button:last-child { border:0; }
+        .pro-secondary button:hover { background:#edf3fa; }
+        .pro-secondary strong { color:#213e63; font-size:17px; }
+        .pro-secondary-note { font-size:10px; color:#8896a8; margin-left:auto; }
+        .pro-app h2 { font-size:18px; line-height:1.3; font-weight:700; letter-spacing:-.02em; }
+        .pro-app h3 { font-size:15px; font-weight:600; }
+        .pro-app section > div > div > p.uppercase { text-transform:none; font-size:10px; letter-spacing:.06em; color:#7c8da2; font-weight:600; margin-bottom:4px; }
+        .pro-panel .glass-card { padding:22px !important; }
+        .pro-panel .glass-card > div:first-child { margin-bottom:18px; }
+        .pro-panel select,.pro-panel input { font-size:12px; font-weight:500; border-radius:6px; min-height:36px; }
+        .pro-panel label { font-size:10px; font-weight:600; letter-spacing:0; text-transform:none; color:#667a92; }
+        .table-shell { border:1px solid #e0e6ef; border-radius:8px; background:#fff; box-shadow:none; }
+        .table-wrap { max-height:570px; overflow:auto; scrollbar-color:#b6c4d5 #f0f3f8; scrollbar-width:thin; }
+        .table-wrap::-webkit-scrollbar { height:8px; width:8px; }
+        .table-wrap::-webkit-scrollbar-track { background:#f0f3f8; box-shadow:none; }
+        .table-wrap::-webkit-scrollbar-thumb { background:#b6c4d5; border:2px solid #f0f3f8; }
+        .table-shell thead th { position:sticky; top:0; z-index:2; background:#f5f7fb; color:#5a6e88; padding:13px 14px; font-size:10px; font-weight:600; letter-spacing:0; text-transform:none; border-bottom:1px solid #dde5ef; }
+        .table-shell tbody td { padding:13px 14px; font-size:12px; font-weight:500; color:#405671; border-bottom:1px solid #eef1f5; }
+        .table-shell tbody tr:nth-child(even) { background:#fcfdff; }
+        .table-shell tbody tr:hover { background:#f3f7fc; }
+        .table-shell tbody tr:last-child[class*="border-t"] { background:#edf3fa; }
+        .table-shell tbody tr:last-child[class*="border-t"] td { font-weight:700; color:#1e3c61; border-top:1px solid #cedbea; }
+        .table-shell tbody td:first-child { font-weight:600; }
+        .table-shell tbody td:not(:first-child) { font-variant-numeric:tabular-nums; }
+        #brandTableBody td:not(:first-child) { text-align:center; }
+        #floorTableBody td:not(:first-child) { text-align:center; }
+        #brandTableBody button { justify-content:center; }
+        #floorTableBody button { justify-content:center; }
+        #brandTableBody td button { color:#254c7c; }
+        #brandTableBody td button span,#floorTableBody td button span { font-size:10px; }
+        .table-shell th[data-resign-column],.table-shell .resign-summary-heading { border-left:1px solid #efdde2 !important; border-right:0 !important; background:#fbf3f5; color:#a85b6d; }
+        .table-shell td[data-resign-cell],.table-shell .resign-summary-cell { border-left:1px solid #f1e5e8 !important; border-right:0 !important; background:#fdf9fa; color:#a35a6a; }
+        .data-font,.title-tech { font-family:Arial,'Noto Sans TC',sans-serif; font-variant-numeric:tabular-nums; }
+        .resign-note { font-size:10px; font-weight:500; color:#977581; }
+        .resign-note::before { background:#b47f8d; box-shadow:none; width:4px; height:4px; }
+        .pro-comparison { font-size:11px; color:#7b8ca1; margin-top:5px; }
+        .pro-caption { font-size:11px; line-height:1.6; color:#7f8da1; margin-top:12px; }
+        .pro-definitions { margin-top:18px; padding:14px 18px; border:1px solid #e0e6ee; border-radius:8px; background:#f8fafc; font-size:11px; color:#708198; }
+        .pro-definitions summary { cursor:pointer; font-weight:600; color:#526a86; }
+        .pro-definitions dl { display:grid; grid-template-columns:130px 1fr; gap:8px 16px; padding-top:14px; line-height:1.7; }
+        .pro-definitions dt { font-weight:600; color:#3c5574; }
+        .pro-footer { display:flex; justify-content:space-between; align-items:center; gap:16px; border-top:1px solid #dfe5ed; padding:18px 0 4px; margin-top:24px; color:#8996a8; font-size:10px; }
+        #loadingState { font-size:11px; color:#7b8a9f; background:transparent; border:0; padding:0 !important; margin:16px 0; box-shadow:none; }
+        #detailSection .table-wrap { max-height:640px; }
+        #detailSection > div:first-child > div:nth-child(2) { align-items:flex-start; }
+        #detailSection select { min-width:130px; max-width:240px; }
+        #detailSection [class*="tracking-"] { letter-spacing:0; }
+        @media(min-width:1100px) { #brandTableBody tr td:first-child { min-width:130px; } }
+        @media(max-width:1100px) { .pro-app { padding:24px; } .pro-filter-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .pro-secondary-note { display:none; } .pro-tabs { gap:20px; } .pro-kpi { padding:16px; } .pro-kpi-top { align-items:flex-start; flex-direction:column; } }
+        @media(max-width:720px) { .pro-app { padding:18px 14px; } .pro-header { flex-direction:column; align-items:stretch; gap:12px; } .pro-header h1 { font-size:24px; } .pro-source { padding:0; text-align:left; max-width:none; margin-left:68px; } .pro-source-time { display:inline; margin-left:8px; } .pro-source #lastUpdate { margin:0; } .pro-monogram { width:48px; height:48px; } .pro-filter { padding:16px !important; } .pro-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; } .pro-filter-grid > div:last-child { grid-column:span 2; } .pro-advanced-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .pro-advanced summary span { display:block; margin:4px 0 0 14px; font-size:10px; } .pro-filter-title { align-items:flex-start; } #proRangeLabel { font-size:11px; } .pro-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } .pro-kpi { padding:14px; } .pro-kpi-value { font-size:32px; margin:8px 0 10px; } .pro-secondary { grid-template-columns:1fr; } .pro-secondary button { border:0; border-bottom:1px solid #e4e9f1; padding:10px 14px; } .pro-secondary-note { display:block; } .pro-panel .glass-card { padding:16px !important; } .pro-tabs { margin:20px 0 16px; gap:22px; } .pro-panel input,.pro-panel select { max-width:100%; } .pro-panel .min-w-\[190px\] { min-width:0; } .pro-panel .min-w-\[240px\] { min-width:0; } .pro-definitions dl { grid-template-columns:1fr; gap:4px; } .pro-definitions dd { margin-bottom:8px; } .pro-footer { align-items:flex-start; } }
+        /* Quiet reading zones for the operational team table. */
+        .pro-app #leaderOnlyTable th { background:#f3f6fa !important; color:#526b88 !important; border-right:1px solid #e0e7f0 !important; font-size:11px; }
+        .pro-app #leaderOnlyTable td { background:transparent !important; border-right:1px solid #edf0f5 !important; font-size:12px; }
+        .pro-app #leaderOnlyTable th:nth-child(5),.pro-app #leaderOnlyTable th:nth-child(9) { background:#eff5f6 !important; }
+        .pro-app #leaderOnlyTable th:nth-child(n+11) { background:#f9f1f3 !important; }
+        .pro-app #leaderOnlyTable tbody tr.leader-floor-start td { border-top:1px solid #d9e2ef; }
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td { background:#edf3fa !important; color:#284969; position:sticky; bottom:0; z-index:2; }
+        .pro-app #leaderOnlyTable [data-resign-cell] { background:#fcf7f8 !important; }
+        .pro-app #leaderOnlyTable td button { color:#355a87; }
+        .pro-zone-chip { background:#f1f4f8 !important; color:#667d97 !important; border-radius:4px !important; letter-spacing:.04em !important; font-size:9px !important; font-weight:600 !important; }
+        .pro-app .status-chip { font-size:10px; letter-spacing:0; font-weight:600; text-transform:none; border-radius:5px; padding:4px 7px; }
+        .pro-app .status-pending { background:#f7f1e7; color:#8e7444; }
+        .pro-app .status-offer { background:#edf2fa; color:#456ba1; }
+        .pro-app .status-onboard { background:#eaf5f0; color:#387760; }
+        #detailTable td:nth-child(8),#detailTable td:nth-child(9),#detailTable td:nth-child(11) { white-space:nowrap; }
+        .pro-app .pro-footer,#loadingState { font-weight:400; }
+        @media(max-width:720px) { .pro-panel .glass-card > div:first-child { min-width:0; } #detailSection [class*="min-w-"] { min-width:0 !important; } #detailSection select { max-width:100%; flex:1; } .pro-panel .table-shell { min-width:0; } }
+        /* Typography refinement: consistent Windows UI face and readable supporting text. */
+        body,button,input,select,.data-font,.title-tech { font-family:'Segoe UI','Noto Sans TC',Arial,sans-serif; }
+        body { font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
+        .pro-header h1 { font-size:30px; line-height:1.25; letter-spacing:-.025em; font-weight:700; }
+        .pro-subtitle { font-size:14px; }
+        .pro-eyebrow { font-size:11px; letter-spacing:.09em; }
+        .pro-back,.pro-source { font-size:12px; }
+        .pro-source-time { font-size:12px; }
+        .pro-filter label,.pro-advanced label,.pro-panel label { font-size:12px; font-weight:600; line-height:1.4; }
+        .pro-filter input,.pro-filter select,.pro-panel input,.pro-panel select { font-size:14px; min-height:40px; line-height:1.4; }
+        #proRangeLabel { font-size:14px; }
+        .pro-advanced summary,.pro-advanced summary span,.pro-filter-help,.pro-optional { font-size:12px; }
+        .pill-button { font-size:13px; min-height:38px; padding:8px 14px; font-weight:600; }
+        .pro-tabs { gap:26px; }
+        .pro-tabs button { font-size:14px; padding-bottom:13px; font-weight:600; }
+        .pro-kpi-top { font-size:14px; }
+        .pro-basis { font-size:11px; color:#697c94; }
+        .pro-kpi-value { font-size:40px; font-weight:650; margin:10px 0 14px; }
+        .pro-kpi-value > span { font-size:13px; }
+        .pro-kpi-bottom > div { font-size:12px; color:#64778e; gap:12px; }
+        .pro-secondary button { font-size:13px; gap:12px; padding:14px 18px; }
+        .pro-secondary strong { font-size:20px; font-weight:650; }
+        .pro-secondary-note { font-size:12px; color:#73849a; }
+        .pro-app h2 { font-size:22px; line-height:1.35; font-weight:650; }
+        .pro-app h3 { font-size:17px; line-height:1.4; font-weight:600; }
+        .pro-app section > div > div > p.uppercase { font-size:11px; }
+        .table-shell thead th,.pro-app #leaderOnlyTable th { font-size:12px; line-height:1.4; font-weight:600; padding:13px 14px; }
+        .table-shell tbody td,.pro-app #leaderOnlyTable td { font-size:14px; line-height:1.5; padding:13px 14px; }
+        #brandTableBody td button span,#floorTableBody td button span { font-size:12px; }
+        .pro-app #leaderOnlyTable { min-width:1320px; }
+        .pro-app #detailTable { min-width:1660px; }
+        .pro-app #leaderOnlyTable th:nth-child(1),.pro-app #leaderOnlyTable td:nth-child(1) { width:150px; }
+        .pro-app #leaderOnlyTable th:nth-child(2),.pro-app #leaderOnlyTable td:nth-child(2) { width:150px; }
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:first-child { width:auto; }
+        .pro-app .status-chip { font-size:12px; line-height:1.35; }
+        .pro-zone-chip { font-size:11px !important; letter-spacing:0 !important; }
+        .pro-comparison,.pro-caption,.pro-definitions,.resign-note { font-size:12px; line-height:1.65; }
+        .pro-caption,.pro-comparison,.pro-definitions { color:#687c94; }
+        .pro-footer,#loadingState { font-size:12px; line-height:1.6; }
+        #brandMeta,#floorMeta,#detailMeta,#leaderOnlyMeta { font-size:13px; font-weight:500; line-height:1.5; }
+        .pro-app .table-shell tbody td button { font-weight:600; }
+        @media(max-width:1100px) { .pro-secondary-note { display:none; } }
+        @media(max-width:720px) {
+            .pro-header h1 { font-size:25px; }
+            .pro-subtitle { font-size:13px; }
+            .pro-source { margin-left:0; padding-left:0; }
+            .pro-source-time { display:block; margin-left:0; }
+            .pro-filter-title { flex-direction:column; gap:12px; }
+            .pro-filter-actions { width:100%; justify-content:flex-end; }
+            #proRangeLabel { font-size:14px; }
+            .pro-advanced summary span { font-size:12px; line-height:1.6; }
+            .pro-kpi-value { font-size:36px; }
+            .pro-kpi-top { font-size:13px; }
+            .pro-basis { font-size:11px; }
+            .pro-kpi-bottom > div { font-size:11px; gap:8px; }
+            .pro-secondary button { font-size:13px; padding:12px 14px; }
+            .pro-secondary-note { display:none; }
+            .pro-app h2 { font-size:21px; }
+            .pro-app h3 { font-size:17px; }
+            .pro-footer { flex-direction:column; gap:4px; }
+        }
+        /* Larger operational figures, with secondary deltas still easy to read. */
+        .pro-app .table-shell tbody td.data-font,
+        .pro-app #brandTableBody td:not(:first-child),
+        .pro-app #floorTableBody td:nth-child(n+3),
+        .pro-app #leaderOnlyTable td:nth-child(n+3),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+2) {
+            font-size:17px;
+            line-height:1.55;
+            padding-top:15px;
+            padding-bottom:15px;
+            font-weight:600;
+            font-variant-numeric:tabular-nums;
+        }
+        .pro-app #brandTableBody td button,
+        .pro-app #floorTableBody td button { font-size:17px; }
+        .pro-app #brandTableBody td button span,
+        .pro-app #floorTableBody td button span,
+        .pro-app .table-shell tbody td.data-font > span.data-font { font-size:14px; }
+        .pro-kpi-value { font-size:46px; }
+        .pro-kpi-value > span { font-size:15px; }
+        .pro-secondary strong { font-size:23px; }
+        .pro-app #leaderOnlyTable { min-width:1460px; }
+        @media(max-width:720px) {
+            .pro-kpi-value { font-size:40px; }
+            .pro-kpi-value > span { font-size:14px; }
+        }
+        /* Six visible metric groups; data and Total use the same logical columns. */
+        [data-pro-zone="team"] { --zone-head:#d2e5fc; --zone-body:#eef5fe; --zone-total:#dceafd; --zone-edge:#83aee0; --zone-ink:#254d7b; }
+        [data-pro-zone="sales"] { --zone-head:#bfe9df; --zone-body:#e8f7f2; --zone-total:#ccece2; --zone-edge:#69b6a3; --zone-ink:#216352; }
+        [data-pro-zone="pipeline"] { --zone-head:#fae0ad; --zone-body:#fff6e5; --zone-total:#f9e6c1; --zone-edge:#d6a34e; --zone-ink:#805512; }
+        [data-pro-zone="onboarding"] { --zone-head:#dfd3f6; --zone-body:#f3edfc; --zone-total:#e7dcf8; --zone-edge:#a38acb; --zone-ink:#624587; }
+        [data-pro-zone="gap"] { --zone-head:#cdd8e7; --zone-body:#edf1f7; --zone-total:#dbe3ef; --zone-edge:#879bb8; --zone-ink:#3b5272; }
+        [data-pro-zone="resign"] { --zone-head:#f5cad1; --zone-body:#fcecef; --zone-total:#f7d9df; --zone-edge:#d48b99; --zone-ink:#913d51; }
+        .pro-app #leaderOnlyTable thead th[data-pro-zone] { background:var(--zone-head) !important; color:var(--zone-ink) !important; font-weight:700; border-bottom:2px solid var(--zone-edge); }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-zone] { background:var(--zone-body) !important; }
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td[data-pro-zone] { background:var(--zone-total) !important; border-top:2px solid var(--zone-edge); font-weight:700; }
+        .pro-app #leaderOnlyTable thead th[data-pro-zone-start],
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-zone-start] { border-left:3px solid var(--zone-edge) !important; }
+        .pro-app #leaderOnlyTable tbody tr:hover td[data-pro-zone] { background:var(--zone-total) !important; }
+        .pro-group-legend { display:inline-flex; align-items:center; padding:6px 10px; border-radius:5px; background:var(--zone-head); color:var(--zone-ink); border-left:3px solid var(--zone-edge); font-size:11px; font-weight:600; letter-spacing:0; text-transform:none; }
+        /* Restore the original dashboard palette and thin zone dividers. */
+        [data-pro-zone="team"] { --zone-head:#e0f2fe; --zone-body:#f7fcff; --zone-total:#e0f2fe; --zone-edge:#94a3b8; --zone-ink:#0c4a6e; }
+        [data-pro-zone="sales"] { --zone-head:#ccfbf1; --zone-body:#f2fcfa; --zone-total:#ccfbf1; --zone-edge:#94a3b8; --zone-ink:#134e4a; }
+        [data-pro-zone="pipeline"] { --zone-head:#ffedd5; --zone-body:#fff9f2; --zone-total:#ffedd5; --zone-edge:#94a3b8; --zone-ink:#9a3412; }
+        [data-pro-zone="onboarding"] { --zone-head:#ede9fe; --zone-body:#f8f6fe; --zone-total:#ede9fe; --zone-edge:#94a3b8; --zone-ink:#5b21b6; }
+        [data-pro-zone="gap"] { --zone-head:#ffe4e6; --zone-body:#fdf4f6; --zone-total:#ffe4e6; --zone-edge:#94a3b8; --zone-ink:#9f1239; }
+        [data-pro-zone="resign"] { --zone-head:#ffe4e6; --zone-body:#fdf4f6; --zone-total:#ffe4e6; --zone-edge:#fda4af; --zone-ink:#be123c; }
+        .pro-app #leaderOnlyTable thead th[data-pro-zone] { border-bottom:1px solid #e2e8f0; }
+        .pro-app #leaderOnlyTable thead th[data-pro-zone-start],
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-zone-start] { border-left:1px solid var(--zone-edge) !important; }
+        .pro-app #leaderOnlyTable thead th[data-pro-zone="team"][data-pro-zone-start],
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-zone="team"][data-pro-zone-start] { border-left:0 !important; }
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td[data-pro-zone] { border-top:1px solid #cbd5e1; }
+        .pro-app #leaderOnlyTable tbody td:nth-child(1),.pro-app #leaderOnlyTable tbody td:nth-child(2) { color:#334155; }
+        .pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(6),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(5) { color:#4f46e5; }
+        .pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(7),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(6) { color:#ea580c; }
+        .pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(8),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(7) { color:#059669; }
+        .pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(9),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(8),
+        .pro-app #leaderOnlyTable td[data-pro-zone="onboarding"] button { color:#7c3aed; }
+        .pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(10),
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(9) { color:#d97706; }
+        .pro-team-heading { display:block; margin-bottom:20px; }
+        .pro-team-heading > div:first-child { max-width:none; margin-bottom:18px; }
+        .pro-team-heading .pro-caption { margin-top:6px; }
+        .pro-team-controls { display:flex; flex-direction:column; gap:14px; min-width:0; }
+        .pro-team-dates { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .pro-date-pair { min-width:0; border:1px solid #dbe4ee; border-radius:8px; padding:10px 12px 12px; background:#f9fbfd; }
+        .pro-date-pair legend { padding:0 5px; color:#365676; font-size:13px; font-weight:600; }
+        .pro-date-pair-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .pro-date-pair-fields input { min-width:0; width:100%; padding-left:9px; padding-right:9px; }
+        .pro-team-selects { display:grid; grid-template-columns:repeat(2,minmax(0,270px)); gap:14px; }
+        .pro-team-controls #leaderOnlyMeta { width:100%; text-align:left; margin:0; }
+        .pro-app #leaderOnlyTable { --team-floor-width:160px; --team-leader-width:180px; --team-number-width:100px; min-width:1440px; table-layout:fixed; }
+        .pro-app #leaderOnlyTable th:nth-child(1),.pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(1) { width:var(--team-floor-width); }
+        .pro-app #leaderOnlyTable th:nth-child(2),.pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(2) { width:var(--team-leader-width); }
+        .pro-app #leaderOnlyTable [data-pro-pinned] { position:sticky; z-index:3; background:var(--zone-body) !important; }
+        .pro-app #leaderOnlyTable [data-pro-pinned="floor"],.pro-app #leaderOnlyTable [data-pro-pinned="total"] { left:0; }
+        .pro-app #leaderOnlyTable [data-pro-pinned="leader"] { left:var(--team-floor-width); box-shadow:2px 0 0 #94a3b8,5px 0 8px #16365f0a; }
+        .pro-app #leaderOnlyTable thead th[data-pro-pinned] { z-index:6; background:var(--zone-head) !important; }
+        .pro-app #leaderOnlyTable tbody tr.leader-only-total [data-pro-pinned="total"] { z-index:5; width:calc(var(--team-floor-width) + var(--team-leader-width)); box-shadow:2px 0 0 #94a3b8; background:var(--zone-total) !important; }
+        .pro-app #leaderOnlyTable [data-pro-pinned="leader"] button { overflow-wrap:anywhere; }
+        @media(max-width:1000px) { .pro-team-dates { grid-template-columns:1fr; } }
+        @media(max-width:720px) {
+            .pro-team-selects { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .pro-app #leaderOnlyTable { --team-floor-width:120px; --team-leader-width:136px; --team-number-width:90px; min-width:1246px; }
+            .pro-app #leaderOnlyTable [data-pro-pinned] { padding-left:10px; padding-right:10px; }
+        }
+        .pro-team-tools { display:grid; grid-template-columns:minmax(220px,1.3fr) minmax(220px,1fr) auto; gap:16px; align-items:end; }
+        .pro-team-tools label { display:block; margin-bottom:6px; }
+        .pro-team-tools input,.pro-team-tools select { width:100%; min-width:0; height:40px; padding:0 10px; border:1px solid #d8e0eb; background:#fff; color:#243b59; }
+        .pro-search-field { display:flex; gap:8px; }
+        .pro-search-field input { flex:1; }
+        .pro-sync p { font-size:11px; color:#708198; margin-top:4px; }
+        .pro-team-notice { font-size:12px; color:#27735b; margin:0; }
+        .pro-team-notice:empty { display:none; }
+        .pro-gap-help { padding:10px 14px; background:#f8fafc; border:1px solid #e1e8f0; border-radius:6px; font-size:12px; color:#556c88; }
+        .pro-gap-help summary { cursor:pointer; font-weight:600; color:#365676; }
+        .pro-gap-help p { margin-top:8px; line-height:1.65; }
+        .pro-scroll-hint { display:none; font-size:12px; color:#687c94; margin:0 0 10px; }
+        @media(max-width:1000px) { .pro-team-tools { grid-template-columns:1fr 1fr; } .pro-sync { grid-column:span 2; } }
+        @media(max-width:720px) { .pro-team-tools { grid-template-columns:minmax(0,1fr); gap:12px; } .pro-sync { grid-column:auto; } .pro-scroll-hint { display:block; } }
+        /* Final type scale: clear hierarchy, without excessive size or weight changes. */
+        .pro-app { --type-small:13px; --type-body:14px; --type-table:15px; --type-number:17px; --type-section:24px; }
+        body { font-size:var(--type-body,14px); line-height:1.55; }
+        .pro-header h1 { font-size:30px; font-weight:650; line-height:1.25; }
+        .pro-app h2 { font-size:var(--type-section); font-weight:650; line-height:1.3; }
+        .pro-app h3 { font-size:18px; font-weight:600; line-height:1.4; }
+        .pro-app .pro-eyebrow,.pro-app section > div > div > p.uppercase { font-size:12px; font-weight:600; letter-spacing:.04em; }
+        .pro-subtitle,.pro-tabs button { font-size:14px; }
+        .pro-back,.pro-source,.pro-source-time,.pro-caption,.pro-comparison,.pro-filter-help,
+        .pro-advanced summary,.pro-advanced summary span,.pro-definitions,.pro-gap-help,
+        .pro-sync p,.pro-team-notice,.pro-scroll-hint,.resign-note { font-size:var(--type-small); line-height:1.55; }
+        .pro-caption,.pro-comparison,.pro-sync p,.pro-source-time { color:#687b91; }
+        .pro-filter label,.pro-advanced label,.pro-panel label,.pro-team-tools label,.pro-date-pair legend { font-size:var(--type-small); font-weight:600; line-height:1.4; }
+        .pro-filter input,.pro-filter select,.pro-panel input,.pro-panel select { font-size:14px; font-weight:400; }
+        .pro-app .pill-button { font-size:13px; font-weight:600; line-height:1.4; }
+        #proRangeLabel,#brandMeta,#floorMeta,#detailMeta,#leaderOnlyMeta { font-size:14px; font-weight:500; line-height:1.5; }
+        .pro-kpi-top { font-size:14px; font-weight:600; }
+        .pro-kpi-value { font-size:42px; font-weight:650; line-height:1.2; margin:12px 0 16px; }
+        .pro-kpi-value > span { font-size:14px; font-weight:600; }
+        .pro-basis,.pro-kpi-bottom > div { font-size:12px; font-weight:400; }
+        .pro-secondary button { font-size:14px; font-weight:500; }
+        .pro-secondary strong { font-size:22px; font-weight:650; }
+        .pro-secondary-note { font-size:12px; }
+        .pro-app .table-shell thead th,.pro-app #leaderOnlyTable th { font-size:13px; line-height:1.4; letter-spacing:0; font-weight:600; padding:13px 12px; }
+        .pro-app .table-shell tbody td,.pro-app #leaderOnlyTable td { font-size:var(--type-table); line-height:1.5; font-weight:400; padding-top:14px; padding-bottom:14px; }
+        .pro-app .table-shell tbody td.data-font,
+        .pro-app #brandTableBody td:not(:first-child),.pro-app #floorTableBody td:nth-child(n+3),
+        .pro-app #leaderOnlyTable td:nth-child(n+3),.pro-app #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+2),
+        .pro-app #brandTableBody td button,.pro-app #floorTableBody td button { font-size:var(--type-number); font-weight:500; }
+        .pro-app #brandTableBody td button span,.pro-app #floorTableBody td button span,
+        .pro-app .table-shell tbody td.data-font > span.data-font { font-size:14px; font-weight:500; }
+        .pro-app .table-shell tbody td:first-child,.pro-app #leaderOnlyTable td[data-pro-pinned="leader"] button { font-weight:500; }
+        .pro-app .table-shell tbody tr.leader-only-total td,
+        .pro-app .table-shell tbody tr:last-child[class*="border-t"] td { font-weight:650; }
+        .pro-group-legend { font-size:12px; font-weight:500; }
+        .pro-footer,#loadingState { font-size:12px; line-height:1.5; }
+        @media(max-width:720px) {
+            .pro-header h1 { font-size:26px; }
+            .pro-app h2 { font-size:22px; }
+            .pro-app h3 { font-size:18px; }
+            .pro-kpi-value { font-size:38px; }
+            .pro-kpi-top { font-size:14px; }
+            .pro-basis,.pro-kpi-bottom > div { font-size:12px; }
+            .pro-kpi-bottom > div { gap:6px; }
+            .pro-secondary button { font-size:14px; }
+            .pro-advanced summary span { font-size:13px; }
+        }
+        .pro-x-badge { display:inline-block; vertical-align:middle; margin-left:8px; padding:3px 9px; border:1px solid #c7d5e9; background:#e9f0fb; border-radius:5px; font-size:14px; color:#355a87; letter-spacing:.02em; }
+        .pro-app #leaderOnlyTable { min-width:1540px; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-zone] { color:#334155 !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="lead"] { color:#4f46e5 !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="offer"] { color:#ea580c !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="onboard"] { color:#059669 !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="undertraining"],
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="undertraining"] button { color:#7c3aed !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="upcoming"] { color:#d97706 !important; }
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="resign"],
+        .pro-app #leaderOnlyTable tbody tr td[data-pro-metric="nonactive"] { color:#be123c !important; }
+        @media(max-width:720px) { .pro-app #leaderOnlyTable { min-width:1336px; } }
+        /* Fit all X metrics to the desktop viewport without horizontal scrolling. */
+        .pro-app #leaderOnlyTable {
+            --team-floor-width:13%; --team-leader-width:14%; --team-number-width:6.083333%;
+            width:100%; min-width:0; table-layout:fixed;
+        }
+        .pro-app #leaderOnlyTable th { padding:12px 5px; font-size:12px; line-height:1.35; overflow-wrap:anywhere; }
+        .pro-app #leaderOnlyTable td { padding-left:6px; padding-right:6px; }
+        .pro-app #leaderOnlyTable td[data-pro-pinned="floor"],
+        .pro-app #leaderOnlyTable td[data-pro-pinned="leader"] { white-space:normal; overflow-wrap:anywhere; font-size:14px; }
+        .pro-app #leaderOnlyTable th button { max-width:100%; gap:3px; }
+        .pro-app #leaderOnlyTable th button > span:first-child { min-width:0; }
+        .pro-app #leaderOnlyTable th button > span:last-child { flex-shrink:0; font-size:10px; }
+        .pro-app #leaderOnlyTable td::before { display:none; }
+        @media(min-width:721px) { .pro-scroll-hint { display:none; } }
+        @media(min-width:721px) and (max-width:1200px) {
+            .pro-app #leaderOnlyTable th { font-size:11px; padding-left:4px; padding-right:4px; }
+            .pro-app #leaderOnlyTable td[data-pro-pinned] { font-size:13px; }
+        }
+        /* On phones use labelled metric cards instead of shrinking fourteen columns. */
+        @media(max-width:720px) {
+            .pro-app #leaderOnlyTable { display:block; min-width:0; width:100%; }
+            .pro-app #leaderOnlyTable colgroup,.pro-app #leaderOnlyTable thead { display:none; }
+            .pro-app #leaderOnlyTable tbody { display:block; }
+            .pro-app #leaderOnlyTable tbody tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border-bottom:10px solid #f3f5f8; }
+            .pro-app #leaderOnlyTable tbody tr td {
+                display:flex; align-items:center; justify-content:space-between; gap:8px;
+                width:auto !important; min-width:0; padding:10px 9px; border-left:0 !important;
+                position:static !important; box-shadow:none !important; font-size:17px;
+                white-space:normal; overflow-wrap:anywhere;
+            }
+            .pro-app #leaderOnlyTable tbody tr td::before { display:block; content:attr(data-pro-label); font-size:11px; font-weight:500; line-height:1.35; color:#526781; max-width:65%; }
+            .pro-app #leaderOnlyTable tbody tr td[data-pro-pinned="floor"],
+            .pro-app #leaderOnlyTable tbody tr td[data-pro-pinned="leader"],
+            .pro-app #leaderOnlyTable tbody tr td[data-pro-pinned="total"] { grid-column:1 / -1; font-size:14px; }
+            .pro-app #leaderOnlyTable tbody tr td[data-pro-pinned="total"]::before { display:none; }
+            .pro-app #leaderOnlyTable tbody tr.leader-only-total td { position:static; }
+            .pro-app #leaderOnlyTable tbody tr td[colspan="14"] { grid-column:1 / -1; }
+            #panel-teams .pro-scroll-hint { display:none; }
+        }
+
     </style>
 </head>
 <body>
-    <div class="max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
-        <header class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between mb-8">
-            <div class="space-y-4">
-                <div class="flex flex-wrap items-center gap-3">
-                    <a href="https://ndpmo.github.io/ophrta/report.html" class="pill-button text-slate-700">
-                        <span>&larr;</span>
-                        <span>Back To Dashboard</span>
-                    </a>
-                    <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-sky-700">Network Team Leader</span>
-                    <span class="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-violet-700">Cohort By Lead Date</span>
-                </div>
-                <div>
-                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
-                        Network Team Leader <span class="title-tech text-sky-600 text-2xl md:text-3xl uppercase">Study 2026</span>
-                    </h1>
-                </div>
+    <div class="pro-app">
+        <header class="pro-header">
+            <div class="pro-header-main"><a href="https://ndpmo.github.io/ophrta/report.html" class="pro-back" aria-label="Back to dashboard">← Dashboard</a>
+                <div class="pro-title-row"><span class="pro-monogram" aria-hidden="true">NT</span><div><p class="pro-eyebrow">Talent acquisition · 2026</p><h1>Network Team Leader <span class="pro-x-badge">X</span></h1><p class="pro-subtitle">Referral performance & workforce planning</p></div></div>
             </div>
-            <div class="glass-card px-5 py-4 min-w-[260px]">
-                <p class="text-xs uppercase tracking-[0.18em] font-black text-slate-500">Live Source</p>
-                <p id="lastUpdate" class="mt-2 text-sm md:text-base font-black text-slate-900">Loading live data...</p>
-                <p class="mt-2 text-xs font-bold text-slate-500">Sheet1 + Network Team Leader</p>
-            </div>
+            <div class="pro-source"><span class="pro-live"><span></span>Live spreadsheet</span><p id="lastUpdate">Loading live data…</p><p id="proLoadedAt" class="pro-source-time">Connecting to source</p></div>
         </header>
-
-        <section class="glass-card p-5 md:p-6 mb-8">
-            <div class="grid gap-x-4 gap-y-3 md:grid-cols-2 xl:grid-cols-4">
-                <div class="min-w-0 space-y-1.5">
-                    <label for="studyStart" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Lead Date From</label>
-                    <input id="studyStart" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="studyEnd" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Lead Date To</label>
-                    <input id="studyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="offerStudyStart" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date From</label>
-                    <input id="offerStudyStart" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="offerStudyEnd" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Offer Date To</label>
-                    <input id="offerStudyEnd" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="brandFilter" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Brand</label>
-                    <select id="brandFilter" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none"></select>
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="centerFilter" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Centre</label>
-                    <select id="centerFilter" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none"></select>
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="leaderFilter" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Leader</label>
-                    <select id="leaderFilter" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none"></select>
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <label for="compareDateFilter" class="flex min-h-[2rem] items-end text-[11px] leading-[1.05rem] uppercase tracking-[0.14em] font-black text-slate-500">Compare Date</label>
-                    <input id="compareDateFilter" type="date" class="h-11 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 text-sm font-bold outline-none">
-                </div>
+        <section class="glass-card pro-filter" aria-label="Report filters">
+            <div class="pro-filter-title"><div><span class="pro-eyebrow">Report filters</span><p id="proRangeLabel">Select a reporting period</p></div><div class="pro-filter-actions"><button class="pill-button" type="button" onclick="resetFilters()">Reset</button><button class="pill-button pro-primary" type="button" onclick="renderDashboard(false)">Apply filters</button></div></div>
+            <div class="pro-filter-grid">
+                <div><label for="studyStart">Lead date from</label><input id="studyStart" type="date"></div>
+                <div><label for="studyEnd">Lead date to</label><input id="studyEnd" type="date"></div>
+                <div><label for="brandFilter">Brand</label><select id="brandFilter"></select></div>
+                <div><label for="centerFilter">Centre</label><select id="centerFilter"></select></div>
+                <div><label for="leaderFilter">Network team leader</label><select id="leaderFilter"></select></div>
             </div>
-            <div class="mt-5 flex flex-wrap gap-3">
-                <button type="button" onclick="resetFilters()" class="pill-button text-sm text-slate-700">Reset</button>
-                <button type="button" onclick="renderDashboard(false)" class="pill-button text-sm bg-sky-600 text-white border-transparent">Refresh Study</button>
-            </div>
+            <details class="pro-advanced"><summary>Advanced filters <span id="proAdvancedLabel">Offer date · Comparison date</span></summary><div class="pro-advanced-grid">
+                <div><label for="offerStudyStart">Offer date from</label><input id="offerStudyStart" type="date"></div>
+                <div><label for="offerStudyEnd">Offer date to</label><input id="offerStudyEnd" type="date"></div>
+                <div><label for="compareDateFilter">Compare date <span class="pro-optional">optional</span></label><input id="compareDateFilter" type="date"></div>
+                <p class="pro-filter-help">Offer and Pending Offer follow the Offer Date range when set. Leave Compare Date blank to use the previous study day (excluding Sunday).</p>
+            </div></details>
         </section>
-
+        <nav class="pro-tabs" aria-label="Analysis sections" role="tablist">
+            <button type="button" id="tab-overview" role="tab" aria-controls="panel-overview" onclick="proSetTab('overview')">Overview</button>
+            <button type="button" id="tab-workforce" role="tab" aria-controls="panel-workforce" onclick="proSetTab('workforce')">Brand workforce</button>
+            <button type="button" id="tab-floors" role="tab" aria-controls="panel-floors" onclick="proSetTab('floors')">Floor analysis</button>
+            <button type="button" id="tab-teams" role="tab" aria-controls="panel-teams" onclick="proSetTab('teams')">Network teams</button>
+            <button type="button" id="tab-fibonacci" role="tab" aria-controls="panel-fibonacci" onclick="proSetTab('fibonacci')">Fibonacci</button>
+            <button type="button" id="tab-candidates" role="tab" aria-controls="panel-candidates" onclick="proSetTab('candidates')">Candidate details</button>
+        </nav>
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" id="summaryCards"></section>
 
         <section class="glass-card p-6 md:p-8 mb-8">
@@ -837,6 +1195,7 @@
                 <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">On sales pipeline</span>
                 <span class="rounded-full bg-violet-100 px-3 py-1.5 text-violet-800">Onboarding pipeline</span>
                 <span class="rounded-full bg-rose-100 px-3 py-1.5 text-rose-800">Capacity gap</span>
+                <button id="downloadLeaderOnlyButton" type="button" onclick="downloadLeaderOnlyTable()" class="pill-button ml-auto">Download CSV</button>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -2414,6 +2773,7 @@
                 // Include those rows in the drill-down pool too, even if their Lead Date is outside
                 // the Lead Date range; otherwise the card total and its detail list disagree.
                 const offerDateRange = getSelectedOfferDateRange();
+                const comparisonOfferRange = getBrandBreakdownComparisonOfferRange();
                 const detailRows = [];
                 memberStats.forEach(member => {
                     const detailRowMap = new Map(member.rows.map(row => [getRowIdentity(row), row]));
@@ -2421,7 +2781,7 @@
                         dataS1.forEach(row => {
                             if (!isReferredByMember(row, member)) return;
                             const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
-                            if (isDateWithinOptionalRange(offerDate, offerDateRange)) {
+                            if (isDateWithinOptionalRange(offerDate, offerDateRange) || (comparisonOfferRange && isDateWithinOptionalRange(offerDate, comparisonOfferRange))) {
                                 detailRowMap.set(getRowIdentity(row), row);
                             }
                         });
@@ -2691,31 +3051,13 @@
                 { title: 'Team Members ( Include Network Team Leader )', value: memberCount, note: '', accent: 'var(--violet)', bg: 'var(--violet-soft)', mode: 'ALL' }
             ];
 
-            const topCards = cards.filter(card => card.title === 'Network Team Leader' || card.title === 'Team Members ( Include Network Team Leader )');
-            const bottomCards = cards.filter(card => card.title !== 'Network Team Leader' && card.title !== 'Team Members ( Include Network Team Leader )');
-            const renderCard = card => `
-                <button type="button" onclick="focusSummaryDetail('${card.mode}')" class="glass-card summary-card summary-card-button p-5 ${currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : ''}" style="border-left:6px solid ${card.accent}; background:${card.bg};">
-                    <p class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">${card.title}</p>
-                    <div class="mt-3 flex flex-col items-center justify-center gap-3 text-center">
-                        <div class="flex items-baseline justify-center gap-2 text-center">
-                            <div class="text-4xl font-black data-font text-slate-900 text-center">${formatNumber(card.value)}</div>
-                            ${typeof card.delta === 'number' ? renderDeltaLabel(card.delta) : ''}
-                        </div>
-                        ${card.noteIsHtml
-                            ? `<div class="w-full text-center">${card.note}</div>`
-                            : (card.note ? `<div class="text-xs font-black uppercase tracking-[0.14em] text-slate-500 text-center">${card.note}</div>` : '')}
-                    </div>
-                </button>
-            `;
-
-            document.getElementById('summaryCards').innerHTML = `
-                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-5">
-                    ${topCards.map(renderCard).join('')}
-                </div>
-                <div class="md:col-span-2 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
-                    ${bottomCards.map(renderCard).join('')}
-                </div>
-            `;
+            const primaryCards = cards.filter(card => ['LEAD', 'OFFER', 'PENDING_OFFER', 'ONBOARD'].includes(card.mode));
+            const secondaryCards = cards.filter(card => !primaryCards.includes(card));
+            const basis = card => (card.mode === 'OFFER' || card.mode === 'PENDING_OFFER') && offerDateFilterStats ? 'By Offer Date' : (card.mode === 'UPCOMING' ? 'Future On Board Date' : 'By Lead Date');
+            document.getElementById('summaryCards').innerHTML = '<div class="pro-kpis">' + primaryCards.map(card => {
+                const split = typeof card.note === 'string' ? card.note.match(/<div class="grid grid-cols-2[\s\S]*?<\/div>/)?.[0] || '' : '';
+                return '<button type="button" class="pro-kpi summary-card-button ' + (currentDetailScope === 'SUMMARY' && currentSummaryDetailMode === card.mode ? 'active' : '') + '" onclick="focusSummaryDetail(\'' + card.mode + '\')"><div class="pro-kpi-top"><span>' + card.title + '</span><span class="pro-basis">' + basis(card) + '</span></div><div class="pro-kpi-value data-font">' + formatNumber(card.value) + (typeof card.delta === 'number' ? renderDeltaLabel(card.delta) : '') + '</div><div class="pro-kpi-bottom">' + split + '<span class="pro-card-arrow" aria-hidden="true">↗</span></div></button>';
+            }).join('') + '</div><div class="pro-secondary">' + secondaryCards.map(card => '<button type="button" onclick="focusSummaryDetail(\'' + card.mode + '\')"><span>' + (card.title.startsWith('Team Members') ? 'Team members' : card.title) + '</span><strong class="data-font">' + formatNumber(card.value) + '</strong><span class="pro-secondary-note">' + (card.mode === 'UPCOMING' ? 'Accepted · future start' : card.title.startsWith('Team Members') ? 'Including team leaders' : 'Mapped network teams') + '</span><span aria-hidden="true">↗</span></button>').join('') + '</div>';
         }
 
         function focusLeader(leaderKey, shouldScroll = true) {
@@ -3420,6 +3762,49 @@
             return `<span class="font-black ${className}">${label}</span>`;
         }
 
+        function downloadLeaderOnlyTable() {
+            const table = document.getElementById('leaderOnlyTable');
+            const body = document.getElementById('leaderOnlyTableBody');
+            const dataRows = Array.from(body?.querySelectorAll('tr.clickable-row') || []);
+            if (!table || !dataRows.length) {
+                window.alert('No network team leader records to download under the current filters.');
+                return;
+            }
+            const cellText = cell => {
+                const clone = cell.cloneNode(true);
+                clone.querySelectorAll('span').forEach(span => {
+                    if (/^[↕↑↓]$/.test(span.textContent.trim())) span.remove();
+                });
+                const value = clone.textContent.replace(/\s+/g, ' ').trim();
+                return /^[=+@-]/.test(value) && !/^[+-]?\d[\d,.]*$/.test(value) ? "'" + value : value;
+            };
+            const headers = Array.from(table.querySelectorAll('thead tr:first-child th')).map(cellText);
+            const rows = [...dataRows, ...body.querySelectorAll('tr.leader-only-total')].map(row => {
+                const values = [];
+                Array.from(row.cells).forEach(cell => {
+                    values.push(cellText(cell));
+                    for (let i = 1; i < cell.colSpan; i++) values.push('');
+                });
+                return values;
+            });
+            const filterValue = id => document.getElementById(id)?.value || 'All dates';
+            const lines = [
+                ['Network Team Total'],
+                ['Lead Date From', filterValue('leaderOnlyStart'), 'Lead Date To', filterValue('leaderOnlyEnd')],
+                ['Offer Date From', filterValue('leaderOnlyOfferStart'), 'Offer Date To', filterValue('leaderOnlyOfferEnd')],
+                ['On Board Date From', filterValue('leaderOnlyOnboardStart'), 'On Board Date To', filterValue('leaderOnlyOnboardEnd')],
+                ['Brand', document.getElementById('leaderOnlyBrandFilter')?.value || 'All Brand'],
+                ['Floor', Array.from(leaderOnlySelectedFloors).join('; ') || 'All Floor'],
+                ['Resign Date From', filterValue('resignDateFrom')],
+                ['Search Leader / Floor', document.getElementById('proTeamSearch')?.value || 'All'],
+                ['Sort', leaderOnlySortKey + ' (' + leaderOnlySortDirection + ')'],
+                ['Network Team Leaders', dataRows.length],
+                [], headers, ...rows
+            ];
+            downloadCsvFile(`network_team_total_${formatDateToISO(new Date())}.csv`, lines);
+        }
+
+
         function renderLeaderOnlyTable(leaders) {
             const body = document.getElementById('leaderOnlyTableBody');
             const meta = document.getElementById('leaderOnlyMeta');
@@ -3434,6 +3819,8 @@
             let rows = buildLeaderOnlyRows(leaders).filter(row => {
                 if (brandValue && row.brandLabel !== brandValue) return false;
                 if (selectedFloors.size && !selectedFloors.has(row.floorLabel)) return false;
+                const query = (document.getElementById('proTeamSearch')?.value || '').trim().toLocaleLowerCase();
+                if (query && ![row.name, row.floorLabel].some(value => String(value || '').toLocaleLowerCase().includes(query))) return false;
                 return true;
             });
 
@@ -3631,13 +4018,24 @@
             return rows;
         }
 
-        function applyOfferDateFilterToBrandRows(brandRows, leaders) {
-            if (!getSelectedOfferDateRange()) return brandRows;
-            const offerCounts = getBrandOfferSummaryCounts(leaders, brandRows);
-            return brandRows.map(row => ({
-                ...row,
-                offer: offerCounts.get(normalizeBrand(row.label)) || 0
+        function getBrandBreakdownComparisonOfferRange() {
+            const range = getSelectedOfferDateRange();
+            if (!range) return null;
+            const anchor = range.end || getSelectedDateRange()?.end || new Date();
+            const end = cloneDate(getManualComparisonDate() || getPreviousComparisonDate(anchor));
+            end.setHours(23, 59, 59, 999);
+            return { start: range.start, end };
+        }
+
+        function applyOfferDateFilterToBrandRows(brandRows, leaders, offerRange = getSelectedOfferDateRange()) {
+            if (!offerRange) return brandRows;
+            const counts = new Map();
+            leaders.forEach(leader => leader.detailRows.forEach(item => {
+                if (!item.countedOffer || !isDateWithinOptionalRange(parseDate(item.offerDate), offerRange)) return;
+                const brand = normalizeBrand(item.memberBrand);
+                counts.set(brand, (counts.get(brand) || 0) + 1);
             }));
+            return brandRows.map(row => ({ ...row, offer: counts.get(normalizeBrand(row.label)) || 0 }));
         }
 
         function getUpcomingOnboardSummaryRows(selectedBrand = '') {
@@ -4103,7 +4501,8 @@
             const comparisonRange = getComparisonDateRange(selectedRange);
             const comparisonLeaders = comparisonRange ? getFilteredLeaders(comparisonRange, getFilterValues()) : [];
             const { brandRows } = summarizeBreakdowns(leaders);
-            const { brandRows: comparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
+            const { brandRows: rawComparisonBrandRows } = summarizeBreakdowns(comparisonLeaders);
+            const comparisonBrandRows = applyOfferDateFilterToBrandRows(rawComparisonBrandRows, comparisonLeaders, getBrandBreakdownComparisonOfferRange());
             const comparisonLookup = buildBreakdownLookup(comparisonBrandRows);
             const displayBrandRows = applyOfferDateFilterToBrandRows(brandRows, leaders);
             const total = summarizeBrandBreakdownRows(displayBrandRows);
@@ -5147,7 +5546,7 @@
             }
             renderSummaryCards(leaders, comparisonLeaders);
             renderBrandOfferSummary(leaders, brandRows);
-            renderBrandTable(applyOfferDateFilterToBrandRows(brandRows, leaders), comparisonBrandRows);
+            renderBrandTable(applyOfferDateFilterToBrandRows(brandRows, leaders), applyOfferDateFilterToBrandRows(comparisonBrandRows, comparisonLeaders, getBrandBreakdownComparisonOfferRange()));
             renderFloorTable(floorRows, comparisonFloorRows);
             renderLeaderOnlyTable(leaders);
             renderNetworkTable(leaders, comparisonLeaders);
@@ -5380,7 +5779,7 @@
                 renderDashboard(false);
 
                 const lastUpdateValue = headersS1[33] || 'Sheet live';
-                document.getElementById('lastUpdate').textContent = `${lastUpdateValue} / ${leaderDirectory.length} leaders mapped`;
+                document.getElementById('lastUpdate').textContent = `Sheet1 + Network Team Leader · ${leaderDirectory.length} leaders mapped`;
             } catch (error) {
                 console.error(error);
                 document.getElementById('loadingState').textContent = `Unable to load Network Team Leader study data: ${error.message}`;
@@ -5437,6 +5836,215 @@ function getResignCountForNetworkTeam(teamName=''){const ids=getResignStaffIds()
 function insertResignColumn(bodyId,where,getValue,totalValue){const body=document.getElementById(bodyId),table=body?.closest('table');if(!table)return;const head=table.querySelector('thead tr');let resignIndex=Array.from(head?.children||[]).findIndex(cell=>cell.hasAttribute('data-resign-column'));if(resignIndex<0){const targetIndex=Array.from(head?.children||[]).findIndex(cell=>safeTrim(cell.textContent)===where);const th=document.createElement('th');th.dataset.resignColumn='1';th.className='border-x-2 border-rose-200 bg-rose-50/70 px-4 py-4 text-center text-rose-700';th.textContent='Resign';head.insertBefore(th,targetIndex>=0?head.children[targetIndex]:null);resignIndex=targetIndex>=0?targetIndex:head.children.length-1}Array.from(body.querySelectorAll('tr')).forEach(row=>{if(row.querySelector('[data-resign-cell]'))return;const td=document.createElement('td');td.dataset.resignCell='1';td.className='border-x-2 border-rose-100 bg-rose-50/30 px-4 py-4 text-center data-font font-black text-rose-700';td.textContent=formatNumber(getValue(row));row.insertBefore(td,row.children[resignIndex]||null)});const totalRow=body.querySelector('tr:last-child');if(totalRow&&safeTrim(totalRow.firstElementChild?.textContent).toUpperCase()==='TOTAL'){const cell=totalRow.querySelector('[data-resign-cell]');if(cell)cell.textContent=formatNumber(totalValue())}}
 function removeFloorAchieveColumns(){const body=document.getElementById('floorTableBody'),table=body?.closest('table'),head=table?.querySelector('thead tr');if(!body||!head)return;const indexes=['On Board Achieve Rate','Offer Achieve Rate'].map(label=>Array.from(head.children).findIndex(cell=>safeTrim(cell.textContent).startsWith(label))).filter(index=>index>=0).sort((a,b)=>b-a);if(indexes.length){indexes.forEach(index=>{head.children[index].remove();Array.from(body.querySelectorAll('tr')).forEach(row=>row.children[index]?.remove())});return}Array.from(body.querySelectorAll('tr')).forEach(row=>{row.lastElementChild?.remove();row.lastElementChild?.remove()})}
 const renderDashboardWithResign=renderDashboard;renderDashboard=function(...args){const result=renderDashboardWithResign.apply(this,args);removeFloorAchieveColumns();insertResignColumn('brandTableBody','Referral %',row=>getResignCount(row.children[0]?.textContent,''),()=>getResignCount());insertResignColumn('floorTableBody','',row=>getResignCount('',row.children[0]?.textContent),()=>getResignCount(safeTrim(document.getElementById('floorSectionBrandFilter')?.value),''));return result};
+</script>
+<script>
+// Presentation layer: preserve all existing data predicates and export handlers.
+var proActiveTab = 'overview';
+function proSetTab(key, focusTab = false) {
+    if (!document.getElementById('panel-' + key)) return;
+    proActiveTab = key;
+    document.querySelectorAll('.pro-panel').forEach(panel => panel.hidden = panel.id !== 'panel-' + key);
+    document.querySelectorAll('.pro-tabs [role="tab"]').forEach(tab => {
+        const active = tab.id === 'tab-' + key;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+    });
+    if (focusTab) document.getElementById('tab-' + key).focus();
+}
+(function setupProfessionalView() {
+    const nav = document.querySelector('.pro-tabs');
+    const app = document.querySelector('.pro-app');
+    const byBody = id => document.getElementById(id)?.closest('section');
+    const groups = [
+        ['overview', [document.getElementById('summaryCards'), byBody('brandTableBody')]],
+        ['workforce', [byBody('brandOfferSummary')]],
+        ['floors', [byBody('floorTableBody')]],
+        ['teams', [byBody('leaderOnlyTableBody'), byBody('networkTableBody'), document.getElementById('leaderPerformanceSection')]],
+        ['fibonacci', [document.getElementById('fibonacciSection'), document.getElementById('fibDetailSection')]],
+        ['candidates', [document.getElementById('detailSection')]]
+    ];
+    let anchor = nav;
+    groups.forEach(([key, sections]) => {
+        const panel = document.createElement('div');
+        panel.id = 'panel-' + key; panel.className = 'pro-panel';
+        panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', 'tab-' + key);
+        anchor.after(panel); anchor = panel;
+        [...new Set(sections.filter(Boolean))].forEach(section => panel.appendChild(section));
+    });
+    const overview = document.getElementById('panel-overview');
+    const definitions = document.createElement('details');definitions.className = 'pro-definitions';
+    definitions.innerHTML = '<summary>Metric definitions & date basis</summary><dl><dt>Lead</dt><dd>Network member referrals within the selected Lead Date range.</dd><dt>Offer</dt><dd>Eligible offers with a recorded On Board Date; excludes rejected, withdrawn, no-show and Beauty Specialist records. Uses Offer Date when set, otherwise Lead Date.</dd><dt>Pending Offer</dt><dd>Records with an Offer Date and no recorded On Board Date, subject to the existing status exclusions. Uses Offer Date when set.</dd><dt>On Board</dt><dd>Onboarded referrals to the same brand, excluding Beauty Specialist records, within the selected Lead Date cohort.</dd><dt>Upcoming On Board</dt><dd>Accepted candidates with a future On Board Date. The network indicator and the Brand workforce summary cover their respective populations.</dd><dt>Comparison</dt><dd>Current filtered count minus the comparable period count, using the current spreadsheet. This is recalculated data, rather than a saved historical snapshot. The automatic comparison date skips Sunday.</dd></dl>';
+    overview.appendChild(definitions);
+    const brandSection = byBody('brandTableBody');
+    const brandHeading = brandSection.querySelector('h2');
+    const comparison = document.createElement('p');comparison.id='proComparison';comparison.className='pro-comparison';brandHeading.after(comparison);
+    brandSection.querySelector('table').setAttribute('aria-label','Network referral performance by brand');
+    const caption=document.createElement('p');caption.className='pro-caption';caption.textContent='Network member referrals · Select a count to open matching candidate details.';brandSection.querySelector('.table-shell').after(caption);
+    const workforceHeading = byBody('brandOfferSummary').querySelector('h2');
+    workforceHeading.textContent='Brand Workforce';
+    const workforceSubtitle = workforceHeading.previousElementSibling;
+    if(workforceSubtitle)workforceSubtitle.textContent='All-brand workforce planning';
+    const workforceDesc=workforceHeading.nextElementSibling;
+    if(workforceDesc){workforceDesc.className='pro-caption';workforceDesc.textContent='Brand-level headcount, training and upcoming starts. Includes eligible candidates across the selected source, independently of the network referral cohort.';}
+    const footer=document.createElement('footer');footer.className='pro-footer';footer.innerHTML='<span>TA Operations <span aria-hidden="true">/</span> Network Team Leader 2026</span><span>Performance dashboard</span>';app.appendChild(footer);
+    nav.addEventListener('keydown',event=>{
+        const tabs=[...nav.querySelectorAll('[role="tab"]')];const index=tabs.indexOf(document.activeElement);
+        if(index<0)return;
+        let next=null;
+        if(event.key==='ArrowRight')next=(index+1)%tabs.length;
+        if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;
+        if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;
+        if(next!==null){event.preventDefault();proSetTab(tabs[next].id.slice(4),true);}
+    });
+    const loaded=document.getElementById('lastUpdate');let loadStamped=false;
+    new MutationObserver(()=>{
+        if(!loadStamped&&loaded.textContent.includes('leaders mapped')){
+            loadStamped=true;
+            document.getElementById('proLoadedAt').textContent='Loaded '+new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Hong_Kong',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())+' HKT';
+        }
+        if(loaded.textContent==='Load failed'){
+            document.querySelector('.pro-live').lastChild.textContent='Source unavailable';
+            document.getElementById('proLoadedAt').textContent='Reload to retry';
+        }
+    }).observe(loaded,{childList:true,subtree:true});
+    proSetTab('overview');
+})();
+function proRefreshContext() {
+    const lead=getSelectedDateRange();const offer=getSelectedOfferDateRange();
+    const dateText=date=>formatDateAsDMonY(cloneDate(date));
+    if(lead)document.getElementById('proRangeLabel').textContent=dateText(lead.start)+' – '+dateText(lead.end);
+    document.getElementById('proAdvancedLabel').textContent=offer?'Offer Date: '+(offer.start?dateText(offer.start):'All')+' – '+(offer.end?dateText(offer.end):'All'):'Offer Date: All';
+    const compLead=lead?getComparisonDateRange(lead):null;
+    const compOffer=getBrandBreakdownComparisonOfferRange();
+    const text=offer?'Offer: '+(compOffer?dateText(compOffer.end):'No comparison period'):'Offer: '+(compLead?dateText(compLead.end):'No comparison period');
+    document.getElementById('proComparison').textContent='Changes vs '+(compLead?dateText(compLead.end):'no prior period')+' · '+text;
+    // Keep table headers aligned with the numeric body columns.
+    ['brandTableBody','floorTableBody'].forEach(id=>document.getElementById(id)?.closest('table')?.querySelectorAll('thead th:not(:first-child)').forEach(th=>th.style.textAlign='center'));
+}
+const proOriginalRender=renderDashboard;
+renderDashboard=function(...args){const result=proOriginalRender.apply(this,args);proRefreshContext();return result;};
+function proWrapAction(name, tab) {
+    const original=window[name];if(typeof original!=='function')return;
+    window[name]=function(...args){proSetTab(tab);return original.apply(this,args);};
+}
+['focusSummaryDetail','focusBrandDetail','focusFloorDetail'].forEach(name=>proWrapAction(name,'candidates'));
+proWrapAction('focusLeader','teams');
+['openFibDetail','openFibSummaryDetail'].forEach(name=>proWrapAction(name,'fibonacci'));
+document.querySelectorAll('#panel-teams span').forEach(span=>{
+    if(['TEAM PROFILE','ON SALES HC','ON SALES PIPELINE','ONBOARDING PIPELINE','CAPACITY GAP'].includes(span.textContent.trim().toUpperCase()))span.classList.add('pro-zone-chip');
+});
+// Colour column groups by logical column, including the Total label's colspan.
+function proColourTeamColumns() {
+    const table=document.getElementById('leaderOnlyTable');if(!table)return;
+    const groups=[
+        {key:'team',labels:['Floor','Network Team Leader','Team Size','Team Target'],label:'Team Size / Target'},
+        {key:'sales',labels:['On Sales HC'],label:'On Sales HC'},
+        {key:'pipeline',labels:['Lead','Offer','On Board'],label:'Lead / Offer / On Board'},
+        {key:'onboarding',labels:['Under-training','Upcoming On Board'],label:'Undertraining / Upcoming'},
+        {key:'gap',labels:['Actual Gap','Ideal Gap'],label:'Actual / Ideal Gap'},
+        {key:'resign',labels:['Resign','Non Active Status'],label:'Resign / Non Active Status'}
+    ];
+    const headings=[...table.querySelectorAll('thead tr:first-child th')];
+    const zoneByIndex=headings.map(th=>{const label=th.textContent.replace(/[↑↓↕]/g,'').replace(/\s+/g,' ').trim();return groups.find(g=>g.labels.includes(label))?.key||'';});
+    const decorate=(cell,index)=>{
+        const zone=zoneByIndex[index];
+        const label=(headings[index]?.textContent||'').replace(/[↑↓↕]/g,'').replace(/\s+/g,' ').trim();
+        cell.dataset.proLabel=label;
+        const metrics={'Lead':'lead','Offer':'offer','On Board':'onboard','Under-training':'undertraining','Upcoming On Board':'upcoming','Resign':'resign','Non Active Status':'nonactive'};
+        if(metrics[label])cell.dataset.proMetric=metrics[label];else delete cell.dataset.proMetric;
+        if(index===0)cell.dataset.proPinned=cell.colSpan===2?'total':'floor';else if(index===1)cell.dataset.proPinned='leader';else delete cell.dataset.proPinned;
+        if(zone)cell.dataset.proZone=zone;else delete cell.dataset.proZone;
+        if(zone&&zone!==zoneByIndex[index-1])cell.dataset.proZoneStart='1';else delete cell.dataset.proZoneStart;
+    };
+    headings.forEach(decorate);
+    table.querySelectorAll('tbody tr').forEach(row=>{let index=0;[...row.cells].forEach(cell=>{decorate(cell,index);index+=cell.colSpan||1;});});
+    const legend=document.getElementById('downloadLeaderOnlyButton')?.parentElement;
+    if(legend&&!legend.dataset.proLegend){
+        [...legend.querySelectorAll(':scope > span')].forEach(span=>span.remove());
+        const fragment=document.createDocumentFragment();groups.forEach(group=>{const span=document.createElement('span');span.className='pro-group-legend';span.dataset.proZone=group.key;span.textContent=group.label;fragment.appendChild(span);});legend.prepend(fragment);legend.dataset.proLegend='1';
+    }
+}
+const proRenderBeforeGroups=renderDashboard;
+renderDashboard=function(...args){const result=proRenderBeforeGroups.apply(this,args);proColourTeamColumns();return result;};
+proColourTeamColumns();
+(function proRefineTeamLayout(){
+    const table=document.getElementById('leaderOnlyTable');
+    const section=table.closest('section');
+    const header=section.firstElementChild;
+    header.className='pro-team-heading';
+    const controls=document.getElementById('leaderOnlyStart').parentElement.parentElement;
+    controls.className='pro-team-controls';
+    const dateGrid=document.createElement('div');dateGrid.className='pro-team-dates';
+    [['Lead Date','leaderOnlyStart','leaderOnlyEnd'],['Offer Date','leaderOnlyOfferStart','leaderOnlyOfferEnd'],['On Board Date','leaderOnlyOnboardStart','leaderOnlyOnboardEnd']].forEach(([title,from,to])=>{
+        const fieldset=document.createElement('fieldset');fieldset.className='pro-date-pair';
+        const legend=document.createElement('legend');legend.textContent=title;fieldset.appendChild(legend);
+        const fields=document.createElement('div');fields.className='pro-date-pair-fields';
+        [from,to].forEach((id,index)=>{const group=document.getElementById(id).parentElement;group.querySelector('label').textContent=index===0?'From':'To';fields.appendChild(group);});
+        fieldset.appendChild(fields);dateGrid.appendChild(fieldset);
+    });
+    controls.prepend(dateGrid);
+    const brand=document.getElementById('leaderOnlyBrandFilter').parentElement;
+    const floor=document.getElementById('leaderOnlyFloorFilter').parentElement;
+    const lower=document.createElement('div');lower.className='pro-team-selects';lower.append(brand,floor);controls.append(lower);
+    const note=document.createElement('p');note.className='pro-caption';note.textContent='Independent table filters · All table columns fit the desktop view.';header.firstElementChild.appendChild(note);
+    controls.appendChild(document.getElementById('leaderOnlyMeta'));
+    const cols=document.createElement('colgroup');
+    for(let index=0;index<14;index++){const col=document.createElement('col');col.style.width=index===0?'var(--team-floor-width)':index===1?'var(--team-leader-width)':'var(--team-number-width)';cols.appendChild(col);}
+    table.prepend(cols);
+})();
+
+proColourTeamColumns();
+(function proAddTeamTools(){
+    const controls=document.querySelector('.pro-team-controls');
+    const toolbar=document.createElement('div');toolbar.className='pro-team-tools';
+    toolbar.innerHTML='<div class="pro-team-search"><label for="proTeamSearch">Search Leader / Floor</label><div class="pro-search-field"><input id="proTeamSearch" type="search" placeholder="Leader name or floor…" autocomplete="off"><button type="button" class="pill-button" id="proClearSearch">Clear</button></div></div><div><label for="proTeamSort">Sort by</label><select id="proTeamSort"><option value="floorLabel:asc">Floor A–Z</option><option value="actualGap:asc">Largest actual shortage first</option><option value="idealGap:asc">Largest ideal shortage first</option><option value="custom" disabled>Custom column sort</option></select></div><div class="pro-sync"><button type="button" class="pill-button" id="proCopyFilters">Use filters above</button><p>Copy Lead Date, Offer Date and Brand</p></div>';
+    document.querySelector('.pro-team-selects').after(toolbar);
+    document.getElementById('proTeamSearch').addEventListener('input',()=>renderDashboard(true));
+    document.getElementById('proClearSearch').addEventListener('click',()=>{document.getElementById('proTeamSearch').value='';renderDashboard(true);document.getElementById('proTeamSearch').focus();});
+    document.getElementById('proTeamSort').addEventListener('change',event=>{if(event.target.value==='custom')return;[leaderOnlySortKey,leaderOnlySortDirection]=event.target.value.split(':');renderDashboard(true);});
+    document.getElementById('leaderOnlyBrandFilter').addEventListener('change',event=>{event.target.dataset.proExplicitAll=String(event.target.value==='');}, {capture:true});
+    document.getElementById('proCopyFilters').addEventListener('click',()=>{
+        [['studyStart','leaderOnlyStart'],['studyEnd','leaderOnlyEnd'],['offerStudyStart','leaderOnlyOfferStart'],['offerStudyEnd','leaderOnlyOfferEnd']].forEach(([from,to])=>document.getElementById(to).value=document.getElementById(from).value);
+        const brand=document.getElementById('leaderOnlyBrandFilter');const source=document.getElementById('brandFilter').value;
+        brand.dataset.proExplicitAll=String(!source);
+        brand.value=[...brand.options].find(option=>normalizeBrand(option.value)===normalizeBrand(source))?.value||'';
+        leaderOnlySelectedFloors=new Set();renderDashboard(true);
+        document.getElementById('proTeamNotice').textContent='Lead Date, Offer Date and Brand applied from the report filters.';
+    });
+    const notice=document.createElement('p');notice.id='proTeamNotice';notice.className='pro-team-notice';notice.setAttribute('role','status');toolbar.after(notice);
+    const help=document.createElement('details');help.className='pro-gap-help';
+    help.innerHTML='<summary>How to read Actual Gap & Ideal Gap</summary><p><strong>Actual Gap</strong> = On Sales HC − Team Target.</p><p><strong>Ideal Gap</strong> = On Sales HC + Undertraining + Upcoming On Board − Team Target.</p><p>A negative figure means a shortage: <strong>−4 = 4 people short</strong>. Zero means on target; a positive figure means above target.</p>';
+    document.getElementById('leaderOnlyMeta').before(help);
+    const hint=document.createElement('p');hint.className='pro-scroll-hint';hint.textContent='↔ Swipe horizontally to see all columns. Floor and Leader stay fixed.';document.getElementById('leaderOnlyTable').closest('.table-shell').before(hint);
+})();
+function proRefreshTeamTools(){
+    const body=document.getElementById('leaderOnlyTableBody');const rows=[...body.querySelectorAll('tr.clickable-row')];
+    const floors=new Set(rows.map(row=>row.cells[0].textContent.trim()));
+    const brand=document.getElementById('leaderOnlyBrandFilter').value||'All brands';
+    const search=document.getElementById('proTeamSearch').value.trim();
+    document.getElementById('leaderOnlyMeta').textContent=brand+' · '+floors.size+' floors · '+rows.length+' teams'+(search?' · Search: '+search:'');
+    const sort=document.getElementById('proTeamSort');const value=leaderOnlySortKey+':'+leaderOnlySortDirection;sort.value=[...sort.options].some(option=>option.value===value)?value:'custom';
+    const descriptions={actualGap:'Actual Gap = On Sales HC − Team Target. Negative means a shortage; −4 means 4 people short.',idealGap:'Ideal Gap = On Sales HC + Undertraining + Upcoming On Board − Team Target. Negative means a projected shortage.'};
+    Object.entries(descriptions).forEach(([key,text])=>{const button=document.querySelector('#leaderOnlyTable th button[onclick*="'+key+'"]');if(button){button.title=text;button.setAttribute('aria-description',text);}});
+    document.querySelectorAll('button[onclick]').forEach(button=>{
+        const action=button.getAttribute('onclick');
+        if(/downloadBrandSummaryWorkbook\(/.test(action))button.textContent='Download Excel';
+        else if(/downloadBrandBreakdown\(|downloadFloorBreakdown\(|downloadLeaderOnlyTable\(|downloadUpcomingOnboardList\(/.test(action))button.textContent='Download CSV';
+    });
+    const empty=body.querySelector('tr:not(.clickable-row):not(.leader-only-total)');
+    if(empty&&rows.length===0){empty.querySelectorAll('[data-resign-cell]').forEach(cell=>cell.remove());const cell=empty.cells[0];cell.colSpan=14;delete cell.dataset.proZone;delete cell.dataset.proPinned;delete cell.dataset.proZoneStart;}
+}
+const proRenderBeforeTools=renderDashboard;
+renderDashboard=function(...args){const result=proRenderBeforeTools.apply(this,args);proRefreshTeamTools();return result;};
+const proResetBeforeTools=resetFilters;
+resetFilters=function(...args){document.getElementById('proTeamSearch').value='';document.getElementById('leaderOnlyBrandFilter').dataset.proExplicitAll='false';document.getElementById('proTeamNotice').textContent='';return proResetBeforeTools.apply(this,args);};
+
+// X-specific workbook retains its staff and employment-status fields.
+const proXWorkbookRows=getLeaderOnboardDownloadRows;
+getLeaderOnboardDownloadRows=function(...args){const rows=proXWorkbookRows.apply(this,args);const query=(document.getElementById('proTeamSearch')?.value||'').trim().toLocaleLowerCase();if(!query)return rows;const visibleNames=new Set([...document.querySelectorAll('#leaderOnlyTableBody tr.clickable-row')].map(row=>row.cells[1].textContent.trim()));return rows.filter(row=>visibleNames.has(row.teamLeader));};
+const proXRefresh=proRefreshTeamTools;
+proRefreshTeamTools=function(...args){const result=proXRefresh.apply(this,args);const button=document.querySelector('button[onclick="downloadLeaderOnboardList()"]');if(button)button.textContent='On Board List · Excel';return result;};
+
 </script>
 </body>
 </html>
