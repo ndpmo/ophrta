@@ -251,6 +251,10 @@
                     <label for="batchFilter" class="text-xs uppercase tracking-[0.16em] font-black text-slate-500">Batch</label>
                     <select id="batchFilter" onchange="renderDashboard()" class="h-12 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                         <option value="ALL">All Batch</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="Under Training">Under Training</option>
+                            <option value="No Batch">No Batch</option>
                     </select>
                 </div>
             </div>
@@ -273,6 +277,10 @@
                         <label for="batchBreakdownFilter" class="text-[11px] uppercase tracking-[0.16em] font-black text-slate-500">Filter By Batch</label>
                         <select id="batchBreakdownFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none">
                             <option value="ALL">All Batch</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="Under Training">Under Training</option>
+                            <option value="No Batch">No Batch</option>
                         </select>
                     </div>
                     <div class="min-w-[160px]">
@@ -327,6 +335,10 @@
                         <label for="detailBatchFilter" class="block text-[10px] uppercase tracking-[0.12em] font-black text-slate-500">Filter By Batch</label>
                         <select id="detailBatchFilter" onchange="renderDashboard()" class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-sm font-bold outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
                             <option value="ALL">All Batch</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="Under Training">Under Training</option>
+                            <option value="No Batch">No Batch</option>
                         </select>
                     </div>
                     <div class="min-w-0">
@@ -419,6 +431,8 @@
         const SHEET1_DOC_ID = '1zCIR7C66000DR0ibzwG9p3u2iH0GSHRGLdY7C-zK38I';
         const SHEET1_GID = '1328974285';
         const ACTIVE_NJ_SHEET_NAME = 'Active NJ';
+        const ACTIVE_NJ_GID = '1837892230';
+        const BATCH_OPTIONS = ['1', '2', 'Under Training', 'No Batch'];
         const TODAY = new Date(2026, 7, 12, 0, 0, 0, 0);
 
         const S1_IDX = {
@@ -842,7 +856,18 @@
         }
 
         function getActiveBatch(row) {
-            return safeTrim(row?.[headersActive[9]]) || 'No Batch';
+            // Prefer the Batch header (including whitespace/case variants), then physical column J.
+            const header = headersActive.find(key => normalizeTextKey(key) === 'batch') || headersActive[9];
+            const value = safeTrim(row?.[header]);
+            if (/^[12](\.0+)?$/.test(value)) return String(Number(value));
+            if (normalizeTextKey(value) === 'under training') return 'Under Training';
+            return value;
+        }
+
+        function matchesBatch(batch, selected) {
+            if (selected === 'ALL') return true;
+            if (selected === 'No Batch') return batch === '';
+            return batch === selected;
         }
 
         function buildCandidateRecord(activeRow) {
@@ -969,7 +994,7 @@
                 .map(buildCandidateRecord)
                 .filter(record => {
                     if (selectedBrands.length && !selectedBrands.includes(record.brand)) return false;
-                    if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
+                    if (!matchesBatch(record.batch, batchFilter)) return false;
                     return true;
                 });
         }
@@ -1027,8 +1052,7 @@
                 .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
             const centerOptions = [...new Set(rows.map(record => record.center).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
-            const batchOptions = [...new Set(rows.map(record => record.batch).filter(Boolean))]
-                .sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+            const batchOptions = BATCH_OPTIONS;
             setSelectOptions('batchBreakdownFilter', batchOptions, getSelectValue('batchBreakdownFilter'), 'All Batch');
             setSelectOptions('detailBatchFilter', batchOptions, getSelectValue('detailBatchFilter'), 'All Batch');
             setSelectOptions('brandBreakdownFilter', brandOptions, getSelectValue('brandBreakdownFilter'), 'All Brand');
@@ -1045,7 +1069,7 @@
             const batchFilter = getSelectValue('batchBreakdownFilter');
             return rows.filter(record => {
                 if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
-                if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
+                if (!matchesBatch(record.batch, batchFilter)) return false;
                 return true;
             });
         }
@@ -1123,7 +1147,7 @@
             return rows.filter(record => {
                 if (staffIdFilter && !normalizeTextKey(record.staffId).includes(staffIdFilter)) return false;
                 if (nameFilter && !normalizeTextKey(record.employeeName).includes(nameFilter)) return false;
-                if (batchFilter !== 'ALL' && record.batch !== batchFilter) return false;
+                if (!matchesBatch(record.batch, batchFilter)) return false;
                 if (brandFilter !== 'ALL' && record.brand !== brandFilter) return false;
                 if (centerFilter !== 'ALL' && record.center !== centerFilter) return false;
                 if (referralFilter === 'HAS' && record.referralCount <= 0) return false;
@@ -1305,9 +1329,7 @@
         }
 
         function populateBatchFilter() {
-            const options = [...new Set(dataActive.map(getActiveBatch).filter(Boolean))]
-                .sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
-            setSelectOptions('batchFilter', options, getSelectValue('batchFilter'), 'All Batch');
+            setSelectOptions('batchFilter', BATCH_OPTIONS, getSelectValue('batchFilter'), 'All Batch');
         }
 
         function applyDefaultBrandFilter(event) {
@@ -1377,24 +1399,22 @@
 
         async function loadData() {
             const sheet1CsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
-            const activeCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(ACTIVE_NJ_SHEET_NAME)}`;
-
-            try {
-                const [sheet1Resp, activeResp] = await Promise.all([
-                    fetch(sheet1CsvUrl, { cache: 'no-store' }),
-                    fetch(activeCsvUrl, { cache: 'no-store' })
-                ]);
-
-                if (!sheet1Resp.ok || !activeResp.ok) throw new Error('Fetch fallback failed');
-
-                const [sheet1Text, activeText] = await Promise.all([sheet1Resp.text(), activeResp.text()]);
-                return [sheet1Text, activeText];
-            } catch (error) {
-                return Promise.all([
-                    loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
-                    loadGvizCsvByJsonpBySheetName(ACTIVE_NJ_SHEET_NAME, SHEET1_DOC_ID)
-                ]);
-            }
+            // GViz infers J as numeric and drops text such as Under Training.
+            // The raw CSV export preserves both numeric batches and text statuses.
+            const activeCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/export?format=csv&gid=${ACTIVE_NJ_GID}`;
+            const sheet1Promise = fetch(sheet1CsvUrl, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Sheet1 CSV fetch failed');
+                    return response.text();
+                })
+                .catch(() => loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID));
+            const activePromise = fetch(activeCsvUrl, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Active NJ raw CSV fetch failed');
+                    return response.text();
+                });
+            // Do not fall back to lossy GViz data for Active NJ: show a load error instead.
+            return Promise.all([sheet1Promise, activePromise]);
         }
 
         async function init() {
@@ -1412,6 +1432,9 @@
                 });
 
                 headersActive = activeParsed.meta.fields || [];
+                if (!headersActive.includes(ACTIVE_IDX.STAFF_ID) || headersActive.length < 10) {
+                    throw new Error('Active NJ CSV is missing Employee No or column J (Batch)');
+                }
                 dataActive = activeParsed.data || [];
 
                 populateBrandFilter();
