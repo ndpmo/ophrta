@@ -795,7 +795,7 @@
         .pro-date-pair-fields input { min-width:0; width:100%; padding-left:9px; padding-right:9px; }
         .pro-team-selects { display:grid; grid-template-columns:repeat(2,minmax(0,270px)); gap:14px; }
         .pro-team-controls #leaderOnlyMeta { width:100%; text-align:left; margin:0; }
-        .pro-app #leaderOnlyTable { --team-floor-width:160px; --team-leader-width:180px; --team-number-width:100px; min-width:1440px; table-layout:fixed; }
+        .pro-app #leaderOnlyTable { --team-floor-width:160px; --team-leader-width:180px; --team-number-width:100px; min-width:1540px; table-layout:fixed; }
         .pro-app #leaderOnlyTable th:nth-child(1),.pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(1) { width:var(--team-floor-width); }
         .pro-app #leaderOnlyTable th:nth-child(2),.pro-app #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(2) { width:var(--team-leader-width); }
         .pro-app #leaderOnlyTable [data-pro-pinned] { position:sticky; z-index:3; background:var(--zone-body) !important; }
@@ -879,6 +879,10 @@
 
         .member-metric-button { min-width:36px; min-height:32px; border-radius:5px; color:inherit; font:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#b6c7dc; }
         .member-metric-button:hover { background:#e8f0fb; color:#174e89; }
+    .pro-app [data-pro-zone="rejection"] { --zone-head:#fff1f2; --zone-body:#fff8f9; --zone-total:#ffe4e6; --zone-ink:#be123c; --zone-edge:#fecdd3; }
+        .pro-app #leaderOnlyTable td[data-pro-zone="rejection"], .pro-app #leaderOnlyTable td[data-pro-zone="rejection"] button { color:#be123c !important; }
+        .pro-app #leaderOnlyTable td[data-pro-zone="onboarding"] { color:#d97706 !important; }
+        .pro-app #leaderOnlyTable td[data-pro-zone="onboarding"]:has(button) { color:#7c3aed !important; }
     </style>
 </head>
 <body>
@@ -1013,6 +1017,7 @@
                                 <th class="px-4 py-4 text-center">Lead</th>
                                 <th class="px-4 py-4 text-center">Offer</th>
                                 <th class="px-4 py-4 text-center">Pending Offer</th>
+                                <th class="px-4 py-4 text-center text-rose-700">Reject / withdraw</th>
                                 <th class="px-4 py-4 text-center">On Board</th>
                                 <th class="px-4 py-4 text-center">Referral %</th>
                             </tr>
@@ -1062,6 +1067,7 @@
                                 <th class="px-4 py-4 text-center">Lead</th>
                                 <th class="px-4 py-4 text-center">Offer</th>
                                 <th class="px-4 py-4 text-center">Pending Offer</th>
+                                <th class="px-4 py-4 text-center text-rose-700">Reject / withdraw</th>
                                 <th class="px-4 py-4 text-center">On Board</th>
                             </tr>
                         </thead>
@@ -2063,6 +2069,14 @@
             return safeTrim(row?.__rawOnboardStatus) || safeTrim(row?.[headersS1[S1_IDX.ONBOARD_STATUS]]);
         }
 
+        // Match report.html Floor Performance: post-offer failures belong to Others.
+        function isRejectWithdraw(row) {
+            const onboardStatus = getOnboardStatus(row);
+            return isRejectedOrWithdrawnStatus(getS1Value(row, S1_IDX.STATUS))
+                && !isRejectedOrWithdrawnStatus(onboardStatus)
+                && !isNoShowOnboardStatus(onboardStatus);
+        }
+
         function isRejectedOrWithdrawnStatus(status) {
             const upper = safeTrim(status).toUpperCase();
             return upper.includes('REJECT') || upper.includes('WITHDRAW');
@@ -2177,7 +2191,7 @@
                 '<option value="__EXCLUDE_BS__">All Position (Exclude BS)</option>',
                 '<option value="">All Position</option>'
             ].concat(positionOptions.map(option => `<option value="${option}">${option}</option>`)).join('');
-            if (previousPosition === '__EXCLUDE_BS__' || positionOptions.includes(previousPosition)) positionSelect.value = previousPosition;
+            if (previousPosition === '' || previousPosition === '__EXCLUDE_BS__' || positionOptions.includes(previousPosition)) positionSelect.value = previousPosition;
 
             const scopedRowsForStatus = scopedRowsForPosition.filter(row => {
                 if (!positionSelect.value) return true;
@@ -2702,7 +2716,7 @@
                     const upcomingOnboard = upcomingOnboardRows.filter(row => !isBeautySpecialistPosition(row)).length;
                     const upcomingOnboardBS = upcomingOnboardRows.filter(isBeautySpecialistPosition).length;
                     const isLeaderSelf = normalizeKey(member.therapist) === leader.key;
-                    return { ...member, rows, lead: rows.length, offer, pendingOffer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, upcomingOnboardBS, isLeaderSelf };
+                    return { ...member, rows, lead: rows.length, rejectWithdraw: rows.filter(isRejectWithdraw).length, offer, pendingOffer, offerOtherBrand, offerBS, onboard, onboardBS, nonSameBrandOnboard, upcomingOnboard, upcomingOnboardBS, isLeaderSelf };
                 });
                 const leaderSelfStat = memberStats.find(member => member.isLeaderSelf) || null;
                 const teamMateStats = memberStats.filter(member => !member.isLeaderSelf);
@@ -2753,6 +2767,7 @@
                             onboardStatus: getOnboardStatus(row) || '-',
                             interviewer: getS1Value(row, S1_IDX.INTERVIEWER) || '-',
                             offered: isOffered(row),
+                            rejectWithdraw: isRejectWithdraw(row),
                             countedOffer: isCountedOffer(row),
                             countedPendingOffer: isPendingOffer(row),
                             otherBrandOffer: isOtherBrandOffer(row),
@@ -3012,6 +3027,7 @@
         function focusSummaryDetail(mode = 'LEAD') {
             currentDetailScope = 'SUMMARY';
             currentSummaryDetailMode = mode;
+            if (mode === 'REJECT_WITHDRAW') document.getElementById('detailPositionFilter').value = '';
             currentSummaryDetailBrand = '';
             currentSummaryDetailFloor = '';
             renderDashboard(false);
@@ -3063,6 +3079,7 @@
         function focusBrandDetail(brandLabel = '', mode = 'LEAD') {
             currentDetailScope = 'SUMMARY';
             currentSummaryDetailMode = mode;
+            if (mode === 'REJECT_WITHDRAW') document.getElementById('detailPositionFilter').value = '';
             currentSummaryDetailBrand = safeTrim(brandLabel);
             currentSummaryDetailFloor = '';
             renderDashboard(false);
@@ -3074,6 +3091,7 @@
         function focusFloorDetail(floorLabel = '', mode = 'LEAD') {
             currentDetailScope = 'SUMMARY';
             currentSummaryDetailMode = mode;
+            if (mode === 'REJECT_WITHDRAW') document.getElementById('detailPositionFilter').value = '';
             const floorSectionBrandFilter = document.getElementById('floorSectionBrandFilter');
             const activeBrand = safeTrim(floorSectionBrandFilter?.value);
             currentSummaryDetailBrand = activeBrand ? displayBrand(activeBrand) : '';
@@ -3131,6 +3149,7 @@
                 { key: 'lead', label: 'Lead', align: 'center' },
                 { key: 'offer', label: 'Offer', align: 'center' },
                 { key: 'pendingOffer', label: 'Pending Offer', align: 'center' },
+                { key: 'rejectWithdraw', label: 'Reject / withdraw', align: 'center' },
                 { key: 'onboard', label: 'On Board', align: 'center' }
             ];
 
@@ -3195,6 +3214,7 @@
                 { key: 'lead', label: 'Lead', align: 'center' },
                 { key: 'offer', label: 'Offer', align: 'center' },
                 { key: 'onboard', label: 'On Board', align: 'center' },
+                { key: 'rejectWithdraw', label: 'Reject / withdraw', align: 'center' },
                 { key: 'undertraining', label: 'Under-training', align: 'center' },
                 { key: 'upcomingOnboard', label: 'Upcoming On Board', align: 'center' },
                 { key: 'actualGap', label: 'Actual Gap', align: 'center' },
@@ -3248,6 +3268,8 @@
                     return row.lead || 0;
                 case 'offer':
                     return row.offer || 0;
+                case 'rejectWithdraw':
+                    return row.rejectWithdraw || 0;
                 case 'pendingOffer':
                     return row.pendingOffer || 0;
                 case 'onboard':
@@ -3412,6 +3434,7 @@
                 const teamRows = teamMembers.flatMap(member =>
                     dataS1.filter(row => isReferredByMember(row, member) && isLeaderSelfEligibleReferral(member, row))
                 );
+                const rejectWithdraw = teamRows.filter(row => isRejectWithdraw(row) && isDateWithinRange(parseDate(getS1Value(row, S1_IDX.LEAD_DATE)), leadRange)).length;
                 const lead = teamRows.filter(row => isDateWithinRange(parseDate(getS1Value(row, S1_IDX.LEAD_DATE)), leadRange)).length;
                 const offer = teamRows.filter(row => isCountedOffer(row) && isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange)).length;
                 const onboard = teamRows.filter(row => isOnboard(row) && isDateWithinOptionalRange(parseDate(getRecordedOnboardDate(row)), onboardRange)).length;
@@ -3434,6 +3457,7 @@
                     teamSize,
                     target,
                     onSalesHc,
+                    rejectWithdraw,
                     lead,
                     offer,
                     onboard,
@@ -3465,6 +3489,8 @@
                     return row.offer || 0;
                 case 'onboard':
                     return row.onboard || 0;
+                case 'rejectWithdraw':
+                    return row.rejectWithdraw || 0;
                 case 'undertraining':
                     return row.undertraining || 0;
                 case 'upcomingOnboard':
@@ -3624,12 +3650,13 @@
                 onSalesHc: sum.onSalesHc + row.onSalesHc,
                 lead: sum.lead + row.lead,
                 offer: sum.offer + row.offer,
+                rejectWithdraw: sum.rejectWithdraw + row.rejectWithdraw,
                 onboard: sum.onboard + row.onboard,
                 undertraining: sum.undertraining + row.undertraining,
                 upcomingOnboard: sum.upcomingOnboard + row.upcomingOnboard,
                 actualGap: sum.actualGap + (row.actualGap == null ? 0 : row.actualGap),
                 idealGap: sum.idealGap + (row.idealGap == null ? 0 : row.idealGap)
-            }), { teamSize: 0, target: 0, hasMissingTarget: false, onSalesHc: 0, lead: 0, offer: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
+            }), { teamSize: 0, target: 0, hasMissingTarget: false, onSalesHc: 0, lead: 0, offer: 0, rejectWithdraw: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
 
             const showFloorGroups = leaderOnlySortKey === 'floorLabel';
             body.innerHTML = rows.map((row, index) => {
@@ -3645,6 +3672,7 @@
                         <td class="px-2 py-2.5 text-center font-black text-indigo-600">${formatNumber(row.lead)}</td>
                         <td class="px-2 py-2.5 text-center font-black text-orange-600">${formatNumber(row.offer)}</td>
                         <td class="px-2 py-2.5 text-center font-black text-emerald-600">${formatNumber(row.onboard)}</td>
+                        <td class="px-2 py-2.5 text-center text-rose-700"><button type="button" onclick="event.stopPropagation(); focusTeamRejectWithdraw('${keyAttr}')" class="hover:underline">${formatNumber(row.rejectWithdraw)}</button></td>
                         <td class="px-2 py-2.5 text-center"><button type="button" onclick="event.stopPropagation(); showLeaderUndertrainingDetails('${keyAttr}')" class="font-black text-violet-600 underline-offset-2 hover:underline" title="Show Under-training staff and Excel referrer">${formatNumber(row.undertraining)}</button></td>
                         <td class="px-2 py-2.5 text-center font-black text-amber-600">${formatNumber(row.upcomingOnboard)}</td>
                         <td class="px-2 py-2.5 text-center">${renderLeaderGap(row.actualGap)}</td>
@@ -3660,6 +3688,7 @@
                     <td class="px-2 py-3 text-center text-indigo-700">${formatNumber(totals.lead)}</td>
                     <td class="px-2 py-3 text-center text-orange-700">${formatNumber(totals.offer)}</td>
                     <td class="px-2 py-3 text-center text-emerald-700">${formatNumber(totals.onboard)}</td>
+                    <td class="px-2 py-3 text-center text-rose-700">${formatNumber(totals.rejectWithdraw)}</td>
                     <td class="px-2 py-3 text-center text-violet-700">${formatNumber(totals.undertraining)}</td>
                     <td class="px-2 py-3 text-center text-amber-700">${formatNumber(totals.upcomingOnboard)}</td>
                     <td class="px-2 py-3 text-center">${renderLeaderGap(totals.hasMissingTarget ? null : totals.actualGap)}</td>
@@ -3683,6 +3712,7 @@
                             referralMembers: 0,
                             lead: 0,
                             offer: 0,
+                            rejectWithdraw: 0,
                             pendingOffer: 0,
                             onboard: 0
                         });
@@ -3693,6 +3723,7 @@
                     brandEntry.members += 1;
                     if (member.lead > 0) brandEntry.referralMembers += 1;
                     brandEntry.lead += member.lead;
+                    brandEntry.rejectWithdraw += member.rejectWithdraw || 0;
                     brandEntry.offer += member.offer;
                     brandEntry.pendingOffer += member.pendingOffer || 0;
                     brandEntry.onboard += member.onboard;
@@ -3706,6 +3737,7 @@
                             members: 0,
                             lead: 0,
                             offer: 0,
+                            rejectWithdraw: 0,
                             pendingOffer: 0,
                             onboard: 0
                         });
@@ -3716,6 +3748,7 @@
                     floorEntry.leaders.add(leader.name);
                     floorEntry.members += 1;
                     floorEntry.lead += member.lead;
+                    floorEntry.rejectWithdraw += member.rejectWithdraw || 0;
                     floorEntry.offer += member.offer;
                     floorEntry.pendingOffer += member.pendingOffer || 0;
                     floorEntry.onboard += member.onboard;
@@ -4212,11 +4245,12 @@
                 total.referralMembers += Number(row.referralMembers) || 0;
                 total.lead += Number(row.lead) || 0;
                 total.offer += Number(row.offer) || 0;
+                total.rejectWithdraw += Number(row.rejectWithdraw) || 0;
                 total.pendingOffer += Number(row.pendingOffer) || 0;
                 total.onboard += Number(row.onboard) || 0;
                 total.stillActive += Number(row.stillActive) || 0;
                 return total;
-            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
+            }, { leaders: new Set(), members: 0, referralMembers: 0, lead: 0, offer: 0, rejectWithdraw: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
         }
 
         function summarizeFloorBreakdownRows(sourceRows = []) {
@@ -4226,11 +4260,12 @@
                 total.members += Number(row.members) || 0;
                 total.lead += Number(row.lead) || 0;
                 total.offer += Number(row.offer) || 0;
+                total.rejectWithdraw += Number(row.rejectWithdraw) || 0;
                 total.pendingOffer += Number(row.pendingOffer) || 0;
                 total.onboard += Number(row.onboard) || 0;
                 total.stillActive += Number(row.stillActive) || 0;
                 return total;
-            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
+            }, { brands: new Set(), leaders: new Set(), members: 0, lead: 0, offer: 0, rejectWithdraw: 0, pendingOffer: 0, onboard: 0, stillActive: 0 });
         }
 
         function getFilteredFloorBreakdownRows(rows, comparisonRows = []) {
@@ -4292,6 +4327,8 @@
                 'Offer Delta',
                 'Pending Offer',
                 'Pending Offer Delta',
+                'Reject / withdraw',
+                'Reject / withdraw Delta',
                 'On Board',
                 'On Board Delta'
             ];
@@ -4315,6 +4352,8 @@
                     formatDeltaLabel(row.offer - (comparisonRow?.offer || 0)),
                     row.pendingOffer || 0,
                     formatDeltaLabel((row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0)),
+                    row.rejectWithdraw || 0,
+                    formatDeltaLabel((row.rejectWithdraw || 0) - (comparisonRow?.rejectWithdraw || 0)),
                     row.onboard,
                     formatDeltaLabel(row.onboard - (comparisonRow?.onboard || 0))
                 ];
@@ -4341,6 +4380,8 @@
                 formatDeltaLabel(total.offer - comparisonTotal.offer),
                 total.pendingOffer,
                 formatDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer),
+                total.rejectWithdraw,
+                formatDeltaLabel(total.rejectWithdraw - comparisonTotal.rejectWithdraw),
                 total.onboard,
                 formatDeltaLabel(total.onboard - comparisonTotal.onboard)
             ];
@@ -4390,6 +4431,8 @@
                 'Offer Delta',
                 'Pending Offer',
                 'Pending Offer Delta',
+                'Reject / withdraw',
+                'Reject / withdraw Delta',
                 'On Board',
                 'On Board Delta'
             ];
@@ -4412,6 +4455,8 @@
                     formatDeltaLabel(row.offer - (comparisonRow?.offer || 0)),
                     row.pendingOffer || 0,
                     formatDeltaLabel((row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0)),
+                    row.rejectWithdraw || 0,
+                    formatDeltaLabel((row.rejectWithdraw || 0) - (comparisonRow?.rejectWithdraw || 0)),
                     row.onboard,
                     formatDeltaLabel(row.onboard - (comparisonRow?.onboard || 0))
                 ];
@@ -4440,6 +4485,8 @@
                 formatDeltaLabel(total.offer - comparisonTotal.offer),
                 total.pendingOffer,
                 formatDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer),
+                total.rejectWithdraw,
+                formatDeltaLabel(total.rejectWithdraw - comparisonTotal.rejectWithdraw),
                 total.onboard,
                 formatDeltaLabel(total.onboard - comparisonTotal.onboard)
             ];
@@ -4488,6 +4535,7 @@
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
                 const offerDelta = row.offer - (comparisonRow?.offer || 0);
                 const pendingOfferDelta = (row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0);
+                const rejectWithdrawDelta = (row.rejectWithdraw || 0) - (comparisonRow?.rejectWithdraw || 0);
                 const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
                 return `
                 <tr class="text-sm font-bold text-slate-700">
@@ -4498,6 +4546,7 @@
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(row.pendingOffer || 0)} ${renderDeltaLabel(pendingOfferDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick='focusBrandDetail(${escapeHtml(JSON.stringify(row.label))}, "REJECT_WITHDRAW")' class="inline-flex items-baseline justify-center gap-1 font-black text-rose-700 underline-offset-4 hover:underline">${formatNumber(row.rejectWithdraw || 0)} ${renderDeltaLabel(rejectWithdrawDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusBrandDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.referralMembers || 0, row.members)}</td>
                 </tr>
@@ -4510,6 +4559,7 @@
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(total.pendingOffer)} ${renderDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'REJECT_WITHDRAW')" class="inline-flex items-baseline justify-center gap-1 font-black text-rose-700 underline-offset-4 hover:underline">${formatNumber(total.rejectWithdraw)} ${renderDeltaLabel(total.rejectWithdraw - comparisonTotal.rejectWithdraw, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusBrandDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.referralMembers, total.members)}</td>
                 </tr>`;
@@ -4600,6 +4650,7 @@
                 const leadDelta = row.lead - (comparisonRow?.lead || 0);
                 const offerDelta = row.offer - (comparisonRow?.offer || 0);
                 const pendingOfferDelta = (row.pendingOffer || 0) - (comparisonRow?.pendingOffer || 0);
+                const rejectWithdrawDelta = (row.rejectWithdraw || 0) - (comparisonRow?.rejectWithdraw || 0);
                 const onboardDelta = row.onboard - (comparisonRow?.onboard || 0);
                 return `
                 <tr class="text-sm font-bold text-slate-700">
@@ -4610,6 +4661,7 @@
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(row.lead)} ${renderDeltaLabel(leadDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(row.offer)} ${renderDeltaLabel(offerDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(row.pendingOffer || 0)} ${renderDeltaLabel(pendingOfferDelta, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick='focusFloorDetail(${escapeHtml(JSON.stringify(row.label))}, "REJECT_WITHDRAW")' class="inline-flex items-baseline justify-center gap-1 font-black text-rose-700 underline-offset-4 hover:underline">${formatNumber(row.rejectWithdraw || 0)} ${renderDeltaLabel(rejectWithdrawDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-900"><button type="button" onclick="focusFloorDetail(${JSON.stringify(row.label)}, 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(row.onboard)} ${renderDeltaLabel(onboardDelta, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.offer, row.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(row.onboard, row.lead)}</td>
@@ -4626,6 +4678,7 @@
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'PENDING_OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-orange-700 underline-offset-4 hover:underline">${formatNumber(total.pendingOffer)} ${renderDeltaLabel(total.pendingOffer - comparisonTotal.pendingOffer, 'text-[11px]')}</button></td>
+                    <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'REJECT_WITHDRAW')" class="inline-flex items-baseline justify-center gap-1 font-black text-rose-700 underline-offset-4 hover:underline">${formatNumber(total.rejectWithdraw)} ${renderDeltaLabel(total.rejectWithdraw - comparisonTotal.rejectWithdraw, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'ONBOARD')" class="inline-flex items-baseline justify-center gap-1 font-black text-emerald-700 underline-offset-4 hover:underline">${formatNumber(total.onboard)} ${renderDeltaLabel(total.onboard - comparisonTotal.onboard, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.offer, total.lead)}</td>
                     <td class="px-4 py-4 text-center data-font text-slate-700">${formatRate(total.onboard, total.lead)}</td>
@@ -5095,6 +5148,18 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
             }
         }
 
+        function focusTeamRejectWithdraw(key) {
+            selectedLeaderKey = key;
+            currentDetailScope = 'TEAM_REJECT';
+            currentSummaryDetailMode = 'REJECT_WITHDRAW';
+            ['detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => document.getElementById(id).value = '');
+            detailSortKey = 'leadDateObj';
+            detailSortDirection = 'desc';
+            renderDashboard(false);
+            proSetTab('candidates');
+            document.getElementById('detailSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+
         function renderDetailTable(leaders) {
             const body = document.getElementById('detailTableBody');
             const title = document.getElementById('detailTitle');
@@ -5225,6 +5290,9 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
                 } else if (currentSummaryDetailMode === 'PENDING_OFFER') {
                     rows = rows.filter(item => item.countedPendingOffer);
                     titleText = withContext('Pending Offer Detail');
+                } else if (currentSummaryDetailMode === 'REJECT_WITHDRAW') {
+                    rows = rows.filter(item => item.rejectWithdraw);
+                    titleText = withContext('Reject / withdraw Detail');
                 } else if (currentSummaryDetailMode === 'ONBOARD') {
                     rows = rows.filter(item => item.countedOnboard);
                     titleText = withContext('On Board Detail');
@@ -5237,6 +5305,25 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
                     titleText = withContext('Lead Detail');
                 }
                 metaText = `${formatNumber(rows.length)} candidates / ${formatNumber(leaders.length)} network teams`;
+            } else if (currentDetailScope === 'TEAM_REJECT') {
+                const active = leaders.find(leader => leader.key === selectedLeaderKey);
+                const range = getLeaderOnlyDateRange() || getSelectedDateRange();
+                rows = (active?.memberStats || []).flatMap(member => dataS1.filter(row =>
+                    isReferredByMember(row, member) && isLeaderSelfEligibleReferral(member, row)
+                    && isRejectWithdraw(row) && isDateWithinRange(parseDate(getS1Value(row, S1_IDX.LEAD_DATE)), range)
+                ).map(row => ({
+                    leaderKey: active.key, leaderName: active.name, memberName: member.therapist,
+                    memberBrand: member.brand, memberCenter: member.center, center: member.center,
+                    brand: displayBrand(getS1Value(row, S1_IDX.BRAND)), position: getS1PositionValue(row),
+                    referrerFloor: getS1Value(row, S1_IDX.REFERRER_FLOOR), candidateName: getS1Value(row, S1_IDX.NAME),
+                    status: getS1Value(row, S1_IDX.STATUS), onboardStatus: getOnboardStatus(row),
+                    rjnj: getS1Value(row, S1_IDX.RJNJ), leadDate: getS1Value(row, S1_IDX.LEAD_DATE),
+                    offerDate: getS1Value(row, S1_IDX.OFFER_DATE), onboardDate: getRecordedOnboardDate(row),
+                    offeredFloor: getS1Value(row, S1_IDX.OFFER_PLACE), interviewer: getS1Value(row, S1_IDX.INTERVIEWER),
+                    leadDateObj: parseDate(getS1Value(row, S1_IDX.LEAD_DATE)) || new Date(0)
+                })));
+                titleText = (active?.name || '') + ' Reject / withdraw Detail';
+                metaText = formatNumber(rows.length) + ' candidates / Network Team Lead Date';
             } else if(currentDetailScope==='MEMBER' && memberMetricSelection) {
                 const selection=memberMetricSelection;
                 const active=leaders.find(leader=>leader.key===selection.leaderKey);
@@ -5645,8 +5732,8 @@ function getBreakdownResignCount(bodyId, selectedRow=null) {
     const scopes=rows.filter(row=>row.cells.length>1).map(row=>bodyId==='floorTableBody'?{floor:safeTrim(row.cells[0]?.textContent),brands:safeTrim(row.cells[1]?.textContent).split(',').map(safeTrim)}:{floor:'',brands:[safeTrim(row.cells[0]?.textContent)]});
     return countBreakdownResignScopes(scopes);
 }
-function insertResignColumn(bodyId,where,getValue,totalValue){const body=document.getElementById(bodyId),table=body?.closest('table');if(!table)return;const head=table.querySelector('thead tr');let resignIndex=Array.from(head?.children||[]).findIndex(cell=>cell.hasAttribute('data-resign-column'));if(resignIndex<0){const targetIndex=Array.from(head?.children||[]).findIndex(cell=>safeTrim(cell.textContent)===where);const th=document.createElement('th');th.dataset.resignColumn='1';th.className='border-x-2 border-rose-200 bg-rose-50/70 px-4 py-4 text-center text-rose-700';th.textContent='Resign';head.insertBefore(th,targetIndex>=0?head.children[targetIndex]:null);resignIndex=targetIndex>=0?targetIndex:head.children.length-1}Array.from(body.querySelectorAll('tr')).forEach(row=>{if(row.querySelector('[data-resign-cell]'))return;const td=document.createElement('td');td.dataset.resignCell='1';td.className='border-x-2 border-rose-100 bg-rose-50/30 px-4 py-4 text-center data-font font-black text-rose-700';td.textContent=formatNumber(getValue(row));row.insertBefore(td,row.children[resignIndex]||null)});const totalRow=body.querySelector('tr:last-child');if(totalRow&&safeTrim(totalRow.firstElementChild?.textContent).toUpperCase()==='TOTAL'){const cell=totalRow.querySelector('[data-resign-cell]');if(cell)cell.textContent=formatNumber(totalValue())}}
-function removeFloorAchieveColumns(){const body=document.getElementById('floorTableBody'),table=body?.closest('table'),head=table?.querySelector('thead tr');if(!body||!head)return;const indexes=['On Board Achieve Rate','Offer Achieve Rate'].map(label=>Array.from(head.children).findIndex(cell=>safeTrim(cell.textContent).startsWith(label))).filter(index=>index>=0).sort((a,b)=>b-a);if(indexes.length){indexes.forEach(index=>{head.children[index].remove();Array.from(body.querySelectorAll('tr')).forEach(row=>row.children[index]?.remove())});return}Array.from(body.querySelectorAll('tr')).forEach(row=>{row.lastElementChild?.remove();row.lastElementChild?.remove()})}
+function insertResignColumn(bodyId,where,getValue,totalValue){const body=document.getElementById(bodyId),table=body?.closest('table');if(!table)return;const head=table.querySelector('thead tr');let resignIndex=Array.from(head?.children||[]).findIndex(cell=>cell.hasAttribute('data-resign-column'));if(resignIndex<0){const targetIndex=Array.from(head?.children||[]).findIndex(cell=>safeTrim(cell.textContent)===where);const th=document.createElement('th');th.dataset.resignColumn='1';th.className='border-x-2 border-rose-200 bg-rose-50/70 px-4 py-4 text-center text-rose-700';th.textContent='Resign';head.insertBefore(th,targetIndex>=0?head.children[targetIndex]:null);resignIndex=targetIndex>=0?targetIndex:head.children.length-1}Array.from(body.querySelectorAll('tr')).forEach(row=>{if(row.cells.length===1&&row.cells[0].colSpan>1){row.cells[0].colSpan=head.children.length;return;}if(row.querySelector('[data-resign-cell]'))return;const td=document.createElement('td');td.dataset.resignCell='1';td.className='border-x-2 border-rose-100 bg-rose-50/30 px-4 py-4 text-center data-font font-black text-rose-700';td.textContent=formatNumber(getValue(row));row.insertBefore(td,row.children[resignIndex]||null)});const totalRow=body.querySelector('tr:last-child');if(totalRow&&safeTrim(totalRow.firstElementChild?.textContent).toUpperCase()==='TOTAL'){const cell=totalRow.querySelector('[data-resign-cell]');if(cell)cell.textContent=formatNumber(totalValue())}}
+function removeFloorAchieveColumns(){const body=document.getElementById('floorTableBody'),table=body?.closest('table'),head=table?.querySelector('thead tr');if(!body||!head)return;const indexes=['On Board Achieve Rate','Offer Achieve Rate'].map(label=>Array.from(head.children).findIndex(cell=>safeTrim(cell.textContent).startsWith(label))).filter(index=>index>=0).sort((a,b)=>b-a);if(indexes.length){indexes.forEach(index=>{head.children[index].remove();Array.from(body.querySelectorAll('tr')).forEach(row=>row.children[index]?.remove())});return}Array.from(body.querySelectorAll('tr')).forEach(row=>{if(row.cells.length===1&&row.cells[0].colSpan>1)return;row.lastElementChild?.remove();row.lastElementChild?.remove()})}
 const renderDashboardWithResign=renderDashboard;renderDashboard=function(...args){const result=renderDashboardWithResign.apply(this,args);removeFloorAchieveColumns();insertResignColumn('brandTableBody','Referral %',row=>getBreakdownResignCount('brandTableBody',row),()=>getBreakdownResignCount('brandTableBody'));insertResignColumn('floorTableBody','',row=>getBreakdownResignCount('floorTableBody',row),()=>getBreakdownResignCount('floorTableBody'));insertResignColumn('leaderOnlyTableBody','Actual Gap',row=>getResignCountForNetworkTeam(row.children[1]?.textContent),()=>Array.from(document.getElementById('leaderOnlyTableBody')?.querySelectorAll('tr')||[]).slice(0,-1).reduce((sum,row)=>sum+Number(row.querySelector('[data-resign-cell]')?.textContent||0),0));return result};
 </script>
 <script>
@@ -5685,7 +5772,7 @@ function proSetTab(key, focusTab = false) {
     });
     const overview = document.getElementById('panel-overview');
     const definitions = document.createElement('details');definitions.className = 'pro-definitions';
-    definitions.innerHTML = '<summary>Metric definitions & date basis</summary><dl><dt>Lead</dt><dd>Network member referrals within the selected Lead Date range.</dd><dt>Offer</dt><dd>Eligible offers with a recorded On Board Date; excludes rejected, withdrawn, no-show and Beauty Specialist records. Uses Offer Date when set, otherwise Lead Date.</dd><dt>Pending Offer</dt><dd>Records with an Offer Date and no recorded On Board Date, subject to the existing status exclusions. Uses Offer Date when set.</dd><dt>On Board</dt><dd>Onboarded referrals to the same brand, excluding Beauty Specialist records, within the selected Lead Date cohort.</dd><dt>Upcoming On Board</dt><dd>Accepted candidates with a future On Board Date. The network indicator and the Brand workforce summary cover their respective populations.</dd><dt>Comparison</dt><dd>Current filtered count minus the comparable period count, using the current spreadsheet. This is recalculated data, rather than a saved historical snapshot. The automatic comparison date skips Sunday.</dd></dl>';
+    definitions.innerHTML = '<summary>Metric definitions & date basis</summary><dl><dt>Lead</dt><dd>Network member referrals within the selected Lead Date range.</dd><dt>Offer</dt><dd>Eligible offers with a recorded On Board Date; excludes rejected, withdrawn, no-show and Beauty Specialist records. Uses Offer Date when set, otherwise Lead Date.</dd><dt>Pending Offer</dt><dd>Records with an Offer Date and no recorded On Board Date, subject to the existing status exclusions. Uses Offer Date when set.</dd><dt>On Board</dt><dd>Onboarded referrals to the same brand, excluding Beauty Specialist records, within the selected Lead Date cohort.</dd><dt>Upcoming On Board</dt><dd>Accepted candidates with a future On Board Date. The network indicator and the Brand workforce summary cover their respective populations.</dd><dt>Reject / withdraw</dt><dd>Rejected or withdrawn network referrals within Lead Date. On Board Status marked Reject, Withdraw or No Show belongs to Others, matching Floor Performance.</dd><dt>Comparison</dt><dd>Current filtered count minus the comparable period count, using the current spreadsheet. This is recalculated data, rather than a saved historical snapshot. The automatic comparison date skips Sunday.</dd></dl>';
     overview.appendChild(definitions);
     const brandSection = byBody('brandTableBody');
     const brandHeading = brandSection.querySelector('h2');
@@ -5752,6 +5839,7 @@ function proColourTeamColumns() {
         {key:'team',labels:['Floor','Network Team Leader','Team Size','Team Target'],label:'Team Size / Target'},
         {key:'sales',labels:['On Sales HC'],label:'On Sales HC'},
         {key:'pipeline',labels:['Lead','Offer','On Board'],label:'Lead / Offer / On Board'},
+        {key:'rejection',labels:['Reject / withdraw'],label:'Reject / withdraw'},
         {key:'onboarding',labels:['Under-training','Upcoming On Board'],label:'Undertraining / Upcoming'},
         {key:'gap',labels:['Actual Gap','Ideal Gap'],label:'Actual / Ideal Gap'},
         {key:'resign',labels:['Resign'],label:'Resign'}
@@ -5797,7 +5885,7 @@ proColourTeamColumns();
     const note=document.createElement('p');note.className='pro-caption';note.textContent='Independent table filters · Floor and Leader stay visible when you scroll across.';header.firstElementChild.appendChild(note);
     controls.appendChild(document.getElementById('leaderOnlyMeta'));
     const cols=document.createElement('colgroup');
-    for(let index=0;index<13;index++){const col=document.createElement('col');col.style.width=index===0?'var(--team-floor-width)':index===1?'var(--team-leader-width)':'var(--team-number-width)';cols.appendChild(col);}
+    for(let index=0;index<14;index++){const col=document.createElement('col');col.style.width=index===0?'var(--team-floor-width)':index===1?'var(--team-leader-width)':'var(--team-number-width)';cols.appendChild(col);}
     table.prepend(cols);
 })();
 
@@ -5840,7 +5928,7 @@ function proRefreshTeamTools(){
         else if(/downloadBrandBreakdown\(|downloadFloorBreakdown\(|downloadLeaderOnlyTable\(|downloadUpcomingOnboardList\(/.test(action))button.textContent='Download CSV';
     });
     const empty=body.querySelector('tr:not(.clickable-row):not(.leader-only-total)');
-    if(empty&&rows.length===0){empty.querySelectorAll('[data-resign-cell]').forEach(cell=>cell.remove());const cell=empty.cells[0];cell.colSpan=13;delete cell.dataset.proZone;delete cell.dataset.proPinned;delete cell.dataset.proZoneStart;}
+    if(empty&&rows.length===0){empty.querySelectorAll('[data-resign-cell]').forEach(cell=>cell.remove());const cell=empty.cells[0];cell.colSpan=document.querySelectorAll('#leaderOnlyTable thead th').length;delete cell.dataset.proZone;delete cell.dataset.proPinned;delete cell.dataset.proZoneStart;}
 }
 const proRenderBeforeTools=renderDashboard;
 renderDashboard=function(...args){const result=proRenderBeforeTools.apply(this,args);proRefreshTeamTools();return result;};
