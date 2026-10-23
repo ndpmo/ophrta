@@ -280,6 +280,236 @@
 
         }
     </style>
+<style id="taste-report-refinement">
+
+/* Taste: calm operational dashboard. Preserve all data, filters and exports. */
+:root { --report-ink:#172b42; --report-muted:#52657b; --report-edge:#dbe2ea; --report-accent:#174778; }
+html { color-scheme:light; scroll-behavior:smooth; }
+body { font-family:'Segoe UI','Noto Sans TC',Arial,sans-serif; background:#f5f6f8; background-image:none; color:var(--report-ink); font-size:14px; line-height:1.55; padding:32px 40px; }
+body::before { display:none; }
+body > .max-w-7xl { max-width:1520px; }
+body > .max-w-7xl > div:first-child { padding-bottom:24px; border-bottom:1px solid var(--report-edge); margin-bottom:24px; gap:24px; align-items:flex-start; }
+h1.header-glow { font-size:clamp(28px,3vw,38px); font-weight:700; letter-spacing:-.035em; text-shadow:none; line-height:1.2; margin-bottom:20px; }
+.font-cyber { font-family:inherit; letter-spacing:0; }
+h1 .font-cyber { display:block; font-size:15px; font-weight:500; margin-top:8px; color:var(--report-muted); text-transform:none; }
+body > .max-w-7xl > div:first-child a { background:#fff; color:var(--report-accent); border:1px solid #bfcbd8; border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0; text-transform:none; box-shadow:none; min-height:40px; padding:8px 14px; }
+body > .max-w-7xl > div:first-child a:hover { background:#eaf0f7; transform:none; }
+body > .max-w-7xl > div:first-child > .cyber-card { border:1px solid var(--report-edge); padding:14px 16px; font-size:13px; font-weight:500; min-width:180px; flex-shrink:0; gap:14px; color:var(--report-accent); }
+.cyber-card,.export-details-panel { background:#fff; border:1px solid var(--report-edge); border-radius:10px; box-shadow:none; backdrop-filter:none; transition:background-color .15s,border-color .15s; }
+body > .max-w-7xl > .grid { margin-bottom:32px; }
+.cyber-card h3 { color:var(--report-ink); font-size:15px; font-weight:600; letter-spacing:0; }
+.cyber-card h3 > .opacity-20 { display:none; }
+input,select,button { font-family:inherit; }
+input:not([type="checkbox"]),select,.date-selector-input { color:var(--report-ink); background:#fff; border:1px solid #bfcbd8; border-radius:6px !important; font-size:14px; font-weight:400; min-height:42px; }
+input:disabled,select:disabled { background:#f1f3f6; color:#68788b; cursor:not-allowed; }
+input::placeholder { color:#63758a; opacity:1; }
+button { font-weight:600 !important; letter-spacing:0 !important; border-radius:6px !important; box-shadow:none !important; }
+button[class*="bg-gradient"] { background:var(--report-accent); background-image:none; padding-top:11px; padding-bottom:11px; }
+button[class*="bg-gradient"]:hover { background:#10345b; }
+button[class*="bg-gradient"],button[class*="bg-teal-600"],button[class*="bg-indigo-600"],button[class*="bg-indigo-500"] { color:white; }
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[role="button"]:focus-visible { outline:3px solid #174778; outline-offset:3px; }
+h2 { color:var(--report-ink) !important; font-weight:650 !important; letter-spacing:-.02em !important; font-size:24px !important; line-height:1.4; text-transform:none !important; border-left:3px solid var(--report-accent) !important; padding-left:12px !important; }
+h2 .font-cyber { color:var(--report-muted) !important; font-size:14px; font-weight:500; text-transform:none; }
+#onBoardBatchArea,#weeklyLeadArea,#weeklyOfferArea,#pendingOfferArea,#onboardSummaryArea { margin-bottom:32px; }
+#batchContainer { gap:16px; }
+#weeklyLeadArea > .grid,#weeklyOfferArea > .grid,#pendingOfferArea > .grid,#onboardSummaryArea > .grid { gap:16px; }
+.batch-card,.lead-card,.weekly-card,.pending-card,.onboard-card { padding:20px !important; border-bottom-width:3px !important; }
+.batch-card:hover,.lead-card:hover,.weekly-card:hover,.pending-card:hover,.onboard-card:hover { transform:none; box-shadow:none; background:#f7f9fc; border-color:#8aa3c0; }
+.batch-card.active,.lead-card.active,.weekly-card.active,.pending-card.active,.onboard-card.active { background:#edf3fa; border-color:#174778; box-shadow:inset 0 3px 0 #174778; }
+.lead-card > p:first-child,.weekly-card > p:first-child,.pending-card > p:first-child,.onboard-card > p:first-child { color:var(--report-muted); font-size:12px; letter-spacing:0; font-weight:500; text-transform:none; }
+.lead-card > p:nth-child(2),.weekly-card > p:nth-child(2),.pending-card > p:nth-child(2),.onboard-card > p:nth-child(2) { font-size:18px; font-weight:650; color:var(--report-ink); }
+.cyber-card [class*="shadow-inner"] { box-shadow:none; border-radius:6px; }
+.readable-nums { font-variant-numeric:tabular-nums; }
+.filter-label { font-size:12px; letter-spacing:0; text-transform:none; font-weight:600; color:var(--report-muted); }
+.mobile-filter-row { background:#fff; border-color:var(--report-edge); border-radius:8px; box-shadow:none; }
+.month-btn { min-height:40px; border-radius:6px; padding:8px 14px; font-weight:600; font-size:13px; }
+.month-btn.active { background:var(--report-accent); box-shadow:none; }
+#monthSelector { border:1px solid var(--report-edge); background:white; border-radius:8px; box-shadow:none; }
+th,td { padding:13px 14px !important; }
+thead { background:#edf2f7 !important; color:#43566e !important; border-bottom:1px solid #cdd7e2 !important; }
+thead th { font-size:13px !important; font-weight:600; text-transform:none; letter-spacing:0; line-height:1.5; }
+tbody td { font-size:14px; font-weight:400; }
+tbody tr:nth-child(even) { background:#f8fafc; }
+tbody tr:hover { background:#edf3fa; }
+tbody tr[class*="font-black"],tbody tr[class*="bg-slate-100"] { font-weight:650; }
+.custom-scrollbar { scrollbar-width:thin; scrollbar-color:#9caec3 #edf1f6; }
+.custom-scrollbar::-webkit-scrollbar { width:8px; height:10px; }
+.custom-scrollbar::-webkit-scrollbar-track { background:#edf1f6; border:0; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background:#9caec3; border:2px solid #edf1f6; }
+.export-details-panel { padding:24px; }
+.export-details-panel label { font-size:13px; color:var(--report-muted); }
+.export-details-panel p.text-slate-400 { color:var(--report-muted); font-size:13px; }
+.summary-accent { background:#eef3f9; border-color:var(--report-accent); }
+.count-delta { font-weight:600; }
+@media(max-width:1100px) { body { padding:24px; } }
+@media(max-width:767px) {
+    body { padding:20px 16px; }
+    body > .max-w-7xl > div:first-child { gap:16px; }
+    h1.header-glow { font-size:30px; }
+    body > .max-w-7xl > div:first-child a { padding:8px 10px; font-size:12px; }
+    body > .max-w-7xl > div:first-child > .cyber-card { width:100%; }
+    h2 { font-size:21px !important; }
+    h2 .font-cyber { display:block; margin-left:0; margin-top:4px; font-size:13px; }
+    .batch-card,.lead-card,.weekly-card,.pending-card,.onboard-card { padding:16px !important; }
+    .mobile-filter-row { max-width:100%; min-width:0; flex-wrap:wrap; }
+    .mobile-inline-date-range { width:100%; min-width:0; }
+    .mobile-inline-date-range input { min-width:0; flex:1; }
+    .date-selector-input { min-width:0; max-width:100%; }
+    .export-details-panel { padding:16px; }
+    .cyber-card:has(> table) { overflow-x:auto; }
+    #monthSelector { max-width:100%; flex-wrap:wrap; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none !important; transition:none !important; } }
+/* Stabilise presentation against runtime Tailwind utilities. */
+body { padding:32px 40px !important; }
+.cyber-card { box-shadow:none !important; }
+.batch-card,.lead-card,.weekly-card,.pending-card,.onboard-card { border-color:#dbe2ea !important; border-bottom-color:#97acc5 !important; }
+.batch-card.active,.lead-card.active,.weekly-card.active,.pending-card.active,.onboard-card.active { border-color:#174778 !important; }
+.cyber-card .font-black { font-weight:600; }
+button.bg-violet-600,button.bg-teal-600,button.bg-indigo-600 { background:#174778; }
+@media(max-width:1100px) { body { padding:24px !important; } }
+@media(max-width:767px) { body { padding:20px 16px !important; } }
+@media(max-width:767px) {
+    body > .max-w-7xl { min-width:0; }
+    .grid > *,.flex > * { min-width:0; }
+    div.flex:has(> input),div.flex:has(> select),div.flex:has(> label.checkbox-container) { max-width:100%; flex-wrap:wrap; }
+    div.flex > input[type="date"] { flex:1 1 100px; width:100px; min-width:0; }
+    div.flex > select { flex:1 1 140px; min-width:0 !important; width:100%; }
+    #exportWithdrawalRejectionReasonButton { white-space:normal; height:auto; min-height:42px; }
+}
+.flex:has(> h2),.flex:has(> .mobile-filter-row) { flex-wrap:wrap; }
+.mobile-filter-row { flex-wrap:wrap; min-width:0; max-width:100%; }
+@media(min-width:768px) and (max-width:1100px) {
+    div.flex:has(> input),div.flex:has(> select),div.flex:has(> label.checkbox-container) { flex-wrap:wrap; max-width:100%; }
+    .mobile-inline-date-range { min-width:0; }
+}
+</style>
+<style id="report-typography">
+/* One readable type hierarchy across static and dynamically rendered content. */
+body { --type-caption:13px; --type-body:15px; --type-number:17px; font-size:var(--type-body); line-height:1.6; }
+body,body input,body select,body button,body .font-cyber { font-family:'Segoe UI','Noto Sans TC',Arial,sans-serif; }
+body .font-black { font-weight:600; }
+body .tracking-widest,body .tracking-wider,body .tracking-wide { letter-spacing:0; }
+body h1.header-glow { font-size:34px; font-weight:700; line-height:1.25; letter-spacing:-.025em; }
+body h1 .font-cyber { font-size:15px; font-weight:400; line-height:1.5; }
+body h2 { font-size:24px !important; font-weight:650 !important; line-height:1.4; letter-spacing:-.02em !important; }
+body h2 .font-cyber { font-size:14px; font-weight:400; line-height:1.5; margin-left:10px; }
+body h3,body .cyber-card h3 { font-size:18px; font-weight:600; line-height:1.5; }
+body .filter-label,body label,body .export-details-panel label { font-size:var(--type-caption); font-weight:600; line-height:1.5; letter-spacing:0; text-transform:none; }
+body input:not([type="checkbox"]),body select,body .date-selector-input { font-size:15px !important; font-weight:400; line-height:1.5; }
+body button,body .month-btn { font-size:14px; font-weight:600 !important; line-height:1.5; text-transform:none; }
+body > .max-w-7xl > div:first-child a { font-size:14px; line-height:1.5; }
+body .batch-card p:first-child,body .lead-card > p:first-child,
+body .weekly-card > p:first-child,body .pending-card > p:first-child,
+body .onboard-card > p:first-child { font-size:13px !important; line-height:1.5; font-weight:400; letter-spacing:0; text-transform:none; }
+body .lead-card > p:nth-child(2),body .weekly-card > p:nth-child(2),
+body .pending-card > p:nth-child(2),body .onboard-card > p:nth-child(2) { font-size:18px; font-weight:600; margin-bottom:16px; }
+body .batch-card .text-3xl,body .batch-card .text-4xl,
+body .lead-card [id*="total"],body .weekly-card [id*="total"],
+body .pending-card [id*="total"],body .onboard-card [id*="total"] {
+    font-size:38px !important; font-weight:650; line-height:1.2;
+    font-variant-numeric:tabular-nums; letter-spacing:-.025em;
+}
+body .lead-card .text-2xl,body .weekly-card .text-2xl,
+body .pending-card .text-2xl,body .onboard-card .text-2xl,
+body .bs-count { font-size:20px !important; font-weight:600; line-height:1.55; }
+body .bs-count { margin-top:8px; }
+body .cyber-card .text-xs,body .cyber-card .text-sm,
+body .bs-subcount { font-size:13px; line-height:1.5; }
+body .cyber-card .text-slate-400 { color:#607287; }
+body .count-delta,body .count-delta.subtle { font-size:12px !important; font-weight:500; line-height:1.4; letter-spacing:0; }
+body .readable-nums { font-variant-numeric:tabular-nums; }
+body thead th,body thead th button { font-size:13px !important; font-weight:600 !important; line-height:1.5; text-transform:none; }
+body tbody td { font-size:15px !important; font-weight:400; line-height:1.6; }
+body tbody td.text-xl,body tbody td.text-lg,
+body tbody td.text-2xl,body tbody td.readable-nums { font-size:17px !important; font-weight:600; }
+body tbody td .text-xl,body tbody td .text-lg,body tbody td .text-2xl { font-size:17px !important; font-weight:600; }
+body tbody td .text-xs,body tbody td .text-sm { font-size:13px; }
+body tbody td .count-delta { font-size:12px !important; }
+body #sharedDetailTableBody .shared-detail-name,body #sharedDetailTableBody .shared-detail-position { font-size:15px; line-height:1.5; }
+body .export-details-panel > p { font-size:13px; line-height:1.7; }
+body #sharedDetailTitle { font-size:18px; font-weight:600; }
+@media(max-width:767px) {
+    body h1.header-glow { font-size:28px; }
+    body h2 { font-size:21px !important; }
+    body h2 .font-cyber { display:block; font-size:13px; margin:4px 0 0; }
+    body input:not([type="checkbox"]),body select,body .date-selector-input { font-size:16px !important; }
+    body > .max-w-7xl > div:first-child a { font-size:13px; }
+    body .lead-card [id*="total"],body .weekly-card [id*="total"],body .pending-card [id*="total"],body .onboard-card [id*="total"] { font-size:34px !important; }
+}
+</style>
+<style id="report-usability-style">
+/* Local controls and page-level table reading aids. */
+#reportQuickNav {
+    position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;
+    overflow-x:auto;max-width:100%;padding:12px 0;margin:0 0 24px;
+    border-bottom:1px solid #dbe2ea;background:#f5f6f8;scrollbar-width:thin;
+}
+#reportQuickNav .report-nav-label { color:#52657b;font-size:13px;white-space:nowrap;margin-right:8px; }
+#reportQuickNav a { flex-shrink:0;padding:8px 12px;border:1px solid transparent;border-radius:6px;color:#365574;font-size:14px;text-decoration:none;white-space:nowrap; }
+#reportQuickNav a:hover,#reportQuickNav a[aria-current] { background:#e7eef7;color:#174778;border-color:#c6d6e9; }
+#reportQuickNav a[hidden],#reportFloatingHeader[hidden] { display:none !important; }
+.report-anchor { scroll-margin-top:90px; }
+.report-section-toolbar { display:flex;align-items:flex-start;flex-wrap:wrap;gap:10px 16px;padding:12px 14px;margin:12px 0 18px;border:1px solid #dbe2ea;border-radius:8px;background:#f7f9fc;min-width:0; }
+.report-filter-summary { flex:1 1 300px;min-width:0;font-size:13px !important;line-height:1.7;color:#435a74;overflow-wrap:anywhere; }
+.report-local-reset { flex:0 0 auto;padding:7px 12px;min-height:38px;border:1px solid #bfcbd8;background:#fff;color:#174778;white-space:nowrap; }
+.report-local-reset:hover { background:#eaf0f7; }
+.report-local-reset:disabled { opacity:.5;cursor:wait; }
+.report-reset-status { color:#2f6b56;font-size:13px; }
+.report-reset-status:empty { display:none; }
+.report-shared-note { flex-basis:100%;color:#607287;font-size:12px;line-height:1.5; }
+.report-detail-selection { border-left:3px solid #174778;background:#edf3fa;color:#173d68;padding:12px 16px;border-radius:0 6px 6px 0;font-size:16px;font-weight:600;line-height:1.5;overflow-wrap:anywhere; }
+.lead-card[aria-pressed="true"],.weekly-card[aria-pressed="true"],.pending-card[aria-pressed="true"],.onboard-card[aria-pressed="true"],.batch-card[aria-pressed="true"] { box-shadow:inset 0 3px 0 #174778 !important;border-color:#174778 !important;background:#edf3fa; }
+.report-table-viewport { position:relative;overflow-x:auto;max-width:100%;isolation:isolate; }
+.report-pinned-table { border-collapse:separate !important;border-spacing:0; }
+.report-pinned-table th:first-child,.report-pinned-table tbody td:first-child:not([colspan]),.report-pinned-table tbody td:first-child[colspan="1"] { position:sticky;left:0;z-index:2;box-shadow:1px 0 0 #cbd5e1;background:#fff; }
+.report-pinned-table tbody tr:nth-child(even) td:first-child { background:#f8fafc; }
+.report-pinned-table tbody tr:hover td:first-child { background:#edf3fa; }
+.report-pinned-table th:first-child { z-index:3;background:#edf2f7; }
+#reportFloatingHeader { position:fixed;z-index:35;overflow:hidden;background:#edf2f7;border-bottom:1px solid #bfcbd8;box-shadow:0 3px 6px #172b4210; }
+#reportFloatingHeader table { table-layout:fixed;margin:0; }
+#reportFloatingHeader th { background:#edf2f7; }
+#reportFloatingHeader th:first-child { position:relative;left:auto; }
+#reportFloatingHeader button { pointer-events:none; }
+@media(max-width:767px) {
+    #reportQuickNav { margin-bottom:18px;padding:8px 0; }
+    #reportQuickNav .report-nav-label { display:none; }
+    #reportQuickNav a { font-size:13px;padding:8px 10px; }
+    .report-section-toolbar { padding:12px;gap:10px; }
+    .report-filter-summary { flex-basis:100%; }
+    .report-detail-selection { font-size:15px; }
+    .report-pinned-table th:first-child,.report-pinned-table tbody td:first-child { max-width:150px;white-space:normal;overflow-wrap:anywhere; }
+}
+
+</style>
+<style id="report-download-status-style">
+.report-data-state { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;margin-bottom:12px;border:1px solid #cbd8e7;border-radius:8px;background:#eef3fa;color:#274667; }
+.report-data-state strong { font-size:15px;font-weight:600; }
+.report-data-state p,.report-query-state { font-size:13px;line-height:1.65; }
+.report-data-state[data-state="failed"] { background:#fff4f4;border-color:#e4bcbc;color:#8c3333; }
+.report-data-state[data-state="ready"] { background:#f1f7f4;border-color:#cbded4;color:#315c48; }
+#reportDataRetry { flex-shrink:0;padding:9px 14px;background:#174778;color:white;min-height:42px; }
+#reportDataRetry[hidden] { display:none !important; }
+.report-query-state { color:#52657b;margin:0 0 20px; }
+.report-download-summary { margin:18px 0;padding:18px 20px;border:1px solid #cad8e8;border-radius:8px;background:#f7faff; }
+body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10px;font-weight:600; }
+.report-download-total { font-size:20px;font-weight:650;color:#173d68;margin-bottom:12px; }
+.report-download-summary dl { display:grid;grid-template-columns:190px minmax(0,1fr);gap:7px 16px;margin:0 0 14px;font-size:14px;line-height:1.6; }
+.report-download-summary dt { color:#52657b;font-weight:600; }
+.report-download-summary dd { min-width:0;overflow-wrap:anywhere;color:#172b42; }
+.report-download-preview,#reportDownloadState { font-size:13px;line-height:1.65;color:#435a74; }
+#reportDownloadState { margin-top:6px; }
+.report-download-summary[data-state="empty"],.report-download-summary[data-state="invalid"] { background:#fffaf0;border-color:#e3d1a7; }
+@media(max-width:767px) {
+    .report-data-state { flex-direction:column;align-items:stretch;padding:14px; }
+    #reportDataRetry { align-self:flex-start; }
+    .report-download-summary { padding:16px; }
+    .report-download-summary dl { grid-template-columns:1fr;gap:2px; }
+    .report-download-summary dd { margin-bottom:10px; }
+    .report-download-total { font-size:18px; }
+}
+
+</style>
 </head>
 <body class="py-6 md:py-12 px-3 md:px-6 text-left">
 
@@ -1368,6 +1598,10 @@
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
         function reportDownloadReady() {
+            if (window.reportLoadState && window.reportLoadState !== 'ready') {
+                document.getElementById('reportDataState')?.focus();
+                return false;
+            }
             if (!document.getElementById('loadingStatus')?.classList.contains('hidden')) {
                 alert('數據載入中，請稍後再下載。');
                 return false;
@@ -1508,6 +1742,7 @@
             document.getElementById('exportDetailsDownload').disabled = true;
         }
         function applyExportDetailsFilters() {
+            if (!reportDownloadReady()) return false;
             const ranges = [
                 { label: 'Lead Date', start: reportInput('exportLeadStart'), end: reportInput('exportLeadEnd'), index: S1_IDX.LEAD_DATE },
                 { label: 'Offer Date', start: reportInput('exportOfferStart'), end: reportInput('exportOfferEnd'), index: S1_IDX.OFFER_DATE }
@@ -1573,6 +1808,7 @@
             clearExportDetailsResults();
         }
         function downloadExportDetails() {
+            if (!reportDownloadReady()) return;
             if (!exportDetailsFiltersConfirmed || !exportDetailsRows.length) return;
             downloadReportCsv(`Details_${formatDateToISO(new Date())}.csv`, [exportDetailsColumns, ...exportDetailsRows.map(exportDetailsCells)]);
         }
@@ -4106,6 +4342,13 @@
                 return false;
             });
 
+            // Keep the selected Core Team population available to detail filters
+            // and reset, so a previous card's rows cannot reappear here.
+            currentDetailMode = 'CORE';
+            currentDetailKey = `${brandName}___${teamName}___${metric}`;
+            currentSharedDetailBaseRows = rows.slice();
+            resetSharedDetailFilters();
+
             tbody.innerHTML = rows.map(row => `
                 <tr class="hover:bg-blue-50 transition font-bold text-center">
                     <td class="text-left border-r border-blue-50 text-indigo-600 font-black px-3">${row[headersS1[S1_IDX.BRAND]] || '-'}</td>
@@ -4477,6 +4720,7 @@
         }
 
         async function init() {
+            window.reportSetLoadState?.('loading');
             ensurePositionFilterControls();
             // ???Ｙ??嗆???蝥?4 ??????(??5 ??
             const today = new Date();
@@ -4525,6 +4769,7 @@
             document.getElementById('loadingStatus')?.classList.add('hidden');
             document.getElementById('hrPerformanceArea')?.classList.remove('hidden');
             document.getElementById('floorPerformanceArea')?.classList.remove('hidden');
+            window.reportSetLoadState?.('ready');
                 }
             }; // <--- 靽桀儔鈭ㄐ蝻箏仃???
             updateMonthButtons();
@@ -4736,7 +4981,11 @@
                     }
                 });
 
-            } catch (e) { console.error(e); document.getElementById('loadingStatus')?.classList.add('hidden'); }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loadingStatus')?.classList.add('hidden');
+                window.reportSetLoadState?.('failed');
+            }
         }
 
         // --- ?????Ｖ???---
@@ -5236,9 +5485,310 @@
             if(ip) ip.classList.remove('hidden');
         }
 
-        function showNone() { ['statsArea','resultAreaSheet2','inactiveResultArea','resultArea','referralTrackingInfo'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); hideSharedDetail(); }
+        function showNone() { ['statsArea','resultAreaSheet2','inactiveResultArea','resultArea','referralTrackingInfo'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById('sharedDetailArea')?.classList.add('hidden'); }
         window.onload = init;
     </script>
+<script id="report-usability-script">
+(function enhanceReportUsability() {
+    'use strict';
+    const byId = id => document.getElementById(id);
+    const app = document.querySelector('body > .max-w-7xl');
+    if (!app || byId('reportQuickNav')) return;
+    const floorControls = byId('floorPerfBrand')?.closest('div.flex.flex-col.gap-4');
+    if (floorControls) floorControls.id = 'reportFloorControls';
+    const configs = [
+        { id:'onBoardBatchArea', label:'入職批次', fields:['batchSourceFilter'], refresh:()=>{updateMonthButtons();calculateBatchCounts();}, batch:true },
+        { id:'weeklyLeadArea', label:'Lead', fields:['leadStart','leadEnd'], refresh:()=>calculateWeeklyLeads(), position:true, compare:'compareDate' },
+        { id:'weeklyOfferArea', label:'Offer', fields:['offerStart','offerEnd','useObFilter','obOfferStart','obOfferEnd'], refresh:()=>calculateWeeklyOffers(), position:true, compare:'offerCompareDate' },
+        { id:'onboardSummaryArea', label:'On Board', fields:['onboardStart','onboardEnd'], refresh:()=>calculateOnboardSummary(), position:true },
+        { id:'pendingOfferArea', label:'Pending Offer', fields:['pendingStart','pendingEnd'], refresh:()=>calculatePendingOffers(), position:true },
+        { id:'reportBrandSummary', label:'Brand Summary', fields:['reportUpcomingSourceFilter','reportBrandOfferStart','reportBrandOfferEnd'], refresh:()=>renderReportBrandSummary() },
+        { id:'reportFloorControls', label:'Floor Performance', fields:['floorPerfBrand','floorPerfFloor','floorPerfPosition','floorPerfStart','floorPerfEnd'], refresh:()=>updateFloorPerformanceFloorOptions() },
+        { id:'hrPerformanceArea', label:'Core Team', fields:['hrPerfStart','hrPerfEnd','hrDateFilterType','useHrPerfObFilter','hrPerfObStart','hrPerfObEnd','coreTeamFilter'], refresh:()=>setHrDateFilterType(byId('hrDateFilterType').value), position:true },
+        { id:'sharedDetailArea', label:'指標明細', fields:['sharedDetailFilterBrand','sharedDetailFilterFloor','sharedDetailFilterReferrer','sharedDetailFilterOnboardStatus','sharedDetailFilterStatus'], refresh:()=>resetSharedDetailFilters(), detail:true },
+        { id:'resultAreaSheet2', label:'Referral Detail', fields:['referralFilterBrand','referralFilterFloor','referralFilterTherapist','referralStart','referralEnd'], refresh:()=>{resetReferralDetailSelectFilters();rerunCurrentReferralSearch();}, detail:true },
+        { id:'floorPerformanceDetailArea', label:'Floor Details', fields:['floorDetailFilterFloor','floorDetailLeadStart','floorDetailLeadEnd','floorDetailOfferStart','floorDetailOfferEnd','floorDetailFilterStatus'], refresh:()=>resetFloorPerformanceDetailFilters(), detail:true },
+        { id:'downloadDetailsArea', label:'Download Details', fields:['exportLeadStart','exportLeadEnd','exportOfferStart','exportOfferEnd','exportBrand','exportFloor','exportStatus','exportOnboardStatus'], refresh:()=>resetExportDetailsFilters(), download:true }
+    ];
+    const labels = {
+        leadStart:'Lead 由',leadEnd:'Lead 至',offerStart:'Offer 由',offerEnd:'Offer 至',onboardStart:'On Board 由',onboardEnd:'On Board 至',pendingStart:'Offer 由',pendingEnd:'Offer 至',
+        useObFilter:'套用 On Board Date',obOfferStart:'On Board 由',obOfferEnd:'On Board 至',batchSourceFilter:'來源',reportUpcomingSourceFilter:'來源',reportBrandOfferStart:'Offer 由',reportBrandOfferEnd:'Offer 至',
+        floorPerfBrand:'品牌',floorPerfFloor:'樓層',floorPerfPosition:'職位',floorPerfStart:'日期由',floorPerfEnd:'日期至',hrPerfStart:'日期由',hrPerfEnd:'日期至',hrDateFilterType:'日期基準',useHrPerfObFilter:'套用 On Board Date',hrPerfObStart:'On Board 由',hrPerfObEnd:'On Board 至',coreTeamFilter:'Core Team',
+        sharedDetailFilterBrand:'品牌',sharedDetailFilterFloor:'樓層',sharedDetailFilterReferrer:'介紹人／來源',sharedDetailFilterOnboardStatus:'On Board Status',sharedDetailFilterStatus:'Status',
+        referralFilterBrand:'品牌',referralFilterFloor:'樓層',referralFilterTherapist:'介紹人',referralStart:'Lead 由',referralEnd:'Lead 至',
+        floorDetailFilterFloor:'樓層',floorDetailLeadStart:'Lead 由',floorDetailLeadEnd:'Lead 至',floorDetailOfferStart:'Offer 由',floorDetailOfferEnd:'Offer 至',floorDetailFilterStatus:'Status',
+        exportLeadStart:'Lead 由',exportLeadEnd:'Lead 至',exportOfferStart:'Offer 由',exportOfferEnd:'Offer 至',exportBrand:'品牌',exportFloor:'樓層',exportStatus:'Status',exportOnboardStatus:'On Board Status'
+    };
+    const defaults = new Map();
+    let defaultMonths = [], ready = false, queued = false;
+    const nav = document.createElement('nav');
+    nav.id = 'reportQuickNav'; nav.setAttribute('aria-label','頁內快速導航');
+    const navTitle = document.createElement('span'); navTitle.className='report-nav-label';navTitle.textContent='快速前往';nav.append(navTitle);
+    app.firstElementChild.after(nav);
+    const visible = element => {
+        for (let node=element;node&&node!==document.body;node=node.parentElement) if(node.hidden||node.classList.contains('hidden')) return false;
+        return Boolean(element);
+    };
+    function text(id) {
+        const element=byId(id);if(!element)return '';
+        if(element.tagName==='SELECT')return element.selectedOptions[0]?.textContent.trim()||'全部';
+        if(element.type==='checkbox')return element.checked?'開啟':'關閉';
+        return element.value||'不限';
+    }
+    function summary(config) {
+        const parts=[];
+        if(config.batch)parts.push('月份：'+selectedBatchMonths.map(month=>month+'月').join('、'));
+        config.fields.forEach(id=>{
+            if(!byId(id))return;
+            if((id==='obOfferStart'||id==='obOfferEnd')&&!byId('useObFilter').checked)return;
+            if((id==='hrPerfObStart'||id==='hrPerfObEnd')&&!byId('useHrPerfObFilter').checked)return;
+            const basis=id==='hrDateFilterType'?(byId(id).value==='OFFER'?'Offer Date':'Lead Date'):text(id);
+            parts.push((labels[id]||id)+'：'+basis);
+        });
+        if(config.compare)parts.push('Compare Date（共用）：'+(byId(config.compare)?.value||'上一個研究日（不計星期日）'));
+        if(config.position)parts.push('Position（共用）：'+getPositionFilterLabelText());
+        if(config.download){
+            const selected=[...document.querySelectorAll('#exportWithdrawalRejectionReasonMenu input:checked')].map(el=>el.value);
+            parts.push('Withdrawal / Rejection Reason：'+(selected.join('、')||'全部'));
+            parts.push(exportDetailsFiltersConfirmed?'已套用 · '+exportDetailsRows.length+' 筆':'未套用 · 請按 Filter Results');
+        }
+        return parts.join(' · ');
+    }
+    function update() {
+        queued=false;
+        configs.forEach(config=>{
+            const area=byId(config.id),link=byId('report-jump-'+config.id),line=byId('report-summary-'+config.id);
+            if(link)link.hidden=!visible(area);
+            const value=summary(config);if(line&&line.textContent!==value)line.textContent=value;
+        });
+        updateDetails();
+        prepareTables();
+        scheduleHeader();
+    }
+    function queueUpdate(){if(!queued){queued=true;queueMicrotask(update);}}
+    function restore(config) {
+        if(!ready)return;
+        config.fields.forEach(id=>{
+            const el=byId(id),value=defaults.get(id);if(!el||!value)return;
+            if(el.type==='checkbox')el.checked=value.checked;else el.value=value.value;
+        });
+        if(config.batch){selectedBatchMonths=defaultMonths.slice();selectedBatchSource=byId('batchSourceFilter')?.value||'ALL';}
+        // Each section recalculates directly; never call the Lead Date change
+        // handler, which intentionally synchronises several other sections.
+        config.refresh();
+        const status=byId('report-reset-'+config.id);status.textContent='已重設本區';
+        queueUpdate();
+    }
+    configs.forEach(config=>{
+        const area=byId(config.id);if(!area)return;
+        area.classList.add('report-anchor');
+        const link=document.createElement('a');link.href='#'+config.id;link.id='report-jump-'+config.id;link.textContent=config.label;nav.append(link);
+        link.addEventListener('click',()=>{area.tabIndex=-1;area.focus({preventScroll:true});});
+        const bar=document.createElement('div');bar.className='report-section-toolbar';
+        const line=document.createElement('p');line.id='report-summary-'+config.id;line.className='report-filter-summary';
+        const reset=document.createElement('button');reset.type='button';reset.className='report-local-reset';reset.textContent='重設本區';reset.disabled=true;
+        reset.dataset.sectionReset=config.id;reset.setAttribute('aria-label','重設 '+config.label+' 本區條件');
+        reset.title='回復本區初始條件；保留共用 Position 和 Compare Date';reset.addEventListener('click',()=>restore(config));
+        const status=document.createElement('span');status.id='report-reset-'+config.id;status.className='report-reset-status';status.setAttribute('role','status');
+        bar.append(line,reset,status);
+        const heading=area.querySelector('h2,h3');
+        if(heading){let host=heading;while(host.parentElement!==area&&!host.parentElement.contains(byId(config.fields[0])))host=host.parentElement;host.after(bar);}
+        else area.prepend(bar);
+        if(config.position||config.compare){const note=document.createElement('p');note.className='report-shared-note';note.textContent='本區重設保留共用 Position／Compare Date。';bar.append(note);}
+    });
+    function selectionBanner(id,anchor) {
+        let banner=byId(id);if(!banner){banner=document.createElement('p');banner.id=id;banner.className='report-detail-selection';banner.setAttribute('role','status');anchor.after(banner);}return banner;
+    }
+    function updateDetails() {
+        const title=byId('sharedDetailTitle');
+        if(title){const modeNames={LEAD:'Lead',LEAD_HR:'Lead',WEEKLY:'Offer',WEEKLY_HR:'Offer',ONBOARD:'On Board',ONBOARD_HR:'On Board',PENDING:'Pending Offer',PENDING_HR:'Pending Offer',BATCH:'On Board Batch',PIC:'PIC',HR:'Core Team'};
+            const banner=selectionBanner('reportDetailSelection',title);
+            const context=currentDetailMode==='CORE'?title.textContent.trim():modeNames[currentDetailMode]?((currentDetailKey==='HR'?'HR Sources':currentDetailKey.split('___').join(' / '))+' · '+modeNames[currentDetailMode]):title.textContent.trim();
+            const label=context+' · '+currentSharedDetailRows.length+' 筆（篩選後）';
+            if(banner.textContent!==label)banner.textContent=label;
+        }
+        const floorTitle=byId('floorPerformanceDetailTitle');
+        if(floorTitle){const banner=selectionBanner('reportFloorSelection',floorTitle);const value=floorTitle.textContent.trim()+' · '+(byId('floorPerformanceDetailMeta')?.textContent||'');if(banner.textContent!==value)banner.textContent=value;}
+        document.querySelectorAll('.lead-card,.weekly-card,.pending-card,.onboard-card,.batch-card').forEach(card=>{
+            if(!visible(byId('sharedDetailArea'))||currentDetailMode==='CORE')card.classList.remove('active');
+            card.setAttribute('role','button');card.tabIndex=0;card.setAttribute('aria-pressed',String(visible(byId('sharedDetailArea'))&&card.classList.contains('active')));
+            if(!card.dataset.reportKeyboard){card.dataset.reportKeyboard='true';card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();card.click();}});}
+        });
+    }
+    const tableViews=[];
+    function prepareTables() {
+        app.querySelectorAll('table').forEach(table=>{
+            if(!table.tHead||table.dataset.reportTable)return;
+            table.dataset.reportTable='true';table.classList.add('report-pinned-table');
+            let view=table.parentElement;
+            if(!view.classList.contains('overflow-x-auto')&&!view.classList.contains('mobile-table-wrap')){
+                view=document.createElement('div');view.className='overflow-x-auto';table.before(view);view.append(table);
+            }
+            view.classList.add('report-table-viewport');view.tabIndex=0;
+            view.setAttribute('role','region');view.setAttribute('aria-label',(table.closest('[id]')?.querySelector('h2,h3')?.textContent.trim()||'資料表')+'，可左右捲動');
+            tableViews.push({table,view});
+        });
+    }
+    // A single clipped floating copy keeps the header visible during PAGE
+    // scrolling, without introducing nested vertical table scrollers.
+    const floating=document.createElement('div');floating.id='reportFloatingHeader';floating.hidden=true;floating.setAttribute('aria-hidden','true');document.body.append(floating);
+    floating.addEventListener('click',event=>{
+        const cell=event.target.closest('th');if(!cell||!activeTable)return;
+        const index=[...floating.querySelectorAll('th')].indexOf(cell);
+        activeTable.tHead.querySelectorAll('th')[index]?.querySelector('button')?.click();
+    });
+    let frame=null,activeTable=null,headSignature='';
+    function scheduleHeader(){if(frame===null)frame=requestAnimationFrame(drawHeader);}
+    function drawHeader() {
+        frame=null;
+        const top=nav.getBoundingClientRect().bottom;
+        const candidate=tableViews.find(({table,view})=>{const box=view.getBoundingClientRect();return visible(table)&&box.top<top&&box.bottom>top+table.tHead.getBoundingClientRect().height;});
+        if(!candidate){floating.hidden=true;activeTable=null;return;}
+        const {table,view}=candidate,rect=view.getBoundingClientRect();
+        const signature=table.tHead.innerHTML;
+        if(activeTable!==table||headSignature!==signature){
+            const clone=table.cloneNode(false);clone.removeAttribute('id');clone.className='report-pinned-table';clone.append(table.tHead.cloneNode(true));
+            clone.querySelectorAll('[id],[onclick]').forEach(el=>{el.removeAttribute('id');el.removeAttribute('onclick');});clone.querySelectorAll('button,a,input,select').forEach(el=>el.tabIndex=-1);
+            floating.replaceChildren(clone);activeTable=table;headSignature=signature;
+        }
+        const copy=floating.firstElementChild;copy.style.width=table.getBoundingClientRect().width+'px';copy.style.transform='translateX('+-view.scrollLeft+'px)';
+        [...table.tHead.querySelectorAll('th')].forEach((th,i)=>{const cell=copy.tHead.querySelectorAll('th')[i];cell.style.minWidth=cell.style.width=th.getBoundingClientRect().width+'px';});
+        const first=copy.tHead.querySelector('th');if(first)first.style.transform='translateX('+view.scrollLeft+'px)';
+        Object.assign(floating.style,{top:top+'px',left:rect.left+'px',width:view.clientWidth+'px'});floating.hidden=false;
+    }
+    document.addEventListener('scroll',scheduleHeader,{capture:true,passive:true});window.addEventListener('resize',scheduleHeader,{passive:true});
+    document.addEventListener('change',event=>{
+        configs.forEach(config=>{if(config.fields.includes(event.target.id)){const status=byId('report-reset-'+config.id);if(status)status.textContent='';}});
+        queueUpdate();
+    });document.addEventListener('click',queueUpdate);
+    // Existing calculations and exports stay untouched; wrappers only refresh
+    // presentation after their original implementation has finished.
+    ['renderSharedDetailTable','showSharedDetail','showCoreTeamDetail','renderFloorPerformanceDetailRows','showFloorPerformanceDetail','renderExportDetails','resetFilters','calculateWeeklyLeads','calculateWeeklyOffers','calculatePendingOffers','calculateOnboardSummary','calculateHrPerformance','calculateFloorPerformance','renderReportBrandSummary','calculateBatchCounts'].forEach(name=>{
+        const previous=window[name];if(typeof previous!=='function')return;
+        window[name]=function(...args){const result=previous.apply(this,args);queueUpdate();return result;};
+    });
+    const originalInit=init;
+    init=async function(...args){
+        ready=false;await originalInit.apply(this,args);
+        if((window.reportLoadState&&window.reportLoadState!=='ready')||!byId('floorPerformanceBody')?.children.length)return;
+        configs.forEach(config=>config.fields.forEach(id=>{const el=byId(id);if(el)defaults.set(id,{value:el.value,checked:el.checked});}));
+        defaultMonths=selectedBatchMonths.slice();ready=true;
+        document.querySelectorAll('[data-section-reset]').forEach(button=>button.disabled=false);
+        update();
+    };
+    window.onload=init;
+    if(typeof MutationObserver!=='undefined'){
+        const observer=new MutationObserver(queueUpdate);
+        configs.forEach(config=>{const area=byId(config.id);if(area)observer.observe(area,{attributes:true,attributeFilter:['class','hidden']});});
+    }
+    if(typeof IntersectionObserver!=='undefined'){
+        const observer=new IntersectionObserver(entries=>{const active=entries.find(entry=>entry.isIntersecting);if(!active)return;nav.querySelectorAll('a').forEach(link=>{if(link.hash==='#'+active.target.id)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');});},{rootMargin:'-15% 0px -70% 0px'});
+        configs.forEach(config=>{const area=byId(config.id);if(area)observer.observe(area);});
+    }
+    update();
+})();
+
+</script>
+<script id="report-download-status-script">
+(function installReportDownloadStatus() {
+    'use strict';
+    const byId=id=>document.getElementById(id);
+    if(byId('reportDataState'))return;
+    const app=document.querySelector('body > .max-w-7xl');
+    const state=document.createElement('section');state.id='reportDataState';state.className='report-data-state';state.tabIndex=-1;state.setAttribute('aria-label','資料載入狀態');
+    const stateText=document.createElement('div');stateText.setAttribute('role','status');stateText.setAttribute('aria-live','polite');
+    const title=document.createElement('strong'),message=document.createElement('p');stateText.append(title,message);
+    const retry=document.createElement('button');retry.id='reportDataRetry';retry.type='button';retry.textContent='重新載入資料';retry.hidden=true;retry.addEventListener('click',()=>init());state.append(stateText,retry);
+    (byId('reportQuickNav')||app.firstElementChild).after(state);
+    const query=document.createElement('p');query.id='reportSearchState';query.className='report-query-state';query.setAttribute('role','status');state.after(query);
+    const panel=document.createElement('aside');panel.id='reportDownloadSummary';panel.className='report-download-summary';panel.setAttribute('aria-label','下載前摘要');
+    const heading=document.createElement('h3');heading.textContent='下載前摘要';
+    const count=document.createElement('p');count.id='reportDownloadTotal';count.className='report-download-total';count.setAttribute('role','status');
+    const details=document.createElement('dl');details.id='reportDownloadConditions';
+    const preview=document.createElement('p');preview.id='reportDownloadPreviewRange';preview.className='report-download-preview';
+    const downloadState=document.createElement('p');downloadState.id='reportDownloadState';downloadState.setAttribute('role','status');
+    panel.append(heading,count,details,preview,downloadState);
+    byId('exportDetailsDownload').parentElement.before(panel);
+    let applied=null,queried=false,inFlight=null;
+    const value=id=>byId(id)?.value||'';
+    const selected=id=>byId(id)?.selectedOptions?.[0]?.textContent.trim()||'全部';
+    const range=(start,end)=>(value(start)||'不限')+' 至 '+(value(end)||'不限');
+    function conditions(){return [
+        ['Lead Date',range('exportLeadStart','exportLeadEnd')],['Offer Date',range('exportOfferStart','exportOfferEnd')],
+        ['Brand',selected('exportBrand')],['Floor',selected('exportFloor')],['Status',selected('exportStatus')],['On Board Status',selected('exportOnboardStatus')],
+        ['Withdrawal / Rejection Reason',[...document.querySelectorAll('#exportWithdrawalRejectionReasonMenu input:checked')].map(el=>el.value).join('、')||'全部'],
+        ['資料範圍','獨立篩選；包含 HR、Operations 及所有 Position']
+    ];}
+    function showConditions(rows){details.replaceChildren();rows.forEach(([label,text])=>{const term=document.createElement('dt'),definition=document.createElement('dd');term.textContent=label;definition.textContent=text;details.append(term,definition);});}
+    function refreshDownload(){
+        const ready=window.reportLoadState==='ready',confirmed=ready&&exportDetailsFiltersConfirmed&&applied;
+        if(!confirmed){
+            count.textContent='完整下載筆數：尚未計算';preview.textContent='';
+            showConditions(conditions());
+            const invalid=!byId('exportDetailsError').classList.contains('hidden');
+            downloadState.textContent=!ready?(window.reportLoadState==='failed'?'資料載入失敗，請先重試。':'資料載入中，暫時不能查詢或下載。'):invalid?'日期範圍無效，請修正後重新查詢。':'未查詢／條件已變更：請按 Filter Results 更新摘要及名單。';
+            panel.dataset.state=!ready?window.reportLoadState:invalid?'invalid':'unqueried';
+            byId('exportDetailsDownload').disabled=true;return;
+        }
+        const total=exportDetailsRows.length,start=exportDetailsPage*exportDetailsPageSize,end=Math.min(start+exportDetailsPageSize,total);
+        count.textContent='完整下載筆數：'+total.toLocaleString('en-US')+' 筆';showConditions(applied);
+        preview.textContent=total?'目前預覽第 '+(start+1)+'–'+end+' 筆，共 '+total+' 筆；CSV 會下載全部 '+total+' 筆。':'目前沒有可預覽或下載的資料。';
+        downloadState.textContent=total?'已套用上述條件，可下載完整結果。':'沒有符合資料：請放寬日期或篩選條件，再按 Filter Results。';
+        panel.dataset.state=total?'ready':'empty';byId('exportDetailsDownload').disabled=!total;
+    }
+    function refreshQuery(){
+        if(window.reportLoadState!=='ready'){query.textContent=window.reportLoadState==='failed'?'查詢暫停：資料載入失敗，請重新載入。':'資料載入中，請稍後查詢。';return;}
+        query.textContent=queried?(currentReferralDetailRows.length?'Referral Detail：'+currentReferralDetailRows.length+' 筆符合目前查詢。':'沒有符合的 Referral Detail：請檢查 Staff ID、品牌、樓層及日期。'):'未查詢：輸入 Staff ID，或選擇品牌／Centre 後按 Confirm。';
+    }
+    window.reportSetLoadState=function(next){
+        if(!['loading','ready','failed'].includes(next))return;
+        window.reportLoadState=next;state.dataset.state=next;app.setAttribute('aria-busy',String(next==='loading'));
+        retry.hidden=next!=='failed';
+        const copy={loading:['資料載入中','正在同步試算表；完成前暫停查詢及下載。'],ready:['資料已載入','資料同步完成，可查詢及下載。'],failed:['資料載入失敗','無法完成試算表同步。請檢查連線後重試；畫面可能保留上次資料，暫時不能查詢或下載。']}[next];
+        title.textContent=copy[0];message.textContent=copy[1];
+        if(next!=='ready'){applied=null;queried=false;clearExportDetailsResults();}
+        byId('loadingStatus').classList.toggle('hidden',next!=='loading');
+        for(const button of document.querySelectorAll('button[onclick*="download"],button[onclick="applyExportDetailsFilters()"],button[onclick="manualSearch()"],button[onclick="confirmQuickFilter()"]')){
+            if(button.id==='exportDetailsDownload')continue;
+            if(next!=='ready'){if(!button.hasAttribute('data-report-prior-disabled'))button.dataset.reportPriorDisabled=String(button.disabled);button.disabled=true;}
+            else if(button.hasAttribute('data-report-prior-disabled')){button.disabled=button.dataset.reportPriorDisabled==='true';delete button.dataset.reportPriorDisabled;}
+        }
+        refreshDownload();refreshQuery();
+    };
+    function wrap(name,after){const previous=window[name];if(typeof previous!=='function')return;window[name]=function(...args){const result=previous.apply(this,args);after(result,args);return result;};}
+    wrap('clearExportDetailsResults',()=>{applied=null;refreshDownload();});
+    wrap('applyExportDetailsFilters',result=>{if(result===true)applied=conditions();refreshDownload();});
+    wrap('renderExportDetails',refreshDownload);
+    const previousDownload=downloadExportDetails;
+    downloadExportDetails=function(...args){
+        if(!applied||JSON.stringify(applied)!==JSON.stringify(conditions())){clearExportDetailsResults();return;}
+        return previousDownload.apply(this,args);
+    };
+    for(const name of ['executeSearch','runReferralNavigationSearch']){
+        const previous=window[name];window[name]=function(...args){if(window.reportLoadState!=='ready'){refreshQuery();return;}const result=previous.apply(this,args);queried=true;refreshQuery();return result;};
+    }
+    wrap('renderReferralDetailTable',()=>{if(queried)refreshQuery();});
+    wrap('resetFilters',()=>{queried=false;refreshQuery();});
+    for(const name of ['showSharedDetail','showCoreTeamDetail','showFloorPerformanceDetail']){
+        const previous=window[name];window[name]=function(...args){if(window.reportLoadState!=='ready')return;return previous.apply(this,args);};
+    }
+    const previousInit=init;
+    init=function(...args){
+        if(inFlight)return inFlight;
+        inFlight=Promise.resolve().then(()=>previousInit.apply(this,args)).then(()=>{if(window.reportLoadState==='loading')window.reportSetLoadState('failed');}).catch(error=>{console.error(error);window.reportSetLoadState('failed');}).finally(()=>{inFlight=null;});
+        return inFlight;
+    };
+    window.onload=init;
+    // Gate stale exports from every entry point, including keyboard shortcuts
+    // and programmatic calls, while a retry is pending or has failed.
+    for(const name of ['downloadBrandLevel','downloadFloorPerformance','downloadReportBrandSummaryWorkbook']){
+        const previous=window[name];window[name]=function(...args){if(!reportDownloadReady())return;return previous.apply(this,args);};
+    }
+    window.reportSetLoadState('loading');
+})();
+
+</script>
 </body>
 </html>
+
 
