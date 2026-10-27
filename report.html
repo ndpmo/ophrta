@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
         
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
@@ -510,7 +510,432 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
 }
 
 </style>
-</head>
+<style id="report-round2-style">
+#reportCommonControls{padding:16px 18px;margin:16px 0 24px;border:1px solid #cbdbe9;border-radius:10px;background:#f8fbfe;color:#243e5a}#reportCommonControls h2{font-size:16px;font-weight:650;margin:0}.r2-common-title,#r2-common-fields{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r2-common-title{justify-content:space-between;margin-bottom:12px}#r2-common-fields{align-items:end}#reportCommonControls p{font-size:13px;line-height:1.7;margin:10px 0 0;color:#536780}.r2-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#3d5672}.r2-field input{height:40px;min-width:160px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#1e3a56;font-size:14px;font-weight:400}.r2-download-duplicate{display:none!important}.r2-scope-label{font-size:13px;line-height:1.65;color:#526a83;margin:8px 0}.r2-presets{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0 14px}.r2-presets span{font-size:13px;color:#526a83}.r2-presets button,.r2-detail-search button,#r2-common-reset{font-family:inherit;font-size:13px;font-weight:600;min-height:36px;padding:7px 12px;border:1px solid #ccd8e5;border-radius:6px;background:#fff;color:#274968;cursor:pointer}.r2-presets button:hover,.r2-detail-search button:hover,#r2-common-reset:hover{background:#eaf2fa;border-color:#9bb6d0}.r2-presets button:disabled,.r2-detail-search button:disabled{opacity:.5;cursor:not-allowed}.r2-detail-search{display:flex;align-items:end;gap:10px;flex-wrap:wrap;padding:12px 0;margin:12px 0}.r2-detail-search .r2-field{flex:1;min-width:220px;max-width:420px}.r2-detail-search input{width:100%}.r2-detail-search p{width:100%;font-size:13px;color:#3e5a75;margin:2px 0}.r2-search-actions{display:flex;gap:8px;flex-wrap:wrap}.r2-detail-search tbody tr[hidden],tbody tr[hidden]{display:none!important}#r2-download-conditions{font-size:13px;margin-top:10px}#r2-download-conditions summary,.r2-method summary{cursor:pointer;font-weight:600;color:#355775;padding:5px 0}#reportDownloadConditions{margin-top:12px}.r2-method{font-size:13px;line-height:1.7;margin-top:12px;color:#536780}.r2-method p{margin-top:6px}#reportLastSuccessfulLoad{font-size:13px;line-height:1.7;color:#476079;display:block;max-width:540px}#reportDataState{flex-wrap:wrap}#reportDataState time{flex-basis:100%}#r2-common-fields .pos-dropdown-menu{left:0;right:auto;z-index:45}#reportCommonControls [hidden],.r2-detail-search[hidden]{display:none!important}
+@media(max-width:650px){#reportCommonControls{padding:14px 12px}.r2-common-title{align-items:flex-start}#r2-common-fields{align-items:stretch}#r2-common-fields>.r2-field,#r2-common-fields>.position-filter-group{width:100%}.r2-field input{font-size:16px;min-width:0}.r2-detail-search .r2-field{min-width:100%}.r2-search-actions{width:100%}.r2-presets{gap:7px}.r2-presets span{width:100%}.r2-presets button{min-height:40px}}
+
+#r2-preferences{font-size:12px;line-height:1.6;color:#64748b;margin:8px 0 16px}
+
+</style><style id="report-design-style">
+.report-design-v3{--design-ink:#19334e;--design-muted:#5a6f83;--design-accent:#174b72;--design-teal:#087f81;--design-line:#dce4eb;--design-soft:#f7f9fb;--design-success:#147657;--design-danger:#b0354b;background:#f5f7f9;color:var(--design-ink)}
+.report-design-v3 h1.header-glow{font-size:32px;font-weight:650;margin-bottom:14px;letter-spacing:-.025em}.report-design-v3 h1 .font-cyber{font-size:13px;color:var(--design-muted);margin-top:5px}.report-design-v3 h2{font-size:22px!important;font-weight:650!important;letter-spacing:-.015em!important;color:var(--design-ink)!important;border-left-color:var(--design-accent)!important;border-left-width:3px!important}.report-design-v3 h2 .font-cyber{font-size:12px;font-weight:500;color:var(--design-muted)!important;letter-spacing:.025em}.report-design-v3 .cyber-card{background:#fff;border:1px solid var(--design-line)!important;border-radius:9px;box-shadow:none;backdrop-filter:none;transition:background-color .15s,border-color .15s}.report-design-v3 .cyber-card:hover{transform:none;box-shadow:none}.report-design-v3 .report-section-toolbar{background:transparent;border:0;border-left:2px solid var(--design-line);border-radius:0;padding:6px 12px;margin:10px 0 12px}.report-design-v3 .report-filter-summary{font-weight:400}.report-design-v3 .report-shared-note{font-size:12px;color:#6b7d8e}.report-design-v3 .report-local-reset{font-size:12px;font-weight:500;min-height:34px;padding:6px 10px;border-color:var(--design-line)}.report-design-v3 .r2-scope-label{font-size:12px;color:var(--design-muted)}.report-design-v3 .date-selector-input{height:40px;font-size:14px;font-weight:400;border:1px solid #cad6e1;box-shadow:none}.report-design-v3 #reportCommonControls{border-color:var(--design-line);background:#fff;box-shadow:none}.report-design-v3 #reportCommonControls h2{font-size:15px!important;border:0!important}.report-design-v3 #reportDataState{padding:12px 16px;border-radius:8px;box-shadow:none}.report-design-v3 #reportDataState strong{font-size:14px;font-weight:600}.report-design-v3 #reportDataState p,.report-design-v3 #reportLastSuccessfulLoad{font-size:12px}
+#reportLookupTools{margin:16px 0 24px;border:1px solid var(--design-line);border-radius:9px;background:#fff}#reportLookupTools>summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;font-size:14px;font-weight:600;color:var(--design-ink);cursor:pointer;list-style:none}#reportLookupTools>summary::before{content:'›';font-size:20px;font-weight:400;line-height:1;transition:transform .15s}#reportLookupTools[open]>summary::before{transform:rotate(90deg)}#reportLookupTools>summary::-webkit-details-marker{display:none}.d3-query-hint{font-size:12px;font-weight:400;color:var(--design-muted)}#reportLookupTools #reportSearchState{font-size:13px;margin:0 16px 10px}.report-design-v3 .d3-lookup-grid{display:grid!important;grid-template-columns:minmax(230px,.8fr) minmax(0,1.6fr);gap:16px;margin:0;padding:0 16px 16px}.report-design-v3 .d3-lookup-grid>.cyber-card{border:0!important;background:var(--design-soft);padding:14px;border-radius:7px}.report-design-v3 .d3-lookup-grid h3{font-size:12px;letter-spacing:0;font-weight:600;color:var(--design-muted);margin-bottom:10px}.d3-lookup-grid h3>.font-cyber{display:none}.d3-lookup-grid input,.d3-lookup-grid select{font-size:14px;font-weight:400;border:1px solid #cad6e1;border-radius:6px;min-height:40px;padding:8px 10px}.d3-lookup-grid button{min-height:38px;padding:8px 12px;font-size:13px;font-weight:600;border-radius:6px;box-shadow:none}.d3-lookup-grid .d3-manual-query input{margin-bottom:8px}.d3-lookup-grid .d3-manual-query button{width:100%}.d3-brand-query>div:last-child{margin-top:10px}
+.report-design-v3 #reportQuickNav{align-items:stretch;gap:18px;padding:10px 0;margin-bottom:18px;background:#f5f7f9;border-bottom:1px solid var(--design-line)}.d3-nav-group{flex:0 0 auto;min-width:0}.d3-nav-group+.d3-nav-group{border-left:1px solid var(--design-line);padding-left:18px}.d3-nav-heading{display:block;font-size:11px;color:#667c90;font-weight:600;line-height:1.4;margin:0 0 4px 9px;letter-spacing:.03em}.d3-nav-links{display:flex;align-items:center;gap:3px}.report-design-v3 #reportQuickNav a{font-size:13px;padding:6px 9px;border:0;border-radius:5px;font-weight:500}.report-design-v3 #reportQuickNav a:hover,.report-design-v3 #reportQuickNav a[aria-current]{color:#124465;background:#e5eef5;box-shadow:inset 0 -2px var(--design-teal)}#reportQuickNav .d3-nav-group[hidden]{display:none!important}
+.report-design-v3 .d3-metric-card{padding:18px!important;display:flex;flex-direction:column;gap:0;min-height:192px;cursor:pointer}.report-design-v3 .d3-card-type{font-size:11px!important;font-weight:500!important;letter-spacing:.03em;color:var(--design-muted)!important;line-height:1.5;margin:0 0 5px!important}.report-design-v3 .d3-card-brand{font-size:16px!important;font-weight:600!important;line-height:1.5;color:var(--design-ink)!important;margin:0 0 8px!important}.report-design-v3 .d3-metric-total{display:block;text-align:left;font-size:32px!important;font-weight:650!important;line-height:1.25;color:var(--design-accent)!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;margin:0 0 14px!important;white-space:normal;letter-spacing:-.015em}.report-design-v3 .d3-metric-total .count-delta{font-size:13px!important;font-weight:500;line-height:1.5;margin-left:7px;letter-spacing:0}.report-design-v3 .d3-breakdown{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;justify-content:flex-start!important;gap:6px 12px;padding-top:10px;border-top:1px solid #edf1f5;margin-top:auto}.report-design-v3 .d3-breakdown>span{font-size:12px!important;font-weight:500!important;line-height:1.5;color:var(--design-muted)!important}.d3-hr-breakdown{font-size:12px;color:var(--design-muted);border-top:1px solid #edf1f5;margin-top:auto;padding-top:7px}.d3-hr-breakdown summary{font-size:12px;cursor:pointer;padding:4px 0;min-height:28px;font-weight:500;color:var(--design-teal)}.d3-hr-breakdown>div{font-size:12px;font-weight:400;letter-spacing:0;margin-top:8px}.report-design-v3 .d3-hr-breakdown span:not(.count-delta){color:var(--design-muted)!important;font-size:12px;font-weight:500}.report-design-v3 .count-delta.positive{color:var(--design-success)!important}.report-design-v3 .count-delta.negative{color:var(--design-danger)!important}.report-design-v3 .count-delta.neutral{color:#718295!important}.report-design-v3 .lead-card[aria-pressed="true"],.report-design-v3 .weekly-card[aria-pressed="true"],.report-design-v3 .pending-card[aria-pressed="true"],.report-design-v3 .onboard-card[aria-pressed="true"],.report-design-v3 .batch-card[aria-pressed="true"]{box-shadow:inset 0 3px 0 var(--design-teal)!important;background:#f2f8fa;border-color:#a5c4ce!important}.report-design-v3 .batch-card{border-color:var(--design-line)!important}.report-design-v3 .batch-card .font-black{font-weight:600}.report-design-v3 .report-detail-selection{font-size:14px;border-left-color:var(--design-teal);background:#f0f6f8}
+.report-design-v3 table.d3-data-table{font-variant-numeric:tabular-nums}.report-design-v3 table.d3-data-table th{font-size:12px!important;font-weight:600!important;text-transform:none;letter-spacing:0;line-height:1.5;color:#3c526a!important;background:#edf2f6!important;padding:12px 12px!important;border-color:var(--design-line)!important}.report-design-v3 table.d3-data-table td{font-size:14px!important;font-weight:400!important;line-height:1.6;padding:12px 12px!important;border-color:#e6edf2!important}.report-design-v3 table.d3-data-table td button{font:inherit;font-weight:500!important;color:var(--design-accent)}.report-design-v3 table.d3-data-table tbody tr:nth-child(even){background:#fafbfd}.report-design-v3 table.d3-data-table tbody tr:hover{background:#f0f6f9}.report-design-v3 table.d3-data-table .d3-total-row td,.report-design-v3 table.d3-data-table tfoot td{font-weight:600!important;background:#eaf2f5!important;color:#23415d;border-top:2px solid #c3d5df!important}.report-design-v3 table.d3-data-table td:not(:first-child){font-variant-numeric:tabular-nums}.report-design-v3 #reportFloatingHeader th{font-size:12px!important;font-weight:600!important;color:#3c526a;background:#edf2f6;padding:12px!important}.report-design-v3 :is(button,a,input,select,summary):focus-visible{outline:3px solid #1686a4;outline-offset:3px}.report-design-v3 button:disabled{opacity:.5}
+@media(max-width:1000px){.report-design-v3 .d3-lookup-grid{grid-template-columns:1fr!important}.d3-lookup-grid .d3-manual-query{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.d3-manual-query h3{grid-column:1/-1;margin:0}.d3-lookup-grid .d3-manual-query input{margin:0}.d3-lookup-grid .d3-manual-query button{width:auto}}
+@media(max-width:650px){.report-design-v3 h1.header-glow{font-size:28px}.report-design-v3 h2{font-size:20px!important}.report-design-v3 #reportQuickNav{gap:12px}.d3-nav-group+.d3-nav-group{padding-left:12px}.report-design-v3 #reportQuickNav a{font-size:12px;padding:7px 8px}.d3-query-hint{width:100%;padding-left:21px}#reportLookupTools>summary{padding:12px}.report-design-v3 .d3-lookup-grid{padding:0 12px 12px;gap:10px}.d3-lookup-grid input,.d3-lookup-grid select{font-size:16px}.report-design-v3 .d3-metric-card{padding:14px!important;min-height:180px}.report-design-v3 .d3-metric-total{font-size:28px!important}.report-design-v3 .d3-card-brand{font-size:15px!important}.report-design-v3 .d3-breakdown{gap:5px 8px}.report-design-v3 table.d3-data-table td{font-size:13px!important;padding:10px!important}}
+@media(prefers-reduced-motion:reduce){#reportLookupTools>summary::before,.report-design-v3 .cyber-card{transition:none}}
+
+/* Final sizing pass: less empty space, a readable type scale, consistent controls. */
+.report-design-v3{font-size:14px;line-height:1.6;padding:24px 28px}
+.report-design-v3 h1.header-glow{font-size:30px;line-height:1.2;margin-bottom:12px}
+.report-design-v3 h2{font-size:21px!important;line-height:1.35}
+.report-design-v3 h2 .font-cyber{font-size:11px;letter-spacing:.02em}
+.report-design-v3> .max-w-7xl>div:first-child{padding-bottom:18px;margin-bottom:16px;gap:18px}
+.report-design-v3> .max-w-7xl>div:first-child a{min-height:36px;font-size:13px;padding:7px 12px}
+.report-design-v3 #reportQuickNav{padding:8px 0;margin-bottom:14px;gap:14px}
+.d3-nav-group+.d3-nav-group{padding-left:14px}.d3-nav-heading{font-size:11px;line-height:1.4;margin-bottom:3px}
+.report-design-v3 #reportQuickNav a{font-size:13px;line-height:1.45;padding:6px 8px}
+.report-design-v3 #reportDataState{padding:10px 14px;gap:8px;margin:12px 0}
+.report-design-v3 #reportDataState strong{font-size:13px}.report-design-v3 #reportCommonControls{padding:14px 16px;margin:12px 0 18px}
+.report-design-v3 #reportCommonControls p{font-size:12px;line-height:1.65;margin-top:8px}
+.report-design-v3 .r2-common-title{margin-bottom:10px}.report-design-v3 .r2-field{font-size:12px;gap:5px}
+.report-design-v3 .r2-field input,.report-design-v3 .date-selector-input{height:38px;font-size:14px;border-radius:6px}
+.report-design-v3 .r2-presets{margin:8px 0 12px;gap:7px}.report-design-v3 .r2-presets button{min-height:32px;padding:5px 11px;font-size:12px}
+.report-design-v3 .r2-presets span,.report-design-v3 .report-filter-summary{font-size:12px!important;line-height:1.65}
+.report-design-v3 .report-section-toolbar{padding:5px 10px;margin:8px 0 10px;gap:8px 12px}
+.report-design-v3 #reportLookupTools{margin:12px 0 22px}.report-design-v3 #reportLookupTools>summary{padding:12px 14px;font-size:13px}
+.report-design-v3 .d3-lookup-grid{gap:12px;padding:0 14px 14px}.report-design-v3 .d3-lookup-grid>.cyber-card{padding:12px}
+.report-design-v3 .d3-metric-card{padding:16px!important;min-height:168px;border-radius:8px}
+.report-design-v3 .d3-card-type{font-size:12px!important;line-height:1.4;letter-spacing:0;margin-bottom:4px!important}
+.report-design-v3 .d3-card-brand{font-size:15px!important;font-weight:600!important;line-height:1.4;margin-bottom:6px!important}
+.report-design-v3 .d3-metric-total{font-size:30px!important;line-height:1.2;margin-bottom:12px!important;letter-spacing:-.02em}
+.report-design-v3 .d3-metric-total .count-delta{font-size:12px!important;margin-left:6px;font-weight:500}
+.report-design-v3 .d3-breakdown{gap:4px 10px;padding-top:8px}.report-design-v3 .d3-breakdown>span{font-size:12px!important;line-height:1.5}
+.report-design-v3 .d3-hr-breakdown{padding-top:5px}.report-design-v3 .d3-hr-breakdown summary{min-height:26px;font-size:12px;padding:3px 0}
+.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid,.report-design-v3 #batchContainer{gap:16px}
+.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#onBoardBatchArea){margin-bottom:28px}
+.report-design-v3 table.d3-data-table th,.report-design-v3 #reportFloatingHeader th{font-size:13px!important;padding:11px 12px!important;line-height:1.4}
+.report-design-v3 table.d3-data-table td{font-size:14px!important;padding:11px 12px!important;line-height:1.5}
+.report-design-v3 table.d3-data-table .d3-total-row td{padding-top:12px!important;padding-bottom:12px!important}
+.report-design-v3 .r2-detail-search{margin:8px 0;padding:10px 0;gap:8px}.report-design-v3 .r2-detail-search button,.report-design-v3 #r2-common-reset{min-height:34px;font-size:12px;padding:6px 11px}
+.report-design-v3 .r2-detail-search .r2-field{max-width:380px}.report-design-v3 #reportDownloadSummary{padding:16px;border-radius:8px}.report-design-v3 #reportDownloadTotal{font-size:18px;line-height:1.4;font-weight:600}.report-design-v3 #reportDownloadSummary h3{font-size:13px;font-weight:600}
+@media(min-width:651px) and (max-width:1100px){.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid,.report-design-v3 #batchContainer{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:650px){.report-design-v3{padding:18px 14px}.report-design-v3 h1.header-glow{font-size:27px}.report-design-v3 h2{font-size:19px!important}.report-design-v3> .max-w-7xl>div:first-child a{min-height:38px}.report-design-v3 #reportCommonControls{padding:12px}.report-design-v3 #reportLookupTools>summary{padding:12px}.report-design-v3 .r2-field input,.report-design-v3 .date-selector-input{font-size:16px;height:42px}.report-design-v3 .r2-presets button,.report-design-v3 .r2-detail-search button{min-height:38px}.report-design-v3 .d3-metric-card{min-height:158px;padding:14px!important}.report-design-v3 .d3-metric-total{font-size:28px!important}.report-design-v3 .d3-card-type{font-size:11px!important}.report-design-v3 .d3-breakdown{gap:4px 8px}.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{gap:12px}.report-design-v3 table.d3-data-table td{font-size:13px!important;padding:10px!important}.report-design-v3 table.d3-data-table th{font-size:12px!important;padding:10px!important}}
+@media(min-width:380px) and (max-width:650px){.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* Section filters and numeric hierarchy; preserve the original control order and scope. */
+.report-design-v3 .d4-filter-row{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;min-width:0}
+.report-design-v3 .d4-filter-row>h2{flex:0 0 100%;margin-bottom:4px}
+.report-design-v3 .d4-filter-field{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:40px;min-width:0;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0}
+.report-design-v3 .d4-filter-field .filter-label{font-size:12px;font-weight:500;color:var(--design-muted);margin-left:0;white-space:nowrap}
+.report-design-v3 .d4-filter-field :is(input[type="date"],select),.report-design-v3 :is(#reportBrandSummary,#downloadDetailsArea) :is(input[type="date"],select){height:40px;min-height:40px;box-sizing:border-box;border:1px solid #cad6e1;border-radius:6px;padding:8px 10px;font-family:inherit;font-size:14px;font-weight:400;line-height:1.4;color:var(--design-ink);background:#fff}
+.report-design-v3 .d4-filter-field input[type="date"]{width:148px;min-width:0;max-width:100%}
+.report-design-v3 .d4-filter-field .mobile-inline-date-range{display:flex;align-items:center;gap:8px;min-width:0}
+.report-design-v3 .d4-position-field{min-width:180px;max-width:100%}
+.report-design-v3 .d4-position-field>button,.report-design-v3 .d4-filter-field button{height:40px;min-height:40px;box-sizing:border-box;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:500;box-shadow:none}
+.report-design-v3 .d4-position-field>button{width:100%;border:1px solid #cad6e1;background:#fff}
+.report-design-v3 .d4-position-field .posDropdownLabel{font-size:13px;font-weight:500}
+.report-design-v3 .d4-filter-field .checkbox-container{min-height:40px;display:inline-flex;align-items:center;margin-left:0}
+.report-design-v3 .d4-filter-field input[type="checkbox"]{width:16px;height:16px;flex-shrink:0}
+.report-design-v3 .d3-metric-total{font-size:34px!important;line-height:1.2;font-variant-numeric:tabular-nums;margin-bottom:16px!important}
+.report-design-v3 .d3-breakdown{gap:8px 16px;padding-top:12px}
+.report-design-v3 .d3-breakdown>span{font-size:14px!important;font-weight:500!important;line-height:1.6;font-variant-numeric:tabular-nums}
+.report-design-v3 .d3-metric-card .count-delta{display:inline-block;vertical-align:middle;font-size:11px!important;font-weight:500;line-height:1.5;white-space:nowrap;letter-spacing:0}
+.report-design-v3 .d3-metric-total .count-delta{padding:2px 6px;border:1px solid currentColor;border-radius:4px;margin-left:8px}
+.report-design-v3 .d3-hr-breakdown span:not(.count-delta){font-size:13px;font-variant-numeric:tabular-nums}
+@media(max-width:650px){
+ .report-design-v3 .d4-filter-row{align-items:stretch;gap:12px;margin-bottom:12px}
+ .report-design-v3 .d4-filter-field,.report-design-v3 .d4-position-field{width:100%;min-width:0}
+ .report-design-v3 .d4-filter-field>.filter-label,.report-design-v3 .d4-filter-field>.checkbox-container{flex-basis:100%}
+ .report-design-v3 .d4-filter-field .mobile-inline-date-range{width:100%}
+ .report-design-v3 .d4-date-pair{display:flex}
+ .report-design-v3 .d4-date-pair>input[type="date"],.report-design-v3 .d4-filter-field .mobile-inline-date-range>input[type="date"]{flex:1 1 0;width:0;min-width:0}
+ .report-design-v3 .d4-filter-field :is(input[type="date"],select),.report-design-v3 :is(#reportBrandSummary,#downloadDetailsArea) :is(input[type="date"],select){height:44px;min-height:44px;font-size:16px}
+ .report-design-v3 .d4-filter-field>select,.report-design-v3 .d4-filter-field:not(.d4-date-pair)>input[type="date"]{width:100%}
+ .report-design-v3 .d4-position-field>button,.report-design-v3 .d4-filter-field button{height:44px;min-height:44px}
+ .report-design-v3 .d3-metric-total{font-size:30px!important}
+ .report-design-v3 .d3-breakdown{gap:6px 12px}.report-design-v3 .d3-breakdown>span{font-size:13px!important}
+}
+
+</style><style id="report-efficiency-style">
+/* Compact operational layout; wide tables own their horizontal scrolling. */
+.report-design-v3 > .max-w-7xl{width:100%;min-width:0;max-width:1440px}
+.report-design-v3 .e5-header{display:flex!important;flex-direction:row!important;align-items:center!important;gap:16px!important;padding-bottom:12px!important;margin-bottom:8px!important}
+.e5-header>div:first-child{min-width:0;flex:1}.report-design-v3 .e5-header h1{font-size:26px;margin:0!important}.e5-header h1 .font-cyber{display:inline!important;margin-left:10px!important;font-size:12px!important}
+.report-design-v3 .e5-header>div:last-child{width:auto!important;flex-shrink:0;padding:10px 12px!important;font-size:12px!important;min-height:40px}
+.e5-related{position:relative;margin-top:8px;width:fit-content;font-size:12px}.e5-related>summary{cursor:pointer;color:var(--design-accent);padding:3px 0}.e5-related>div{position:absolute;z-index:60;top:100%;left:0;display:grid;gap:6px;background:#fff;border:1px solid var(--design-line);padding:10px;border-radius:8px;min-width:205px;box-shadow:0 8px 20px #19334e14}.e5-related a{white-space:nowrap}
+.report-design-v3 #reportQuickNav{margin-bottom:8px;max-width:100%;min-width:0}
+.report-design-v3 #reportDataState[data-state=ready]{border:0;background:transparent;padding:3px 0;margin:0 0 10px;gap:8px;align-items:center;justify-content:flex-start}
+#reportDataState[data-state=ready]>div>p{display:none}#reportDataState[data-state=ready]>div>strong{font-size:12px;color:#147657}#reportDataState[data-state=ready] time{flex-basis:auto;font-size:11px;max-width:none}#reportDataState[data-state=ready]>div{flex:none}
+#reportLookupTools{margin:10px 0 18px!important}#r2-preferences{display:none}
+.e5-overview{margin:16px 0 24px;scroll-margin-top:90px}.e5-titlebar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}.e5-titlebar h2{padding-left:12px;border-left:3px solid var(--design-accent)}.e5-titlebar button{font-size:12px!important;min-height:38px;padding:8px 12px!important;border-radius:6px!important}
+.e5-overview-note{font-size:12px;color:var(--design-muted);margin:7px 0;line-height:1.6}.e5-overview .report-table-viewport{border:1px solid var(--design-line);border-radius:8px;background:#fff;max-width:100%;overflow-x:auto;min-width:0}.e5-overview table{width:100%;min-width:650px;border-collapse:collapse}.e5-overview th:first-child{width:22%}.e5-overview th:not(:first-child),.e5-overview td:not(:first-child){text-align:right}.e5-overview th small{display:block;font-size:11px;font-weight:400;color:var(--design-muted);white-space:normal}.e5-overview td button{display:inline-flex;flex-direction:column;align-items:flex-end;gap:4px;min-height:44px;min-width:72px;padding:3px 5px;cursor:pointer}.e5-overview .e5-value{font-size:22px;line-height:1.3;font-weight:600}.e5-overview .count-delta{font-size:11px!important;border:0!important;padding:0!important;margin:0!important;line-height:1.5}.e5-overview .e5-source-row th{background:#f7f9fb!important;font-size:11px!important;text-align:left;color:var(--design-muted)!important;padding:7px 12px!important}.e5-overview td:first-child{font-weight:600!important}.e5-overview #e5-overview-position{margin-top:10px}
+.report-design-v3 .d3-metric-total .count-delta{display:block;border:0;padding:0;margin:6px 0 0;font-size:12px!important;font-weight:400}.report-design-v3 .d3-metric-card{min-width:0}.report-design-v3 .d3-breakdown{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.report-design-v3 .d3-breakdown>span{white-space:nowrap;font-size:13px!important}.report-design-v3 .d3-breakdown .count-delta{display:block;white-space:normal}
+.e5-filter-help{font-size:12px;color:var(--design-muted);flex-basis:100%;line-height:1.7}.e5-filter-help summary{cursor:pointer;width:fit-content;color:var(--design-accent)}.e5-filter-help p{margin:5px 0!important;font-size:12px!important}.report-design-v3 .report-section-toolbar{align-items:center;gap:6px 12px;padding-top:2px;padding-bottom:2px}.report-design-v3 .report-filter-summary{flex:1 1 500px}.e5-filter-help .report-shared-note{display:block}.e5-sync-notice{font-size:12px;padding:8px 10px;background:#e9f3f5;border-left:3px solid var(--design-teal);margin:8px 0}.e5-sync-notice[hidden]{display:none}
+#batchContainer.e5-empty{display:block!important}#batchContainer.e5-empty>div{padding:12px 16px!important;font-size:12px!important;text-align:left!important;font-style:normal!important;border:0!important;background:transparent!important;color:var(--design-muted)!important}#onBoardBatchArea:has(#batchContainer.e5-empty){margin-bottom:18px!important}
+.report-design-v3 .e5-filter-help[open]{padding-bottom:4px}.report-design-v3 .report-reset-status:empty{display:none}
+@media(max-width:767px){
+ .report-design-v3 .e5-header{align-items:flex-start!important;gap:8px!important}.report-design-v3 .e5-header h1{font-size:21px!important;line-height:1.3}.e5-header h1 .font-cyber{display:block!important;margin:3px 0 0!important}.report-design-v3 .e5-header>div:last-child{padding:8px!important;font-size:11px!important;gap:6px;min-width:0}.e5-header>div:last-child svg{width:16px;height:16px}
+ .report-design-v3 #reportQuickNav{width:100%;overflow-x:auto}.report-design-v3 #reportDataState{width:100%;min-width:0}.report-design-v3 #reportDataState[data-state=ready]{gap:3px 8px}.report-design-v3 #reportDataState time{overflow-wrap:anywhere;flex-basis:100%;font-size:11px}
+ .report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#onBoardBatchArea,#reportBrandSummary,#reportFloorControls,#hrPerformanceArea,#downloadDetailsArea,#sharedDetailArea,#resultAreaSheet2,#floorPerformanceDetailArea){min-width:0;max-width:100%}
+ .report-design-v3 .d4-filter-row{min-width:0;max-width:100%}.report-design-v3 .d4-filter-row>div{min-width:0;max-width:100%}.report-design-v3 .d4-filter-field{flex-wrap:wrap;max-width:100%}.report-design-v3 .r2-detail-search .r2-field{min-width:0;width:100%}.report-design-v3 input,.report-design-v3 select{max-width:100%;box-sizing:border-box}.report-design-v3 .report-table-viewport{width:100%;min-width:0;max-width:100%;overflow-x:auto}.report-design-v3 .report-filter-summary{flex-basis:100%}.e5-titlebar{align-items:flex-start}.e5-titlebar h2{font-size:19px!important}.e5-titlebar button{font-size:11px!important}.e5-overview{margin-top:12px}.e5-overview .e5-value{font-size:20px}.e5-overview-note{font-size:11px}.report-design-v3 .d3-breakdown{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.report-design-v3 .d3-breakdown>span{font-size:12px!important}
+ .report-design-v3 :is(#downloadDetailsArea,#sharedDetailArea,#floorPerformanceDetailArea,#resultAreaSheet2) .flex{min-width:0}.report-design-v3 :is(#downloadDetailsArea,#sharedDetailArea,#floorPerformanceDetailArea,#resultAreaSheet2) label{min-width:0;max-width:100%}.report-design-v3 .mobile-inline-date-range{min-width:0;max-width:100%}
+}
+@media(max-width:767px){
+ .report-design-v3 .d4-filter-field{flex-direction:row!important;align-items:center!important;flex-wrap:wrap!important;height:auto}
+ .report-design-v3 .d4-filter-field>.filter-label,.report-design-v3 .d4-filter-field>.checkbox-container{flex:0 0 100%}
+ .report-design-v3 .d4-filter-field>input[type=date]{flex:1 1 100%;width:100%;height:44px}
+ .report-design-v3 .d4-filter-field>.mobile-inline-date-range{flex:0 1 100%;width:100%;flex-wrap:nowrap}
+ .report-design-v3 .d4-filter-field>.mobile-inline-date-range>input[type=date]{flex:1 1 0;width:0;min-width:0}
+ .report-design-v3 .d3-hr-breakdown>.grid{grid-template-columns:1fr}.report-design-v3 .d3-hr-breakdown .count-delta{display:block;white-space:normal;font-size:10px!important}.report-design-v3 .d3-hr-breakdown>div>div{align-items:flex-start}
+}
+
+</style><style id="report-branding-style">
+/* Brand identity is separate from metric status. */
+body.report-design-v3{--design-ink:#25292f;--design-muted:#626973;--design-accent:#30363d;--design-teal:#526170;--design-line:#e1e4e8;--design-soft:#f7f8fa;--report-ink:#25292f;--report-muted:#626973;--report-accent:#30363d;background:#f7f8fa;color:#25292f;font-family:'Segoe UI','Noto Sans TC',sans-serif;font-size:14px;line-height:1.6}
+body.report-design-v3 :is(button,input,select,textarea,.font-cyber,.readable-nums,table){font-family:'Segoe UI','Noto Sans TC',sans-serif!important;letter-spacing:0}
+body.report-design-v3 .font-cyber{font-weight:500!important;text-transform:none!important}
+body.report-design-v3 .e5-header h1{font-size:28px!important;font-weight:600!important;color:#25292f!important;letter-spacing:-.025em}
+body.report-design-v3 h2{font-size:20px!important;font-weight:600!important;letter-spacing:0!important;color:#25292f!important;line-height:1.4}
+body.report-design-v3 h2 .font-cyber{font-size:12px!important;color:#626973!important}
+body.report-design-v3 #reportQuickNav{background:#f7f8fa;padding:9px 0;gap:18px}body.report-design-v3 #reportQuickNav a{font-size:13px;color:#404750;padding:7px 9px}body.report-design-v3 #reportQuickNav a[aria-current]{background:#e9ecef;color:#25292f;box-shadow:inset 0 -2px #5b6570}.d3-nav-heading{color:#6b727b!important;letter-spacing:0!important}
+body.report-design-v3 :is(.date-selector-input,.r2-field input){border-color:#ccd1d7!important;color:#30363d!important;background:#fff;font-size:14px!important;height:40px;border-radius:6px!important}
+body.report-design-v3 :is(.r2-presets button,.report-local-reset,.r2-detail-search button,.e5-related a){background:#fff!important;border-color:#ccd1d7!important;color:#404750!important;border-radius:6px!important;box-shadow:none!important;font-weight:500!important}
+body.report-design-v3 button:is([onclick*='download'],#exportDetailsDownload),body.report-design-v3 .r2-search-actions [data-all],body.report-design-v3 #r2-export-matched,body.report-design-v3 button[onclick='applyExportDetailsFilters()']{background:#30363d!important;color:#fff!important;border:1px solid #30363d!important;box-shadow:none!important;border-radius:6px!important;font-weight:600!important}
+body.report-design-v3 button:hover:not(:disabled){filter:brightness(.96)}
+body.report-design-v3 :is(#reportDataState p,#reportLastSuccessfulLoad,.report-filter-summary,.r2-scope-label,.filter-label,.e5-overview-note,.e5-filter-help){color:#626973!important;font-size:12px!important;line-height:1.65}
+body.report-design-v3 #reportLookupTools{border-color:#e1e4e8}body.report-design-v3 #reportLookupTools>summary{color:#404750;font-size:13px;padding:11px 14px}
+body.report-design-v3 .e5-titlebar{margin-bottom:12px;gap:12px}body.report-design-v3 .e5-overview{margin:20px 0 28px}body.report-design-v3 .e5-overview-note{margin:8px 0}
+body.report-design-v3 .e5-overview table th:first-child{width:19%}body.report-design-v3 .e5-overview td{padding:9px 14px!important}body.report-design-v3 .e5-overview td button{gap:3px;padding:2px 4px;min-height:46px}body.report-design-v3 .e5-overview .e5-value{font-size:24px;font-weight:600;color:#25292f}
+body.report-design-v3 table.d3-data-table th{background:#eff1f3!important;color:#505862!important;font-size:13px!important;font-weight:600!important;padding:11px 14px!important;border-color:#e1e4e8!important;text-transform:none!important;letter-spacing:0!important}
+body.report-design-v3 table.d3-data-table td{color:#30363d!important;font-size:14px!important;padding:11px 14px!important;border-color:#e8ebee!important}
+body.report-design-v3 table.d3-data-table td button{color:#30363d!important}body.report-design-v3 table.d3-data-table tbody tr:nth-child(even){background:#fcfcfd}body.report-design-v3 table.d3-data-table tbody tr:hover{background:#f3f4f6}
+body.report-design-v3 table.d3-data-table .d3-total-row td{background:#eef0f2!important;color:#25292f!important;border-top-color:#cbd1d7!important}
+body.report-design-v3 .e5-overview .e5-source-row th{background:#f6f7f8!important;color:#626973!important;font-size:11px!important;padding:6px 14px!important}
+body.report-design-v3 [data-brand='DERMES']{--brand-accent:#f56345;--brand-soft:#fff1eb;--brand-ink:#a43d26}
+body.report-design-v3 [data-brand='REENEX']{--brand-accent:#b72059;--brand-soft:#fff0f5;--brand-ink:#9d194b}
+body.report-design-v3 [data-brand='ELYZE']{--brand-accent:#8ac640;--brand-soft:#f2f8e9;--brand-ink:#426b20}
+body.report-design-v3 [data-brand='HR']{--brand-accent:#8092a5;--brand-soft:#f0f3f7;--brand-ink:#4d6278}
+body.report-design-v3 tr[data-brand]>:first-child{background:var(--brand-soft)!important;color:var(--brand-ink)!important;border-left:3px solid var(--brand-accent)!important;font-weight:600!important}
+body.report-design-v3 .d3-metric-card[data-brand]{background:#fff!important;border:1px solid #e1e4e8!important;border-top:3px solid var(--brand-accent)!important;border-radius:8px;padding:17px 18px 15px!important;min-height:186px;gap:0}
+body.report-design-v3 .d3-metric-card[data-brand] .d3-card-brand{background:var(--brand-soft);color:var(--brand-ink)!important;font-size:14px!important;font-weight:600!important;padding:3px 9px;border-radius:4px;align-self:flex-start;margin-bottom:12px!important;letter-spacing:.015em}
+body.report-design-v3 .d3-card-type{font-size:12px!important;font-weight:400!important;color:#626973!important;line-height:1.4;margin-bottom:8px!important;letter-spacing:0!important;text-transform:none!important}
+body.report-design-v3 .d3-metric-total{color:#25292f!important;font-size:32px!important;font-weight:600!important;line-height:1.15!important;margin-bottom:14px!important;letter-spacing:-.02em!important}
+body.report-design-v3 .d3-metric-total .count-delta{margin-top:6px!important;font-size:12px!important;line-height:1.5!important}
+body.report-design-v3 .d3-breakdown{gap:8px 12px;padding-top:10px;border-top:1px solid #eceef1}body.report-design-v3 .d3-breakdown>span{color:#626973!important;font-size:13px!important;font-weight:400!important}
+body.report-design-v3 .d3-hr-breakdown summary{color:#4d6278!important;font-size:12px!important}body.report-design-v3 .count-delta:is(.positive,.negative,.neutral){color:#626973!important;font-weight:400!important}
+body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#reportBrandSummary,#hrPerformanceArea){margin-bottom:32px!important}
+body.report-design-v3 .report-section-toolbar{margin:10px 0 12px;padding:5px 10px;border-left-color:#d9dde2;gap:6px 12px}body.report-design-v3 .r2-presets{margin:10px 0 12px;gap:8px}body.report-design-v3 .r2-presets button{min-height:34px;padding:6px 12px;font-size:12px}body.report-design-v3 .d4-filter-row{gap:10px 14px;margin-bottom:18px}body.report-design-v3 .d4-filter-field{min-height:40px;gap:8px}
+body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{gap:16px}
+body.report-design-v3 #reportDownloadSummary{background:#fff;border:1px solid #e1e4e8;padding:16px 18px;border-radius:8px}body.report-design-v3 #reportDownloadTotal{font-size:20px;color:#25292f}
+body.report-design-v3 .e5-filter-help summary{color:#505862!important}body.report-design-v3 #reportFloatingHeader th{background:#eff1f3!important;color:#505862!important}
+@media(min-width:1101px){body.report-design-v3{padding:28px 36px!important}}
+@media(max-width:767px){body.report-design-v3 .e5-header h1{font-size:23px!important}body.report-design-v3 h2{font-size:19px!important}body.report-design-v3 .e5-overview{margin:16px 0 24px}body.report-design-v3 .e5-overview td{padding:8px 10px!important}body.report-design-v3 .e5-overview .e5-value{font-size:22px}body.report-design-v3 .d3-metric-card[data-brand]{padding:14px 12px 12px!important;min-height:174px}body.report-design-v3 .d3-metric-total{font-size:30px!important}body.report-design-v3 .d3-card-brand{max-width:100%;overflow-wrap:anywhere}body.report-design-v3 :is(.date-selector-input,.r2-field input){font-size:16px!important;min-height:44px}body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{gap:12px}body.report-design-v3 .d4-filter-row{gap:10px;margin-bottom:16px}body.report-design-v3 table.d3-data-table td{padding:10px!important;font-size:13px!important}}
+@media(max-width:359px){body.report-design-v3 .e5-header{flex-wrap:wrap!important}body.report-design-v3 .e5-header>div:last-child{margin-left:auto}body.report-design-v3 .e5-titlebar button{font-size:12px!important}}
+body.report-design-v3 .d4-filter-row>.report-section-toolbar{flex-basis:100%;width:100%;margin:4px 0 6px}
+body.report-design-v3 .d4-filter-row>.r2-presets{flex-basis:100%;width:100%;margin:2px 0 4px}
+body.report-design-v3 .d3-breakdown .bs-count{margin-top:0!important;font-size:13px!important;line-height:1.6}
+@media(max-width:767px){body.report-design-v3 .d4-date-pair>input[type=date]{flex:1 1 0!important;width:0!important;min-width:0}body.report-design-v3 .d4-filter-field>.mobile-inline-date-range>input[type=date]{flex:1 1 0!important;width:0!important}}
+
+</style><style id="report-workspace-style">
+/* Recompose the existing dashboard into a calm operational workspace. */
+body.report-design-v3{background:#f4f5f6;--design-ink:#252b29;--design-muted:#707773;--design-line:#e5e9e6;--design-accent:#303b36;color:#252b29}
+body.report-design-v3>.max-w-7xl{max-width:1360px}
+body.report-design-v3 .e5-header{padding:8px 0 22px!important;margin:0!important;border:0;align-items:flex-start!important}
+body.report-design-v3 .e5-header h1{font-size:32px!important;font-weight:600!important;line-height:1.25;letter-spacing:-.035em}
+body.report-design-v3 .e5-header h1 .font-cyber{display:block!important;margin:7px 0 0!important;color:#7a827d!important;font-size:13px!important;font-weight:400!important}
+body.report-design-v3 .e5-header>div:last-child{border:1px solid #e0e5e1!important;border-radius:8px;background:#fff!important;padding:10px 14px!important;font-size:12px!important;color:#505b54;min-height:42px}
+body.report-design-v3 #reportDataState[data-state=ready]{margin:0 0 20px;padding:0;gap:8px;justify-content:flex-start;text-align:left}
+body.report-design-v3 #reportDataState[data-state=ready] time{font-size:11px!important;color:#818981!important}
+body.report-design-v3 #reportLookupTools{margin:0 0 24px!important;border:1px solid #e0e5e1;border-radius:10px;background:#fff}
+body.report-design-v3 #reportLookupTools>summary{padding:13px 16px;font-size:13px;color:#4b5750;font-weight:500;gap:10px}.d3-query-hint{color:#848c86;font-size:12px}
+body.report-design-v3 .e5-overview{margin:0 0 28px;padding:24px 26px 18px;border:1px solid #e3e8e4;border-radius:14px;background:#fff;box-shadow:0 3px 12px #253a2c03}
+body.report-design-v3 .e5-titlebar{margin-bottom:12px;align-items:center}
+body.report-design-v3 h2{font-size:20px!important;font-weight:600!important;color:#29332d!important;letter-spacing:-.015em!important;border:0!important;padding-left:0!important;text-transform:none!important}
+body.report-design-v3 h2 .font-cyber{display:inline-block;margin-left:10px;font-size:11px!important;font-weight:400!important;letter-spacing:.015em!important;color:#828b84!important}
+body.report-design-v3 .e5-titlebar button{font-size:12px!important;font-weight:500!important;padding:9px 13px!important;min-height:38px}
+body.report-design-v3 .e5-overview .report-table-viewport{border:0;border-radius:0;background:#fff}
+body.report-design-v3 .e5-overview table{min-width:760px}
+body.report-design-v3 .e5-overview table th:first-child{width:20%}
+body.report-design-v3 .e5-overview table thead th{background:#fff!important;border:0!important;border-bottom:1px solid #e4e9e5!important;padding:14px 10px!important;font-size:13px!important;font-weight:500!important;color:#59665d!important}
+body.report-design-v3 .e5-overview table th small{font-size:10px!important;line-height:1.55;margin-top:4px;color:#8a928c!important}
+body.report-design-v3 .e5-overview table td{padding:12px 10px!important;background:#fff!important;border:0!important;border-bottom:1px solid #eef1ee!important;color:#313a34!important}
+body.report-design-v3 .e5-overview tr[data-brand]>:first-child{border-left:0!important;background:#fff!important}
+body.report-design-v3 .e5-overview .e5-source-row th{background:#fff!important;color:#98a099!important;font-weight:400!important;font-size:10px!important;padding:10px 10px 6px!important;border:0!important}
+body.report-design-v3 .e5-overview .e5-value{font-size:26px;font-weight:600;line-height:1.3;letter-spacing:-.025em;color:#28342c}
+body.report-design-v3 .e5-overview .count-delta{font-size:11px!important;color:#858e86!important}
+body.report-design-v3 .e5-overview td button{min-height:46px;gap:2px}
+body.report-design-v3 .e5-overview-note{font-size:11px!important;line-height:1.7!important;color:#858d87!important;margin:10px 0 8px}
+body.report-design-v3 .e5-overview #e5-overview-position{margin:0 0 2px;font-size:11px!important}
+.e7-brand-label{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;letter-spacing:.025em;color:var(--brand-ink);white-space:nowrap}.e7-brand-label::before{content:'';display:block;width:3px;height:16px;border-radius:2px;background:var(--brand-accent)}
+body.report-design-v3 table tr[data-brand]>:first-child{background:#fff!important;border-left:0!important}
+body.report-design-v3 table.d3-data-table tbody tr:hover td{background:#fafbf9!important}
+body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#reportBrandSummary,#hrPerformanceArea,#downloadDetailsArea){padding:24px 26px!important;margin:0 0 28px!important;background:#fff;border:1px solid #e3e8e4;border-radius:14px;box-shadow:0 3px 12px #253a2c03}
+body.report-design-v3 .e7-section-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+body.report-design-v3 .e7-section-heading h2{margin:0!important;line-height:1.5}
+body.report-design-v3 .e7-filter-panel{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;padding:14px 16px!important;margin:0 0 20px!important;background:#f7f9f7;border:1px solid #edf0ed;border-radius:9px;min-width:0;width:100%}
+body.report-design-v3 .e7-filter-panel .e7-preset-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between}
+body.report-design-v3 .e7-filter-panel .r2-presets{margin:0!important;width:auto!important;flex-basis:auto!important;gap:5px;display:flex;align-items:center}
+body.report-design-v3 .e7-filter-panel .r2-presets>span{font-size:11px;color:#7d877f;margin-right:6px}
+body.report-design-v3 .e7-filter-panel .r2-presets button{background:transparent!important;border:1px solid transparent!important;border-radius:5px!important;min-height:28px;font-size:11px;padding:4px 8px;color:#68736a!important}
+body.report-design-v3 .e7-filter-panel .r2-presets button:hover{background:#e9eee9!important;color:#344638!important}
+body.report-design-v3 .e7-controls{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px 16px!important;min-width:0;width:100%;margin:0!important}
+body.report-design-v3 .e7-controls>.d4-filter-field{display:flex;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;min-height:0;width:auto;max-width:100%;flex-wrap:nowrap!important;background:transparent;border:0;padding:0}
+body.report-design-v3 .e7-controls .filter-label{font-size:11px!important;line-height:1.5;color:#79847b!important;font-weight:400!important;flex-basis:auto!important}
+body.report-design-v3 .e7-controls .d4-position-field{width:180px;min-width:0;align-self:flex-end}
+body.report-design-v3 .e7-controls .mobile-inline-date-range{width:auto;display:flex;align-items:center;flex-wrap:nowrap;gap:7px}
+body.report-design-v3 .e7-controls .e7-inline-pair{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+body.report-design-v3 .e7-controls .d4-date-pair{flex-direction:row!important;align-items:center!important;gap:7px!important;align-self:flex-end}
+body.report-design-v3 .e7-controls input[type=date]{width:139px!important;height:36px!important;min-height:36px;font-size:12px!important;padding:6px 9px;border:1px solid #dce3dc!important;border-radius:5px!important;color:#455148!important;flex:0 1 auto!important;background:#fff!important}
+body.report-design-v3 .e7-controls .d4-position-field>button{height:36px!important;min-height:36px;border:1px solid #dce3dc!important;border-radius:5px!important;font-size:12px!important;color:#455148!important;padding:7px 10px}
+body.report-design-v3 .e7-filter-panel .report-section-toolbar{display:flex!important;align-items:center;gap:8px 12px!important;border:0!important;border-top:1px solid #e6ebe6!important;border-radius:0;padding:8px 0 0!important;margin:0!important;width:100%;background:transparent!important;flex-basis:auto!important}
+body.report-design-v3 .e7-filter-panel .report-filter-summary{font-size:10px!important;line-height:1.6!important;color:#8a948b!important;flex:1 1 300px}
+body.report-design-v3 .e7-filter-panel .report-local-reset{font-size:10px!important;padding:3px 6px;min-height:26px;border:0!important;background:transparent!important;color:#7b887d!important;order:2}
+body.report-design-v3 .e7-filter-panel .e5-filter-help{flex-basis:auto;font-size:10px!important;order:3}.e7-filter-panel .e5-filter-help summary{font-size:10px!important}
+body.report-design-v3 .e7-filter-panel .e5-filter-help[open]{flex-basis:100%}
+body.report-design-v3 .d3-metric-card[data-brand]{padding:18px 18px 16px!important;min-height:204px;border:1px solid #e8ece8!important;border-top:2px solid var(--brand-accent)!important;border-radius:9px;background:#fff!important;transition:background .15s,border-color .15s,box-shadow .15s}
+body.report-design-v3 .d3-metric-card[data-brand]:hover{background:var(--brand-soft)!important;border-color:var(--brand-accent)!important;box-shadow:0 4px 12px #253a2c08!important}
+body.report-design-v3 .d3-metric-card[data-brand] .d3-card-brand{background:transparent;padding:0!important;font-size:12px!important;letter-spacing:.035em!important;margin-bottom:14px!important}
+body.report-design-v3 .d3-metric-card .d3-card-type{font-size:11px!important;margin-bottom:7px!important;color:#89918a!important}
+body.report-design-v3 .d3-metric-total{font-size:36px!important;font-weight:600!important;letter-spacing:-.035em!important;margin-bottom:16px!important;color:#29362d!important}
+body.report-design-v3 .d3-breakdown{gap:8px;padding-top:10px;border-top-color:#eaf0e9}.report-design-v3 .d3-breakdown>span{font-size:11px!important;color:#7c887e!important}
+body.report-design-v3 .d3-metric-total .count-delta{color:#8a948b!important;font-size:11px!important;margin-top:7px!important}
+body.report-design-v3 table.d3-data-table th{background:#f6f8f6!important;border-color:#edf0ed!important;color:#7b877d!important;font-size:11px!important;font-weight:500!important;padding:12px!important}
+body.report-design-v3 table.d3-data-table td{font-size:13px!important;border-color:#edf1ec!important;color:#48574b!important;padding:13px 12px!important;border-right:0!important}
+body.report-design-v3 table.d3-data-table td button{font-weight:500!important;color:#3f5144!important}
+body.report-design-v3 :is(#reportBrandSummary,#hrPerformanceArea,#downloadDetailsArea)>.cyber-card{border:1px solid #e7ece6!important;border-radius:8px;background:#fff}
+body.report-design-v3 #reportBrandSummary>p{font-size:11px!important;color:#879188!important;line-height:1.8;margin:10px 0 16px!important;max-width:900px}
+body.report-design-v3 #reportBrandSummary h2{font-size:20px!important}
+body.report-design-v3 .r2-method{font-size:11px;margin-top:14px;color:#869087}.r2-method summary{font-size:11px!important;font-weight:400!important;color:#8b948c!important}
+body.report-design-v3 #onBoardBatchArea{padding:20px 26px;background:#fff;border:1px solid #e3e8e4;border-radius:14px;margin-bottom:28px!important}
+body.report-design-v3 #onBoardBatchArea>.flex{gap:14px!important;margin-bottom:8px!important}body.report-design-v3 #onBoardBatchArea #monthSelector{padding:3px;background:#f6f8f5;border:0;gap:3px}.report-design-v3 #monthSelector .month-btn{min-height:32px;font-size:11px;padding:5px 10px;border:0;border-radius:5px}
+body.report-design-v3 #reportFloorControls{padding:24px 26px 16px;background:#fff;border:1px solid #e3e8e4;border-radius:14px;margin:0 0 16px!important}
+body.report-design-v3 #reportDownloadSummary{background:#f7f9f7;box-shadow:none;border-color:#e8ede7}
+body.report-design-v3 .report-anchor,body.report-design-v3 #reportRecruitmentOverview{scroll-margin-top:24px}
+#e7-nav-title{display:none}
+@media(min-width:1180px){
+ body.report-design-v3{padding:32px 32px 48px 256px!important}
+ body.report-design-v3 #reportQuickNav{position:fixed;left:0;top:0;bottom:0;width:216px;max-width:216px;height:100dvh;display:flex;flex-direction:column;align-items:stretch;gap:25px;padding:32px 18px!important;margin:0;overflow:auto;border:0;border-right:1px solid #202b23;background:#243129;z-index:40;scrollbar-color:#526357 #243129}
+ #e7-nav-title{display:block;padding:0 12px 22px;border-bottom:1px solid #ffffff16;color:#eff5ee;font-size:17px;font-weight:500;line-height:1.5;letter-spacing:-.02em}
+ #e7-nav-title small{display:block;margin-top:4px;font-size:10px;font-weight:400;color:#98aa9b;letter-spacing:.03em}
+ body.report-design-v3 #reportQuickNav .d3-nav-group{border:0;padding:0;flex:none}
+ body.report-design-v3 #reportQuickNav .d3-nav-heading{font-size:10px;color:#92a397!important;font-weight:400;margin:0 12px 9px;letter-spacing:.04em!important}
+ body.report-design-v3 #reportQuickNav .d3-nav-links{display:flex;flex-direction:column;align-items:stretch;gap:3px}
+ body.report-design-v3 #reportQuickNav .d3-nav-links a{display:block;font-size:12px!important;line-height:1.5;padding:9px 12px!important;color:#c7d4c9!important;border-radius:6px;border:0;font-weight:400;background:transparent;box-shadow:none}
+ body.report-design-v3 #reportQuickNav .d3-nav-links a:hover{background:#ffffff0a!important;color:#fff!important}
+ body.report-design-v3 #reportQuickNav .d3-nav-links a[aria-current]{background:#3b4f40!important;color:#fff!important;box-shadow:inset 2px 0 #b1c1a5;font-weight:500}
+ body.report-design-v3 #reportQuickNav .e5-related{margin-top:auto;border-top:1px solid #ffffff16;padding:15px 12px 0;width:100%;font-size:11px}
+ body.report-design-v3 #reportQuickNav .e5-related>summary{color:#acbfaf;padding:0;font-size:11px}
+ body.report-design-v3 #reportQuickNav .e5-related>div{position:static;padding:8px 0 0;min-width:0;background:transparent;border:0;box-shadow:none;gap:0}
+ body.report-design-v3 #reportQuickNav .e5-related a{display:block;background:transparent!important;color:#a9bcad!important;font-size:10px!important;white-space:normal;min-height:0!important;border:0!important;padding:6px 0!important;box-shadow:none}
+ body.report-design-v3 .e5-header .e5-related{display:none}
+}
+@media(min-width:768px) and (max-width:1179px){body.report-design-v3{padding:24px!important}body.report-design-v3 .e5-header{padding-bottom:16px!important}body.report-design-v3 #reportQuickNav{position:sticky;top:0;background:#f4f5f6;margin-bottom:18px}body.report-design-v3 .report-anchor{scroll-margin-top:100px}}
+@media(max-width:767px){
+ body.report-design-v3{padding:18px 14px 32px!important}body.report-design-v3 .e5-header{gap:10px!important;padding-bottom:16px!important}body.report-design-v3 .e5-header h1{font-size:25px!important}body.report-design-v3 .e5-header h1 .font-cyber{font-size:11px!important;margin-top:4px!important}body.report-design-v3 .e5-header>div:last-child{font-size:10px!important;padding:8px 10px!important;min-height:38px}
+ body.report-design-v3 #reportQuickNav{position:sticky;top:0;background:#f4f5f6;margin:0 0 12px;padding:8px 0 10px}.report-design-v3 .report-anchor,body.report-design-v3 #reportRecruitmentOverview{scroll-margin-top:90px}
+ body.report-design-v3 #reportDataState[data-state=ready]{margin-bottom:14px;gap:4px}body.report-design-v3 #reportLookupTools{margin-bottom:18px!important}body.report-design-v3 #reportLookupTools>summary{padding:11px 12px;gap:7px}.d3-query-hint{font-size:10px}
+ body.report-design-v3 .e5-overview,body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#reportBrandSummary,#hrPerformanceArea,#downloadDetailsArea,#reportFloorControls,#onBoardBatchArea){padding:18px 14px!important;border-radius:11px;margin-bottom:20px!important}
+ body.report-design-v3 h2{font-size:18px!important}body.report-design-v3 h2 .font-cyber{font-size:10px!important;margin-left:7px}body.report-design-v3 .e5-titlebar{align-items:flex-start;gap:8px}body.report-design-v3 .e5-titlebar button{font-size:10px!important;padding:7px 9px!important;min-height:32px}
+ body.report-design-v3 .e5-overview .e5-value{font-size:24px}body.report-design-v3 .e5-overview-note{font-size:10px!important}
+ body.report-design-v3 .e7-filter-panel{padding:11px!important;gap:11px!important;margin-bottom:14px!important;border-radius:7px}body.report-design-v3 .e7-preset-row{gap:5px}.e7-filter-panel .r2-presets>span{width:100%;margin-bottom:2px}
+ body.report-design-v3 .e7-controls{gap:11px!important}body.report-design-v3 .e7-controls>.d4-filter-field{width:100%;flex-wrap:wrap!important}.report-design-v3 .e7-controls .mobile-inline-date-range{width:100%}
+ body.report-design-v3 .e7-controls .d4-date-pair{flex-wrap:nowrap!important;flex-direction:row!important}body.report-design-v3 .e7-controls .d4-date-pair>input[type=date],body.report-design-v3 .e7-controls .mobile-inline-date-range>input[type=date]{width:0!important;flex:1 1 0!important;min-width:0}
+ body.report-design-v3 .e7-controls input[type=date]{height:40px!important;min-height:40px;font-size:16px!important;max-width:100%;width:100%!important}body.report-design-v3 .e7-controls .d4-position-field{width:100%}.report-design-v3 .e7-controls .d4-position-field>button{width:100%;height:40px!important}
+ body.report-design-v3 .e7-filter-panel .report-filter-summary{font-size:10px!important;flex-basis:100%}body.report-design-v3 .e7-filter-panel .report-section-toolbar{gap:4px 10px!important}.report-design-v3 .e7-filter-panel .e5-filter-help{flex-basis:auto!important}
+ body.report-design-v3 .d3-metric-card[data-brand]{padding:14px 12px!important;min-height:182px}.report-design-v3 .d3-metric-total{font-size:32px!important}body.report-design-v3 .d3-metric-card[data-brand] .d3-card-brand{font-size:11px!important;margin-bottom:12px!important}body.report-design-v3 .d3-metric-card .d3-card-type{font-size:10px!important}.report-design-v3 .d3-breakdown>span{font-size:10px!important}
+ body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{gap:10px}
+ body.report-design-v3 .e7-section-heading{margin-bottom:14px;gap:7px}
+}
+@media(max-width:389px){body.report-design-v3 :is(#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea)>.grid{grid-template-columns:1fr!important}}
+body.report-design-v3 .e5-overview table :is(td,th):first-child{border-right:0!important}
+body.report-design-v3 #reportBrandSummary h2{font-size:20px!important;margin:0!important;font-weight:600!important}
+body.report-design-v3 .e7-section-heading>button{padding:8px 12px!important;font-size:11px!important;font-weight:500!important;min-height:36px;border-radius:6px!important;box-shadow:none!important}
+body.report-design-v3 .e7-summary-fields{display:flex!important;flex-wrap:wrap;align-items:flex-end;gap:12px 16px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}
+body.report-design-v3 .e7-summary-fields>label{flex:0 1 190px;font-size:10px!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;color:#79847b!important}
+body.report-design-v3 .e7-summary-fields :is(input,select){font-size:12px!important;height:36px!important;min-height:36px;border-color:#dce3dc!important;border-radius:5px!important;margin-top:5px!important;font-weight:400!important}
+body.report-design-v3 .e7-controls .d4-date-pair:has(>.mobile-inline-date-range){flex-direction:column!important;align-items:flex-start!important}
+body.report-design-v3 #floorPerformanceArea{padding:24px 26px!important;margin:0 0 28px!important;background:#fff;border:1px solid #e3e8e4;border-radius:14px}
+body.report-design-v3 #reportFloorControls{padding:0!important;margin:0!important;border:0!important;background:transparent!important;border-radius:0}
+body.report-design-v3 #reportFloorControls>p{font-size:11px!important;font-weight:400!important;color:#879188!important;margin:8px 0 14px}
+body.report-design-v3 #floorPerformanceArea>.cyber-card{border:1px solid #e7ece6!important;border-radius:8px}
+body.report-design-v3 .e7-controls select{height:36px!important;min-height:36px;font-size:12px!important;padding:6px 9px!important;color:#455148!important;border:1px solid #dce3dc!important;border-radius:5px!important}
+@media(max-width:767px){body.report-design-v3 #floorPerformanceArea{padding:18px 14px!important;border-radius:11px}body.report-design-v3 .e7-summary-fields>label{flex:1 1 100%;width:100%}body.report-design-v3 .e7-summary-fields :is(input,select),body.report-design-v3 .e7-controls select{font-size:16px!important;height:40px!important;min-height:40px}body.report-design-v3 .e7-controls select{width:100%}}
+body.report-design-v3 .e7-filter-panel .report-filter-summary{font-size:11px!important;color:#727e74!important}
+body.report-design-v3 .e7-controls .filter-label{font-size:11px!important;color:#6c796f!important}
+body.report-design-v3 .e7-controls input[type=date]{font-size:13px!important}
+body.report-design-v3 .e5-overview table th small{font-size:11px!important;color:#737e75!important}
+body.report-design-v3 .e5-overview .count-delta{color:#6c796f!important}
+body.report-design-v3 .d3-metric-card .d3-card-type{color:#6c796f!important}
+body.report-design-v3 .e5-overview-note{color:#6c796f!important}
+@media(min-width:1180px){body.report-design-v3 #reportQuickNav .d3-nav-links a{font-size:13px!important}}
+@media(max-width:767px){body.report-design-v3 .e5-header h1{font-size:22px!important}body.report-design-v3 .e5-header>div:last-child{min-width:0!important;max-width:120px;width:auto!important;flex:none!important;gap:8px}body.report-design-v3 .e5-header>div:first-child{flex:1;min-width:0}body.report-design-v3 #reportDataState[data-state=ready]{justify-content:flex-start!important;text-align:left!important}body.report-design-v3 #reportDataState[data-state=ready]>div{width:auto;text-align:left!important}body.report-design-v3 #reportDataState[data-state=ready] time{text-align:left!important}body.report-design-v3 .e7-controls input[type=date]{font-size:16px!important}}
+body.report-design-v3 #reportFloorControls>div:empty{display:none!important}
+body.report-design-v3 #reportFloorControls>.e7-section-heading{margin-bottom:18px!important}
+body.report-design-v3 #reportFloorControls>div:not(.e7-section-heading):not(.e7-filter-panel){margin:0!important;gap:0!important;padding:0!important;min-height:0!important}
+body.report-design-v3 #reportFloorControls .e7-filter-panel{margin-bottom:10px!important}
+
+</style><style id="report-readability-style">
+/* Readability pass: bolder headings and a modest increase in supporting type. */
+body.report-design-v3{font-size:15px}
+body.report-design-v3 .e5-header h1{font-size:34px!important;font-weight:700!important}
+body.report-design-v3 h2,body.report-design-v3 #reportBrandSummary h2{font-size:23px!important;font-weight:700!important;line-height:1.4!important}
+body.report-design-v3 h2 .font-cyber{font-size:12px!important;font-weight:500!important}
+body.report-design-v3 table.d3-data-table th{font-size:13px!important;font-weight:600!important}
+body.report-design-v3 table.d3-data-table td{font-size:14px!important;line-height:1.6!important}
+body.report-design-v3 .e5-overview table thead th{font-size:14px!important;font-weight:600!important}
+body.report-design-v3 .e5-overview .e5-source-row th{font-size:12px!important}
+body.report-design-v3 .e7-brand-label{font-size:14px!important}
+body.report-design-v3 .e7-controls .filter-label,body.report-design-v3 .e7-summary-fields>label{font-size:12px!important;font-weight:500!important}
+body.report-design-v3 .e7-filter-panel .report-filter-summary{font-size:12px!important}
+body.report-design-v3 .e7-filter-panel .r2-presets>span,body.report-design-v3 .e7-filter-panel .r2-presets button{font-size:12px!important}
+body.report-design-v3 .e7-controls input[type=date],body.report-design-v3 .e7-controls select,body.report-design-v3 .e7-controls .d4-position-field>button{font-size:14px!important}
+body.report-design-v3 .d3-metric-card[data-brand] .d3-card-brand{font-size:14px!important;font-weight:700!important}
+body.report-design-v3 .d3-metric-card .d3-card-type{font-size:12px!important}
+body.report-design-v3 .d3-breakdown>span,body.report-design-v3 .d3-breakdown .bs-count{font-size:12px!important}
+body.report-design-v3 .e5-overview-note,body.report-design-v3 .r2-method,body.report-design-v3 .r2-method summary{font-size:12px!important}
+body.report-design-v3 .e7-section-heading>button,body.report-design-v3 .e5-titlebar button{font-size:12px!important}
+@media(min-width:1180px){body.report-design-v3 #reportQuickNav .d3-nav-links a{font-size:14px!important}#e7-nav-title{font-size:18px;font-weight:700}}
+@media(max-width:767px){body.report-design-v3 .e5-header h1{font-size:24px!important}body.report-design-v3 h2,body.report-design-v3 #reportBrandSummary h2{font-size:21px!important}body.report-design-v3 .e7-controls input[type=date],body.report-design-v3 .e7-controls select{font-size:16px!important}body.report-design-v3 .e5-titlebar button{font-size:11px!important}}
+
+</style><style id="report-refinement8-style">
+/* Align the existing date summary and make overview comparisons fit phones. */
+body.report-design-v3 #overviewDateSummary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 18px;margin:12px 0 18px;padding:12px 0;border-top:1px solid #edf0ed;border-bottom:1px solid #edf0ed;align-items:start}
+body.report-design-v3 #overviewDateSummary>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+body.report-design-v3 #overviewDateSummary strong{font-size:12px;font-weight:600;color:#526457;line-height:1.5}
+body.report-design-v3 #overviewDateSummary small{font-size:12px;color:#6a766c;line-height:1.6;overflow-wrap:anywhere}
+body.report-design-v3 .e7-filter-panel .r2-presets button[aria-pressed=true],body.report-design-v3 .r2-presets button[aria-pressed=true]{background:#34483a!important;color:#fff!important;border-color:#34483a!important;border-radius:5px!important}
+body.report-design-v3 .e5-overview td button:hover .e5-value{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+body.report-design-v3 .p8-table-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0;color:#6a766c;font-size:12px;line-height:1.6}
+body.report-design-v3 .p8-table-tools[hidden]{display:none!important}
+body.report-design-v3 .p8-table-tools>div{display:flex;gap:6px;flex:none}
+body.report-design-v3 .p8-table-tools button{display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;min-height:32px;border:1px solid #dce3dc;border-radius:5px;background:#fff;color:#465c4b;font-size:16px;font-weight:500;cursor:pointer}
+body.report-design-v3 .p8-table-tools button:disabled{opacity:.35;cursor:default}
+body.report-design-v3 .report-table-viewport:focus-visible{outline:2px solid #6f8b72;outline-offset:3px}
+@media(min-width:768px) and (max-width:1179px){body.report-design-v3 #overviewDateSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){
+ body.report-design-v3 #overviewDateSummary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin:10px 0 12px;padding:10px 0}
+ body.report-design-v3 #overviewDateSummary strong{font-size:11px}body.report-design-v3 #overviewDateSummary small{font-size:11px}
+ body.report-design-v3 #reportRecruitmentOverview .report-table-viewport{overflow:visible;width:100%;border:0;border-radius:0}
+ body.report-design-v3 #reportRecruitmentOverview table{display:block!important;min-width:0!important;width:100%!important;max-width:100%}
+ body.report-design-v3 #reportRecruitmentOverview table thead{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+ body.report-design-v3 #reportRecruitmentOverview table tbody{display:block;width:100%}
+ body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 3px;padding:13px 0;border-bottom:1px solid #e9eee9;width:100%}
+ body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row)>td{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;width:auto!important;position:static!important;padding:0!important;border:0!important;white-space:normal;background:transparent!important;text-align:center}
+ body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row)>td:first-child{grid-column:1/-1;align-items:flex-start;justify-content:flex-start;padding-bottom:2px!important}
+ body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row)>td[data-metric]::before{content:attr(data-metric);display:block;font-size:10px;line-height:1.4;min-height:28px;color:#6a766c;text-align:center;max-width:100%}
+ body.report-design-v3 #reportRecruitmentOverview .e5-source-row{display:block;margin-top:12px}
+ body.report-design-v3 #reportRecruitmentOverview .e5-source-row th{display:block;padding:0 0 4px!important;text-align:left;font-size:10px!important;white-space:normal}
+ body.report-design-v3 #reportRecruitmentOverview td button{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;gap:4px;padding:0;min-height:46px}
+ body.report-design-v3 #reportRecruitmentOverview td button .e5-value{font-size:24px!important;line-height:1.2}
+ body.report-design-v3 #reportRecruitmentOverview td button .count-delta{font-size:11px!important;white-space:nowrap}
+ body.report-design-v3 #reportRecruitmentOverview .e7-brand-label{font-size:14px!important}
+ body.report-design-v3 #reportRecruitmentOverview .e5-filter-help{margin-top:7px;font-size:11px}
+ body.report-design-v3 .p8-table-tools{font-size:11px;gap:8px}
+}
+body.report-design-v3 #reportRecruitmentOverview table :is(th,td):first-child{box-shadow:none!important}
+@media(max-width:767px){body.report-design-v3 #reportRecruitmentOverview .e5-source-row th{width:100%!important;max-width:none!important;min-width:0!important;position:static!important;box-shadow:none!important}body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row)>td:first-child{max-width:none!important;width:100%!important;box-shadow:none!important}}
+
+</style><style id="overview-brand-label-size">
+body.report-design-v3 #reportRecruitmentOverview .e7-brand-label{font-size:18px!important;font-weight:700!important;letter-spacing:.01em;line-height:1.5;gap:10px}
+body.report-design-v3 #reportRecruitmentOverview .e7-brand-label::before{height:20px;width:3px}
+@media(max-width:767px){body.report-design-v3 #reportRecruitmentOverview .e7-brand-label{font-size:17px!important}}
+</style><style id="report-usability9-style">
+/* Make scope text readable without competing with the main values. */
+body.report-design-v3 :is(.report-filter-summary,.report-shared-note,.r2-scope-label,.filter-label,.e5-overview-note,.e5-filter-help,#reportLastSuccessfulLoad){color:#526157!important}
+body.report-design-v3 .e5-overview table th small,body.report-design-v3 .e5-overview .e5-source-row th{color:#59685e!important}
+body.report-design-v3 :is(.r2-method,.r2-method summary,.d3-card-type),body.report-design-v3 .e7-filter-panel .report-filter-summary,body.report-design-v3 .e7-controls .filter-label{color:#59685e!important}
+body.report-design-v3 .d3-metric-total .count-delta,body.report-design-v3 .e5-overview .count-delta{color:#59685e!important}
+body.report-design-v3 .u9-returnbar{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0}
+body.report-design-v3 .u9-returnbar[hidden]{display:none!important}
+body.report-design-v3 .u9-returnbar button{font-family:inherit;font-size:13px;font-weight:600;color:#36513d;background:#f3f7f2;border:1px solid #ccd9cb;border-radius:6px;padding:8px 13px;min-height:38px;cursor:pointer}
+body.report-design-v3 .u9-returnbar button:hover{background:#e8f0e5}
+body.report-design-v3 .u9-return-target{outline:2px solid #819977!important;outline-offset:4px}
+body.report-design-v3 .u9-range-badge{display:inline-flex;align-items:center;font-size:11px;line-height:1.5;font-weight:500;color:#526157;background:#e9efe7;border:1px solid #d9e2d5;border-radius:4px;padding:3px 7px;margin-left:5px;white-space:nowrap}
+body.report-design-v3 .u9-range-badge[hidden]{display:none!important}
+body.report-design-v3 .u9-range-badge[data-state=invalid]{color:#913829;background:#fff3ef;border-color:#edcfc5}
+@media(max-width:767px){body.report-design-v3 .u9-returnbar button{min-height:42px;font-size:13px}body.report-design-v3 .u9-range-badge{margin-left:3px;font-size:11px}}
+
+</style><style id="report-usability10-style">
+body.report-design-v3 .u10-date-link{display:inline-flex;align-items:center;width:auto!important;padding:3px 7px!important;border:1px solid #cddccd;border-radius:4px;background:#edf4e9;color:#3f5d43;font-size:11px!important;font-weight:500;line-height:1.5;margin-right:6px;white-space:normal}
+body.report-design-v3 .u10-drill{cursor:pointer}
+body.report-design-v3 .u10-drill:focus-visible{outline:3px solid #557c58!important;outline-offset:3px!important;box-shadow:0 0 0 5px #e9f1e5!important;border-radius:5px}
+body.report-design-v3 .u10-drill:not(.d3-metric-card):hover{background:#edf4e9!important}
+body.report-design-v3 .u10-drill:not(.d3-metric-card):hover .e5-value,body.report-design-v3 .u10-core-number:hover{text-decoration:underline;text-underline-offset:4px}
+body.report-design-v3 .u10-core-number{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:36px;padding:4px 8px;border:0;border-radius:5px;background:transparent;font:inherit;font-weight:600;color:inherit;cursor:pointer}
+body.report-design-v3 .u10-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+body.report-design-v3 .u10-guide-open{font:inherit;font-size:12px!important;font-weight:500!important;min-height:38px;padding:8px 12px!important;border:1px solid #ccd7cc!important;border-radius:6px!important;background:#fff!important;color:#415a46!important;cursor:pointer}
+body.report-design-v3 #reportUsageGuide{width:min(860px,calc(100vw - 32px));max-width:860px;max-height:86dvh;padding:0;border:1px solid #dce5d9;border-radius:12px;color:#34483a;background:#fff;box-shadow:0 20px 70px #17271c26;overflow:auto}
+body.report-design-v3 #reportUsageGuide::backdrop{background:#14271b66}
+body.report-design-v3 .u10-guide-header{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;background:#fff;border-bottom:1px solid #e5ebe2}
+body.report-design-v3 .u10-guide-header h2{margin:0!important;font-size:22px!important}
+body.report-design-v3 .u10-guide-header button{font:inherit;font-size:13px;padding:7px 12px;min-height:36px;border:1px solid #d5dfd1;border-radius:6px;background:#fff;color:#405843;cursor:pointer}
+body.report-design-v3 .u10-guide-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 28px;padding:22px}
+body.report-design-v3 .u10-guide-body section{min-width:0}
+body.report-design-v3 .u10-guide-body h3{font-size:15px;font-weight:700;line-height:1.5;color:#314d37;margin:0 0 9px}
+body.report-design-v3 .u10-guide-body p{font-size:13px;line-height:1.8;color:#526157;margin:0 0 10px;overflow-wrap:anywhere}
+body.report-design-v3 .u10-guide-body .u10-applicable{font-size:11px;color:#6b7a6d;margin-top:-4px}
+body.report-design-v3 .u10-guide-body #r2-preferences{display:block!important;font-size:13px;line-height:1.8}
+body.report-design-v3 .u10-guide-body .e5-overview-note{font-size:13px!important}
+@media(max-width:767px){body.report-design-v3 .u10-guide-actions{gap:6px}body.report-design-v3 .u10-guide-open{min-height:34px;font-size:11px!important;padding:6px 9px!important}body.report-design-v3 .u10-guide-body{grid-template-columns:1fr;padding:18px;gap:18px}body.report-design-v3 .u10-guide-header{padding:15px 18px}body.report-design-v3 .u10-guide-header h2{font-size:20px!important}body.report-design-v3 .u10-date-link{margin:0 0 3px;max-width:100%}}
+
+</style><style id="overview-type-balance">
+body.report-design-v3 #reportRecruitmentOverview .e5-value{font-size:22px!important;font-weight:600!important;line-height:1.3}
+body.report-design-v3 #reportRecruitmentOverview table thead th{font-size:17px!important;font-weight:700!important;color:#34483a!important}
+body.report-design-v3 #reportRecruitmentOverview table thead th small{font-size:11px!important;font-weight:400!important;color:#59685e!important}
+@media(max-width:767px){body.report-design-v3 #reportRecruitmentOverview td button .e5-value{font-size:21px!important}body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row)>td[data-metric]::before{font-size:12px!important;font-weight:700!important;color:#34483a!important;min-height:34px}}
+</style><style id="report-polish11-style">
+/* Keep the overview compact while preserving the requested type hierarchy. */
+@media(min-width:768px){body.report-design-v3 #reportRecruitmentOverview table tbody td{padding-top:8px!important;padding-bottom:8px!important}body.report-design-v3 #reportRecruitmentOverview td button{gap:1px;min-height:40px}body.report-design-v3 #reportRecruitmentOverview .e5-source-row th{padding-top:7px!important;padding-bottom:5px!important}}
+@media(max-width:767px){body.report-design-v3 #reportRecruitmentOverview table tr:not(.e5-source-row){padding-top:11px;padding-bottom:11px}}
+
+</style><style id="batch-fallback-style">
+body.report-design-v3 #batchFallbackNotice{font-size:12px;line-height:1.7;color:#476449;background:#eff5ec;border-left:3px solid #8da57f;border-radius:3px;margin:8px 0 14px;padding:8px 11px}
+body.report-design-v3 #batchFallbackNotice[hidden]{display:none!important}
+body.report-design-v3 #monthSelector button[data-auto-batch]{background:#edf4e9!important;color:#3f5d43!important;border:1px dashed #8da57f!important;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+body.report-design-v3 #monthSelector button[data-auto-batch]::after{content:'自動';font-size:9px;font-weight:500}
+</style></head>
 <body class="py-6 md:py-12 px-3 md:px-6 text-left">
 
     <div class="max-w-7xl mx-auto">
@@ -533,9 +958,11 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
                     <a href="https://ndpmo.github.io/ophrta/WA_Process_2026.html" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-cyan-600/20 transition hover:-translate-y-0.5">
                         WA Process
                     </a>
-                    <a href="HC.html" class="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-amber-600/20 transition hover:-translate-y-0.5">
+                    <a href="https://ndpmo.github.io/ophrta/HC.html" class="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-amber-600/20 transition hover:-translate-y-0.5">
                         HC Summary
                     </a>
+                    <a href="https://ndpmo.github.io/ophrta/Hub_Weekly_Offerx.html" class="inline-flex items-center rounded-full bg-teal-600 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg transition hover:-translate-y-0.5">Hub Weekly Offer</a>
+                    <a href="https://ndpmo.github.io/ophrta/name_checker.html" class="inline-flex items-center rounded-full bg-teal-600 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white shadow-lg transition hover:-translate-y-0.5">Name Checker</a>
                 </div>
                 <p class="hidden text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit border border-white/80 shadow-sm">
                     <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -947,7 +1374,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
                 <div class="mb-5">
                     <div class="max-w-3xl">
                         <p class="text-sm font-black text-amber-600">Brand workforce &amp; offer</p>
-                        <h3 class="mt-1 text-2xl font-black text-slate-900 md:text-3xl">Brand Summary</h3>
+                        <h3 class="mt-1 text-2xl font-black text-slate-900 md:text-3xl">品牌人手總覽</h3>
                         <p class="mt-2 text-sm font-bold leading-6 text-slate-500">Upcoming On Board includes every accepted candidate whose On Board Date is after today, excluding Withdraw, Reject and No Show. The bracketed MTD figure follows the Offer Date filter.</p>
                     </div>
                     <div class="mt-5 grid gap-3 rounded-2xl border border-amber-100 bg-gradient-to-r from-amber-50/80 to-white p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-[minmax(190px,1.15fr)_minmax(160px,1fr)_minmax(160px,1fr)_auto] xl:items-end">
@@ -1346,7 +1773,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
         }
         function renderDeltaLabel(current, previous, subtle = false) {
             const formatted = formatDeltaLabel(current, previous);
-            return `<span class="count-delta${subtle ? ' subtle' : ''} ${formatted.className}">${formatted.text}</span>`;
+            return `<span class="count-delta${subtle ? ' subtle' : ''} ${formatted.className}" data-delta="${formatted.delta}" aria-label="較比較日 ${formatted.delta > 0 ? '+' : ''}${formatted.delta}">${formatted.delta === 0 ? '—' : (formatted.delta > 0 ? '↑ +' : '↓ ') + formatted.delta}</span>`;
         }
         function getDateRangeFromInputs(startId, endId) {
             const start = getLocalDateFromInput(document.getElementById(startId)?.value);
@@ -1647,7 +2074,8 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
                     const copy = el.cloneNode(true);
                     copy.querySelectorAll('.count-delta').forEach(node => node.remove());
                     const count = Number(copy.textContent.replace(/^(RJ|NJ|BS):\s*/i, '').replace(/,/g, '').trim());
-                    const delta = el.querySelector('.count-delta')?.textContent.replace(/[(),\s]/g, '');
+                    const deltaNode = el.querySelector('.count-delta');
+                    const delta = deltaNode?.dataset.delta ?? deltaNode?.textContent.replace(/[(),\s]/g, '');
                     const obApplied = s.item === 'Offer' && useOb;
                     const comparison = getComparisonDateRange(getLocalDateFromInput(reportInput(s.start)), getLocalDateFromInput(reportInput(s.end)));
                     rows.push([s.item, source, brand, breakdown, count, s.date, reportInput(s.start), reportInput(s.end), comparison ? formatDateToISO(comparison.end) : 'Not applied', delta ? Number(delta) : '', obApplied ? 'Yes' : 'No', obApplied ? reportInput('obOfferStart') : '', obApplied ? reportInput('obOfferEnd') : '']);
@@ -2097,6 +2525,46 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
             const comparisonMonth = comparisonBase ? comparisonBase.getMonth() + 1 : null;
             const comparisonYear = comparisonBase ? comparisonBase.getFullYear() : null;
 
+            // Only extend to the immediately following calendar month when the
+            // selected months have no eligible future batches under this source.
+            const offsets = selectedBatchMonths.map(m => (m - (todayMidnight.getMonth() + 1) + 12) % 12);
+            const hasSelectedBatches = dataS1.some(row => {
+                if (!isBatchSourceIncluded(row)) return false;
+                const d = parseDate((row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim());
+                return d && d.getTime() >= todayTs && selectedBatchMonths.includes(d.getMonth() + 1);
+            });
+            const extraPeriod = !hasSelectedBatches && offsets.length
+                ? new Date(todayMidnight.getFullYear(), todayMidnight.getMonth() + Math.max(...offsets) + 1, 1)
+                : null;
+            const hasExtraBatches = extraPeriod && dataS1.some(row => {
+                if (!isBatchSourceIncluded(row)) return false;
+                const d = parseDate((row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim());
+                return d && d.getTime() >= todayTs && d.getFullYear() === extraPeriod.getFullYear() && d.getMonth() === extraPeriod.getMonth();
+            });
+            const extraLabel = extraPeriod ? extraPeriod.getFullYear() + '年' + (extraPeriod.getMonth() + 1) + '月' : '';
+            window.reportBatchFallback = {
+                selectedMonths: selectedBatchMonths.slice(),
+                extraMonth: extraPeriod ? extraPeriod.getMonth() + 1 : null,
+                extraYear: extraPeriod ? extraPeriod.getFullYear() : null,
+                added: !!hasExtraBatches,
+                summary: '月份：' + selectedBatchMonths.map(m => m + '月').join('、') + (extraPeriod ? (hasExtraBatches ? '｜自動加上：' : '｜已檢查下月：') + extraLabel : ''),
+                emptyText: extraPeriod ? '所選月份及下個月（' + extraLabel + '）均暫無未來入職批次。' : '所選月份暫無未來入職批次。'
+            };
+            let notice = document.getElementById('batchFallbackNotice');
+            if (!notice) {
+                notice = document.createElement('p');notice.id = 'batchFallbackNotice';notice.setAttribute('role', 'status');notice.setAttribute('aria-live', 'polite');container.before(notice);
+            }
+            notice.hidden = !hasExtraBatches;
+            notice.textContent = hasExtraBatches ? '所選月份暫無未來入職 Batch，已自動加上 ' + extraLabel + '。' : '';
+            document.querySelectorAll('#monthSelector button').forEach(button => {
+                const month = Number(button.id.replace('btn-month-', ''));
+                const auto = !!hasExtraBatches && month === extraPeriod.getMonth() + 1;
+                button.toggleAttribute('data-auto-batch', auto);
+                button.setAttribute('aria-pressed', String(selectedBatchMonths.includes(month)));
+                if (auto) { button.title = '自動顯示 ' + extraLabel + ' Batch'; button.dataset.batchAutoTitle = 'true'; }
+                else if (button.dataset.batchAutoTitle) { button.removeAttribute('title');delete button.dataset.batchAutoTitle; }
+            });
+
             dataS1.forEach(row => {
                 if (!isBatchSourceIncluded(row)) return;
 
@@ -2105,7 +2573,9 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
 
                 const d = parseDate(dateStr);
                 const dTs = d ? d.getTime() : null;
-                if (!(dTs && dTs >= todayTs && selectedBatchMonths.includes(d.getMonth() + 1))) return;
+                const selectedPeriod = selectedBatchMonths.includes(d?.getMonth() + 1);
+                const automaticPeriod = extraPeriod && d && d.getFullYear() === extraPeriod.getFullYear() && d.getMonth() === extraPeriod.getMonth();
+                if (!(dTs && dTs >= todayTs && (selectedPeriod || automaticPeriod))) return;
 
                 const normalizedKey = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
                 if (!batchMap.has(normalizedKey)) {
@@ -2162,7 +2632,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
             container.innerHTML = "";
 
             if (sortedKeys.length === 0) {
-                container.innerHTML = '<div class="col-span-full p-10 cyber-card text-slate-400 font-bold italic text-center">No future onboard batches in the selected month.</div>';
+                container.innerHTML = `<div class="col-span-full p-10 cyber-card text-slate-400 font-bold italic text-center">${window.reportBatchFallback.emptyText}</div>`;
                 return;
             }
 
@@ -4009,6 +4479,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
         }
 
         async function downloadReportBrandSummaryWorkbook() {
+            const exportFilename = window.reportExportNames.build('workforce', 'Brand_Workforce_Lists.xlsx');
             if (!window.ExcelJS) {
                 alert('Excel export library is still loading. Please try again in a moment.');
                 return;
@@ -4044,7 +4515,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `Brand_Summary_Lists_${formatDateToISO(new Date())}.xlsx`;
+            link.download = exportFilename;
             link.click();
             setTimeout(() => URL.revokeObjectURL(link.href), 1000);
         }
@@ -4625,8 +5096,11 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
                 });
             }
             
-            if (mode === "LEAD") {
+            if (mode === "LEAD" || mode === "WEEKLY" || mode === "ONBOARD") {
                 list = list.filter(row => !isBeautySpecialistPosition(row));
+            }
+            if (mode === "WEEKLY" || mode === "ONBOARD") {
+                list = list.filter(row => ["RJ", "NJ"].includes((row[headersS1[S1_IDX.RJNJ]] || "").trim().toUpperCase()));
             }
             if (mode !== "BATCH") {
                 list = list.filter(row => isPositionIncluded(row));
@@ -5502,7 +5976,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
         { id:'weeklyOfferArea', label:'Offer', fields:['offerStart','offerEnd','useObFilter','obOfferStart','obOfferEnd'], refresh:()=>calculateWeeklyOffers(), position:true, compare:'offerCompareDate' },
         { id:'onboardSummaryArea', label:'On Board', fields:['onboardStart','onboardEnd'], refresh:()=>calculateOnboardSummary(), position:true },
         { id:'pendingOfferArea', label:'Pending Offer', fields:['pendingStart','pendingEnd'], refresh:()=>calculatePendingOffers(), position:true },
-        { id:'reportBrandSummary', label:'Brand Summary', fields:['reportUpcomingSourceFilter','reportBrandOfferStart','reportBrandOfferEnd'], refresh:()=>renderReportBrandSummary() },
+        { id:'reportBrandSummary', label:'品牌人手總覽', fields:['reportUpcomingSourceFilter','reportBrandOfferStart','reportBrandOfferEnd'], refresh:()=>renderReportBrandSummary() },
         { id:'reportFloorControls', label:'Floor Performance', fields:['floorPerfBrand','floorPerfFloor','floorPerfPosition','floorPerfStart','floorPerfEnd'], refresh:()=>updateFloorPerformanceFloorOptions() },
         { id:'hrPerformanceArea', label:'Core Team', fields:['hrPerfStart','hrPerfEnd','hrDateFilterType','useHrPerfObFilter','hrPerfObStart','hrPerfObEnd','coreTeamFilter'], refresh:()=>setHrDateFilterType(byId('hrDateFilterType').value), position:true },
         { id:'sharedDetailArea', label:'指標明細', fields:['sharedDetailFilterBrand','sharedDetailFilterFloor','sharedDetailFilterReferrer','sharedDetailFilterOnboardStatus','sharedDetailFilterStatus'], refresh:()=>resetSharedDetailFilters(), detail:true },
@@ -5537,7 +6011,7 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
     }
     function summary(config) {
         const parts=[];
-        if(config.batch)parts.push('月份：'+selectedBatchMonths.map(month=>month+'月').join('、'));
+        if(config.batch)parts.push(window.reportBatchFallback?.summary || ('月份：'+selectedBatchMonths.map(month=>month+'月').join('、')));
         config.fields.forEach(id=>{
             if(!byId(id))return;
             if((id==='obOfferStart'||id==='obOfferEnd')&&!byId('useObFilter').checked)return;
@@ -5552,7 +6026,11 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
             parts.push('Withdrawal / Rejection Reason：'+(selected.join('、')||'全部'));
             parts.push(exportDetailsFiltersConfirmed?'已套用 · '+exportDetailsRows.length+' 筆':'未套用 · 請按 Filter Results');
         }
-        return parts.join(' · ');
+        return parts.join('｜')
+            .replace(/(Lead|Offer|On Board|日期)由：([^｜]+)｜(?:Lead|Offer|On Board|日期)至：([^｜]+)/g,'$1：$2 → $3')
+            .replace(/(Lead|Offer|On Board) 由：([^｜]+)｜(?:Lead|Offer|On Board) 至：([^｜]+)/g,'$1：$2 → $3')
+            .replace('Compare Date（共用）：','比較：').replace('Position（共用）：','Position：')
+            .replace(/｜套用 On Board Date：關閉/g,'');
     }
     function update() {
         queued=false;
@@ -5641,8 +6119,8 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
     function scheduleHeader(){if(frame===null)frame=requestAnimationFrame(drawHeader);}
     function drawHeader() {
         frame=null;
-        const top=nav.getBoundingClientRect().bottom;
-        const candidate=tableViews.find(({table,view})=>{const box=view.getBoundingClientRect();return visible(table)&&box.top<top&&box.bottom>top+table.tHead.getBoundingClientRect().height;});
+        const top=window.matchMedia('(min-width:1180px)').matches?24:nav.getBoundingClientRect().bottom;
+        const candidate=tableViews.find(({table,view})=>{if(table.closest('#reportRecruitmentOverview')&&window.matchMedia('(max-width:767px)').matches)return false;const box=view.getBoundingClientRect();return visible(table)&&box.top<top&&box.bottom>top+table.tHead.getBoundingClientRect().height;});
         if(!candidate){floating.hidden=true;activeTable=null;return;}
         const {table,view}=candidate,rect=view.getBoundingClientRect();
         const signature=table.tHead.innerHTML;
@@ -5788,7 +6266,335 @@ body .report-download-summary h3 { font-size:17px;line-height:1.5;margin:0 0 10p
 })();
 
 </script>
-</body>
+<script id="report-round2-script">
+/* Report round 2: presentation, applied filter preferences and scoped record search. */
+(() => {
+ 'use strict';
+ const $=id=>document.getElementById(id),escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const app=document.querySelector('body > .max-w-7xl');if(!app||$('reportLastSuccessfulLoad'))return;
+ const preferenceStatus=document.createElement('p');preferenceStatus.id='r2-preferences';preferenceStatus.setAttribute('role','status');preferenceStatus.textContent='有效篩選會保留於此瀏覽器；各區重設可恢復預設。';$('reportDataState').after(preferenceStatus);
+ const lastLoaded=document.createElement('time');lastLoaded.id='reportLastSuccessfulLoad';lastLoaded.textContent='最後成功載入：尚未載入';$('reportDataState').append(lastLoaded);
+ const disclosure=document.createElement('details');disclosure.id='r2-download-conditions';const disclosureTitle=document.createElement('summary');disclosureTitle.textContent='查看完整篩選條件及資料範圍';disclosure.append(disclosureTitle);$('reportDownloadConditions').before(disclosure);disclosure.append($('reportDownloadConditions'));
+ $('reportDownloadSummary').querySelector('h3').textContent='已套用條件及下載筆數';
+ const summaryLine=$('report-summary-downloadDetailsArea');if(summaryLine)summaryLine.classList.add('r2-download-duplicate');
+ $('downloadDetailsArea').querySelector('button[onclick="resetExportDetailsFilters()"]')?.classList.add('r2-download-duplicate');
+ let ready=false,restoring=false,defaults=null,initialRestored=false,bootPromise=null,lastSuccess=null;
+ const groups=[
+  {id:'weeklyLeadArea',fields:['leadStart','leadEnd'],pairs:[['leadStart','leadEnd']],refresh:()=>calculateWeeklyLeads()},
+  {id:'weeklyOfferArea',fields:['offerStart','offerEnd','useObFilter','obOfferStart','obOfferEnd'],pairs:[['offerStart','offerEnd'],['obOfferStart','obOfferEnd']],refresh:()=>calculateWeeklyOffers()},
+  {id:'onboardSummaryArea',fields:['onboardStart','onboardEnd'],pairs:[['onboardStart','onboardEnd']],refresh:()=>calculateOnboardSummary()},
+  {id:'pendingOfferArea',fields:['pendingStart','pendingEnd'],pairs:[['pendingStart','pendingEnd']],refresh:()=>calculatePendingOffers()},
+  {id:'reportBrandSummary',fields:['reportUpcomingSourceFilter','reportBrandOfferStart','reportBrandOfferEnd'],pairs:[['reportBrandOfferStart','reportBrandOfferEnd']],refresh:()=>renderReportBrandSummary()},
+  {id:'reportFloorControls',fields:['floorPerfBrand','floorPerfFloor','floorPerfPosition','floorPerfStart','floorPerfEnd'],pairs:[['floorPerfStart','floorPerfEnd']],refresh:()=>calculateFloorPerformance()},
+  {id:'hrPerformanceArea',fields:['hrPerfStart','hrPerfEnd','hrDateFilterType','useHrPerfObFilter','hrPerfObStart','hrPerfObEnd','coreTeamFilter'],pairs:[['hrPerfStart','hrPerfEnd'],['hrPerfObStart','hrPerfObEnd']],refresh:()=>calculateHrPerformance()},
+  {id:'downloadDetailsArea',fields:['exportLeadStart','exportLeadEnd','exportOfferStart','exportOfferEnd','exportBrand','exportFloor','exportStatus','exportOnboardStatus'],pairs:[['exportLeadStart','exportLeadEnd'],['exportOfferStart','exportOfferEnd']],refresh:()=>clearExportDetailsResults()}
+ ];
+ const preferenceKey='ophrta:report:filters:v1';let preferences={fields:{},positions:null,compare:'',reasons:[],months:null};try{const stored=JSON.parse(localStorage.getItem(preferenceKey)||'null');if(stored?.version===1&&stored.fields&&typeof stored.fields==='object')preferences={...preferences,...stored}}catch(_){}
+ const read=id=>$(id)?.type==='checkbox'?$(id).checked:$(id)?.value;
+ function valid(group){return group.pairs.every(([a,b])=>!$(a)?.value||!$(b)?.value||$(a).value<=$(b).value)}
+ function persist(){if(!ready||restoring||window.reportLoadState!=='ready')return;groups.forEach(group=>{if(!valid(group)||(group.id==='downloadDetailsArea'&&!exportDetailsFiltersConfirmed))return;group.fields.forEach(id=>{if($(id))preferences.fields[id]=read(id)})});preferences.positions=selectedPositions.slice();preferences.compare=$('compareDate')?.value||'';preferences.months=selectedBatchMonths.slice();preferences.batchSource=read('batchSourceFilter');preferences.coreBasis=read('hrDateFilterType');if(exportDetailsFiltersConfirmed)preferences.reasons=exportDetailsSelectedValues('exportWithdrawalRejectionReason');try{localStorage.setItem(preferenceKey,JSON.stringify({...preferences,version:1}));$('r2-preferences').textContent='已保留有效篩選於此瀏覽器；各區重設可恢復預設。'}catch(_){$('r2-preferences').textContent='此瀏覽器未能儲存篩選；重新整理後會使用預設。'}}
+ function assign(id,value){const el=$(id);if(!el)return false;if(el.type==='checkbox'){if(typeof value==='boolean')el.checked=value;return true}if(typeof value!=='string')return false;if(id==='hrDateFilterType'&&!['LEAD','OFFER'].includes(value))return false;if(el.tagName==='SELECT'&&![...el.options].some(option=>option.value===value))return false;if(el.type==='date'&&value&&!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;el.value=value;return true}
+ function snapshot(){return Object.fromEntries(groups.flatMap(group=>group.fields).filter(id=>$(id)).map(id=>[id,read(id)]))}
+ function setupSectionFilters(){
+  ensurePositionFilterControls();
+  $('compareDate')?.setAttribute('aria-label','Lead Compare Date（留空＝自動比較）');
+  $('offerCompareDate')?.setAttribute('aria-label','Offer Compare Date（留空＝自動比較）');
+ }
+ function calculateAll(){calculateBatchCounts();groups.filter(group=>group.id!=='downloadDetailsArea').forEach(group=>group.refresh())}
+ function restore(){restoring=true;try{groups.forEach(group=>{group.fields.forEach(id=>{if(Object.prototype.hasOwnProperty.call(preferences.fields,id))assign(id,preferences.fields[id])});if(!valid(group))group.pairs.forEach(pair=>pair.forEach(id=>assign(id,defaults[id])))});updateFloorPerformanceFloorOptions();assign('floorPerfFloor',preferences.fields.floorPerfFloor);updateExportDetailsFloors();assign('exportFloor',preferences.fields.exportFloor);if(Array.isArray(preferences.positions)){selectedPositions=preferences.positions.filter(value=>availablePositions.includes(value));syncPositionFilterUi()}if(Array.isArray(preferences.months)){const allowed=[...document.querySelectorAll('[id^="btn-month-"]')].map(button=>Number(button.id.replace('btn-month-','')));const values=preferences.months.filter(value=>allowed.includes(value));if(values.length)selectedBatchMonths=values}if(typeof preferences.batchSource==='string'){assign('batchSourceFilter',preferences.batchSource);selectedBatchSource=$('batchSourceFilter').value}assign('compareDate',preferences.compare);syncCompareDateInputs('compareDate');if(['LEAD','OFFER'].includes(read('hrDateFilterType')))setHrDateFilterType(read('hrDateFilterType'));updateMonthButtons();document.querySelectorAll('#exportWithdrawalRejectionReasonMenu input').forEach(input=>input.checked=Array.isArray(preferences.reasons)&&preferences.reasons.includes(input.value));updateExportWithdrawalRejectionReasonLabel();calculateAll();clearExportDetailsResults();}finally{restoring=false}}
+ const dateLabels={weeklyLeadArea:'Lead Date（會同步 Offer／On Board／Pending 日期）',weeklyOfferArea:'Offer Date',onboardSummaryArea:'On Board Date',pendingOfferArea:'Offer Date',reportBrandSummary:'Offer Date',reportFloorControls:'本區日期',hrPerformanceArea:'本區 Lead / Offer Date',downloadDetailsArea:'Lead Date'};
+ groups.forEach(group=>{const area=$(group.id);if(!area)return;const marker=document.createElement('p');marker.className='r2-scope-label';marker.textContent=group.id==='downloadDetailsArea'?'獨立條件：按本區設定篩選下載名單。':group.id==='reportFloorControls'||group.id==='reportBrandSummary'?'本區條件：品牌、日期及來源按此區設定。':'日期按本區設定；Position 沿用原有連動設定。';area.querySelector('.report-section-toolbar')?.after(marker);const controls=document.createElement('div');controls.className='r2-presets';const label=document.createElement('span');label.textContent=dateLabels[group.id];controls.append(label);const pairs=group.id==='downloadDetailsArea'?group.pairs:[group.pairs[0]];pairs.forEach((pair,index)=>{if(index){const span=document.createElement('span');span.textContent='Offer Date';controls.append(span)}[['month','本月'],['previous','上月'],['year','全年']].forEach(([preset,text])=>{const button=document.createElement('button');button.type='button';button.textContent=text;button.dataset.rangeStart=pair[0];button.dataset.preset=preset;button.setAttribute('aria-label',`${group.id} ${pair[0]} ${text}`);button.onclick=()=>{if(window.reportLoadState!=='ready')return;const now=new Date(),start=preset==='year'?new Date(now.getFullYear(),0,1):new Date(now.getFullYear(),now.getMonth()-(preset==='previous'?1:0),1),end=preset==='year'?new Date(now.getFullYear(),11,31):preset==='previous'?new Date(now.getFullYear(),now.getMonth(),0):now;$(pair[0]).value=formatDateToISO(start);$(pair[1]).value=formatDateToISO(end);if(group.id==='weeklyLeadArea')handleLeadDateChange();else group.refresh();$(pair[0]).dispatchEvent(new Event('change',{bubbles:true}));persist()};controls.append(button)})});marker.after(controls)});
+ // Search only the currently scoped detail rows; parent metrics and full exports stay unchanged.
+ const views=new Map();
+ function installSearch(key,bodyId,areaId,renderName,rawRows){const body=$(bodyId),area=$(areaId);if(!body||!area)return;const panel=document.createElement('div');panel.className='r2-detail-search';panel.innerHTML=`<label class="r2-field">搜尋姓名 / Staff ID<input id="r2-search-${key}" type="search" placeholder="輸入姓名、Staff ID 或欄位內容" autocomplete="off"></label><button type="button" data-clear>清除搜尋</button><p role="status" aria-live="polite"></p><div class="r2-search-actions"><button type="button" data-all>下載完整明細</button><button type="button" data-matched>下載搜尋結果</button></div>`;const table=body.closest('table'),wrap=table.closest('.report-table-viewport')||table.parentElement;wrap.before(panel);const view={key,body,panel,table,input:panel.querySelector('input'),records:[],filtered:[],rawRows};views.set(key,view);
+  function capture(){const source=rawRows?.()||[];view.records=[...body.rows].filter(row=>row.cells.length>1).map((element,index)=>{const raw=source[index],ids=raw?[String(raw[headersS1[S1_IDX.STAFF_ID]]||''),String(raw[headersS1[33]]||'')]:null;return{element,cells:[...element.cells].map(cell=>cell.textContent.trim()),ids,extra:ids?ids.join(' '):''}});search(view)}
+  const previous=window[renderName];window[renderName]=function(...args){const result=previous.apply(this,args);capture();return result};view.capture=capture;view.input.oninput=()=>search(view);panel.querySelector('[data-clear]').onclick=()=>{view.input.value='';search(view);view.input.focus()};panel.querySelector('[data-all]').onclick=()=>exportView(view,false);panel.querySelector('[data-matched]').onclick=()=>exportView(view,true);capture();
+ }
+ const norm=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
+ function search(view){const query=norm(view.input.value);view.filtered=view.records.filter(record=>!query||norm(record.cells.join(' ')+' '+record.extra).includes(query));const matches=new Set(view.filtered);view.records.forEach(record=>record.element.hidden=!matches.has(record));view.panel.querySelector('p').textContent=`完整明細 ${view.records.length.toLocaleString()} 筆 · 搜尋後 ${view.filtered.length.toLocaleString()} 筆`;view.panel.querySelector('[data-all]').textContent=`下載完整明細（${view.records.length}）`;view.panel.querySelector('[data-matched]').textContent=`下載搜尋結果（${view.filtered.length}）`;view.panel.querySelector('[data-all]').disabled=window.reportLoadState!=='ready'||!view.records.length;view.panel.querySelector('[data-matched]').disabled=window.reportLoadState!=='ready'||!view.filtered.length;}
+ function exportView(view,filtered){if(!reportDownloadReady())return;const records=filtered?view.filtered:view.records;if(!records.length)return;const head=[...view.table.tHead.rows[0].cells].map(cell=>cell.textContent.replace(/[▲▼]/g,'').trim()),hasIds=records.some(record=>record.ids);if(hasIds)head.push('Referrer Staff ID','Candidate Staff number');downloadReportCsv(`${view.key}_${filtered?'search_results':'complete'}.csv`,[head,...records.map(record=>hasIds?[...record.cells,...(record.ids||['',''])]:record.cells)])}
+ installSearch('shared','sharedDetailTableBody','sharedDetailArea','renderSharedDetailTable',()=>sortSharedDetailRows(currentSharedDetailRows));
+ installSearch('referral','sheet2TableBody','resultAreaSheet2','renderReferralDetailTable',()=>sortReferralDetailRows(currentReferralDetailRows));
+ installSearch('floor','floorPerformanceDetailBody','floorPerformanceDetailArea','renderFloorPerformanceDetailRows');
+ for(const name of ['showSharedDetail','showCoreTeamDetail','showFloorPerformanceDetail','executeSearch','runReferralNavigationSearch']){const original=window[name];if(typeof original!=='function')continue;window[name]=function(...args){for(const view of views.values())view.input.value='';return original.apply(this,args)}}
+ const downloadPanel=document.createElement('div');downloadPanel.className='r2-detail-search';downloadPanel.innerHTML='<label class="r2-field">搜尋下載名單<input id="r2-search-export" type="search" placeholder="姓名、Staff ID 或欄位內容" autocomplete="off"></label><button type="button" id="r2-export-clear">清除搜尋</button><p id="r2-export-count" role="status" aria-live="polite"></p><button type="button" id="r2-export-matched">下載搜尋結果</button>';$('exportDetailsList').before(downloadPanel);
+ let exportMatches=[],exportSnapshot=null;
+ const exportSignature=()=>JSON.stringify([...groups.find(group=>group.id==='downloadDetailsArea').fields.map(id=>read(id)),exportDetailsSelectedValues('exportWithdrawalRejectionReason')]);
+ function exportMatching(){const query=norm($('r2-search-export').value);return exportDetailsRows.filter(row=>!query||exportDetailsCells(row).some(value=>norm(value).includes(query)))}
+ const oldRenderExport=renderExportDetails;
+ renderExportDetails=function(...args){const result=oldRenderExport.apply(this,args);exportMatches=exportMatching();const confirmed=window.reportLoadState==='ready'&&exportDetailsFiltersConfirmed;downloadPanel.hidden=!confirmed;$('r2-export-count').textContent=`完整明細 ${exportDetailsRows.length.toLocaleString()} 筆 · 搜尋後 ${exportMatches.length.toLocaleString()} 筆`;$('r2-export-matched').disabled=!confirmed||!exportMatches.length;if(!confirmed)return result;exportDetailsPage=Math.min(exportDetailsPage,Math.max(0,Math.ceil(exportMatches.length/exportDetailsPageSize)-1));const start=exportDetailsPage*exportDetailsPageSize,page=exportMatches.slice(start,start+exportDetailsPageSize);$('exportDetailsBody').innerHTML=page.length?page.map(row=>`<tr>${exportDetailsCells(row).map(cell=>`<td class="px-3 py-3 whitespace-nowrap">${escape(cell||'-')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${exportDetailsColumns.length}">沒有符合搜尋條件的記錄。</td></tr>`;$('exportDetailsPrev').disabled=exportDetailsPage===0;$('exportDetailsNext').disabled=start+exportDetailsPageSize>=exportMatches.length;$('reportDownloadPreviewRange').textContent=exportMatches.length?`搜尋結果預覽第 ${start+1}–${Math.min(start+exportDetailsPageSize,exportMatches.length)} 筆，共 ${exportMatches.length} 筆；原 Download CSV 下載完整 ${exportDetailsRows.length} 筆。`:`搜尋結果 0 筆；完整條件名單仍有 ${exportDetailsRows.length} 筆。`;return result};
+ changeExportDetailsPage=function(delta){exportDetailsPage=Math.max(0,Math.min(Math.max(0,Math.ceil(exportMatching().length/exportDetailsPageSize)-1),exportDetailsPage+delta));renderExportDetails()};
+ $('r2-search-export').oninput=()=>{exportDetailsPage=0;renderExportDetails()};$('r2-export-clear').onclick=()=>{$('r2-search-export').value='';exportDetailsPage=0;renderExportDetails()};
+ $('r2-export-matched').onclick=()=>{if(!reportDownloadReady()||!exportDetailsFiltersConfirmed)return;if(exportSnapshot!==exportSignature()){clearExportDetailsResults();return}if($('exportDetailsDownload').disabled)return;const rows=exportMatching();if(rows.length)downloadReportCsv('Details_search_results.csv',[exportDetailsColumns,...rows.map(exportDetailsCells)])};
+ const clearExport=clearExportDetailsResults;clearExportDetailsResults=function(...args){$('r2-search-export').value='';downloadPanel.hidden=true;exportMatches=[];exportSnapshot=null;return clearExport.apply(this,args)};
+ const applyExport=applyExportDetailsFilters;applyExportDetailsFilters=function(...args){const result=applyExport.apply(this,args);if(result){exportSnapshot=exportSignature();persist();renderExportDetails()}return result};
+ // Keep the established export button and its stale-filter guards for the complete list.
+ $('exportDetailsDownload').textContent='下載完整 CSV';
+ const reloadControl=$('lastUpdateDisplay').parentElement;reloadControl.setAttribute('role','button');reloadControl.tabIndex=0;reloadControl.setAttribute('aria-label','重新載入資料');reloadControl.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();reloadControl.click()}});
+ function tidyLabels(){const replacements=new Map([['Leads (AC Date)','Leads'],['Onboard (AB = Onboard)','On Board']]);document.querySelectorAll('.lead-card,.onboard-card').forEach(card=>{card.querySelectorAll('span,p,div').forEach(node=>{if(node.children.length)return;const text=node.textContent.trim();if(replacements.has(text)){node.textContent=replacements.get(text);node.title=text==='Leads (AC Date)'?'按 Lead Date 計算；原始欄位代號 AC。':'以 On Board Status = Onboard 判斷；原始欄位代號 AB。'}})});document.querySelectorAll('.count-delta').forEach(node=>{node.title='較比較日的累計差額；比較基準按共用 Compare Date 及原有規則計算。'});}
+ [['weeklyLeadArea','Lead 按 Lead Date 計算；較比較日顯示比較期累計增減。RJ、NJ、BS 為分類，不保證涵蓋所有來源狀態。'],['weeklyOfferArea','Offer 沿用 Accepted / Offered 條件；主數字排除 BS，BS 分項另列，不能直接加回主數字。'],['onboardSummaryArea','On Board 沿用入職日期及 On Board Status 條件；主數字排除 BS，BS 分項另列。'],['pendingOfferArea','Pending Offer：已 Offered 但尚未 Accept；沿用原有排除條件。']].forEach(([id,copy])=>{const details=document.createElement('details');details.className='r2-method';const title=document.createElement('summary');title.textContent='指標及比較說明';const p=document.createElement('p');p.textContent=copy;details.append(title,p);$(id).append(details)});
+ function gate(){const unavailable=window.reportLoadState!=='ready';document.querySelectorAll('.position-filter-group button,.pos-dropdown-menu input,#compareDate,#offerCompareDate').forEach(el=>el.disabled=unavailable);document.querySelectorAll('.r2-presets button').forEach(el=>el.disabled=unavailable);for(const view of views.values())search(view);$('r2-export-matched').disabled=unavailable||!exportDetailsFiltersConfirmed||!exportMatches.length;}
+ const oldSetState=reportSetLoadState;window.reportSetLoadState=function(next){const result=oldSetState(next);if(next==='ready'){lastSuccess=new Date();lastLoaded.dateTime=lastSuccess.toISOString();lastLoaded.textContent='最後成功載入：'+lastSuccess.toLocaleString('zh-HK',{timeZone:'Asia/Hong_Kong',hour12:false})+'（香港時間；不代表來源資料更新時間）';$('lastUpdateDisplay').textContent='重新載入資料'}gate();return result};
+ function onReady(){if(window.reportLoadState!=='ready')return;setupSectionFilters();if(!defaults)defaults=snapshot();if(!initialRestored){restore();initialRestored=true}ready=true;tidyLabels();gate();}
+ const oldInit=init;init=function(...args){if(bootPromise)return bootPromise;ready=false;bootPromise=Promise.resolve(oldInit.apply(this,args)).then(()=>{onReady()}).finally(()=>{bootPromise=null});return bootPromise};window.onload=init;
+ document.addEventListener('change',()=>{persist();tidyLabels();for(const view of views.values())search(view)});
+ document.addEventListener('click',event=>{if(event.target.closest('[data-section-reset],#monthSelector button'))queueMicrotask(()=>{if(event.target.closest('[data-section-reset="downloadDetailsArea"]')){groups.find(group=>group.id==='downloadDetailsArea').fields.forEach(id=>preferences.fields[id]=read(id));preferences.reasons=[]}persist();tidyLabels()})});
+ const oldPosition=updatePosSelection;updatePosSelection=function(...args){const result=oldPosition.apply(this,args);persist();tidyLabels();return result};
+ for(const name of ['calculateWeeklyLeads','calculateWeeklyOffers','calculateOnboardSummary','calculatePendingOffers']){const prior=window[name];window[name]=function(...args){const result=prior.apply(this,args);tidyLabels();return result}}
+ downloadPanel.hidden=true;gate();window.reportRound2={ready:onReady,persist,views,exportMatching,groups};
+})();
+
+</script><script id="report-design-script">
+/* Presentation only: preserve source nodes, IDs, filter state and calculator entry points. */
+(() => {
+ 'use strict';
+ const $=id=>document.getElementById(id),app=document.querySelector('body > .max-w-7xl');if(!app||$('reportLookupTools'))return;
+ document.body.classList.add('report-design-v3');
+ const lookupGrid=$('staffId')?.closest('.cyber-card')?.parentElement;
+ if(lookupGrid){const details=document.createElement('details');details.id='reportLookupTools';const summary=document.createElement('summary');summary.innerHTML='<span>Staff／品牌查詢</span><span class="d3-query-hint">按 Staff ID 或品牌／Centre 查詢，點此展開</span>';lookupGrid.before(details);details.append(summary);if($('reportSearchState'))details.append($('reportSearchState'));lookupGrid.classList.add('d3-lookup-grid');details.append(lookupGrid);$('staffId').closest('.cyber-card')?.classList.add('d3-manual-query');$('filterBrand').closest('.cyber-card')?.classList.add('d3-brand-query');}
+ const nav=$('reportQuickNav');
+ const navigation=[['招聘統計',['onBoardBatchArea','weeklyLeadArea','weeklyOfferArea','onboardSummaryArea','pendingOfferArea']],['人手表現',['reportBrandSummary','reportFloorControls','hrPerformanceArea']],['明細下載',['sharedDetailArea','resultAreaSheet2','floorPerformanceDetailArea','downloadDetailsArea']]];
+ if(nav){nav.querySelector('.report-nav-label')?.remove();navigation.forEach(([name,ids])=>{const group=document.createElement('div');group.className='d3-nav-group';group.setAttribute('role','group');group.setAttribute('aria-label',name);const label=document.createElement('span');label.className='d3-nav-heading';label.textContent=name;const links=document.createElement('div');links.className='d3-nav-links';ids.forEach(id=>{const link=$('report-jump-'+id);if(link)links.append(link)});group.append(label,links);nav.append(group)});const visibility=()=>nav.querySelectorAll('.d3-nav-group').forEach(group=>group.hidden=![...group.querySelectorAll('a')].some(link=>!link.hidden));visibility();const observer=new MutationObserver(visibility);nav.querySelectorAll('a').forEach(link=>observer.observe(link,{attributes:true,attributeFilter:['hidden']}));}
+ function normalizeCards(){document.querySelectorAll('.lead-card,.weekly-card,.onboard-card,.pending-card').forEach(card=>{
+   if(card.dataset.designNormalized)return;
+   const total=card.querySelector('span[id*="total"],div[id*="total"]');if(!total)return;
+   card.dataset.designNormalized='true';card.classList.add('d3-metric-card');total.classList.add('d3-metric-total');
+   const metric=card.querySelector(':scope > p');if(metric)metric.classList.add('d3-card-type');
+   const isHr=card.id==='lead-HR'||card.id==='weekly-HR'||card.id==='onboard-HR'||card.id==='pending-HR';
+   if(isHr){card.classList.add('d3-hr-card');const header=total.parentElement,brand=header.querySelector('p');if(brand){brand.classList.add('d3-card-brand');metric?.after(brand)}card.append(total);const detail=document.createElement('details');detail.className='d3-hr-breakdown';const summary=document.createElement('summary');summary.textContent='查看品牌及 BS 分項';detail.append(summary);[...card.children].forEach(node=>{if(node===metric||node===brand||node===total||node===header)return;detail.append(node)});if(header!==card)header.remove();detail.addEventListener('click',event=>event.stopPropagation());detail.addEventListener('keydown',event=>event.stopPropagation());card.append(detail);
+   }else{const brand=[...card.children].find(node=>node.tagName==='P'&&node!==metric);brand?.classList.add('d3-card-brand');const row=total.parentElement,breakdown=[...row.children].find(node=>node!==total);card.append(total);if(breakdown){breakdown.classList.add('d3-breakdown');card.append(breakdown)}if(row!==card&&!row.children.length)row.remove()}
+ });}
+ const totalWords=/^(GRAND TOTAL|TOTAL|合計|總計)$/i;
+ function normalizeTables(){app.querySelectorAll('table').forEach(table=>{table.classList.add('d3-data-table');table.querySelectorAll('tbody tr').forEach(row=>{const first=row.cells[0]?.textContent.trim()||'';row.classList.toggle('d3-total-row',totalWords.test(first))})});}
+ function normalizeFilters(){
+  const fields=['leadStart','compareDate','offerStart','useObFilter','offerCompareDate','pendingStart','onboardStart','floorPerfBrand','floorPerfFloor','floorPerfPosition','floorPerfStart','hrPerfStart','hrDateFilterType','useHrPerfObFilter','coreTeamFilter'];
+  fields.forEach(id=>{const input=$(id);if(!input)return;const field=input.closest('.mobile-filter-row')||(input.type==='checkbox'?input.closest('label')?.parentElement:input.parentElement);if(!field)return;field.classList.add('d4-filter-field');field.parentElement.classList.add('d4-filter-row');if(field.querySelectorAll('input[type="date"]').length===2)field.classList.add('d4-date-pair');});
+  document.querySelectorAll('.d4-date-pair').forEach(field=>{const dates=field.querySelectorAll('input[type="date"]');if(dates[0].parentElement===dates[1].parentElement&&dates[0].parentElement!==field)dates[0].parentElement.classList.add('mobile-inline-date-range')});
+  document.querySelectorAll('.position-filter-group').forEach(field=>{if(field.parentElement.classList.contains('d4-filter-field'))field.parentElement.after(field);field.classList.add('d4-position-field');field.parentElement.classList.add('d4-filter-row')});
+  document.querySelectorAll('.count-delta').forEach(delta=>{const value=Number(delta.dataset.delta ?? delta.textContent.replace(/[(),\s]/g,''));if(Number.isFinite(value))delta.setAttribute('aria-label',value>0?'較比較期增加 '+value:value<0?'較比較期減少 '+Math.abs(value):'與比較期相同')});
+ }
+ function refresh(){normalizeCards();normalizeTables();normalizeFilters()}
+ for(const name of ['calculateBatchCounts','calculateWeeklyLeads','calculateWeeklyOffers','calculatePendingOffers','calculateOnboardSummary','calculateSummaries','calculateFloorPerformance','calculateHrPerformance','renderReportBrandSummary','renderSharedDetailTable','renderReferralDetailTable','renderFloorPerformanceDetailRows','renderExportDetails']){const previous=window[name];if(typeof previous!=='function')continue;window[name]=function(...args){const result=previous.apply(this,args);refresh();return result}}
+ const oldState=reportSetLoadState;window.reportSetLoadState=function(...args){const result=oldState.apply(this,args);refresh();return result};
+ refresh();window.reportDesign={refresh};
+})();
+
+</script><script id="report-efficiency-script">
+/* Reuse the existing calculators and scoped detail/export entry points. */
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),app=document.querySelector('body > .max-w-7xl');
+const head=app.firstElementChild;head.classList.add('e5-header');
+const links=head.querySelector('h1').nextElementSibling;
+if(links?.querySelector('a')){const menu=document.createElement('details');menu.className='e5-related';const label=document.createElement('summary');label.textContent='相關報表';links.before(menu);menu.append(label,links);}
+const metrics=[
+ {key:'lead',label:'Lead',basis:'Lead Date',area:'weeklyLeadArea',prefix:'weekly-lead',hr:'weekly-lead-hr-total',start:'leadStart',end:'leadEnd',mode:'LEAD'},
+ {key:'offer',label:'Offer',basis:'Offer Date',area:'weeklyOfferArea',prefix:'weekly',hr:'weekly-offer-hr-total',start:'offerStart',end:'offerEnd',mode:'WEEKLY'},
+ {key:'onboard',label:'On Board',basis:'On Board Date',area:'onboardSummaryArea',prefix:'onboard',hr:'onboard-hr-total',start:'onboardStart',end:'onboardEnd',mode:'ONBOARD'},
+ {key:'pending',label:'Pending Offer',basis:'Offer Date',area:'pendingOfferArea',prefix:'pending',hr:'pending-hr-total',start:'pendingStart',end:'pendingEnd',mode:'PENDING'}
+];
+const overview=document.createElement('section');overview.id='reportRecruitmentOverview';overview.className='e5-overview';overview.setAttribute('aria-label','品牌招聘總覽');
+overview.innerHTML='<div class="e5-titlebar"><h2>品牌招聘總覽</h2></div><p class="e5-overview-note" id="e5-overview-position"></p><div class="report-table-viewport" tabindex="0" role="region" aria-label="品牌招聘總覽，可左右捲動"><table class="d3-data-table"><thead><tr><th scope="col">品牌／來源</th>'+metrics.map(m=>`<th scope="col">${m.label}<small id="e5-date-${m.key}">${m.basis}</small></th>`).join('')+'</tr></thead><tbody id="e5-operations"></tbody><tbody id="e5-hr"></tbody></table></div><p class="e5-overview-note">Operations 按品牌列出；HR Sources 為獨立來源，包含品牌及 Other／BS，請勿與上方品牌直接相加。Offer／On Board 的 Operations 主數字及點擊明細為非 BS 的 RJ＋NJ。各欄沿用本區日期及篩選，點數字查看明細。</p>';
+$('reportLookupTools').after(overview);
+const exportButton=document.querySelector('button[onclick="downloadBrandLevel()"]'),oldExportHost=exportButton?.parentElement;
+if(exportButton){overview.querySelector('.e5-titlebar').append(exportButton);exportButton.textContent='下載品牌招聘 CSV';exportButton.title='包含四項指標、各自日期條件及 RJ／NJ／BS 分項';oldExportHost.remove();}
+const navLink=document.createElement('a');navLink.href='#reportRecruitmentOverview';navLink.textContent='招聘總覽';$('reportQuickNav').querySelector('.d3-nav-links').prepend(navLink);
+const cells=[];
+function addRow(target,label,brand){const row=document.createElement('tr'),title=document.createElement('td');title.textContent=label;row.append(title);metrics.forEach(m=>{const td=document.createElement('td'),button=document.createElement('button');button.type='button';button.innerHTML='<span class="e5-value">—</span><span class="count-delta"></span>';button.addEventListener('click',()=>{if(window.reportLoadState!=='ready')return;resetSharedDetailFilters();showSharedDetail(m.mode+(brand==='HR'?'_HR':''),brand);});td.append(button);row.append(td);cells.push({button,m,brand,source:brand==='HR'?m.hr:`${m.prefix}-total-${brand}`});});$(target).append(row);}
+const group=document.createElement('tr');group.className='e5-source-row';group.innerHTML='<th colspan="5" scope="rowgroup">Operations · 品牌統計</th>';$('e5-operations').append(group);
+['DERMES','REENEX','ELYZE'].forEach(b=>addRow('e5-operations',b,b));
+const hrGroup=document.createElement('tr');hrGroup.className='e5-source-row';hrGroup.innerHTML='<th colspan="5" scope="rowgroup">HR Sources · 獨立來源（所有品牌）</th>';$('e5-hr').append(hrGroup);addRow('e5-hr','HR Sources','HR');
+// Put the existing scope explanations behind one disclosure per section.
+function helpNotes(){document.querySelectorAll('.report-section-toolbar').forEach(bar=>{const area=bar.parentElement;if(!area)return;let help=bar.querySelector('.e5-filter-help');const notes=[...bar.querySelectorAll(':scope > .report-shared-note'),...area.querySelectorAll(':scope > .r2-scope-label')];if(!notes.length)return;if(!help){help=document.createElement('details');help.className='e5-filter-help';const summary=document.createElement('summary');summary.textContent='篩選說明';help.append(summary);bar.append(help);}notes.forEach(n=>help.append(n));});}
+const notice=document.createElement('p');notice.className='e5-sync-notice';notice.hidden=true;notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');$('weeklyLeadArea').querySelector('h2').parentElement.after(notice);
+const oldLeadChange=handleLeadDateChange;handleLeadDateChange=function(...args){const result=oldLeadChange.apply(this,args);notice.textContent=`日期已同步：Offer／On Board／Pending Offer → ${$('leadStart').value} 至 ${$('leadEnd').value}`;notice.hidden=false;return result;};
+const text=(el,value)=>{if(el&&el.textContent!==value)el.textContent=value;};
+function refresh(){
+ const ready=window.reportLoadState==='ready';
+ cells.forEach(({button,m,brand,source})=>{const original=$(source),copy=original?.cloneNode(true);copy?.querySelectorAll('.count-delta').forEach(n=>n.remove());const value=ready&&copy?copy.textContent.trim():'—',delta=original?.querySelector('.count-delta');text(button.firstElementChild,value);text(button.lastElementChild,ready?(delta?.textContent||''):'');button.lastElementChild.className='count-delta '+(delta?.classList.contains('positive')?'positive':delta?.classList.contains('negative')?'negative':'neutral');button.disabled=!ready;button.setAttribute('aria-label',`${brand==='HR'?'HR Sources':brand} ${m.label} ${value}，查看明細`);});
+ metrics.forEach(m=>{let extra=m.key==='offer'&&$('useObFilter').checked?` · On Board ${$('obOfferStart').value||'不限'} → ${$('obOfferEnd').value||'不限'}`:'';text($('e5-date-'+m.key),`${m.basis} · ${$(m.start).value||'不限'} → ${$(m.end).value||'不限'}${extra}`);});
+ text($('e5-overview-position'),'Position：'+getPositionFilterLabelText()+' · 比較：'+($('compareDate').value||'上一個研究日（不計星期日）')+' · 各欄按所示日期獨立計算');
+ const batch=$('batchContainer');batch.classList.toggle('e5-empty',!batch.querySelector('.batch-card'));
+ if(batch.classList.contains('e5-empty')&&ready){const empty=batch.firstElementChild;if(empty)text(empty,window.reportBatchFallback?.emptyText||'所選月份暫無未來入職批次。');}
+ const download=$('exportDetailsDownload'),confirmed=ready&&exportDetailsFiltersConfirmed;
+ text(download,confirmed?`下載符合條件嘅 ${exportDetailsRows.length.toLocaleString('en-US')} 筆 CSV`:'查詢後下載 CSV');
+ if(!confirmed&&ready)text($('reportDownloadState'),'條件尚未套用，或已變更。請按 Filter Results 重新查詢。');
+ helpNotes();
+ const prefs=$('r2-preferences');if(prefs&&!prefs.dataset.centralHelp){const help=overview.querySelector('.e5-preference-help')||document.createElement('details');if(!help.parentElement){help.className='e5-filter-help e5-preference-help';const summary=document.createElement('summary');summary.textContent='篩選保存方式';help.append(summary);overview.append(help);}prefs.style.display='block';help.append(prefs);}
+ const stamp=$('reportLastSuccessfulLoad');if(stamp?.dateTime){text(stamp,'載入於 '+new Date(stamp.dateTime).toLocaleString('zh-HK',{timeZone:'Asia/Hong_Kong',hour12:false})+' 香港時間 · 非來源更新時間');}
+}
+let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;refresh();});}
+// Observe only original values: no feedback loop from overview rendering.
+const observer=new MutationObserver(queue);cells.forEach(c=>{const el=$(c.source);if(el)observer.observe(el,{childList:true,subtree:true,characterData:true});});
+for(const name of ['reportSetLoadState','calculateBatchCounts','renderExportDetails','clearExportDetailsResults','applyExportDetailsFilters']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('change',event=>{if(['offerStart','offerEnd','onboardStart','onboardEnd','pendingStart','pendingEnd'].includes(event.target.id))notice.hidden=true;queue();});document.addEventListener('click',event=>{if(event.target.closest('[data-section-reset]'))notice.hidden=true;queue();});
+refresh();window.reportEfficiency={refresh,metrics,cells};
+})();
+
+</script><script id="report-branding-script">
+(() => {
+'use strict';
+function brandFor(value){const text=String(value||'').trim().toUpperCase();if(text==='DERMES'||/^D\s+\d/.test(text))return 'DERMES';if(text==='REENEX'||/^R\s+\d/.test(text))return 'REENEX';if(text==='ELYZE'||/^E\s+\d/.test(text))return 'ELYZE';if(text==='HR SOURCES')return 'HR';return '';}
+function refresh(){
+ document.querySelectorAll('.d3-metric-card').forEach(card=>{const brand=brandFor(card.querySelector('.d3-card-brand')?.textContent);if(brand)card.dataset.brand=brand;});
+ document.querySelectorAll('table.d3-data-table tbody tr').forEach(row=>{const brand=brandFor(row.cells[0]?.textContent);if(brand)row.dataset.brand=brand;else row.removeAttribute('data-brand');});
+}
+let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;refresh()});}
+const previous=window.reportEfficiency.refresh;window.reportEfficiency.refresh=function(...args){const result=previous.apply(this,args);refresh();return result};
+for(const name of ['calculateWeeklyLeads','calculateWeeklyOffers','calculateOnboardSummary','calculatePendingOffers','calculateFloorPerformance','calculateHrPerformance','renderReportBrandSummary','renderSharedDetailTable','renderReferralDetailTable','renderFloorPerformanceDetailRows','renderExportDetails','reportSetLoadState']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('change',queue);document.addEventListener('click',queue);refresh();window.reportBranding={refresh};
+})();
+
+</script><script id="report-workspace-script">
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),app=document.querySelector('body>.max-w-7xl'),nav=$('reportQuickNav');
+const title=document.createElement('div');title.id='e7-nav-title';title.innerHTML='HR & Operations<small>報表導覽</small>';nav.prepend(title);
+const related=document.querySelector('.e5-related'),relatedCopy=related.cloneNode(true);relatedCopy.classList.add('e7-related-copy');nav.append(relatedCopy);
+// Anchor the complete floor toolbar, including its heading, instead of only its input row.
+const oldFloor=$('reportFloorControls');if(oldFloor&&!oldFloor.querySelector('h2')){oldFloor.removeAttribute('id');oldFloor.parentElement.id='reportFloorControls';}
+// Keep all source controls, listeners and IDs while aligning their layout.
+['weeklyLeadArea','weeklyOfferArea','onboardSummaryArea','pendingOfferArea','hrPerformanceArea','reportFloorControls'].forEach(id=>{
+ const area=$(id),heading=area?.querySelector('h2');if(!heading)return;
+ let host=heading;while(host.parentElement!==area)host=host.parentElement;
+ const headingBar=document.createElement('div');headingBar.className='e7-section-heading';host.before(headingBar);headingBar.append(heading);if(id==='reportFloorControls'){const download=area.querySelector('button[onclick="downloadFloorPerformance()"]');if(download)headingBar.append(download);}
+ const panel=document.createElement('div');panel.className='e7-filter-panel';host.before(panel);
+ const presets=area.querySelector('.r2-presets'),summary=area.querySelector('.report-section-toolbar');
+ const fields=[...area.querySelectorAll('.d4-filter-field,.d4-position-field')].filter(field=>!field.parentElement.closest('.d4-filter-field'));
+ if(presets){const row=document.createElement('div');row.className='e7-preset-row';row.append(presets);panel.append(row);}
+ const controls=document.createElement('div');controls.className='e7-controls';fields.forEach(field=>controls.append(field));panel.append(controls);
+ if(summary)panel.append(summary);
+ // Host wrappers now contain no controls; remove only wrappers with no semantic content.
+ if(!host.querySelector('input,select,button,[id],details')&&!host.textContent.trim())host.remove();
+ else{host.classList.add('e7-leftover');host.style.display=host.textContent.trim()||host.querySelector('input,select,button,details')?'':'none';}
+});
+// Bring the second operational overview up beside recruitment in the review order.
+if($('reportBrandSummary'))$('reportRecruitmentOverview').after($('reportBrandSummary'));
+// Give the workforce summary the same title and control hierarchy.
+const workforce=$('reportBrandSummary');
+if(workforce){
+ const oldTitle=workforce.querySelector('h3'),header=document.createElement('div');header.className='e7-section-heading';
+ if(oldTitle){const heading=document.createElement('h2');heading.textContent=oldTitle.textContent;oldTitle.replaceWith(heading);header.append(heading);}
+ const download=workforce.querySelector('button[onclick="downloadReportBrandSummaryWorkbook()"]');if(download)header.append(download);
+ const intro=workforce.querySelector('.max-w-3xl'),description=intro?.querySelector('p:last-child');
+ const panel=document.createElement('div');panel.className='e7-filter-panel';
+ const presets=workforce.querySelector('.r2-presets'),bar=workforce.querySelector('.report-section-toolbar'),sourceGrid=$('reportUpcomingSourceFilter').closest('.grid');
+ if(presets)panel.append(presets);if(sourceGrid){sourceGrid.classList.add('e7-summary-fields');panel.append(sourceGrid);}if(bar)panel.append(bar);
+ workforce.prepend(header,panel);
+ if(description){const method=document.createElement('details');method.className='r2-method';const label=document.createElement('summary');label.textContent='Upcoming On Board 計算範圍';method.append(label,description);workforce.append(method);}
+ if(intro)intro.remove();
+}
+// Overview caveats stay accessible without taking over the first view.
+const overview=$('reportRecruitmentOverview'),notes=[...overview.querySelectorAll(':scope>.e5-overview-note')].filter(n=>n.id!=='e5-overview-position');
+if(notes.length){const details=document.createElement('details');details.className='e5-filter-help e7-overview-method';const summary=document.createElement('summary');summary.textContent='來源範圍與指標說明';details.append(summary,...notes);overview.append(details);}
+function brandLabels(){document.querySelectorAll('table tr[data-brand]').forEach(row=>{const cell=row.cells[0];if(!cell||cell.querySelector('.e7-brand-label'))return;const span=document.createElement('span');span.className='e7-brand-label';span.textContent=cell.textContent;cell.replaceChildren(span);});}
+const oldBranding=reportBranding.refresh;reportBranding.refresh=function(...args){const result=oldBranding.apply(this,args);brandLabels();return result;};
+// Existing render wrappers are closed over their initial refresh; tag after their scheduled work.
+let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;reportBranding.refresh();});}
+for(const name of ['reportSetLoadState','renderReportBrandSummary','calculateFloorPerformance','calculateHrPerformance','renderSharedDetailTable','renderExportDetails']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('change',queue);document.addEventListener('click',queue);
+// The mobile related-reports menu remains under the page title.
+const media=matchMedia('(min-width:1180px)');function responsive(){related.hidden=media.matches;relatedCopy.hidden=!media.matches;}media.addEventListener('change',responsive);responsive();
+let frame=null;function schedule(){if(frame===null)frame=requestAnimationFrame(()=>{frame=null;const threshold=media.matches?160:180;const links=[...nav.querySelectorAll('.d3-nav-links a[href^="#"]')].filter(a=>!a.hidden);let best=links.find(a=>a.hash==='#reportRecruitmentOverview');let top=-Infinity;links.forEach(a=>{const area=$(a.hash.slice(1));if(!area||area.classList.contains('hidden')||area.hidden)return;const y=area.getBoundingClientRect().top;if(y<=threshold&&y>top){top=y;best=a;}});links.forEach(a=>{if(a===best)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});});}
+document.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule,{passive:true});
+queue();schedule();window.reportWorkspace={refresh:queue};
+})();
+
+</script><script id="report-refinement8-script">
+(() => {
+'use strict';
+const $=id=>document.getElementById(id);
+// Explicit table roles preserve overview structure when the phone layout uses CSS grid.
+const overview=$('reportRecruitmentOverview').querySelector('table');overview.setAttribute('role','table');overview.querySelectorAll('thead,tbody').forEach(e=>e.setAttribute('role','rowgroup'));overview.querySelectorAll('tr').forEach(e=>e.setAttribute('role','row'));overview.querySelectorAll('thead th').forEach(e=>e.setAttribute('role','columnheader'));overview.querySelectorAll('tbody td').forEach(e=>e.setAttribute('role','cell'));
+reportEfficiency.cells.forEach(({button,m})=>{button.parentElement.dataset.metric=m.label;});
+function presets(){if(window.reportLoadState!=='ready')return;const now=new Date();document.querySelectorAll('.r2-presets button[data-preset]').forEach(button=>{const start=button.dataset.rangeStart,group=reportRound2.groups.find(g=>g.pairs.some(p=>p[0]===start)),pair=group?.pairs.find(p=>p[0]===start);if(!pair)return;const type=button.dataset.preset,from=type==='year'?new Date(now.getFullYear(),0,1):new Date(now.getFullYear(),now.getMonth()-(type==='previous'?1:0),1),to=type==='year'?new Date(now.getFullYear(),11,31):type==='previous'?new Date(now.getFullYear(),now.getMonth(),0):now;button.setAttribute('aria-pressed',String($(pair[0]).value===formatDateToISO(from)&&$(pair[1]).value===formatDateToISO(to)));});}
+const views=new Map(),resize=new ResizeObserver(()=>queue());
+function tableTools(){document.querySelectorAll('.report-table-viewport').forEach(view=>{if(views.has(view))return;const bar=document.createElement('div');bar.className='p8-table-tools';bar.hidden=true;const label=document.createElement('span');label.textContent='左右捲動查看其餘欄位';const actions=document.createElement('div'),left=document.createElement('button'),right=document.createElement('button');left.type=right.type='button';left.textContent='←';right.textContent='→';left.setAttribute('aria-label','向左捲動資料表');right.setAttribute('aria-label','向右捲動資料表');actions.append(left,right);bar.append(label,actions);view.before(bar);left.onclick=()=>view.scrollBy({left:-Math.max(200,view.clientWidth*.7),behavior:'smooth'});right.onclick=()=>view.scrollBy({left:Math.max(200,view.clientWidth*.7),behavior:'smooth'});view.addEventListener('scroll',()=>update(view),{passive:true});views.set(view,{bar,left,right});resize.observe(view);if(view.querySelector('table'))resize.observe(view.querySelector('table'));});views.forEach((_,view)=>update(view));}
+function update(view){const state=views.get(view);if(!state)return;const overflow=view.scrollWidth>view.clientWidth+2&&view.clientWidth>0;state.bar.hidden=!overflow;state.left.disabled=view.scrollLeft<=1;state.right.disabled=view.scrollLeft+view.clientWidth>=view.scrollWidth-2;}
+let queued=false;function queue(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;presets();tableTools();});}
+for(const name of ['reportSetLoadState','calculateWeeklyLeads','calculateWeeklyOffers','calculateOnboardSummary','calculatePendingOffers','renderReportBrandSummary','calculateFloorPerformance','calculateHrPerformance','renderSharedDetailTable','renderExportDetails']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('change',queue);document.addEventListener('click',queue);window.addEventListener('resize',queue,{passive:true});queue();window.reportRefinement={refresh:queue};
+})();
+
+</script><script id="report-usability9-script">
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),origins=new Map(),bars=new Map();
+const originSelector='.lead-card,.weekly-card,.pending-card,.onboard-card,.batch-card,#reportRecruitmentOverview td button,[onclick*="showCoreTeamDetail"],[onclick*="showFloorPerformanceDetail"],[onclick*="togglePicList"],[onclick*="toggleHrList"]';
+const areaSelector='#reportRecruitmentOverview,#weeklyLeadArea,#weeklyOfferArea,#onboardSummaryArea,#pendingOfferArea,#onBoardBatchArea,#hrPerformanceArea,#floorPerformanceArea,#picSummaryArea,#picPerformanceArea';
+let pending=null;
+document.addEventListener('click',event=>{const element=event.target.closest(originSelector);if(!element)return;const area=element.closest(areaSelector),view=element.closest('.report-table-viewport');pending={element,areaId:area?.id,onclick:element.getAttribute('onclick'),view,scrollLeft:view?.scrollLeft||0};const captured=pending;setTimeout(()=>{if(pending===captured)pending=null;},0);},{capture:true});
+function resolve(origin){if(origin.element.isConnected)return origin.element;const area=$(origin.areaId);if(origin.onclick&&area)return [...area.querySelectorAll('[onclick]')].find(e=>e.getAttribute('onclick')===origin.onclick)||area;return area;}
+function installBack(id){const area=$(id);if(!area)return;const bar=document.createElement('div');bar.className='u9-returnbar';bar.hidden=true;const button=document.createElement('button');button.type='button';button.textContent='← 返回原指標';button.addEventListener('click',()=>{const origin=origins.get(id),target=origin&&resolve(origin);if(!target)return;const view=target.closest('.report-table-viewport');if(view)view.scrollLeft=origin.scrollLeft;if(!target.matches('button,a,input,select,[tabindex]'))target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});target.classList.add('u9-return-target');setTimeout(()=>target.classList.remove('u9-return-target'),1600);});bar.append(button);area.prepend(bar);bars.set(id,bar);}
+installBack('sharedDetailArea');installBack('floorPerformanceDetailArea');
+for(const [name,id] of [['showSharedDetail','sharedDetailArea'],['showCoreTeamDetail','sharedDetailArea'],['showFloorPerformanceDetail','floorPerformanceDetailArea']]){const old=window[name];if(typeof old!=='function')continue;window[name]=function(...args){const captured=pending,result=old.apply(this,args);if(captured&&window.reportLoadState==='ready')origins.set(id,captured);const bar=bars.get(id);if(bar)bar.hidden=!origins.has(id);return result;};}
+const ranges=[];
+reportRound2.groups.forEach(group=>group.pairs.forEach(pair=>{const buttons=[...document.querySelectorAll('.r2-presets button[data-range-start]')].filter(b=>b.dataset.rangeStart===pair[0]);if(!buttons.length)return;const badge=document.createElement('span');badge.className='u9-range-badge';badge.setAttribute('role','status');badge.setAttribute('aria-live','polite');badge.dataset.rangeStart=pair[0];badge.hidden=true;buttons[buttons.length-1].after(badge);ranges.push({pair,badge});}));
+function refresh(){const now=new Date(),ready=window.reportLoadState==='ready';ranges.forEach(({pair,badge})=>{const start=$(pair[0])?.value||'',end=$(pair[1])?.value||'';if(!ready){badge.hidden=true;return;}const values=[['month',new Date(now.getFullYear(),now.getMonth(),1),now],['previous',new Date(now.getFullYear(),now.getMonth()-1,1),new Date(now.getFullYear(),now.getMonth(),0)],['year',new Date(now.getFullYear(),0,1),new Date(now.getFullYear(),11,31)]];const preset=values.some(([,from,to])=>start===formatDateToISO(from)&&end===formatDateToISO(to));badge.hidden=preset;if(preset)return;const invalid=start&&end&&start>end;badge.dataset.state=invalid?'invalid':!start&&!end?'unlimited':'custom';const label=invalid?'日期範圍無效':!start&&!end?'不限日期':'自訂範圍';if(badge.textContent!==label)badge.textContent=label;badge.title=(start||'不限')+' 至 '+(end||'不限');});}
+let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;refresh();});}
+for(const name of ['reportSetLoadState','calculateWeeklyLeads','calculateWeeklyOffers','calculateOnboardSummary','calculatePendingOffers','renderReportBrandSummary','calculateFloorPerformance','calculateHrPerformance','applyExportDetailsFilters','resetExportDetailsFilters']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('change',queue);document.addEventListener('input',queue);document.addEventListener('click',queue);queue();window.reportUsability={refresh,origins};
+})();
+
+</script><script id="report-usability10-script">
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),leadPresets=$('weeklyLeadArea').querySelector('.r2-presets'),label=leadPresets?.querySelector('span');
+if(label){label.textContent='Lead Date';const badge=document.createElement('span');badge.id='leadDateLinkScope';badge.className='u10-date-link';badge.textContent='連動 Offer／On Board／Pending';badge.title='修改 Lead 日期或快捷範圍，會同步三區主要日期；之後仍可分別調整。';label.after(badge);['leadStart','leadEnd'].forEach(id=>{const e=$(id),prior=e.getAttribute('aria-describedby');e.setAttribute('aria-describedby',[prior,badge.id].filter(Boolean).join(' '));});}
+const guide=document.createElement('dialog');guide.id='reportUsageGuide';guide.setAttribute('aria-labelledby','reportUsageGuideTitle');guide.innerHTML='<div class="u10-guide-header"><h2 id="reportUsageGuideTitle">使用說明</h2><button type="button" id="reportUsageGuideClose">關閉</button></div><div class="u10-guide-body"></div>';document.body.append(guide);const body=guide.querySelector('.u10-guide-body');
+function section(title){const s=document.createElement('section'),h=document.createElement('h3');h.textContent=title;s.append(h);body.append(s);return s;}
+function paragraph(s,text){const p=document.createElement('p');p.textContent=text;s.append(p);}
+const shared=section('日期連動與共用條件');paragraph(shared,'修改 Lead Date 或其快捷範圍，會同步 Offer、On Board、Pending Offer 的主要日期；之後可以分別調整各區日期。');paragraph(shared,'Compare Date 及 Position 沿用共用設定。招聘統計區的「重設本區」只恢復本區條件，保留共用 Position／Compare Date。');paragraph(shared,'本月／上月／全年會顯示選取狀態；其他日期顯示「自訂範圍」。');
+const names={reportRecruitmentOverview:'招聘總覽',weeklyLeadArea:'Lead',weeklyOfferArea:'Offer',onboardSummaryArea:'On Board',pendingOfferArea:'Pending Offer',reportBrandSummary:'品牌人手總覽',hrPerformanceArea:'Core Team',reportFloorControls:'Floor Performance',downloadDetailsArea:'Download Details'};
+const livePrefs=$('r2-preferences');if(livePrefs)livePrefs.remove();
+const collected=new Map();document.querySelectorAll('.e5-filter-help,.r2-method').forEach(details=>{const area=details.closest(Object.keys(names).map(id=>'#'+id).join(',')),scope=names[area?.id]||'一般操作';[...details.children].filter(e=>e.tagName!=='SUMMARY').forEach(node=>{if(node.querySelector('#r2-preferences')||node.id==='r2-preferences')return;const text=node.textContent.trim();if(!text)return;if(!collected.has(text))collected.set(text,{node,scopes:new Set()});collected.get(text).scopes.add(scope);});details.remove();});
+const scopeSection=section('各區範圍與來源'),metricSection=section('指標與比較規則');
+collected.forEach(({node,scopes},text)=>{const target=/主數字|Lead 按|Offer 沿用|On Board 沿用|Pending Offer：|比較期|Upcoming On Board includes/.test(text)?metricSection:scopeSection;const p=document.createElement('p');p.textContent=text;const context=document.createElement('p');context.className='u10-applicable';context.textContent='適用：'+[...scopes].join('、');target.append(p,context);});
+const storage=section('篩選保存與明細下載'),prefs=livePrefs;if(prefs){prefs.dataset.centralHelp='true';storage.append(prefs);}paragraph(storage,'Download Details 使用獨立篩選。Lead Date 與 Offer Date 可分開設定，留空即不限；多個條件會同時套用。修改條件後需重新按 Filter Results。');paragraph(storage,'明細的「下載完整明細」與「下載搜尋結果」各自按畫面標示筆數下載；「返回原指標」會返回開啟明細的位置。');
+const titlebar=$('reportRecruitmentOverview').querySelector('.e5-titlebar'),actions=document.createElement('div');actions.className='u10-guide-actions';const open=document.createElement('button');open.type='button';open.id='reportUsageGuideOpen';open.className='u10-guide-open';open.textContent='使用說明';open.setAttribute('aria-haspopup','dialog');open.setAttribute('aria-controls',guide.id);actions.append(open);const download=titlebar.querySelector('button');if(download)actions.append(download);titlebar.append(actions);let focusOrigin=null;open.onclick=()=>{focusOrigin=document.activeElement;guide.showModal();$('reportUsageGuideClose').focus();};$('reportUsageGuideClose').onclick=()=>guide.close();guide.addEventListener('click',event=>{if(event.target===guide)guide.close();});guide.addEventListener('close',()=>focusOrigin?.focus({preventScroll:true}));
+function prepare(){
+ document.querySelectorAll('#hrPerformanceBody td[onclick*="showCoreTeamDetail"]').forEach(cell=>{if(cell.querySelector('.u10-core-number'))return;const button=document.createElement('button');button.type='button';button.className='u10-core-number';button.append(...cell.childNodes);const row=cell.closest('tr'),header=cell.closest('table').tHead?.rows[0]?.cells[cell.cellIndex]?.textContent.trim()||'指標';button.setAttribute('aria-label',[row.cells[0]?.textContent.trim(),row.cells[1]?.textContent.trim(),header,button.textContent.trim(),'查看明細'].filter(Boolean).join(' · '));cell.append(button);});
+ document.querySelectorAll('#reportRecruitmentOverview td button,.lead-card,.weekly-card,.onboard-card,.pending-card,.batch-card,#floorPerformanceBody button,.u10-core-number').forEach(e=>{e.classList.add('u10-drill');if(!e.title)e.title='點擊查看明細';});
+ document.querySelectorAll('tr[onclick*="togglePicList"]').forEach(row=>{row.classList.add('u10-drill');row.tabIndex=0;row.setAttribute('role','button');if(!row.dataset.u10Keyboard){row.dataset.u10Keyboard='true';row.addEventListener('keydown',e=>{if(e.target===row&&(e.key==='Enter'||e.key===' ')){e.preventDefault();row.click();}});}});
+}
+let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;prepare();});}
+for(const name of ['reportSetLoadState','calculateWeeklyLeads','calculateWeeklyOffers','calculateOnboardSummary','calculatePendingOffers','calculateBatchCounts','calculateFloorPerformance','calculateHrPerformance','renderSharedDetailTable','renderReportBrandSummary']){const old=window[name];if(typeof old==='function')window[name]=function(...args){const result=old.apply(this,args);queue();return result;};}
+document.addEventListener('click',queue);document.addEventListener('change',queue);queue();window.reportHelp={guide,prepare};
+})();
+
+</script><script id="report-polish11-script">
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),value=id=>$(id)?.value||'',slug=(text,max=28)=>String(text||'').normalize('NFKC').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^[. -]+|[. -]+$/g,'').slice(0,max);
+let floorContext={floor:'',metric:'ALL'},coreContext={brand:'',metric:'ALL'};
+const oldFloor=showFloorPerformanceDetail;showFloorPerformanceDetail=function(floor,metric,...rest){floorContext={floor,metric};return oldFloor.call(this,floor,metric,...rest);};
+const oldCore=showCoreTeamDetail;showCoreTeamDetail=function(team,brand,metric,...rest){coreContext={brand,metric};return oldCore.call(this,team,brand,metric,...rest);};
+const range=(label,start,end)=>label+'_'+(value(start)||'Any')+'_to_'+(value(end)||'Any');
+function stamp(){const now=new Date(),parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Hong_Kong',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(now).map(p=>[p.type,p.value]));return parts.year+parts.month+parts.day+'-'+parts.hour+parts.minute+parts.second+'-'+String(now.getMilliseconds()).padStart(3,'0')+'-HK';}
+function build(kind,original){let parts=[];const search=/search_results/i.test(original),brand=id=>slug(value(id)||'AllBrands'),floor=id=>slug(value(id)||'AllFloors',24);
+ if(kind==='brand'){
+  const pairs=[['leadStart','leadEnd'],['offerStart','offerEnd'],['onboardStart','onboardEnd'],['pendingStart','pendingEnd']],ranges=pairs.map(([a,b])=>(value(a)||'Any')+'_to_'+(value(b)||'Any'));
+  const dates=pairs.flatMap(([a,b])=>[value(a),value(b)]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)).sort();
+  parts=['Brand_Recruitment','AllBrands','OP-HR',new Set(ranges).size===1?'Period_'+ranges[0]:'MultiPeriod_'+(dates[0]||'Any')+'_to_'+(dates.at(-1)||'Any')];
+ }else if(kind==='workforce'){parts=['Brand_Workforce','AllBrands','Upcoming-'+(value('reportUpcomingSourceFilter')||'AllSources'),range('Offer','reportBrandOfferStart','reportBrandOfferEnd')];
+ }else if(kind==='floor'){parts=['Floor_Performance',brand('floorPerfBrand'),floor('floorPerfFloor'),range('Period','floorPerfStart','floorPerfEnd')];
+ }else if(kind==='details'){parts=['Details',brand('exportBrand'),floor('exportFloor'),range('Lead','exportLeadStart','exportLeadEnd'),range('Offer','exportOfferStart','exportOfferEnd')];if(value('exportStatus'))parts.push('Status-'+slug(value('exportStatus'),20));
+ }else if(kind==='shared'){
+  const mode=currentDetailMode||'ALL',base=mode.replace(/_HR$/,''),br=['DERMES','REENEX','ELYZE'].find(b=>(currentDetailKey||'').toUpperCase().split('___').includes(b))||value('sharedDetailFilterBrand')||(mode==='CORE'?coreContext.brand:'')||'AllBrands';
+  parts=['Metric_Details',slug(mode,18),slug(br),mode.endsWith('_HR')?'HR':'Operations'];
+  if(base==='LEAD')parts.push(range('Lead','leadStart','leadEnd'));else if(base==='WEEKLY'){parts.push(range('Offer','offerStart','offerEnd'));if($('useObFilter').checked)parts.push(range('OB','obOfferStart','obOfferEnd'));}else if(base==='ONBOARD')parts.push(range('OnBoard','onboardStart','onboardEnd'));else if(base==='PENDING')parts.push(range('Offer','pendingStart','pendingEnd'));else if(base==='CORE'){parts[3]='CoreTeam-'+slug(coreContext.metric,12);parts.push(range(value('hrDateFilterType')==='OFFER'?'Offer':'Lead','hrPerfStart','hrPerfEnd'));}else if(base==='BATCH'){parts[3]=selectedBatchSource==='HR'?'HR':selectedBatchSource==='OPERATION'?'Operations':'AllSources';parts.push('Batch-'+slug(currentDetailKey,24));}else parts.push(range('Period','hrPerfStart','hrPerfEnd'));
+ }else if(kind==='referral'){parts=['Referral_Details',slug(value('referralFilterBrand')||currentReferralBrand||'AllBrands'),floor('referralFilterFloor'),range('Lead','referralStart','referralEnd')];
+ }else if(kind==='floorDetail'){parts=['Floor_Details',brand('floorPerfBrand'),slug(floorContext.floor||'AllFloors',24),slug(floorContext.metric,20),range('Period','floorPerfStart','floorPerfEnd')];if(value('floorDetailLeadStart')||value('floorDetailLeadEnd'))parts.push(range('Lead','floorDetailLeadStart','floorDetailLeadEnd'));if(value('floorDetailOfferStart')||value('floorDetailOfferEnd'))parts.push(range('Offer','floorDetailOfferStart','floorDetailOfferEnd'));
+ }else return original;
+ if(['shared','referral','floorDetail','details'].includes(kind))parts.push(search?'Search':'Complete');
+ const ext=/\.xlsx$/i.test(original)?'.xlsx':'.csv',stem=parts.map(p=>slug(p,96)).filter(Boolean).join('_').slice(0,177).replace(/[. -]+$/,'');return stem+'_'+stamp()+ext;
+}
+const oldCsv=downloadReportCsv;downloadReportCsv=function(filename,rows){const kind=/^Brand_Level_/i.test(filename)?'brand':/^Details_/i.test(filename)?'details':/^shared_/i.test(filename)?'shared':/^referral_/i.test(filename)?'referral':/^floor_/i.test(filename)?'floorDetail':'';return oldCsv.call(this,build(kind,filename),rows);};
+const oldExcel=downloadFloorPerformanceExcel;downloadFloorPerformanceExcel=function(filename,...args){return oldExcel.call(this,build('floor',filename),...args);};
+window.reportExportNames={build};
+})();
+
+</script></body>
 </html>
 
 
