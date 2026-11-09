@@ -1875,10 +1875,13 @@
             if (onboardHeader) row[onboardHeader] = buildDateFromTripletColumns(row, S1_DATE_SRC.ONBOARD, row[onboardHeader], false);
         }
 
-        function parseCsv(text) {
+        function parseCsv(text, positionalHeaders = false) {
             return new Promise((resolve, reject) => {
                 Papa.parse(text, {
                     header: true,
+                    // NTL imports contain repeated labels in the side-by-side source lists.
+                    // Use physical column keys so later columns cannot overwrite A:G.
+                    transformHeader: positionalHeaders ? (_label, index) => `__column_${index}` : undefined,
                     skipEmptyLines: true,
                     complete: results => resolve(results),
                     error: reject
@@ -1949,7 +1952,7 @@
             });
         }
 
-        function loadGvizCsvByJsonpBySheetName(sheetName, docId = SHEET1_DOC_ID) {
+        function loadGvizCsvByJsonpBySheetName(sheetName, docId = SHEET1_DOC_ID, sourceQuery = '') {
             return new Promise((resolve, reject) => {
                 const callbackName = `gvizSheetJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
                 const script = document.createElement('script');
@@ -1978,7 +1981,7 @@
                     reject(new Error('JSONP load failed'));
                 };
 
-                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+                script.src = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}${sourceQuery}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
                 document.body.appendChild(script);
             });
         }
@@ -5534,7 +5537,7 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
 
         async function fetchAllSheets() {
             const sheet1CsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&gid=${SHEET1_GID}`;
-            const ntlCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}`;
+            const ntlCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(NETWORK_TEAM_SHEET_NAME)}&headers=1&range=A%3AG`;
             const onSalesCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(ON_SALES_SHEET_NAME)}`;
             const undertrainingCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(UNDERTRAINING_SHEET_NAME)}`;
             const targetCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET1_DOC_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_SHEET_NAME)}`;
@@ -5555,7 +5558,7 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
                 console.warn('Fetch failed, fallback to JSONP:', error);
                 return Promise.all([
                     loadGvizCsvByJsonp(SHEET1_GID, SHEET1_DOC_ID),
-                    loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID),
+                    loadGvizCsvByJsonpBySheetName(NETWORK_TEAM_SHEET_NAME, SHEET1_DOC_ID, '&headers=1&range=A%3AG'),
                     loadGvizCsvByJsonpBySheetName(ON_SALES_SHEET_NAME, SHEET1_DOC_ID),
                     loadGvizCsvByJsonpBySheetName(UNDERTRAINING_SHEET_NAME, SHEET1_DOC_ID),
                     loadGvizCsvByJsonpBySheetName(TARGET_SHEET_NAME, SHEET1_DOC_ID),
@@ -5641,7 +5644,7 @@ function focusMemberMetric(leaderKey,memberName,memberCenter,mode) {
 
             try {
                 const [sheet1Text, ntlText, onSalesText, undertrainingText, targetText, resignText] = await fetchAllSheets();
-                const [sheet1Results, ntlResults, onSalesResults, undertrainingResults, resignResults] = await Promise.all([parseCsv(sheet1Text), parseCsv(ntlText), parseCsv(onSalesText), parseCsv(undertrainingText), parseCsv(resignText)]);
+                const [sheet1Results, ntlResults, onSalesResults, undertrainingResults, resignResults] = await Promise.all([parseCsv(sheet1Text), parseCsv(ntlText, true), parseCsv(onSalesText), parseCsv(undertrainingText), parseCsv(resignText)]);
 
                 headersS1 = sheet1Results.meta.fields || [];
                 headersNTL = ntlResults.meta.fields || [];
