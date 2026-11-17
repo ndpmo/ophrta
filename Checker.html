@@ -1,1 +1,354 @@
+<!doctype html>
+<html lang="zh-Hant-HK">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="按 Staff ID 查看客戶 Summary 及指定 MMC 的 BBL、MOXI 記錄。">
+  <title>MOXI MMC 查詢</title>
+  <style>
+:root {
+  color-scheme: light;
+  font: 16px/1.55 "Segoe UI", "PingFang HK", "Microsoft JhengHei", sans-serif;
+  color: #142643;
+  background: #f2f5fa;
+  --muted: #53657b;
+  --line: #d6dfeb;
+  --accent: #16459f;
+  --blue-tint: #eef4ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(56rem, calc(100% - 2rem)); margin: 0 auto; padding: clamp(2.5rem, 6vw, 5rem) 0 2rem; }
+.intro { border-left: 0.3rem solid var(--accent); padding: 0.1rem 0 0.2rem 1rem; margin-bottom: 1.8rem; }
+.intro h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.25rem); line-height: 1.14; letter-spacing: -0.04em; }
+.intro h1 span { font-size: 0.77em; font-weight: 650; letter-spacing: -0.025em; }
+.intro p { color: var(--muted); margin: 0.55rem 0 0; }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 0.85rem; padding: clamp(1rem, 4vw, 1.75rem); margin-bottom: 1rem; }
+.section-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 1rem; margin-bottom: 1.15rem; }
+h2 { margin: 0; font-size: 1.28rem; }
+.section-heading p, .hint, footer { margin: 0; color: var(--muted); font-size: 0.875rem; }
+form { display: grid; grid-template-columns: minmax(0, 22rem) max-content; gap: 0.65rem; align-items: end; }
+.field { min-width: 0; }
+label { display: block; margin-bottom: 0.35rem; font-weight: 650; }
+input, button { min-height: 2.85rem; font: inherit; }
+input { width: 100%; min-width: 0; border: 1px solid #a9b8cd; border-radius: 0.45rem; padding: 0.5rem 0.75rem; color: inherit; background: #fff; }
+input::placeholder { color: #62748a; opacity: 1; }
+.prefixed { display: flex; border: 1px solid #a9b8cd; border-radius: 0.45rem; }
+.prefixed span { display: flex; align-items: center; padding: 0 0.7rem; background: #eef2f8; border-radius: 0.4rem 0 0 0.4rem; color: #475c76; font-weight: 650; }
+.prefixed input { border: 0; border-radius: 0 0.4rem 0.4rem 0; min-height: calc(2.85rem - 2px); }
+button { background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 0.45rem; padding: 0.45rem 1rem; font-weight: 650; cursor: pointer; }
+button:hover { background: #103779; }
+button:disabled { opacity: 0.7; cursor: wait; }
+button:focus-visible, input:focus-visible { outline: 3px solid #5487e6; outline-offset: 2px; }
+.hint { margin-top: 0.47rem; }
+.message { color: var(--muted); font-size: 0.9375rem; margin: 1rem 0 0; overflow-wrap: anywhere; }
+.message[data-state="error"] { color: #a02724; }
+.summary-grid, .flag-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 0.55rem; margin: 0.75rem 0 0; overflow: hidden; }
+dl > div { padding: 0.7rem 0.8rem; border-right: 1px solid var(--line); }
+dl > div:last-child { border-right: 0; }
+dt { color: var(--muted); font-size: 0.87rem; font-weight: 650; }
+dd { margin: 0.15rem 0 0; font-size: 1.65rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.total { background: var(--blue-tint); }
+.mmc-result { margin-top: 0.75rem; }
+.mmc-result h3 { margin: 0; font-size: 1.18rem; overflow-wrap: anywhere; }
+.flag-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.flag-grid dd { font-size: 1rem; }
+.flag-grid dd[data-flag="yes"] { color: #116247; }
+.flag-grid dd[data-flag="no"] { color: #53657b; }
+[hidden] { display: none !important; }
+footer { padding: 0.25rem 0.15rem; }
+@media (max-width: 34rem) {
+  form { grid-template-columns: minmax(0, 1fr) max-content; }
+  button { padding-inline: 0.65rem; }
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary-grid > div:nth-child(2) { border-right: 0; }
+  .summary-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+}
+@media (max-width: 23rem) {
+  form { grid-template-columns: minmax(0, 1fr); }
+  form button { justify-self: start; }
+  .flag-grid { grid-template-columns: minmax(0, 1fr); }
+  .flag-grid > div { border-right: 0; }
+  .flag-grid > div + div { border-top: 1px solid var(--line); }
+}
+  </style>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <h1>MOXI <span>MMC 查詢</span></h1>
+      <p>輸入 Staff ID 睇客戶總覽，再用 MMC 數字查單一客戶。</p>
+    </header>
 
+    <section class="panel" aria-labelledby="summary-heading">
+      <div class="section-heading">
+        <h2 id="summary-heading">客戶總覽</h2>
+        <p>以不重複 MMC 計算</p>
+      </div>
+      <form id="summary-form">
+        <div class="field">
+          <label for="staff">Staff ID</label>
+          <input id="staff" name="staff" inputmode="numeric" placeholder="輸入 Staff ID" autocomplete="off" maxlength="32" required>
+        </div>
+        <button type="submit">查看 Summary</button>
+      </form>
+      <p id="summary-message" class="message" role="status" hidden></p>
+      <dl class="summary-grid" id="summary-result" hidden>
+        <div class="total"><dt>客戶總數</dt><dd id="total"></dd></div>
+        <div><dt>F · 購買 BBL</dt><dd id="count-f"></dd></div>
+        <div><dt>G · 閱讀 MOXI</dt><dd id="count-g"></dd></div>
+        <div><dt>H · 購買 MOXI</dt><dd id="count-h"></dd></div>
+      </dl>
+    </section>
+
+    <section class="panel" aria-labelledby="mmc-heading">
+      <div class="section-heading">
+        <h2 id="mmc-heading">單一客戶查詢</h2>
+      </div>
+      <form id="mmc-form">
+        <div class="field">
+          <label for="mmc">MMC 號碼</label>
+          <div class="prefixed">
+            <span aria-hidden="true">MMC-</span>
+            <input id="mmc" name="mmc" inputmode="numeric" placeholder="例如 126119" autocomplete="off" maxlength="32" required aria-describedby="mmc-hint">
+          </div>
+        </div>
+        <button type="submit">查詢客戶</button>
+      </form>
+      <p id="mmc-hint" class="hint">只需輸入數字。</p>
+      <p id="mmc-message" class="message" role="status" hidden></p>
+      <div id="mmc-result" class="mmc-result" hidden>
+        <h3 id="matched-mmc"></h3>
+        <dl class="flag-grid">
+          <div><dt>F · 購買 BBL</dt><dd id="flag-f"></dd></div>
+          <div><dt>G · 閱讀 MOXI</dt><dd id="flag-g"></dd></div>
+          <div><dt>H · 購買 MOXI</dt><dd id="flag-h"></dd></div>
+        </dl>
+      </div>
+    </section>
+    <footer>資料來源為 Google Sheets。「冇標記」表示該欄冇 <strong>Y</strong>。</footer>
+  </main>
+  <script>
+const flagColumns = ["purchase_BBL", "read_MOXI", "purchase_MOXI"];
+const requiredColumns = ["Therapist Staff No", "mmc", "therapist", ...flagColumns];
+
+function normalizeStaff(value) {
+  return typeof value === "string" ? value.normalize("NFKC").trim().toUpperCase() : "";
+}
+
+function normalizeMmc(value) {
+  if (typeof value !== "string") return "";
+  return value.normalize("NFKC").trim().toUpperCase().replace(/^MMC\s*[-–—]?\s*/, "");
+}
+
+function parseCsv(csv) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let quoted = false;
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i];
+    if (quoted) {
+      if (char !== '"') field += char;
+      else if (csv[i + 1] === '"') {
+        field += char;
+        i++;
+      } else quoted = false;
+    } else if (char === '"' && field === "") quoted = true;
+    else if (char === ",") {
+      row.push(field);
+      field = "";
+    } else if (char === "\n" || char === "\r") {
+      if (char === "\r" && csv[i + 1] === "\n") i++;
+      rows.push([...row, field]);
+      row = [];
+      field = "";
+    } else field += char;
+  }
+  if (quoted) throw new Error("Invalid CSV");
+  if (row.length || field) rows.push([...row, field]);
+  return rows;
+}
+
+function indexSource(csv) {
+  const [columns = [], ...rows] = parseCsv(csv.replace(/^\uFEFF/, ""));
+  const indexes = requiredColumns.map((col) => columns.indexOf(col));
+  if (indexes.includes(-1)) throw new Error("Source columns changed");
+  const staffIndex = new Map();
+  for (const row of rows) {
+    const [rawStaff, rawMmc, therapist, ...marks] = indexes.map((index) => row[index]);
+    const staff = normalizeStaff(rawStaff);
+    const mmc = normalizeMmc(rawMmc);
+    if (!staff || !/^\d+$/.test(mmc)) continue;
+    if (!staffIndex.has(staff)) staffIndex.set(staff, { therapists: new Set(), customers: new Map() });
+    const group = staffIndex.get(staff);
+    if (therapist?.trim()) group.therapists.add(therapist.trim());
+    const previousFlags = group.customers.get(mmc) ?? [false, false, false];
+    group.customers.set(mmc, marks.map((flag, index) => previousFlags[index] || flag?.trim().toUpperCase() === "Y"));
+  }
+  return staffIndex;
+}
+
+function summarize(group) {
+  const counts = [0, 0, 0];
+  for (const flags of group.customers.values()) {
+    flags.forEach((flag, index) => {
+      if (flag) counts[index]++;
+    });
+  }
+  return { total: group.customers.size, counts, therapist: [...group.therapists].join("、") };
+}
+
+const sheetEndpoint = "https://docs.google.com/spreadsheets/d/1j7lHguH5aKZshYd48iPHIN_fSq-rYJwhEm5ser1gTMo/gviz/tq";
+
+async function querySheet(key, input, signal) {
+  const staff = normalizeStaff(input.staff);
+  if (!/^[1-9]\d{0,14}$/.test(staff)) {
+    return Response.json({ message: "請輸入有效嘅 Staff ID。" }, { status: 400 });
+  }
+  const mmc = key === "mmc" ? normalizeMmc(input.mmc) : null;
+  if (mmc !== null && !/^\d{1,24}$/.test(mmc)) {
+    return Response.json({ message: "請輸入 MMC 數字，例如 126119。" }, { status: 400 });
+  }
+
+  const url = new URL(sheetEndpoint);
+  const lookup = mmc === null ? "" : ` and E = 'MMC-${mmc}'`;
+  url.search = new URLSearchParams({
+    gid: "0",
+    headers: "1",
+    tqx: "out:csv",
+    tq: `select C, D, E, F, G, H where D = ${staff}${lookup}`,
+  });
+  const controller = new AbortController();
+  const cancel = () => controller.abort();
+  signal.addEventListener("abort", cancel, { once: true });
+  const timeout = setTimeout(cancel, 15_000);
+  try {
+    const response = await fetch(url, {
+      credentials: "omit",
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+      signal: controller.signal,
+    });
+    if (!response.ok || !response.headers.get("content-type")?.includes("text/csv")) {
+      throw new Error("Google Sheets CSV unavailable");
+    }
+    const index = indexSource(await response.text());
+    const group = index.get(staff);
+    const checkedAt = new Date().toISOString();
+    if (mmc === null) {
+      if (!group) return Response.json({ message: "呢個 Staff ID 暫時冇 MMC 記錄。" }, { status: 404 });
+      return Response.json({ ...summarize(group), checkedAt });
+    }
+    const flags = group?.customers.get(mmc);
+    if (!flags) return Response.json({ message: "呢個 Staff ID 下搵唔到呢個 MMC。" }, { status: 404 });
+    return Response.json({ mmc: `MMC-${mmc}`, flags, checkedAt });
+  } catch {
+    return Response.json({ message: "暫時讀取唔到 Google Sheets，請稍後再試。" }, { status: 503 });
+  } finally {
+    clearTimeout(timeout);
+    signal.removeEventListener("abort", cancel);
+  }
+}
+
+const staffInput = document.querySelector("#staff");
+const mmcInput = document.querySelector("#mmc");
+const channels = Object.fromEntries(["summary", "mmc"].map((key) => {
+  const form = document.querySelector(`#${key}-form`);
+  return [key, {
+    form,
+    button: form.querySelector("button"),
+    message: document.querySelector(`#${key}-message`),
+    result: document.querySelector(`#${key}-result`),
+    controller: null,
+  }];
+}));
+
+function showMessage(channel, message, state = "") {
+  channel.message.textContent = message;
+  channel.message.dataset.state = state;
+  channel.message.hidden = !message;
+}
+
+function reset(channel) {
+  channel.controller?.abort();
+  channel.controller = null;
+  channel.button.disabled = false;
+  channel.result.hidden = true;
+  showMessage(channel, "");
+}
+
+staffInput.addEventListener("input", () => {
+  reset(channels.summary);
+  reset(channels.mmc);
+});
+mmcInput.addEventListener("input", () => reset(channels.mmc));
+
+const formatter = new Intl.NumberFormat("zh-HK");
+const letters = ["f", "g", "h"];
+const checkedTime = new Intl.DateTimeFormat("zh-HK", {
+  hour: "2-digit", minute: "2-digit", timeZone: "Asia/Hong_Kong",
+});
+
+function renderSummary(data) {
+  document.querySelector("#total").textContent = formatter.format(data.total);
+  letters.forEach((letter, index) => {
+    document.querySelector(`#count-${letter}`).textContent = formatter.format(data.counts[index]);
+  });
+  return [data.therapist, `讀取時間 ${checkedTime.format(new Date(data.checkedAt))}`].filter(Boolean).join(" · ");
+}
+
+function renderMmc(data) {
+  document.querySelector("#matched-mmc").textContent = data.mmc;
+  letters.forEach((letter, index) => {
+    const cell = document.querySelector(`#flag-${letter}`);
+    cell.textContent = data.flags[index] ? "有" : "冇標記";
+    cell.dataset.flag = data.flags[index] ? "yes" : "no";
+  });
+  return "已找到客戶記錄。";
+}
+
+async function query(key, input, render) {
+  const channel = channels[key];
+  reset(channel);
+  const controller = new AbortController();
+  channel.controller = controller;
+  channel.button.disabled = true;
+  showMessage(channel, "查詢中…");
+  try {
+    const response = await querySheet(key, input, controller.signal);
+    const data = await response.json();
+    if (channel.controller !== controller) return;
+    if (!response.ok) {
+      showMessage(channel, data.message || "暫時查詢唔到，請稍後再試。", "error");
+      return;
+    }
+    showMessage(channel, render(data));
+    channel.result.hidden = false;
+  } catch {
+    if (channel.controller === controller) showMessage(channel, "暫時查詢唔到，請稍後再試。", "error");
+  } finally {
+    if (channel.controller === controller) {
+      channel.controller = null;
+      channel.button.disabled = false;
+    }
+  }
+}
+
+channels.summary.form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  query("summary", { staff: staffInput.value }, renderSummary);
+});
+
+channels.mmc.form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!staffInput.value.trim()) {
+    showMessage(channels.mmc, "請先輸入 Staff ID。", "error");
+    staffInput.focus();
+    return;
+  }
+  query("mmc", { staff: staffInput.value, mmc: mmcInput.value }, renderMmc);
+});
+  </script>
+</body>
+</html>
